@@ -1,0 +1,38 @@
+name: American Express Business Gold Card
+issuer: Amex
+network: Amex
+annual_fee: 375
+currency: USD
+version_id: amex_biz_gold_2025_1
+
+benefits:
+  credits:
+    - name: Flexible Business Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - name: Walmart+ Credit
+      amount: 13
+      frequency: monthly
+      reset_type: calendar
+    - name: Squarespace Credit
+      amount: 150
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Top 2 Categories (Restaurants/Gas/Transit/Advertising/Wireless/Software)
+      multiplier: 4x
+      cap: 150000
+    - category: Flights & Prepaid Hotels (Amex Travel)
+      multiplier: 3x
+
+notes: |
+  Top 2 of 6 eligible categories auto-selected each billing cycle.
+  Cell phone protection (up to $800/claim, 2 claims/yr).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - mr
+  - transferable-points
+  - dining

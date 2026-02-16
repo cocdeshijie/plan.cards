@@ -1,0 +1,13 @@
+name: Saks Fifth Avenue Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_saks_store_2020_1
+
+notes: |
+  Store card — can only be used at Saks Fifth Avenue locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: luxury department store.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,19 @@
+name: American Express Business Green Card
+issuer: Amex
+network: Amex
+annual_fee: 95
+currency: USD
+version_id: amex_biz_green_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Flights & Prepaid Hotels (Amex Travel)
+      multiplier: 2x
+
+notes: |
+  2.7% foreign transaction fee.
+
+tags:
+  - business
+  - mr
+  - transferable-points

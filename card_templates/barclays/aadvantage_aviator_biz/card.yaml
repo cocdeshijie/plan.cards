@@ -1,0 +1,26 @@
+name: AAdvantage Aviator Business Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: barclays_aviator_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: American Airlines Purchases
+      multiplier: 2x
+    - category: Telecom, Cable & Car Rental
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Discontinued — portfolio moving to Citi in 2026.
+  First checked bag free on American Airlines.
+  Preferred boarding on AA flights.
+  25% savings on inflight food, beverages and Wi-Fi.
+
+tags:
+  - business
+  - airline
+  - american-airlines

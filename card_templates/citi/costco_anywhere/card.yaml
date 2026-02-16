@@ -1,0 +1,30 @@
+name: Costco Anywhere Visa Card by Citi
+issuer: Citi
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: citi_costco_anywhere_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Costco Gas
+      multiplier: 5%
+    - category: Other Gas / EV Charging
+      multiplier: 4%
+      cap: 7000
+    - category: Restaurants / Travel
+      multiplier: 3%
+    - category: Costco / Costco.com
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  5% + 4% gas/EV share combined $7,000/year cap.
+  Rewards issued as annual certificate in February, redeemable at U.S. Costco warehouses.
+  Requires active Costco membership.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

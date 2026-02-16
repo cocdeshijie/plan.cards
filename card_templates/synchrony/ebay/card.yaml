@@ -1,0 +1,23 @@
+name: eBay Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_ebay_2024_1
+
+benefits:
+  bonus_categories:
+    - category: eBay Purchases
+      multiplier: 5x
+    - category: Dining & Groceries
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points redeemable as eBay Bucks for future purchases.
+  Usable anywhere Mastercard is accepted.
+
+tags:
+  - cashback
+  - no-annual-fee

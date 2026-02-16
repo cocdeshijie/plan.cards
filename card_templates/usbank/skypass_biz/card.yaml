@@ -1,0 +1,25 @@
+name: Korean Air SKYPASS Business Visa Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_skypass_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Korean Air Purchases
+      multiplier: 2x
+    - category: Office Supply / Gas / Telecom
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Business version of Korean Air SKYPASS co-brand.
+  No annual fee.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - airline
+  - no-annual-fee

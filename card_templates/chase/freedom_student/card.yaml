@@ -1,0 +1,20 @@
+name: Chase Freedom Student
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_freedom_student_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1%
+
+notes: |
+  $20 bonus on each of first 5 account anniversaries.
+  Discontinued June 2023, replaced by Freedom Rise.
+
+tags:
+  - ur
+  - cashback
+  - no-annual-fee

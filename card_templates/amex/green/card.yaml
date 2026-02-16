@@ -1,0 +1,31 @@
+name: American Express Green Card
+issuer: Amex
+network: Amex
+annual_fee: 150
+currency: USD
+version_id: amex_green_2025_1
+
+benefits:
+  credits:
+    - name: CLEAR+ Credit
+      amount: 209
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Restaurants
+      multiplier: 3x
+    - category: Transit
+      multiplier: 3x
+    - category: Travel
+      multiplier: 3x
+
+notes: |
+  LoungeBuddy credit discontinued Jan 2025.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - dining
+  - transit
+  - transferable-points
+  - mr

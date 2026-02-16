@@ -1,0 +1,23 @@
+name: GM Rewards Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_gm_2025_1
+
+benefits:
+  bonus_categories:
+    - category: GM Purchases (with GM Rewards membership)
+      multiplier: 10x
+    - category: Groceries, Travel & Gas
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  7x points on GM purchases with card + up to 3x with GM Rewards membership.
+  Points redeemable toward GM vehicle purchases, parts, and services.
+  Launched May 2025.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,28 @@
+name: US Bank Altitude Go
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_altitude_go_2025_1
+
+benefits:
+  credits:
+    - name: Streaming Credit
+      amount: 15
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Dining
+      multiplier: 4x
+      cap: 2000
+    - category: Grocery / Gas / EV / Streaming
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Dining 4x capped at $2,000 per quarter (effective April 2025).
+  No foreign transaction fees.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,21 @@
+name: Chime Card
+issuer: Chime
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chime_card_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Rotating Quarterly Categories
+      multiplier: 1.5%
+
+notes: |
+  Secured card, no upfront deposit (uses Chime checking balance).
+  Requires Chime checking account with $200+ direct deposit.
+  No credit check, no interest, no late fees.
+  Reports to all 3 credit bureaus.
+  Rebranded from Credit Builder in September 2025.
+
+tags:
+  - no-annual-fee

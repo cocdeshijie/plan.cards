@@ -1,0 +1,24 @@
+name: Discover it Cash Back
+issuer: Discover
+network: Discover
+annual_fee: 0
+currency: USD
+version_id: discover_it_cash_back_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Rotating Quarterly Category (Activated)
+      multiplier: 5%
+      cap: 1500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  5% categories rotate quarterly and must be activated each quarter.
+  $1,500 cap per quarter on 5% categories.
+  Cashback Match — Discover matches all cash back earned in the first year.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

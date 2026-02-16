@@ -1,0 +1,29 @@
+name: Southwest Rapid Rewards Premier Card
+issuer: Chase
+network: Visa
+annual_fee: 149
+currency: USD
+version_id: chase_sw_premier_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Southwest Purchases
+      multiplier: 3x
+    - category: Grocery & Restaurants
+      multiplier: 2x
+      cap: 8000
+
+notes: |
+  Free checked bag on Southwest.
+  Preferred seat selection at booking.
+  Group 5 priority boarding.
+  6,000 anniversary points.
+  10,000 Companion Pass qualifying points per year.
+  1,500 Tier Qualifying Points per $5k spent.
+  15% flight discount code annually.
+  25% back on in-flight purchases.
+  No foreign transaction fees.
+
+tags:
+  - southwest
+  - airline

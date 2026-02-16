@@ -1,0 +1,13 @@
+name: The Container Store Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_container_store_2020_1
+
+notes: |
+  Store card — can only be used at The Container Store locations.
+  Special financing offers available on qualifying purchases.
+  Category: storage & organization.
+
+tags:
+  - no-annual-fee

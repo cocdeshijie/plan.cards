@@ -1,0 +1,19 @@
+name: Chase Freedom Unlimited
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_cfu_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,24 @@
+name: Amazon Prime Card
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_amazon_prime_2023_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon / Amazon Fresh / Whole Foods / Chase Travel
+      multiplier: 5%
+    - category: Restaurants / Gas / Transit / Rideshare
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Requires Amazon Prime membership.
+  No foreign transaction fees.
+
+tags:
+  - amazon
+  - cashback
+  - no-annual-fee

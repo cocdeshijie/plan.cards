@@ -1,0 +1,13 @@
+name: Restoration Hardware (RH) Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_restoration_hardware_2020_1
+
+notes: |
+  Store card — can only be used at Restoration Hardware (RH) locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: luxury home furnishings.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,21 @@
+name: Ulta Beauty Rewards Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_ulta_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Ulta Beauty Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  Points stack with Ultamate Rewards loyalty program.
+  20% off first purchase.
+
+tags:
+  - no-annual-fee

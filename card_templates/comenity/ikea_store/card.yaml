@@ -1,0 +1,13 @@
+name: IKEA Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_ikea_store_2020_1
+
+notes: |
+  Store card — can only be used at IKEA locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: furniture & home goods.
+
+tags:
+  - no-annual-fee

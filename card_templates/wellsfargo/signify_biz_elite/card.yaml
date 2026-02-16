@@ -1,0 +1,27 @@
+name: Wells Fargo Signify Business Elite Signature Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 125
+currency: USD
+version_id: wf_signify_biz_elite_2024_1
+
+benefits:
+  spend_thresholds:
+    - name: Monthly Bonus Points
+      spend_required: 10000
+      frequency: monthly
+      reset_type: calendar
+      description: "5,000 bonus points per month when spending $10,000+ in a billing cycle."
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Choice of cash (1.5%) or points (1x + monthly bonus) earning structure.
+  5,000 bonus points per month when spending $10,000+.
+  Launched 2024.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - premium

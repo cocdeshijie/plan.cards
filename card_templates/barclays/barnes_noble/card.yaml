@@ -1,0 +1,22 @@
+name: Barnes & Noble Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_barnes_noble_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Barnes & Noble Purchases
+      multiplier: 5%
+    - category: Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  5% back at Barnes & Noble as a statement credit.
+  Earn points redeemable for Barnes & Noble gift cards.
+
+tags:
+  - no-annual-fee

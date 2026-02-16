@@ -1,0 +1,23 @@
+name: TJX Rewards Platinum Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_tjx_platinum_2020_1
+
+benefits:
+  bonus_categories:
+    - category: TJX Stores (TJ Maxx, Marshalls, HomeGoods, Sierra)
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  5% back at TJX family of stores as rewards certificates.
+  10% off first in-store purchase.
+  Exclusive shopping events and offers.
+
+tags:
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,29 @@
+name: Bank of America Business Advantage Customized Cash Rewards Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_biz_customized_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Category
+      multiplier: 3%
+      cap: 50000
+    - category: Dining
+      multiplier: 2%
+      cap: 50000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Choice categories: gas/EV charging, office supply stores, travel, TV/telecom/wireless, computer services/consulting.
+  Can change choice category monthly.
+  3% and 2% share a combined $50,000/year cap.
+  Preferred Rewards for Business available.
+  3% foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

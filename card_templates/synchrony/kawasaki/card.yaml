@@ -1,0 +1,13 @@
+name: Kawasaki Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_kawasaki_2020_1
+
+notes: |
+  Store card — can only be used at Kawasaki locations.
+  Special financing offers available on qualifying purchases.
+  Category: powersports.
+
+tags:
+  - no-annual-fee

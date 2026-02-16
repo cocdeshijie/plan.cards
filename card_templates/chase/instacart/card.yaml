@@ -1,0 +1,28 @@
+name: Instacart Card
+issuer: Chase
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: chase_instacart_2022_1
+
+benefits:
+  bonus_categories:
+    - category: Instacart
+      multiplier: 5%
+      cap: 6000
+    - category: Chase Travel
+      multiplier: 5%
+    - category: Restaurants / Gas / Streaming
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Complimentary Instacart+ membership.
+  No foreign transaction fees.
+
+tags:
+  - instacart
+  - cashback
+  - no-annual-fee
+  - groceries

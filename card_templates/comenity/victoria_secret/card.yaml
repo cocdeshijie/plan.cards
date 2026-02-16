@@ -1,0 +1,13 @@
+name: Victoria's Secret Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_victoria_secret_2020_1
+
+notes: |
+  Store card — can only be used at Victoria's Secret locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: lingerie & apparel.
+
+tags:
+  - no-annual-fee

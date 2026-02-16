@@ -1,0 +1,40 @@
+name: Delta SkyMiles Gold Business American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 150
+currency: USD
+version_id: amex_delta_gold_biz_2024_1
+
+benefits:
+  credits:
+    - name: Delta Stays Credit
+      amount: 150
+      frequency: annual
+      reset_type: calendar
+  spend_thresholds:
+    - name: Delta Flight Credit
+      spend_required: 10000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a $200 Delta flight credit after spending $10,000 in a calendar year.
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 2x
+    - category: Restaurants
+      multiplier: 2x
+    - category: U.S. Shipping
+      multiplier: 2x
+      cap: 50000
+    - category: U.S. Advertising
+      multiplier: 2x
+      cap: 50000
+
+notes: |
+  First checked bag free on Delta.
+  Priority boarding.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - delta
+  - airline

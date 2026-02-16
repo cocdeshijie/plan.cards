@@ -1,0 +1,19 @@
+name: TD First Class Visa Signature Credit Card
+issuer: TD Bank
+network: Visa
+annual_fee: 89
+currency: USD
+version_id: td_first_class_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Travel & Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Annual fee waived first year. Unlimited 3x miles on travel and dining. No foreign transaction fees.
+
+tags:
+  - travel

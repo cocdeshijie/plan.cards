@@ -1,0 +1,24 @@
+name: Disney Premier Card
+issuer: Chase
+network: Visa
+annual_fee: 49
+currency: USD
+version_id: chase_disney_premier_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Disney+ / Hulu / ESPN+
+      multiplier: 5%
+    - category: Gas / Grocery / Restaurants / Disney Locations
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  10% off select Disney merchandise and dining at parks.
+  15% off select guided tours.
+  Complimentary DashPass (1 year).
+  Cardmember-exclusive character photo opportunities.
+
+tags:
+  - disney

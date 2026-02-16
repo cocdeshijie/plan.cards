@@ -1,0 +1,32 @@
+name: Citi Prestige Card
+issuer: Citi
+network: Mastercard
+annual_fee: 495
+currency: USD
+version_id: citi_prestige_2020_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 250
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Air Travel / Restaurants
+      multiplier: 5x
+    - category: Hotels
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  DISCONTINUED — stopped accepting new applications July 2021.
+  Priority Pass Select lounge access.
+  Fourth-night-free hotel benefit (capped at 2x/year).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fee.
+
+tags:
+  - premium
+  - travel
+  - lounge-access

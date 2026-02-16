@@ -1,0 +1,14 @@
+name: Wells Fargo Platinum Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: wf_platinum_2020_1
+
+notes: |
+  No rewards earning.
+  0% intro APR card.
+  Replaced by Wells Fargo Reflect in 2021.
+
+tags:
+  - no-annual-fee

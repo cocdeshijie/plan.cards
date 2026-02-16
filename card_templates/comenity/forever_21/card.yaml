@@ -1,0 +1,13 @@
+name: Forever 21 Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_forever_21_2020_1
+
+notes: |
+  Store card — can only be used at Forever 21 locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: fast fashion.
+
+tags:
+  - no-annual-fee

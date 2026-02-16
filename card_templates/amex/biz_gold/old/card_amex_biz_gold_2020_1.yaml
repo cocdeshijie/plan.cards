@@ -1,0 +1,23 @@
+name: American Express Business Gold Card
+issuer: Amex
+network: Amex
+annual_fee: 295
+currency: USD
+version_id: amex_biz_gold_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Top 2 Categories (Airfare/Shipping/Advertising/Gas/Restaurants/Software/Transit/Tech)
+      multiplier: 4x
+      cap: 150000
+
+notes: |
+  Top 2 of 8 eligible categories auto-selected each billing cycle.
+  25% Pay with Points rebate on flights via Amex Travel.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - mr
+  - transferable-points
+  - dining

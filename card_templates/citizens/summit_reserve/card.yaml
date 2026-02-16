@@ -1,0 +1,23 @@
+name: Citizens Summit Reserve World Elite Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 295
+currency: USD
+version_id: citizens_summit_reserve_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Dining, Groceries, Entertainment & Streaming
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  Unlimited 3% on dining, groceries, entertainment, and streaming. Unlimited 1.5% on everything else. Annual fee reduced to $95 with Citizens Quest Checking, or waived with Private Client/Private Bank checking. Launched June 2025.
+
+tags:
+  - cashback
+  - dining
+  - groceries
+  - streaming
+  - premium

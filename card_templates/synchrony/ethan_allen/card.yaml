@@ -1,0 +1,13 @@
+name: Ethan Allen Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_ethan_allen_2020_1
+
+notes: |
+  Store card — can only be used at Ethan Allen locations.
+  Special financing offers available on qualifying purchases.
+  Category: furniture.
+
+tags:
+  - no-annual-fee

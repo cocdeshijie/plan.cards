@@ -1,0 +1,24 @@
+name: AT&T Points Plus Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_att_points_plus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas / EV Charging
+      multiplier: 3x
+    - category: Grocery
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  ThankYou points.
+  Monthly AT&T bill credits: $20/month after $1,000 spend,
+  $10/month after $500 spend (up to $240/year).
+  3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

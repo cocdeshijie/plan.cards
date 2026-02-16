@@ -1,0 +1,23 @@
+name: Wayfair Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_wayfair_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Wayfair, Joss & Main, AllModern, Birch Lane, Perigold
+      multiplier: 5%
+    - category: Groceries
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  5% back at Wayfair family of brands.
+  Special financing on Wayfair purchases of $499+.
+
+tags:
+  - no-annual-fee

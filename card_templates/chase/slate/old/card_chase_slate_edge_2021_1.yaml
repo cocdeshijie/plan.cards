@@ -1,0 +1,15 @@
+name: Chase Slate Edge
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_slate_edge_2021_1
+
+notes: |
+  0% intro APR for 18 months.
+  2% APR reduction each anniversary (if on-time + $1k spend).
+  No rewards program.
+  Discontinued January 2026.
+
+tags:
+  - no-annual-fee

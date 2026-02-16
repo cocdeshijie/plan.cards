@@ -1,0 +1,13 @@
+name: Cabinets To Go Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_cabinets_to_go_2020_1
+
+notes: |
+  Store card — can only be used at Cabinets To Go locations.
+  Special financing offers available on qualifying purchases.
+  Category: kitchen cabinets.
+
+tags:
+  - no-annual-fee

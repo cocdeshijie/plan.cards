@@ -1,0 +1,28 @@
+name: Citi Premier Card
+issuer: Citi
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: citi_premier_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Air Travel / Hotels
+      multiplier: 3x
+    - category: Restaurants
+      multiplier: 3x
+    - category: Supermarkets
+      multiplier: 3x
+    - category: Gas
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  ThankYou points transferable to airline and hotel partners.
+  Rebranded to Citi Strata Premier in May 2024.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - premium

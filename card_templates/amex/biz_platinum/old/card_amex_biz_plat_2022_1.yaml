@@ -1,0 +1,58 @@
+name: American Express Business Platinum Card
+issuer: Amex
+network: Amex
+annual_fee: 695
+currency: USD
+version_id: amex_biz_plat_2022_1
+
+benefits:
+  credits:
+    - name: Airline Fee Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Dell Technologies Credit
+      amount: 200
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Indeed Credit
+      amount: 90
+      frequency: quarterly
+      reset_type: calendar
+    - name: Adobe Credit
+      amount: 150
+      frequency: annual
+      reset_type: calendar
+    - name: CLEAR Credit
+      amount: 189
+      frequency: annual
+      reset_type: calendar
+    - name: Wireless Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Flights & Prepaid Hotels (Amex Travel)
+      multiplier: 5x
+    - category: Select Business Categories (Hardware/Software/Shipping)
+      multiplier: 1.5x
+    - category: Purchases $5,000+
+      multiplier: 1.5x
+      cap: 2000000
+
+notes: |
+  Centurion Lounge access.
+  Priority Pass Select.
+  Delta Sky Club access (flying Delta).
+  Marriott Bonvoy Gold and Hilton Honors Gold status.
+  35% Pay with Points rebate (all airlines).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - mr
+  - transferable-points
+  - travel
+  - premium
+  - lounge-access

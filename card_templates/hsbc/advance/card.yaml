@@ -1,0 +1,22 @@
+name: HSBC Advance Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: hsbc_advance_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining & Entertainment
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Discontinued — HSBC exited US mass market banking in 2022.
+  Required HSBC Advance banking relationship.
+  $0 AF with qualifying account, otherwise $45.
+
+tags:
+  - dining
+  - no-annual-fee

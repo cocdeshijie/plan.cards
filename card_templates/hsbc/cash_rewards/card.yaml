@@ -1,0 +1,21 @@
+name: HSBC Cash Rewards Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: hsbc_cash_rewards_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Discontinued — HSBC exited US mass market banking in 2022.
+  Intro 3% cash back on up to $10,000 first-year purchases, then 1.5% ongoing.
+  ShopRunner membership included.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

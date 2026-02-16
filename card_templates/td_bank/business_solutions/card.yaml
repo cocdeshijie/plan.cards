@@ -1,0 +1,20 @@
+name: TD Business Solutions Credit Card
+issuer: TD Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: td_biz_solutions_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all eligible purchases. No annual fee. Employee cards available.
+
+tags:
+  - business
+  - cashback
+  - flat-rate
+  - no-annual-fee

@@ -1,0 +1,21 @@
+name: Discover it Miles
+issuer: Discover
+network: Discover
+annual_fee: 0
+currency: USD
+version_id: discover_it_miles_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5x
+
+notes: |
+  Flat 1.5x miles on all purchases.
+  Miles Match — Discover matches all miles earned in the first year.
+  Redeem miles as statement credit for travel purchases.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - no-annual-fee

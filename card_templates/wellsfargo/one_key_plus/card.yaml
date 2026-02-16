@@ -1,0 +1,29 @@
+name: One Key+ Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: wf_one_key_plus_2023_1
+
+benefits:
+  credits:
+    - name: OneKeyCash Anniversary Credit
+      amount: 100
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Expedia / Hotels.com / Vrbo / Gas / Grocery / Dining
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 2%
+
+notes: |
+  Automatic One Key Gold status (20%+ hotel savings, room upgrades).
+  Flight price drop protection.
+  Co-branded with Expedia Group.
+  Launched July 2023.
+  No foreign transaction fee.
+
+tags:
+  - hotel
+  - travel

@@ -1,0 +1,22 @@
+name: US Bank Business Smartly
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_biz_smartly_2025_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% cash back on all business purchases.
+  Business version of US Bank Smartly.
+  Launched 2025.
+  3% foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

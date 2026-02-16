@@ -1,0 +1,20 @@
+name: Bank of America Unlimited Cash Rewards Secured Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_unlimited_cash_secured_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Secured card — requires refundable security deposit ($200-$5,000).
+  Automatic review for upgrade to unsecured card.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

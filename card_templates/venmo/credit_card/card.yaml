@@ -1,0 +1,26 @@
+name: Venmo Credit Card
+issuer: Venmo
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: venmo_credit_card_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Top Spending Category (Auto-Selected)
+      multiplier: 3%
+    - category: Second Spending Category (Auto-Selected)
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Top two categories auto-selected each statement period based on spending.
+  $10,000/year cap on 3% and 2% categories combined.
+  Rewards deposited to Venmo balance.
+  No foreign transaction fees.
+  Issued by Synchrony Bank.
+
+tags:
+  - cashback
+  - no-annual-fee

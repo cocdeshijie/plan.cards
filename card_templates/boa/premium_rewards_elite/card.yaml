@@ -1,0 +1,37 @@
+name: Bank of America Premium Rewards Elite Card
+issuer: Bank of America
+network: Visa
+annual_fee: 550
+currency: USD
+version_id: boa_premium_rewards_elite_2021_1
+
+benefits:
+  credits:
+    - name: Airline Incidental Credit
+      amount: 300
+      frequency: annual
+      reset_type: calendar
+    - name: Lifestyle Credit
+      amount: 150
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Travel / Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  Priority Pass lounge access.
+  $500 annual hotel credit for The Edit properties.
+  Preferred Rewards adds 25-75% bonus on earn rates.
+  Points worth 20% more via Bank of America Travel Center.
+  Global Entry/TSA Pre credit (up to $120 every 4 years).
+  Lifestyle credit covers streaming, food delivery, fitness, and rideshare.
+  Launched 2021.
+  No foreign transaction fees.
+
+tags:
+  - premium
+  - lounge-access
+  - travel

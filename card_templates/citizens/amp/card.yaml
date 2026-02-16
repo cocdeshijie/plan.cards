@@ -1,0 +1,12 @@
+name: Citizens Amp Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_amp_2025_1
+
+notes: |
+  Credit builder card — no credit score requirement, no security deposit. Contactless payments. Launched June 2025.
+
+tags:
+  - no-annual-fee

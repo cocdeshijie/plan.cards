@@ -1,0 +1,44 @@
+name: Hilton Honors American Express Aspire Card
+issuer: Amex
+network: Amex
+annual_fee: 450
+currency: USD
+version_id: amex_aspire_2020_1
+
+benefits:
+  credits:
+    - name: Hilton Resort Credit
+      amount: 250
+      frequency: annual
+      reset_type: cardiversary
+    - name: Airline Fee Credit
+      amount: 250
+      frequency: annual
+      reset_type: calendar
+  spend_thresholds:
+    - name: Free Night Award
+      spend_required: 60000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a Free Night Reward after spending $60,000 in a calendar year.
+  bonus_categories:
+    - category: Hilton Hotels & Resorts
+      multiplier: 14x
+    - category: Flights (booked directly or Amex Travel)
+      multiplier: 7x
+    - category: Car Rentals (select companies)
+      multiplier: 7x
+    - category: U.S. Restaurants
+      multiplier: 7x
+
+notes: |
+  Hilton Honors Diamond status.
+  Free Night Award at card anniversary.
+  Priority Pass Select (unlimited).
+  No foreign transaction fees.
+
+tags:
+  - hilton
+  - hotel
+  - premium
+  - lounge-access

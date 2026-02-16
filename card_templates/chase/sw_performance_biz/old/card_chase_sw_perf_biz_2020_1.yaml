@@ -1,0 +1,26 @@
+name: Southwest Rapid Rewards Performance Business Card
+issuer: Chase
+network: Visa
+annual_fee: 199
+currency: USD
+version_id: chase_sw_perf_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Southwest Purchases
+      multiplier: 3x
+    - category: Gas & Restaurants
+      multiplier: 2x
+
+notes: |
+  9,000 anniversary points.
+  2,000 Tier Qualifying Points per $5k spent.
+  4 Upgraded Boarding certificates per year.
+  In-flight Wi-Fi credits.
+  25% back on in-flight purchases.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - southwest
+  - airline

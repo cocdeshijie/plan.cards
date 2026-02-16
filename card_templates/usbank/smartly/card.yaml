@@ -1,0 +1,21 @@
+name: US Bank Smartly
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_smartly_2025_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% cash back on all purchases.
+  Rebranded from US Bank Altitude Go Secured in 2025.
+  No spending caps.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,24 @@
+name: Robinhood Gold Card
+issuer: Robinhood
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: robinhood_gold_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Robinhood Travel
+      multiplier: 5%
+    - category: All Purchases
+      multiplier: 3%
+
+notes: |
+  Requires Robinhood Gold membership ($5/month or $50/year).
+  Unlimited 3% cash back, no caps.
+  Rewards redeemed to Robinhood brokerage account.
+  10-karat gold-plated physical card.
+  No foreign transaction fees.
+  Issued by Coastal Community Bank.
+
+tags:
+  - cashback

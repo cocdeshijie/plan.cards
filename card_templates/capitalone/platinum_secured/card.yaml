@@ -1,0 +1,16 @@
+name: Capital One Platinum Secured Card
+issuer: Capital One
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: capitalone_platinum_secured_2020_1
+
+notes: |
+  Secured card — requires refundable security deposit ($200 minimum).
+  No rewards earning.
+  Automatic credit line increase review with on-time payments.
+  Reports to all 3 credit bureaus.
+  No foreign transaction fee.
+
+tags:
+  - no-annual-fee

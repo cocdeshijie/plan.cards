@@ -1,0 +1,35 @@
+name: HSBC Premier World Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: hsbc_premier_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Gas
+      multiplier: 3x
+    - category: Groceries
+      multiplier: 3x
+    - category: Travel
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  credits:
+    - name: Streaming Credit
+      amount: 60
+      frequency: annual
+      reset_type: calendar
+    - name: Global Entry/TSA Pre Credit
+      amount: 85
+      frequency: annual
+      reset_type: calendar
+
+notes: |
+  Requires HSBC Premier banking relationship.
+  $0 AF with Private Banking.
+  50,000 welcome bonus points.
+  No foreign transaction fees.
+
+tags:
+  - travel

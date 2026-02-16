@@ -1,0 +1,23 @@
+name: Saks World Elite Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_saks_we_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Saks Fifth Avenue Purchases
+      multiplier: 3x
+    - category: Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Issued by Comenity Capital Bank (Bread Financial) since August 2024.
+  Usable anywhere Mastercard is accepted.
+  SaksFirst points redeemable for SaksFirst gift cards.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,26 @@
+name: Delta SkyMiles Reserve Business American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 550
+currency: USD
+version_id: amex_delta_reserve_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 3x
+
+notes: |
+  Companion Certificate (First/Comfort+/Main, contiguous U.S. only).
+  Unlimited Delta Sky Club access.
+  Centurion Lounge access (flying Delta).
+  First checked bag free on Delta.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - delta
+  - airline
+  - premium
+  - lounge-access

@@ -1,0 +1,24 @@
+name: Priceline Rewards Visa
+issuer: Barclays
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: barclays_priceline_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Priceline Purchases
+      multiplier: 5x
+    - category: Gas & Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Automatic Priceline VIP Gold status.
+  Points redeemed at 1.5% value on Priceline.com.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - no-annual-fee

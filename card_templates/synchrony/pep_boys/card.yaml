@@ -1,0 +1,13 @@
+name: Pep Boys Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_pep_boys_2020_1
+
+notes: |
+  Store card — can only be used at Pep Boys locations.
+  Special financing offers available on qualifying purchases.
+  Category: auto parts & service.
+
+tags:
+  - no-annual-fee

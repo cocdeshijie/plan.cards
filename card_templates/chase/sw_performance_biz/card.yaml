@@ -1,0 +1,32 @@
+name: Southwest Rapid Rewards Performance Business Card
+issuer: Chase
+network: Visa
+annual_fee: 299
+currency: USD
+version_id: chase_sw_perf_biz_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Southwest Purchases
+      multiplier: 4x
+    - category: Gas & Restaurants
+      multiplier: 2x
+    - category: Hotels (Direct)
+      multiplier: 2x
+    - category: Transit & Rideshare
+      multiplier: 2x
+
+notes: |
+  Free checked bag on Southwest (cardholder + up to 8 passengers).
+  Preferred/Standard seat selection within 48 hrs.
+  Group 5 priority boarding.
+  9,000 anniversary points.
+  2,000 Tier Qualifying Points per $5k spent.
+  15% flight discount code annually.
+  4 Upgraded Boarding certificates per year.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - southwest
+  - airline

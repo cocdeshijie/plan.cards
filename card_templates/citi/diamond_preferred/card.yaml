@@ -1,0 +1,13 @@
+name: Citi Diamond Preferred Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_diamond_preferred_2020_1
+
+notes: |
+  No rewards earning.
+  0% intro APR on purchases for 12 months and balance transfers for 21 months.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,13 @@
+name: Mathis Home Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_mathis_home_2020_1
+
+notes: |
+  Store card — can only be used at Mathis Home locations.
+  Special financing offers available on qualifying purchases.
+  Category: furniture.
+
+tags:
+  - no-annual-fee

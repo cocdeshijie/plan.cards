@@ -1,0 +1,26 @@
+name: Capital One Spark Miles for Business
+issuer: Capital One
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: capitalone_spark_miles_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Capital One Travel
+      multiplier: 5x
+      portal_only: true
+    - category: Hotels / Rental Cars (Booked via Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Flat 2x miles on all purchases.
+  Transfer miles to 15+ airline and hotel partners.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - travel

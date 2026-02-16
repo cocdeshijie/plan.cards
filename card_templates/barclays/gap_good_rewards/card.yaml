@@ -1,0 +1,21 @@
+name: Gap Good Rewards Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_gap_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Gap Inc. Brands (Gap, Old Navy, Banana Republic, Athleta)
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points redeemable in $1 increments at Gap Inc. brands.
+  Good Rewards membership tiers (Enthusiast, Icon) for extra perks.
+  Free standard shipping on $50+ purchases.
+
+tags:
+  - no-annual-fee

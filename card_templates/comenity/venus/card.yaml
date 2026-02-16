@@ -1,0 +1,13 @@
+name: VENUS Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_venus_2020_1
+
+notes: |
+  Store card — can only be used at VENUS locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: women's fashion & swimwear.
+
+tags:
+  - no-annual-fee

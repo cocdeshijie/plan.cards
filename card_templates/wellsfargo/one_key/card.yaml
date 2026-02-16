@@ -1,0 +1,24 @@
+name: One Key Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: wf_one_key_2023_1
+
+benefits:
+  bonus_categories:
+    - category: Expedia / Hotels.com / Vrbo / Gas / Grocery / Dining
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  Automatic One Key Silver status (15% hotel savings).
+  Rewards as OneKeyCash.
+  Co-branded with Expedia Group.
+  Launched July 2023.
+  No foreign transaction fee.
+
+tags:
+  - hotel
+  - no-annual-fee

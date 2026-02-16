@@ -1,0 +1,21 @@
+name: Bread Cashback American Express Card
+issuer: Bread Financial
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: bread_cashback_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all purchases.
+  Issued by Comenity Capital Bank (Bread Financial subsidiary).
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

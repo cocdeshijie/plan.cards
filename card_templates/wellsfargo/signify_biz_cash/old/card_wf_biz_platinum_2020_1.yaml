@@ -1,0 +1,21 @@
+name: Wells Fargo Business Platinum Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: wf_biz_platinum_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Flat 1.5% cash back option (or 1x points + 1,000 bonus points per month
+  for $1,000+ spend).
+  Replaced by Signify Business products in 2024.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

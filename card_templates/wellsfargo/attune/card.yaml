@@ -1,0 +1,22 @@
+name: Wells Fargo Attune Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: wf_attune_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Fitness / Wellness / Entertainment / Gardening / Pet Supplies / Transit / EV / Thrift Stores
+      multiplier: 4%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Unique lifestyle categories.
+  Launched 2024.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

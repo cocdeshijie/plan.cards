@@ -1,0 +1,32 @@
+name: Hilton Honors American Express Business Card
+issuer: Amex
+network: Amex
+annual_fee: 195
+currency: USD
+version_id: amex_hilton_biz_2024_1
+
+benefits:
+  credits:
+    - name: Hilton Property Credit
+      amount: 60
+      frequency: quarterly
+      reset_type: calendar
+  bonus_categories:
+    - category: Hilton Hotels & Resorts
+      multiplier: 12x
+    - category: All Other Purchases
+      multiplier: 5x
+      cap: 100000
+    - category: All Other Purchases (After Cap)
+      multiplier: 3x
+
+notes: |
+  Hilton Honors Gold status.
+  Diamond status after $40k spend.
+  National Car Rental Executive status.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - hilton
+  - hotel

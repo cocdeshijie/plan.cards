@@ -1,0 +1,26 @@
+name: Verizon Visa Card
+issuer: Synchrony
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: synchrony_verizon_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas & Groceries
+      multiplier: 4%
+    - category: Dining
+      multiplier: 3%
+    - category: Verizon Purchases
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Available to eligible Verizon Wireless customers.
+  Rewards redeemable for Verizon purchases, gift cards, or statement credits.
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,13 @@
+name: Lane Bryant Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_lane_bryant_2020_1
+
+notes: |
+  Store card — can only be used at Lane Bryant locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: plus-size women's fashion.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,26 @@
+name: Citi Custom Cash Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_custom_cash_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Top Eligible Spend Category (Auto-Selected)
+      multiplier: 5%
+      cap: 500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Top category auto-selected each billing cycle from: restaurants,
+  gas, grocery, select travel, transit, streaming, drugstores,
+  home improvement, fitness, live entertainment.
+  $500/month cap on 5% category.
+  Launched 2021.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

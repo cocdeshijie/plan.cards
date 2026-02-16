@@ -1,0 +1,9 @@
+name: TD Clear Credit Card ($1,000 Limit)
+issuer: TD Bank
+network: Visa
+annual_fee: 120
+currency: USD
+version_id: td_clear_1000_2024_1
+
+notes: |
+  Fixed monthly fee of $10 instead of variable interest. $1,000 credit limit. No interest charges — fee-based pricing model.

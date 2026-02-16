@@ -1,0 +1,29 @@
+name: Capital One SavorOne Cash Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 39
+currency: USD
+version_id: capitalone_savorone_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Dining / Entertainment
+      multiplier: 3%
+    - category: Streaming
+      multiplier: 3%
+    - category: Grocery (excluding superstores)
+      multiplier: 3%
+    - category: Capital One Travel
+      multiplier: 5%
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Relaunched as a fair-credit card in 2025 (previously $0 AF, now $39).
+  Designed for building or rebuilding credit.
+  Entertainment includes movies, concerts, sporting events, and theme parks.
+  No foreign transaction fee.
+
+tags:
+  - cashback

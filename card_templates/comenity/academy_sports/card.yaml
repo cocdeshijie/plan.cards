@@ -1,0 +1,13 @@
+name: Academy Sports + Outdoors Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_academy_sports_2020_1
+
+notes: |
+  Store card — can only be used at Academy Sports + Outdoors locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: sporting goods.
+
+tags:
+  - no-annual-fee

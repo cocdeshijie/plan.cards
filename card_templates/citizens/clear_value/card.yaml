@@ -1,0 +1,12 @@
+name: Citizens Clear Value Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_cv_2020_1
+
+notes: |
+  Discontinued June 2025. Low introductory APR card. No rewards program.
+
+tags:
+  - no-annual-fee

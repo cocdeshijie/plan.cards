@@ -1,0 +1,22 @@
+name: Upgrade Triple Cash Rewards Card
+issuer: Upgrade
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: upgrade_triple_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Home / Auto / Health
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Hybrid credit card / installment loan — balances convert to fixed-rate installments.
+  No prepayment penalty.
+  Issued by Cross River Bank.
+
+tags:
+  - cashback
+  - no-annual-fee

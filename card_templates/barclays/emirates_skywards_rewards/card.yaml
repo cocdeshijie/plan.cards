@@ -1,0 +1,22 @@
+name: Emirates Skywards Rewards World Elite Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_emirates_rewards_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Emirates Purchases
+      multiplier: 3x
+    - category: Qualifying Travel Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  No foreign transaction fees.
+  World Elite Mastercard benefits.
+
+tags:
+  - airline

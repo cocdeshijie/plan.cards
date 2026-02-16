@@ -1,0 +1,26 @@
+name: AAdvantage Aviator Red World Elite Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_aviator_red_2020_1
+
+benefits:
+  bonus_categories:
+    - category: American Airlines Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Discontinued October 2025 — portfolio moving to Citi in 2026.
+  First checked bag free on American Airlines.
+  Preferred boarding on AA flights (cardholder + up to 4 companions).
+  Anniversary companion certificate.
+  Up to $25 back on inflight Wi-Fi.
+  25% savings on inflight food and beverages.
+  No foreign transaction fees.
+
+tags:
+  - airline
+  - american-airlines

@@ -1,0 +1,34 @@
+name: Bilt Obsidian Card
+issuer: Bilt
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: bilt_obsidian_2026_1
+
+benefits:
+  credits:
+    - name: Bilt Travel Hotel Credit
+      amount: 100
+      frequency: semi_annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Dining OR Grocery (Choose Annually)
+      multiplier: 3x
+    - category: Travel
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+    - category: Everyday Spending (Bilt Cash)
+      multiplier: 4%
+
+notes: |
+  Choose 3x dining or grocery annually (grocery $25,000/year cap).
+  1x on rent/mortgage (costs $30 Bilt Cash per $1,000 or 3% fee).
+  Points transfer to airline/hotel partners.
+  Digital-first card (Cardless).
+  0% intro APR for 12 months.
+  No foreign transaction fees.
+  Issued by Column N.A.
+
+tags:
+  - transferable-points

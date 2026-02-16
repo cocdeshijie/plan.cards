@@ -1,0 +1,24 @@
+name: Choice Privileges Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_choice_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Hotels Purchases
+      multiplier: 5x
+    - category: Gas & Groceries
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Choice Privileges Gold elite status.
+  Points redeemable for free nights at Choice Hotels.
+  No foreign transaction fees.
+
+tags:
+  - hotel
+  - no-annual-fee

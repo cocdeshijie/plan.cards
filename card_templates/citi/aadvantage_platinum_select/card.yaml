@@ -1,0 +1,23 @@
+name: Citi AAdvantage Platinum Select World Elite Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: citi_aadvantage_platinum_select_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Restaurants / Gas / American Airlines Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  First checked bag free on domestic AA itineraries.
+  Preferred boarding.
+  25% savings on inflight food, beverages, and Wi-Fi.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - american-airlines

@@ -1,0 +1,23 @@
+name: State Farm Business Rewards Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_state_farm_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Office Supply / Gas
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Business version of State Farm co-brand.
+  Requires State Farm insurance or financial services relationship.
+  3% foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

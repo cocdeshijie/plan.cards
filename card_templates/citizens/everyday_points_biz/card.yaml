@@ -1,0 +1,18 @@
+name: Citizens Everyday Points Business Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_everyday_biz_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 3x
+
+notes: |
+  3 points per $1 on all purchases. Points redeemable at 1.5% value for gift cards, travel, and merchandise. 0% intro APR on purchases for 6 months. Available in 14 states + DC.
+
+tags:
+  - business
+  - no-annual-fee

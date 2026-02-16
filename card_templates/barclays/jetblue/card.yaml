@@ -1,0 +1,24 @@
+name: JetBlue Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_jetblue_2020_1
+
+benefits:
+  bonus_categories:
+    - category: JetBlue Purchases
+      multiplier: 3x
+    - category: Dining & Groceries
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  No foreign transaction fees.
+  No annual fee.
+  TrueBlue points never expire.
+
+tags:
+  - airline
+  - no-annual-fee

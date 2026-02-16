@@ -1,0 +1,23 @@
+name: AARP Essential Rewards Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_aarp_essential_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Gas & Drug Stores
+      multiplier: 3%
+    - category: Medical Expenses
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  AARP membership required.
+  0% intro APR on balance transfers for 15 billing cycles.
+
+tags:
+  - cashback
+  - no-annual-fee

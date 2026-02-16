@@ -1,0 +1,13 @@
+name: Kane's Furniture Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_kane_furniture_2020_1
+
+notes: |
+  Store card — can only be used at Kane's Furniture locations.
+  Special financing offers available on qualifying purchases.
+  Category: furniture.
+
+tags:
+  - no-annual-fee

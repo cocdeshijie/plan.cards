@@ -1,0 +1,29 @@
+name: Delta SkyMiles Platinum American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 250
+currency: USD
+version_id: amex_delta_plat_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 3x
+    - category: Hotels
+      multiplier: 3x
+    - category: Restaurants
+      multiplier: 2x
+    - category: U.S. Supermarkets
+      multiplier: 2x
+
+notes: |
+  Companion Certificate (Main Cabin, contiguous U.S. only).
+  First checked bag free on Delta.
+  Priority boarding.
+  Global Entry/TSA Pre credit.
+  MQM bonus (10k at $25k spend, 10k at $50k spend).
+  No foreign transaction fees.
+
+tags:
+  - delta
+  - airline

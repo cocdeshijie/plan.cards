@@ -1,0 +1,23 @@
+name: Korean Air SKYPASS Visa Signature Card
+issuer: US Bank
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: usbank_skypass_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Korean Air Purchases
+      multiplier: 3x
+    - category: Dining / Gas / Grocery
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Mid-tier Korean Air co-brand card.
+  15,000 bonus miles anniversary award.
+  No foreign transaction fee.
+
+tags:
+  - airline

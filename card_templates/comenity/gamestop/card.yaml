@@ -1,0 +1,13 @@
+name: GameStop Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_gamestop_2020_1
+
+notes: |
+  Store card — can only be used at GameStop locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: video games & electronics.
+
+tags:
+  - no-annual-fee

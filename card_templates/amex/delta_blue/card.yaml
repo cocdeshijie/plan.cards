@@ -1,0 +1,23 @@
+name: Delta SkyMiles Blue American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_delta_blue_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 2x
+    - category: Restaurants
+      multiplier: 2x
+
+notes: |
+  First checked bag free on Delta.
+  20% back on Delta in-flight purchases.
+  No foreign transaction fees.
+
+tags:
+  - delta
+  - airline
+  - no-annual-fee

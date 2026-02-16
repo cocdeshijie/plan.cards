@@ -1,0 +1,44 @@
+name: American Express Gold Card
+issuer: Amex
+network: Amex
+annual_fee: 325
+currency: USD
+version_id: amex_gold_2024_1
+
+benefits:
+  credits:
+    - name: Uber Cash
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Dining Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Dunkin' Credit
+      amount: 7
+      frequency: monthly
+      reset_type: calendar
+    - name: Resy Dining Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Restaurants
+      multiplier: 4x
+      cap: 50000
+    - category: U.S. Supermarkets
+      multiplier: 4x
+      cap: 25000
+    - category: Flights (booked directly or Amex Travel)
+      multiplier: 3x
+
+notes: |
+  Dining credit partners: Grubhub, The Cheesecake Factory, Goldbelly, Wine.com, Five Guys.
+  No foreign transaction fees.
+
+tags:
+  - dining
+  - groceries
+  - transferable-points
+  - mr

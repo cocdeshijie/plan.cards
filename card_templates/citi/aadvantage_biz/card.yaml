@@ -1,0 +1,24 @@
+name: CitiBusiness AAdvantage Platinum Select Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: citi_aadvantage_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: American Airlines Purchases / Gas / Telecom / Car Rental / Taxi
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  First checked bag free on domestic AA itineraries.
+  Preferred boarding.
+  25% savings on inflight purchases.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - airline
+  - american-airlines

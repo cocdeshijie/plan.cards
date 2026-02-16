@@ -1,0 +1,76 @@
+name: American Express Platinum Card
+issuer: Amex
+network: Amex
+annual_fee: 895
+currency: USD
+version_id: amex_plat_2025_1
+
+benefits:
+  credits:
+    - name: Uber Cash
+      amount: 15
+      frequency: monthly
+      reset_type: calendar
+    - name: Digital Entertainment Credit
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - name: Resy Dining Credit
+      amount: 100
+      frequency: quarterly
+      reset_type: calendar
+    - name: Lululemon Credit
+      amount: 75
+      frequency: quarterly
+      reset_type: calendar
+    - name: Hotel Credit (FHR/Hotel Collection)
+      amount: 300
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Saks Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Airline Fee Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: CLEAR+ Credit
+      amount: 209
+      frequency: annual
+      reset_type: calendar
+    - name: Walmart+ Credit
+      amount: 155
+      frequency: annual
+      reset_type: calendar
+    - name: Equinox Credit
+      amount: 300
+      frequency: annual
+      reset_type: calendar
+    - name: Oura Ring Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Uber One Credit
+      amount: 120
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Flights (booked directly or Amex Travel)
+      multiplier: 5x
+    - category: Hotels (Amex Travel)
+      multiplier: 5x
+
+notes: |
+  Centurion Lounge access.
+  Global Entry/TSA Pre credit ($100 every 4.5 years).
+  Hilton Honors Gold and Marriott Bonvoy Gold status. 
+  Uber Cash is $15/mo ($35 inDecember). 
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - transferable-points
+  - mr
+  - lounge-access
+  - premium

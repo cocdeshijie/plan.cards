@@ -1,0 +1,27 @@
+name: Southwest Rapid Rewards Priority Card
+issuer: Chase
+network: Visa
+annual_fee: 149
+currency: USD
+version_id: chase_sw_priority_2020_1
+
+benefits:
+  credits:
+    - name: Southwest Travel Credit
+      amount: 75
+      frequency: yearly
+  bonus_categories:
+    - category: Southwest Purchases
+      multiplier: 3x
+
+notes: |
+  7,500 anniversary points.
+  10,000 Companion Pass qualifying points per year.
+  1,500 Tier Qualifying Points per $5k spent.
+  4 Upgraded Boarding certificates per year.
+  25% back on in-flight purchases.
+  No foreign transaction fees.
+
+tags:
+  - southwest
+  - airline

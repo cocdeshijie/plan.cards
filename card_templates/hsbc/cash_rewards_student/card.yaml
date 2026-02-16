@@ -1,0 +1,21 @@
+name: HSBC Cash Rewards Mastercard Student
+issuer: HSBC
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: hsbc_cash_rewards_student_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Discontinued — HSBC exited US mass market banking in 2022.
+  Required HSBC deposit account.
+  No credit history required.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

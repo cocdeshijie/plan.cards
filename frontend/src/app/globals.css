@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 20% 99%;
+    --foreground: 24 10% 10%;
+    --card: 40 20% 99%;
+    --card-foreground: 24 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 10%;
+    --primary: 220 60% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 15% 95%;
+    --secondary-foreground: 24 10% 10%;
+    --muted: 30 15% 95%;
+    --muted-foreground: 24 5% 46%;
+    --accent: 30 15% 95%;
+    --accent-foreground: 24 10% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 15% 90%;
+    --input: 30 15% 90%;
+    --ring: 220 60% 50%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 24 10% 6%;
+    --foreground: 30 15% 95%;
+    --card: 24 10% 8%;
+    --card-foreground: 30 15% 95%;
+    --popover: 24 10% 8%;
+    --popover-foreground: 30 15% 95%;
+    --primary: 220 60% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 24 10% 14%;
+    --secondary-foreground: 30 15% 95%;
+    --muted: 24 10% 14%;
+    --muted-foreground: 30 10% 60%;
+    --accent: 24 10% 14%;
+    --accent-foreground: 30 15% 95%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 30 15% 95%;
+    --border: 24 10% 16%;
+    --input: 24 10% 16%;
+    --ring: 220 60% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.scrollbar-thin:hover,
+.scrollbar-thin:active {
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.3);
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
+}

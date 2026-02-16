@@ -1,0 +1,21 @@
+name: Upgrade Cash Rewards Card
+issuer: Upgrade
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: upgrade_cash_rewards_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Hybrid credit card / installment loan — balances convert to fixed-rate installments.
+  No prepayment penalty.
+  3% foreign transaction fee.
+  Issued by Cross River Bank.
+
+tags:
+  - cashback
+  - no-annual-fee

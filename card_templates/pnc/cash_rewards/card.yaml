@@ -1,0 +1,29 @@
+name: PNC Cash Rewards Visa
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_cash_rewards_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas Stations
+      multiplier: 4%
+      cap: 8000
+    - category: Dining
+      multiplier: 3%
+      cap: 8000
+    - category: Groceries
+      multiplier: 2%
+      cap: 8000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Bonus categories capped at $8,000 in combined annual spend. No annual fee.
+
+tags:
+  - cashback
+  - dining
+  - groceries
+  - no-annual-fee

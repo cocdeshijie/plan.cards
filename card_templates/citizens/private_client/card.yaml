@@ -1,0 +1,20 @@
+name: Citizens Private Client World Elite Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_pc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Discontinued June 2025. Required Citizens Private Client banking relationship. 2% cash back on all purchases.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee
+  - premium

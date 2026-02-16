@@ -1,0 +1,13 @@
+name: El Dorado Furniture Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_el_dorado_furniture_2020_1
+
+notes: |
+  Store card — can only be used at El Dorado Furniture locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: furniture.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,29 @@
+name: Citi Strata Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_strata_2024_1
+
+benefits:
+  bonus_categories:
+    - category: CitiTravel
+      multiplier: 5x
+      portal_only: true
+    - category: Supermarkets / Transit / Gas / EV
+      multiplier: 3x
+    - category: Self-Select Category
+      multiplier: 3x
+    - category: Restaurants
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Self-select category options: fitness clubs, select streaming,
+  live entertainment, cosmetics/barber/salon, pet supplies.
+  Launched 2024.
+  No foreign transaction fee.
+
+tags:
+  - no-annual-fee

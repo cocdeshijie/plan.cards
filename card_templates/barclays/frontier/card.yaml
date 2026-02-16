@@ -1,0 +1,31 @@
+name: Frontier Airlines World Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_frontier_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Frontier Airlines Purchases
+      multiplier: 5x
+    - category: Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+  spend_thresholds:
+    - name: Annual Flight Voucher
+      spend_required: 2500
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn a $100 Frontier flight voucher after spending $2,500 during your card membership year.
+
+notes: |
+  Two free checked bags on Frontier flights (primary cardholder).
+  Frontier Elite Gold status with priority boarding.
+  Award redemption fee waived.
+  $0 annual fee first year, then $99.
+  No foreign transaction fees.
+
+tags:
+  - airline

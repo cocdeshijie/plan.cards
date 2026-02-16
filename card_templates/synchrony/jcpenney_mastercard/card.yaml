@@ -1,0 +1,21 @@
+name: JCPenney Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_jcpenney_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: JCPenney Purchases
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  5 points per $1 at JCPenney.
+  Special financing offers at JCPenney.
+
+tags:
+  - no-annual-fee

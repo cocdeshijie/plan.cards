@@ -1,0 +1,22 @@
+name: Lufthansa Miles & More World Elite Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 89
+currency: USD
+version_id: barclays_lufthansa_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Lufthansa Group Airlines
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  15% discount on eligible hotel stays or car rentals through Miles & More.
+  Cell phone protection.
+  Purchase protection and extended warranty.
+  No foreign transaction fees.
+
+tags:
+  - airline

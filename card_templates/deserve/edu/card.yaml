@@ -1,0 +1,23 @@
+name: Deserve EDU Card
+issuer: Deserve
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: deserve_edu_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1%
+
+notes: |
+  No SSN required (designed for international students).
+  Free Amazon Prime Student (1 year).
+  Cell phone insurance (up to $600).
+  No foreign transaction fees.
+  Issued by Celtic Bank.
+  Discontinued — all accounts closing.
+
+tags:
+  - cashback
+  - no-annual-fee

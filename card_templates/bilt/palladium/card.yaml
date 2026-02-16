@@ -1,0 +1,36 @@
+name: Bilt Palladium Card
+issuer: Bilt
+network: Mastercard
+annual_fee: 495
+currency: USD
+version_id: bilt_palladium_2026_1
+
+benefits:
+  credits:
+    - name: Bilt Travel Hotel Credit
+      amount: 100
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Bilt Cash Benefit
+      amount: 200
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2x
+    - category: Everyday Spending (Bilt Cash)
+      multiplier: 4%
+
+notes: |
+  1x on rent/mortgage (costs $30 Bilt Cash per $1,000 or 3% fee).
+  Priority Pass lounge access.
+  Points transfer to airline/hotel partners.
+  Digital-first card (Cardless).
+  0% intro APR for 12 months.
+  No foreign transaction fees.
+  Issued by Column N.A.
+
+tags:
+  - transferable-points
+  - premium
+  - lounge-access

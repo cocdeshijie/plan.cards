@@ -1,0 +1,44 @@
+name: Delta SkyMiles Reserve Business American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 650
+currency: USD
+version_id: amex_delta_reserve_biz_2024_1
+
+benefits:
+  credits:
+    - name: Delta Stays Credit
+      amount: 250
+      frequency: annual
+      reset_type: calendar
+    - name: Resy Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - name: Rideshare Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 3x
+    - category: Transit/Shipping/Office Supply
+      multiplier: 1.5x
+    - category: Purchases After $150k/yr Spend
+      multiplier: 1.5x
+
+notes: |
+  Companion Certificate (First/Premium Select/Comfort+/Main, U.S./Mexico/Caribbean/Central America).
+  Unlimited Delta Sky Club access.
+  Centurion Lounge access (flying Delta).
+  First checked bag free on Delta.
+  Global Entry/TSA Pre credit.
+  MQD Headstart ($2,500/yr).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - delta
+  - airline
+  - premium
+  - lounge-access

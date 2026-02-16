@@ -1,0 +1,27 @@
+name: United Club Business Card
+issuer: Chase
+network: Visa
+annual_fee: 450
+currency: USD
+version_id: chase_united_club_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  United Club lounge access.
+  Free checked bags.
+  Priority boarding.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - united
+  - airline
+  - premium
+  - lounge-access

@@ -1,0 +1,60 @@
+name: American Express Platinum Card
+issuer: Amex
+network: Amex
+annual_fee: 695
+currency: USD
+version_id: amex_plat_2021_1
+
+benefits:
+  credits:
+    - name: Uber Cash
+      amount: 15
+      frequency: monthly
+      reset_type: calendar
+    - name: Digital Entertainment Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - name: Saks Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Hotel Credit (FHR/Hotel Collection)
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Airline Fee Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: CLEAR Plus Credit
+      amount: 189
+      frequency: annual
+      reset_type: calendar
+    - name: Walmart+ Credit
+      amount: 155
+      frequency: annual
+      reset_type: calendar
+    - name: Equinox Credit
+      amount: 300
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Flights (booked directly or Amex Travel)
+      multiplier: 5x
+    - category: Hotels (Amex Travel)
+      multiplier: 5x
+
+notes: |
+  Centurion Lounge access.
+  Global Entry/TSA Pre credit ($100 every 4.5 years).
+  Hilton Honors Gold and Marriott Bonvoy Gold status.
+  Uber Cash is $15/mo ($35 in December).
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - transferable-points
+  - mr
+  - lounge-access
+  - premium

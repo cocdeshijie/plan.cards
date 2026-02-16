@@ -1,0 +1,34 @@
+name: Hawaiian Airlines World Elite Business Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_hawaiian_biz_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Hawaiian Airlines & Alaska Airlines Purchases
+      multiplier: 3x
+    - category: Gas, Dining & Office Supplies
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  spend_thresholds:
+    - name: Bonus Miles Tier 1
+      spend_required: 50000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 20,000 bonus miles after spending $50,000-$99,999 in annual purchases.
+    - name: Bonus Miles Tier 2
+      spend_required: 100000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 40,000 bonus miles after spending $100,000+ in annual purchases.
+
+notes: |
+  Share miles between Hawaiian Airlines accounts without a fee.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - airline

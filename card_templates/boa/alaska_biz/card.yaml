@@ -1,0 +1,36 @@
+name: Alaska Airlines Business Card
+issuer: Bank of America
+network: Visa
+annual_fee: 70
+currency: USD
+version_id: boa_alaska_biz_2020_1
+
+benefits:
+  spend_thresholds:
+    - name: Companion Fare
+      spend_required: 6000
+      frequency: annual
+      reset_type: cardiversary
+      description: "Annual companion fare after $6,000 spend in a cardmember year."
+  bonus_categories:
+    - category: Alaska Airlines
+      multiplier: 3x
+    - category: Gas / Shipping / Transit
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Free first checked bag for cardholder + up to 6 companions.
+  Priority boarding on Alaska Airlines.
+  20% back on Alaska Airlines inflight purchases.
+  10% mile bonus with eligible BoA business account.
+  $100 off Alaska Lounge+ membership.
+  $25/year per additional card.
+  Not yet rebranded to Atmos.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - airline
+  - alaska

@@ -1,0 +1,21 @@
+name: Ink Business Unlimited
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_ink_unlimited_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  0% intro APR for 12 months on purchases.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ur
+  - cashback
+  - no-annual-fee

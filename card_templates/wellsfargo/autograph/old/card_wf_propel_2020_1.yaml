@@ -1,0 +1,22 @@
+name: Wells Fargo Propel American Express Card
+issuer: Wells Fargo
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: wf_propel_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining / Gas / Rideshare / Transit / Flights / Hotels / Homestays / Car Rental / Streaming
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  American Express network (limited acceptance vs Visa).
+  Discontinued August 2023; cardholders transitioned to Wells Fargo Autograph.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - no-annual-fee

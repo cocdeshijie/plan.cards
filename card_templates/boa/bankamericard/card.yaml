@@ -1,0 +1,14 @@
+name: BankAmericard
+issuer: Bank of America
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: boa_bankamericard_2020_1
+
+notes: |
+  0% intro APR for 18 billing cycles on purchases and balance transfers.
+  No rewards earning.
+  Museums on Us eligible.
+
+tags:
+  - no-annual-fee

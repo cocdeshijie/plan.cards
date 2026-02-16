@@ -1,0 +1,17 @@
+name: PNC Premier Traveler Visa Signature
+issuer: PNC
+network: Visa
+annual_fee: 85
+currency: USD
+version_id: pnc_premier_traveler_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2x
+
+notes: |
+  2 miles per $1 on all purchases. Visa Signature concierge service. Auto rental collision damage waiver. No foreign transaction fees.
+
+tags:
+  - travel

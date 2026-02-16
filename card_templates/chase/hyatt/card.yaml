@@ -1,0 +1,31 @@
+name: World of Hyatt Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_hyatt_2020_1
+
+benefits:
+  spend_thresholds:
+    - name: Free Night Award (Category 1-4)
+      spend_required: 15000
+      frequency: annual
+      reset_type: cardiversary
+      description: "Free Night Award at Category 1-4 Hyatt property after $15,000 spend in a cardmember year."
+  bonus_categories:
+    - category: Hyatt Purchases
+      multiplier: 4x
+    - category: Restaurants / Airlines / Transit / Fitness
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  World of Hyatt Discoverist elite status.
+  Anniversary Free Night Award (Category 1-4).
+  5 qualifying night credits annually + 2 per $5,000 spent.
+  No foreign transaction fees.
+
+tags:
+  - hyatt
+  - hotel

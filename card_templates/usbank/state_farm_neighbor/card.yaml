@@ -1,0 +1,21 @@
+name: State Farm Good Neighbor Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_state_farm_neighbor_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1%
+
+notes: |
+  Flat 1% cash back on all purchases.
+  Entry-level State Farm co-brand card.
+  Does not require existing State Farm relationship.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

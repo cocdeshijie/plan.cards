@@ -1,0 +1,21 @@
+name: Southwest Rapid Rewards Plus Card
+issuer: Chase
+network: Visa
+annual_fee: 69
+currency: USD
+version_id: chase_sw_plus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Southwest Purchases
+      multiplier: 2x
+
+notes: |
+  3,000 anniversary points.
+  10,000 Companion Pass qualifying points per year.
+  25% back on in-flight purchases.
+  3% foreign transaction fee.
+
+tags:
+  - southwest
+  - airline

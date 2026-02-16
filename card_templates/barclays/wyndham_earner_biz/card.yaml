@@ -1,0 +1,27 @@
+name: Wyndham Rewards Earner Business Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 75
+currency: USD
+version_id: barclays_wyndham_biz_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Wyndham Hotels
+      multiplier: 8x
+    - category: Gas & Office Supplies
+      multiplier: 5x
+    - category: Marketing & Advertising
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Wyndham Rewards Diamond status.
+  15,000 bonus points each anniversary.
+  Redeem 10% fewer points on free night awards.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - hotel

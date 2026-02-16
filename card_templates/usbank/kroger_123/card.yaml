@@ -1,0 +1,24 @@
+name: Kroger 1-2-3 Rewards Visa
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_kroger_123_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Kroger Family Stores (Grocery + Fuel)
+      multiplier: 3x
+    - category: Dining / Travel
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points redeemable for Kroger gift cards and fuel points.
+  1,000 points = $1 Kroger gift card or 1,000 fuel points.
+  Co-branded with Kroger.
+  3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

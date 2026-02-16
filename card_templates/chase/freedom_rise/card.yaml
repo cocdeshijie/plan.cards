@@ -1,0 +1,20 @@
+name: Chase Freedom Rise
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_cfr_2023_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Designed for credit builders.
+  Auto-evaluated for upgrade to Freedom Unlimited annually.
+
+tags:
+  - ur
+  - cashback
+  - no-annual-fee

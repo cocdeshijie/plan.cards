@@ -1,0 +1,21 @@
+name: Torrid Credit Card (Mastercard)
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_torrid_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Torrid Purchases
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  $20 welcome offer. 15% off first purchase.
+  Insider Perks rewards at Torrid.
+
+tags:
+  - no-annual-fee

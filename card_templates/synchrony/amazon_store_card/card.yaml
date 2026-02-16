@@ -1,0 +1,21 @@
+name: Amazon Store Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_amazon_store_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon.com Purchases (with Prime)
+      multiplier: 5%
+    - category: Amazon.com Purchases (without Prime)
+      multiplier: 3%
+
+notes: |
+  Store card — can only be used at Amazon.com and Whole Foods Market.
+  5% back with Prime membership, 3% without.
+  Special financing on select Amazon purchases.
+
+tags:
+  - amazon
+  - no-annual-fee

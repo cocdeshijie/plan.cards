@@ -1,0 +1,22 @@
+name: Iberia Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_iberia_2020_1
+
+benefits:
+  bonus_categories:
+    - category: BA / Aer Lingus / Iberia / LEVEL
+      multiplier: 3x
+    - category: Hotel Bookings (Direct)
+      multiplier: 2x
+
+notes: |
+  $1,000 discount voucher for two tickets on same Iberia flight after $30k spend.
+  10% off Iberia flights at iberia.com/Chase10.
+  No foreign transaction fees.
+
+tags:
+  - avios
+  - airline

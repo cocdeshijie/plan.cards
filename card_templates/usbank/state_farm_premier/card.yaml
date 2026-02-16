@@ -1,0 +1,21 @@
+name: State Farm Premier Cash Rewards Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_state_farm_premier_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 3%
+
+notes: |
+  Flat 3% cash back on all purchases.
+  Requires State Farm insurance or financial services relationship.
+  Co-branded with State Farm.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

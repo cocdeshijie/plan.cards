@@ -1,0 +1,34 @@
+name: US Bank Altitude Reserve
+issuer: US Bank
+network: Visa
+annual_fee: 400
+currency: USD
+version_id: usbank_altitude_reserve_2020_1
+
+benefits:
+  credits:
+    - name: Travel + Dining Credit
+      amount: 325
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Travel Center Hotels & Cars
+      multiplier: 5x
+      portal_only: true
+    - category: Travel / Mobile Wallet
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Priority Pass Select (unlimited visits).
+  1.5 cents per point redemption value.
+  Mobile wallet 3x uncapped.
+  $325 credit usable on travel and dining.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - premium
+  - travel
+  - lounge-access

@@ -1,0 +1,15 @@
+name: US Bank Visa Platinum
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_visa_platinum_2020_1
+
+notes: |
+  No rewards earning.
+  0% intro APR on purchases and balance transfers for 18 billing cycles.
+  Cell phone protection up to $600 per claim (2 claims per year, $25 deductible).
+  3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

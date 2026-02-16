@@ -1,0 +1,22 @@
+name: Wells Fargo Signify Business Cash Card
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: wf_signify_biz_cash_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% unlimited cash back on all business purchases.
+  Priority Pass pay-as-you-go lounge access.
+  Launched 2024.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

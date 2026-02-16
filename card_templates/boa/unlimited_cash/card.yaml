@@ -1,0 +1,20 @@
+name: Bank of America Unlimited Cash Rewards Card
+issuer: Bank of America
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: boa_unlimited_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Preferred Rewards adds 25-75% bonus on earn rate.
+  Museums on Us eligible.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

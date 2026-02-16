@@ -1,0 +1,29 @@
+name: Hawaiian Airlines World Elite Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_hawaiian_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Hawaiian Airlines & Alaska Airlines Purchases
+      multiplier: 3x
+    - category: Gas, Dining & Groceries
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  spend_thresholds:
+    - name: Annual Bonus Miles
+      spend_required: 10000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 5,000 bonus miles after spending $10,000 or more by your account anniversary.
+
+notes: |
+  One free checked bag on Hawaiian Airlines flights.
+  $100 companion discount annually.
+  No foreign transaction fees.
+
+tags:
+  - airline

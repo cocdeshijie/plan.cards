@@ -1,0 +1,25 @@
+name: AAA Daily Advantage Visa
+issuer: Bread Financial
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: bread_aaa_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Groceries
+      multiplier: 5%
+    - category: Gas, Streaming, Phone & Internet
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  AAA membership required.
+  Cash back redeemable as statement credit or check.
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - groceries
+  - no-annual-fee

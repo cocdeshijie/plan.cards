@@ -1,0 +1,23 @@
+name: Bank of America Business Advantage Travel Rewards Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_biz_travel_rewards_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Bank of America Travel Center
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  Preferred Rewards for Business available.
+  Points don't expire.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - no-annual-fee
+  - travel

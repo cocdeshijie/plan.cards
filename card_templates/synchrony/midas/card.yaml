@@ -1,0 +1,13 @@
+name: Midas Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_midas_2020_1
+
+notes: |
+  Store card — can only be used at Midas locations.
+  Special financing offers available on qualifying purchases.
+  Category: auto service.
+
+tags:
+  - no-annual-fee

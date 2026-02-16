@@ -1,0 +1,30 @@
+name: Bank of America Customized Cash Rewards Secured Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_customized_cash_secured_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Category
+      multiplier: 3%
+      cap: 2500
+    - category: Grocery / Wholesale Clubs
+      multiplier: 2%
+      cap: 2500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Secured card — requires refundable security deposit ($200-$5,000).
+  Same rewards structure as unsecured Customized Cash Rewards.
+  Choice categories: gas, online shopping, travel, dining, drugstores, home improvement/furnishings.
+  Can change choice category monthly.
+  3% and 2% share a combined $2,500/quarter cap.
+  Automatic review for upgrade to unsecured card.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,33 @@
+name: Korean Air SKYPASS Select Visa Signature Card
+issuer: US Bank
+network: Visa
+annual_fee: 450
+currency: USD
+version_id: usbank_skypass_select_2020_1
+
+benefits:
+  credits:
+    - name: Korean Air Credit
+      amount: 200
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Korean Air Purchases
+      multiplier: 3x
+    - category: Dining / Gas / Grocery
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Premium Korean Air co-brand card.
+  $200 annual Korean Air credit for ticket purchases.
+  SkyTeam Elite Plus status.
+  Priority Pass Select lounge access.
+  25,000 bonus miles anniversary award.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - premium
+  - lounge-access

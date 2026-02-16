@@ -1,0 +1,31 @@
+name: HSBC Premier World Elite Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 395
+currency: USD
+version_id: hsbc_premier_world_elite_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Travel
+      multiplier: 3x
+    - category: Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  credits:
+    - name: Air Travel Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+
+notes: |
+  Discontinued — replaced by current HSBC Elite card.
+  Required HSBC Premier relationship.
+  Lounge Key membership.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - premium
+  - lounge-access

@@ -1,0 +1,20 @@
+name: Capital One Spark Cash for Business
+issuer: Capital One
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: capitalone_spark_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% cash back on all purchases.
+  No spending caps.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback

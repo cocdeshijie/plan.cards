@@ -1,0 +1,12 @@
+name: Citizens Spring World Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_spring_2025_1
+
+notes: |
+  0% intro APR on balance transfers for 18 billing cycles. Low ongoing APR. Launched June 2025.
+
+tags:
+  - no-annual-fee

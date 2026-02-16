@@ -1,0 +1,19 @@
+name: Fifth Third Preferred Cash/Back Card
+issuer: Fifth Third
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: fifth_third_preferred_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all purchases. Exclusively for Fifth Third Preferred Banking ($100,000+ in assets). Real Life Rewards points never expire.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

@@ -1,0 +1,24 @@
+name: Wyndham Rewards Earner Plus Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 75
+currency: USD
+version_id: barclays_wyndham_plus_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Wyndham Hotels
+      multiplier: 6x
+    - category: Gas, Dining & Groceries
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Wyndham Rewards Diamond status.
+  15,000 bonus points each anniversary.
+  Redeem 10% fewer points on free night awards.
+  No foreign transaction fees.
+
+tags:
+  - hotel

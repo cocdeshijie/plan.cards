@@ -1,0 +1,24 @@
+name: US Bank Business Leverage
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_biz_leverage_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Category (Top 2 Spend Categories)
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Automatically earns 2% in your top 2 spending categories each month.
+  Eligible categories: advertising, airlines, car rental, gas, hotels, office supply,
+  restaurants, telecom, shipping, computer/electronics.
+  3% foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

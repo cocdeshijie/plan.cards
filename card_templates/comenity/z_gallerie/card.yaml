@@ -1,0 +1,13 @@
+name: Z Gallerie Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_z_gallerie_2020_1
+
+notes: |
+  Store card — can only be used at Z Gallerie locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: modern home decor.
+
+tags:
+  - no-annual-fee

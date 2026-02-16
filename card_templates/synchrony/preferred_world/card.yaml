@@ -1,0 +1,14 @@
+name: Synchrony Preferred World Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_preferred_world_2024_1
+
+notes: |
+  Credit-building card for fair credit (630+ FICO).
+  No rewards program.
+  Variable APR.
+
+tags:
+  - no-annual-fee

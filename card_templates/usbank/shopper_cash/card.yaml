@@ -1,0 +1,28 @@
+name: US Bank Shopper Cash Rewards
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_shopper_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Online Shopping (via Shopper Portal)
+      multiplier: 6%
+      portal_only: true
+      cap: 1500
+    - category: Grocery / Gas / EV
+      multiplier: 3%
+    - category: Dining
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  6% online shopping requires using the US Bank Shopper Cash Rewards portal.
+  6% cap is $1,500 per quarter.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

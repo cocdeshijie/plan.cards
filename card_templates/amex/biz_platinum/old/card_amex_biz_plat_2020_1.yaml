@@ -1,0 +1,36 @@
+name: American Express Business Platinum Card
+issuer: Amex
+network: Amex
+annual_fee: 595
+currency: USD
+version_id: amex_biz_plat_2020_1
+
+benefits:
+  credits:
+    - name: Airline Fee Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: CLEAR Credit
+      amount: 179
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Flights & Prepaid Hotels (Amex Travel)
+      multiplier: 5x
+
+notes: |
+  Centurion Lounge access.
+  Priority Pass Select.
+  Marriott Bonvoy Gold and Hilton Honors Gold status.
+  35% Pay with Points rebate (all airlines).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - mr
+  - transferable-points
+  - travel
+  - premium
+  - lounge-access

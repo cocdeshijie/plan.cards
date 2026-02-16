@@ -1,0 +1,23 @@
+name: Ann Taylor Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_ann_taylor_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Ann Taylor, LOFT & Factory Stores
+      multiplier: 5x
+    - category: Dining & Groceries
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  Rewards redeemable at Ann Taylor and LOFT stores.
+  Birthday reward.
+
+tags:
+  - no-annual-fee

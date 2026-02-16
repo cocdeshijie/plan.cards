@@ -1,0 +1,24 @@
+name: Wells Fargo Autograph Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: wf_autograph_2022_1
+
+benefits:
+  bonus_categories:
+    - category: Restaurants / Travel / Gas / EV / Transit / Streaming / Phone Plans
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points transferable to airline and hotel partners (Air France-KLM Flying Blue,
+  British Airways, Iberia, Avianca LifeMiles, Choice Privileges).
+  Cell phone protection up to $600 ($25 deductible, 2 claims/year).
+  Launched 2022.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - no-annual-fee

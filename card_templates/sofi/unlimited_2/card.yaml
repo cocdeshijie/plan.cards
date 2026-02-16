@@ -1,0 +1,23 @@
+name: SoFi Unlimited 2% Credit Card
+issuer: SoFi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: sofi_unlimited_2_2021_1
+
+benefits:
+  bonus_categories:
+    - category: SoFi Travel
+      multiplier: 3%
+    - category: All Purchases (to SoFi Accounts)
+      multiplier: 2%
+
+notes: |
+  2% rate requires redemption to SoFi Checking, Savings, Invest, or loan account.
+  Cell phone protection (up to $1,000).
+  No foreign transaction fees.
+  Issued by SoFi Bank, N.A.
+
+tags:
+  - cashback
+  - no-annual-fee

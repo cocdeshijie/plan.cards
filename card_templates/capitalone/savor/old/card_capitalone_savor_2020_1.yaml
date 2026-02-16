@@ -1,0 +1,25 @@
+name: Capital One Savor Cash Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: capitalone_savor_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining / Entertainment
+      multiplier: 4%
+    - category: Streaming
+      multiplier: 4%
+    - category: Grocery (excluding superstores)
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Entertainment includes movies, concerts, sporting events, and theme parks.
+  $95 annual fee (reduced to $0 in October 2024 rebrand).
+  No foreign transaction fee.
+
+tags:
+  - cashback

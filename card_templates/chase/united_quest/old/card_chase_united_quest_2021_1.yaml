@@ -1,0 +1,34 @@
+name: United Quest Card
+issuer: Chase
+network: Visa
+annual_fee: 250
+currency: USD
+version_id: chase_united_quest_2021_1
+
+benefits:
+  credits:
+    - name: United Travel Credit
+      amount: 125
+      frequency: yearly
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 3x
+    - category: Dining
+      multiplier: 2x
+    - category: Travel
+      multiplier: 2x
+    - category: Streaming
+      multiplier: 2x
+
+notes: |
+  Free first and second checked bags on United.
+  Two 5,000-mile award flight rebates per year.
+  Priority boarding.
+  25% back on United in-flight purchases.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - united
+  - airline
+  - travel

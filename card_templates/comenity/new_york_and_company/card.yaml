@@ -1,0 +1,13 @@
+name: New York & Company Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_new_york_and_company_2020_1
+
+notes: |
+  Store card — can only be used at New York & Company locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: women's fashion.
+
+tags:
+  - no-annual-fee

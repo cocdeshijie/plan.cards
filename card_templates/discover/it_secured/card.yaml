@@ -1,0 +1,25 @@
+name: Discover it Secured
+issuer: Discover
+network: Discover
+annual_fee: 0
+currency: USD
+version_id: discover_it_secured_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas / Restaurants
+      multiplier: 2%
+      cap: 1000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Secured card — requires refundable security deposit ($200 minimum).
+  2% cash back on gas and restaurants, combined $1,000 cap per quarter.
+  Cashback Match — Discover matches all cash back earned in the first year.
+  Automatic review for upgrade to unsecured card after 7 months.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

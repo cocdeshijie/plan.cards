@@ -1,0 +1,28 @@
+name: JetBlue Premier Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 499
+currency: USD
+version_id: barclays_jetblue_premier_2025_1
+
+benefits:
+  bonus_categories:
+    - category: JetBlue Purchases
+      multiplier: 8x
+    - category: Dining & Groceries
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  JetBlue lounge access.
+  Priority boarding on JetBlue flights.
+  Free first and second checked bags on JetBlue.
+  Mosaic qualification tiles earned with spend.
+  No foreign transaction fees.
+  Launched January 2025.
+
+tags:
+  - airline
+  - premium
+  - lounge-access

@@ -1,0 +1,24 @@
+name: Amazon Card
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_amazon_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon / Whole Foods
+      multiplier: 3%
+    - category: Restaurants / Gas
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  No Prime membership required.
+  No foreign transaction fees.
+
+tags:
+  - amazon
+  - cashback
+  - no-annual-fee

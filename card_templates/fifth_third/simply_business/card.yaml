@@ -1,0 +1,18 @@
+name: Fifth Third Simply Business Card
+issuer: Fifth Third
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: fifth_third_simply_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.67x
+
+notes: |
+  Not currently available to new applicants. 1.67 points per $1 with no caps. Employee cards available.
+
+tags:
+  - business
+  - no-annual-fee

@@ -1,0 +1,22 @@
+name: Citi Rewards+ Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_rewards_plus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Supermarkets / Gas
+      multiplier: 2x
+      cap: 6000
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  ThankYou points round up to nearest 10 on every purchase.
+  10% points back on first 100,000 points redeemed per year.
+  No foreign transaction fee.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,26 @@
+name: IKEA Visa Credit Card
+issuer: Comenity
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: comenity_ikea_visa_2020_1
+
+benefits:
+  bonus_categories:
+    - category: IKEA Purchases
+      multiplier: 5%
+    - category: Dining, Groceries & Utilities
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Usable anywhere Visa is accepted.
+  Rewards earned as IKEA gift cards.
+  Special financing available on IKEA purchases of $500+.
+
+tags:
+  - cashback
+  - dining
+  - groceries
+  - no-annual-fee

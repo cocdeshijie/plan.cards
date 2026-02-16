@@ -1,0 +1,29 @@
+name: Bank of America Premium Rewards Card
+issuer: Bank of America
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: boa_premium_rewards_2020_1
+
+benefits:
+  credits:
+    - name: Airline Incidental Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Travel / Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  Preferred Rewards adds 25-75% bonus on earn rates.
+  Points worth 20% more via Bank of America Travel Center.
+  Global Entry/TSA Pre credit (up to $100 every 4 years).
+  Museums on Us eligible.
+  No foreign transaction fees.
+
+tags:
+  - premium
+  - travel

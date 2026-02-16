@@ -1,0 +1,50 @@
+name: United Club Business Card
+issuer: Chase
+network: Visa
+annual_fee: 695
+currency: USD
+version_id: chase_united_club_biz_2025_1
+
+benefits:
+  credits:
+    - name: Rideshare Credit
+      amount: 150
+      frequency: yearly
+    - name: Instacart Credit
+      amount: 240
+      frequency: yearly
+    - name: Renowned Hotels Credit
+      amount: 200
+      frequency: yearly
+    - name: JSX Credit
+      amount: 200
+      frequency: yearly
+    - name: Avis/Budget Credit
+      amount: 100
+      frequency: yearly
+    - name: FareLock Credit
+      amount: 50
+      frequency: yearly
+  bonus_categories:
+    - category: Renowned Hotels (Prepaid)
+      multiplier: 5x
+    - category: United Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  United Club lounge access (cardholder + guests).
+  Free checked bags.
+  Priority boarding.
+  Up to 28,000 PQPs from spending annually.
+  1,500 bonus PQPs per year (starting 2026).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - united
+  - airline
+  - premium
+  - lounge-access

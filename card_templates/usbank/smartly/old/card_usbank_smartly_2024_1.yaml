@@ -1,0 +1,24 @@
+name: US Bank Altitude Go Secured
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_smartly_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Dining
+      multiplier: 4x
+    - category: Grocery / Gas / EV / Streaming
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Secured card — requires refundable security deposit.
+  Same rewards as Altitude Go.
+  Rebranded to US Bank Smartly in 2025.
+  3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

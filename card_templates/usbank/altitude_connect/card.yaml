@@ -1,0 +1,28 @@
+name: US Bank Altitude Connect
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_altitude_connect_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Travel Center
+      multiplier: 5x
+      portal_only: true
+    - category: Travel (Airfare / Hotels / Gas / EV / Rideshare / Transit)
+      multiplier: 4x
+    - category: Groceries / Streaming
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  4 Priority Pass visits per year.
+  Global Entry/TSA Pre credit.
+  Annual fee reduced from $95 to $0 in September 2024.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - no-annual-fee

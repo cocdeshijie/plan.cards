@@ -1,0 +1,27 @@
+name: Ink Business Cash
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_ink_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Office Supply Stores / Internet-Cable-Phone
+      multiplier: 5%
+      cap: 25000
+    - category: Gas Stations / Restaurants
+      multiplier: 2%
+      cap: 25000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  0% intro APR for 12 months on purchases.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ur
+  - cashback
+  - no-annual-fee

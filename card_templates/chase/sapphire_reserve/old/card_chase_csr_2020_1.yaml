@@ -1,0 +1,32 @@
+name: Chase Sapphire Reserve
+issuer: Chase
+network: Visa
+annual_fee: 550
+currency: USD
+version_id: chase_csr_2020_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Travel
+      multiplier: 3x
+    - category: Dining
+      multiplier: 3x
+
+notes: |
+  Priority Pass Select.
+  1.5cpp redemption in Chase Travel.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining
+  - premium
+  - lounge-access

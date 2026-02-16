@@ -1,0 +1,20 @@
+name: Upgrade Cash Rewards Elite Card
+issuer: Upgrade
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: upgrade_cash_elite_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2.2%
+
+notes: |
+  Hybrid credit card / installment loan — balances convert to fixed-rate installments.
+  No prepayment penalty.
+  Issued by Cross River Bank.
+
+tags:
+  - cashback
+  - no-annual-fee

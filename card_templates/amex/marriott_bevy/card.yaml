@@ -1,0 +1,34 @@
+name: Marriott Bonvoy Bevy American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 250
+currency: USD
+version_id: amex_bevy_2022_1
+
+benefits:
+  spend_thresholds:
+    - name: Free Night Award
+      spend_required: 15000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a Free Night Award (up to 50k points) after spending $15,000 in a calendar year.
+  bonus_categories:
+    - category: Marriott Hotels
+      multiplier: 6x
+    - category: Restaurants
+      multiplier: 4x
+    - category: U.S. Supermarkets
+      multiplier: 4x
+      cap: 15000
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Marriott Bonvoy Gold Elite status.
+  15 Elite Night Credits per year.
+  1,000 bonus points per paid Marriott stay.
+  No foreign transaction fees.
+
+tags:
+  - marriott
+  - hotel

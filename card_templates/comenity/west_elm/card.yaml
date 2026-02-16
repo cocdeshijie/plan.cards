@@ -1,0 +1,13 @@
+name: West Elm Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_west_elm_2020_1
+
+notes: |
+  Store card — can only be used at West Elm locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: modern furniture & home decor.
+
+tags:
+  - no-annual-fee

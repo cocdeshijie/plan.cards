@@ -1,0 +1,15 @@
+name: Citi Secured Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_secured_2020_1
+
+notes: |
+  Secured card — requires security deposit.
+  No rewards earning.
+  Reports to all three credit bureaus.
+  Automatic review for upgrade to unsecured card.
+
+tags:
+  - no-annual-fee

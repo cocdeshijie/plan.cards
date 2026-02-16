@@ -1,0 +1,39 @@
+name: HSBC Elite World Elite Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 495
+currency: USD
+version_id: hsbc_elite_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Travel
+      multiplier: 5x
+    - category: Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  credits:
+    - name: Airline Incidental Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Hotel Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+    - name: CLEAR Plus Credit
+      amount: 189
+      frequency: annual
+      reset_type: calendar
+
+notes: |
+  Requires HSBC Premier banking relationship.
+  $0 AF with Private Banking, $295 for HSBC employees.
+  60,000 welcome bonus points.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - premium
+  - lounge-access

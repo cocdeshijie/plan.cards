@@ -1,0 +1,23 @@
+name: Capital Vacations World Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_capital_vacations_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Capital Vacations Purchases
+      multiplier: 5x
+    - category: Travel
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Earn rewards on Capital Vacations resort stays.
+  0% intro APR on balance transfers for 15 billing cycles.
+
+tags:
+  - travel
+  - no-annual-fee

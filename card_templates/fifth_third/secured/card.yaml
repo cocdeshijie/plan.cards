@@ -1,0 +1,9 @@
+name: Fifth Third Secured Credit Card
+issuer: Fifth Third
+network: Mastercard
+annual_fee: 24
+currency: USD
+version_id: fifth_third_secured_2020_1
+
+notes: |
+  Requires security deposit of $300+. Helps build or rebuild credit. Reports to all 3 major credit bureaus.

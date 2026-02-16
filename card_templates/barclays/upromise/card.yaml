@@ -1,0 +1,22 @@
+name: Upromise World Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_upromise_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases (linked to 529 plan)
+      multiplier: 1.25%
+    - category: All Purchases (not linked)
+      multiplier: 1%
+
+notes: |
+  Cash back linked to Upromise college savings program.
+  Up to $250/year cash back on gift card purchases at MyGiftCardsPlus.
+  Round Up savings feature available.
+
+tags:
+  - cashback
+  - no-annual-fee

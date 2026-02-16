@@ -1,0 +1,27 @@
+name: Sam's Club Business Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_sams_club_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas (first $6,000/year)
+      multiplier: 5%
+    - category: Sam's Club Purchases
+      multiplier: 3%
+    - category: Dining
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Requires Sam's Club membership.
+  Same rewards as personal card.
+  Employee cards available.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

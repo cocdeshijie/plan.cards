@@ -1,0 +1,13 @@
+name: Discount Tire Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_discount_tire_2020_1
+
+notes: |
+  Store card — can only be used at Discount Tire locations.
+  Special financing offers available on qualifying purchases.
+  Category: tires & wheels.
+
+tags:
+  - no-annual-fee

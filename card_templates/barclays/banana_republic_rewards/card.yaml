@@ -1,0 +1,21 @@
+name: Banana Republic Rewards Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_banana_republic_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Gap Inc. Brands (Gap, Old Navy, Banana Republic, Athleta)
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Part of Gap Inc. Good Rewards program.
+  Points redeemable at all Gap Inc. brands.
+  Free standard shipping on $50+ purchases.
+
+tags:
+  - no-annual-fee

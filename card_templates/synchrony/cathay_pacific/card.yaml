@@ -1,0 +1,23 @@
+name: Cathay Pacific Credit Card
+issuer: Synchrony
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: synchrony_cathay_pacific_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Cathay Pacific Purchases
+      multiplier: 5x
+    - category: Dining & Supermarkets
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Earn Asia Miles on every purchase.
+  No foreign transaction fees.
+
+tags:
+  - airline
+  - no-annual-fee

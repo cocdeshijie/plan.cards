@@ -1,0 +1,26 @@
+name: My Best Buy Visa Card
+issuer: Citi
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: citi_best_buy_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Best Buy / BestBuy.com
+      multiplier: 5%
+    - category: Gas
+      multiplier: 3%
+    - category: Restaurants / Grocery
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Open-loop Visa usable everywhere.
+  Rewards redeemable as Best Buy certificates.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

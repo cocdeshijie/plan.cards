@@ -1,0 +1,38 @@
+name: Delta SkyMiles Reserve American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 650
+currency: USD
+version_id: amex_delta_reserve_2025_1
+
+benefits:
+  credits:
+    - name: Delta Stays Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Resy Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - name: Rideshare Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 3x
+
+notes: |
+  Companion Certificate (First/Premium Select/Comfort+/Main, U.S./Mexico/Caribbean).
+  Delta Sky Club access (15 visits/yr, unlimited after $75k spend).
+  Centurion Lounge access (flying Delta).
+  First checked bag free on Delta.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - delta
+  - airline
+  - premium
+  - lounge-access

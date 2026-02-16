@@ -1,0 +1,16 @@
+name: American Express Plum Card
+issuer: Amex
+network: Amex
+annual_fee: 250
+currency: USD
+version_id: amex_plum_2020_1
+
+notes: |
+  1.5% early pay discount when paid within 10 days.
+  Up to 60 days to pay with no interest.
+  No preset spending limit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - cashback

@@ -1,0 +1,31 @@
+name: Emirates Skywards Premium World Elite Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 499
+currency: USD
+version_id: barclays_emirates_premium_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Emirates Purchases
+      multiplier: 3x
+    - category: Qualifying Travel Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+  spend_thresholds:
+    - name: Maintain Emirates Gold Status
+      spend_required: 40000
+      frequency: annual
+      reset_type: cardiversary
+      description: Spend $40,000 on purchases each card membership year to maintain Emirates Skywards Gold status.
+
+notes: |
+  Emirates Skywards Gold status (first year complimentary).
+  Emirates Business Class lounge access for cardholder and guest.
+  No foreign transaction fees.
+
+tags:
+  - airline
+  - premium
+  - lounge-access

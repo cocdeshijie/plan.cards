@@ -1,0 +1,12 @@
+name: PNC Core Visa
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_core_2020_1
+
+notes: |
+  No rewards program. Low introductory APR. 3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,24 @@
+name: BJ's One Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_bjs_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: BJ's Wholesale Club & BJ's Gas
+      multiplier: 5%
+    - category: Dining
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Requires BJ's Wholesale Club membership.
+  Usable anywhere Mastercard is accepted.
+  Cash back issued as reward certificates.
+
+tags:
+  - cashback
+  - no-annual-fee

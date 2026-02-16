@@ -1,0 +1,23 @@
+name: Bank of America Travel Rewards Student Card
+issuer: Bank of America
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: boa_travel_rewards_student_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Bank of America Travel Center
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  Student version of Travel Rewards.
+  Preferred Rewards adds 25-75% bonus on earn rates.
+  Points don't expire.
+  No foreign transaction fees.
+
+tags:
+  - no-annual-fee
+  - travel

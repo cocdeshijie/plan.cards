@@ -1,0 +1,42 @@
+name: Delta SkyMiles Platinum Business American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 350
+currency: USD
+version_id: amex_delta_plat_biz_2024_1
+
+benefits:
+  credits:
+    - name: Delta Stays Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: Resy Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Rideshare Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Delta Purchases
+      multiplier: 3x
+    - category: Hotels
+      multiplier: 3x
+    - category: Transit/Shipping/Purchases $5k+
+      multiplier: 1.5x
+      cap: 100000
+
+notes: |
+  Companion Certificate (Main Cabin, U.S./Mexico/Caribbean/Central America).
+  First checked bag free on Delta.
+  Priority boarding.
+  Global Entry/TSA Pre credit.
+  MQD Headstart ($2,500/yr).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - delta
+  - airline

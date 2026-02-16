@@ -1,0 +1,24 @@
+name: Capital One Spark Cash Select for Business
+issuer: Capital One
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: capitalone_spark_cash_select_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Capital One Travel
+      multiplier: 5%
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  No annual fee business cash back card.
+  5% cash back on Capital One Travel bookings.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

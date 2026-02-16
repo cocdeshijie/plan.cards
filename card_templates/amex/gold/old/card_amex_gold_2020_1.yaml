@@ -1,0 +1,35 @@
+name: American Express Gold Card
+issuer: Amex
+network: Amex
+annual_fee: 250
+currency: USD
+version_id: amex_gold_2020_1
+
+benefits:
+  credits:
+    - name: Dining Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Airline Fee Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Restaurants
+      multiplier: 4x
+    - category: U.S. Supermarkets
+      multiplier: 4x
+      cap: 25000
+    - category: Flights (booked directly or Amex Travel)
+      multiplier: 3x
+
+notes: |
+  Dining credit partners: Grubhub, The Cheesecake Factory, Ruth's Chris Steak House, Shake Shack, Boxed.
+  No foreign transaction fees.
+
+tags:
+  - dining
+  - groceries
+  - transferable-points
+  - mr

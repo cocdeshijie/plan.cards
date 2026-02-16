@@ -1,0 +1,27 @@
+name: US Bank Cash+ Secured
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_cash_plus_secured_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Category 1
+      multiplier: 5%
+      cap: 2000
+    - category: Choice Category 2
+      multiplier: 2%
+      cap: 2500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Secured card — requires refundable security deposit ($300 minimum).
+  Same rewards structure as Cash+.
+  Caps reset quarterly.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

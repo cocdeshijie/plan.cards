@@ -1,0 +1,22 @@
+name: Aer Lingus Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_aer_lingus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: BA / Aer Lingus / Iberia / LEVEL
+      multiplier: 3x
+    - category: Hotel Bookings (Direct)
+      multiplier: 2x
+
+notes: |
+  Companion ticket after $30k annual spend.
+  Priority boarding on Aer Lingus from U.S.
+  No foreign transaction fees.
+
+tags:
+  - avios
+  - airline

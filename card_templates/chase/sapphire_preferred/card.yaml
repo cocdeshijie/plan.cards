@@ -1,0 +1,36 @@
+name: Chase Sapphire Preferred
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_csp_2021_1
+
+benefits:
+  credits:
+    - name: Chase Travel Hotel Credit
+      amount: 50
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Chase Travel
+      multiplier: 5x
+    - category: Dining
+      multiplier: 3x
+    - category: Online Grocery
+      multiplier: 3x
+    - category: Streaming
+      multiplier: 3x
+    - category: Other Travel
+      multiplier: 2x
+
+notes: |
+  10% anniversary points bonus on total annual spend.
+  1.25cpp redemption in Chase Travel.
+  Global Entry/TSA Pre credit ($50).
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining

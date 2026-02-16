@@ -1,0 +1,23 @@
+name: British Airways Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_british_airways_2020_1
+
+benefits:
+  bonus_categories:
+    - category: BA / Aer Lingus / Iberia / LEVEL
+      multiplier: 3x
+    - category: Hotel Bookings (Direct)
+      multiplier: 2x
+
+notes: |
+  Travel Together Ticket after $30k annual spend.
+  Reward flight statement credits (up to $600/yr).
+  10% off BA flights from U.S. at ba.com/chase10.
+  No foreign transaction fees.
+
+tags:
+  - avios
+  - airline

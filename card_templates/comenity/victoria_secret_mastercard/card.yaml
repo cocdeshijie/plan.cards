@@ -1,0 +1,21 @@
+name: Victoria's Secret Mastercard
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_vs_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Victoria's Secret & PINK Purchases
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  Earn rewards redeemable for VS merchandise.
+  Early access to sales and exclusive cardholder events.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,31 @@
+name: American Express Blue Cash Preferred Card
+issuer: Amex
+network: Amex
+annual_fee: 95
+currency: USD
+version_id: amex_bcp_2025_1
+
+benefits:
+  credits:
+    - name: Disney Streaming Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: U.S. Supermarkets
+      multiplier: 6%
+      cap: 6000
+    - category: Select U.S. Streaming
+      multiplier: 6%
+    - category: U.S. Gas Stations
+      multiplier: 3%
+    - category: Transit
+      multiplier: 3%
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - groceries
+  - streaming

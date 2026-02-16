@@ -1,0 +1,21 @@
+name: Bank of America Business Advantage Unlimited Cash Rewards Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_biz_unlimited_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  No spending caps on rewards.
+  Preferred Rewards for Business available.
+  3% foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

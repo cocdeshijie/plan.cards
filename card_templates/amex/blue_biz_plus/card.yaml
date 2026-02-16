@@ -1,0 +1,24 @@
+name: American Express Blue Business Plus Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_bbp_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2x
+      cap: 50000
+    - category: All Purchases (After Cap)
+      multiplier: 1x
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - business
+  - mr
+  - transferable-points
+  - no-annual-fee
+  - flat-rate

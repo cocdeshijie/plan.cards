@@ -1,0 +1,20 @@
+name: Capital One Quicksilver Cash Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: capitalone_quicksilver_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Flat 1.5% cash back on all purchases.
+  0% intro APR on purchases and balance transfers for 15 months.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

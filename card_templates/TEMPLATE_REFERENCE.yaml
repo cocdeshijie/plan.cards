@@ -1,0 +1,119 @@
+# ============================================================================
+# Card Template Reference
+# ============================================================================
+# This file documents every supported field for community-contributed
+# card templates. It is NOT loaded by the application — it's purely
+# for reference when creating or editing templates.
+#
+# Each template lives at:  card_templates/<issuer>/<card_slug>/card.yaml
+# Optional card images at:  card_templates/<issuer>/<card_slug>/card.png
+#   (also accepts .jpg, .jpeg, .webp)
+#   Multiple image variants: card.png (default), floral.png, mirror.png, etc.
+#   Any *.{png,jpg,jpeg,webp} file in the card directory or its old/ subdirectory
+#   is picked up as a selectable image variant. card.png is always the default.
+#
+# Old versions live at:  card_templates/<issuer>/<card_slug>/old/card_<version_id>.yaml
+#   Optional old image:  card_templates/<issuer>/<card_slug>/old/card_<version_id>.png
+#
+# The template ID is derived from the path: "<issuer>/<card_slug>"
+#   e.g. card_templates/chase/sapphire_reserve/card.yaml → "chase/sapphire_reserve"
+# ============================================================================
+
+# --- Required fields --------------------------------------------------------
+
+name: Example Premium Card          # Display name shown in the UI
+issuer: Example Bank                # Issuing bank (Chase, Amex, Citi, Capital One, etc.)
+
+# --- Optional card metadata -------------------------------------------------
+
+network: Visa                       # Payment network: Visa | Mastercard | Amex | Discover
+annual_fee: 550                     # Annual fee in whole dollars (0 for no-AF cards)
+currency: USD                       # Currency code (default: USD)
+version_id: example_premium_2025_1  # Unique version identifier for template versioning
+                                    # Convention: <issuer_short>_<card_short>_<year>_<seq>
+                                    # Bump this when AF or benefits change to trigger auto-sync
+
+# --- Benefits ---------------------------------------------------------------
+# Three sub-sections: credits (trackable statement credits), bonus_categories
+# (earn-rate multipliers), and spend_thresholds (spend-to-unlock perks).
+# All are optional.
+
+benefits:
+
+  # credits: Recurring statement credits that reset on a schedule.
+  # These are auto-populated as trackable CardBenefits when a user
+  # creates a card from this template.
+  credits:
+    - name: Travel Credit             # Human-readable credit name
+      amount: 300                     # Dollar amount per period (whole dollars)
+      frequency: annual               # Reset frequency: monthly | quarterly | semi_annual | annual
+      reset_type: cardiversary        # When it resets:
+                                      #   calendar     — resets on calendar boundaries
+                                      #                  (1st of month, Jan 1, etc.)
+                                      #                  Most Amex credits use this.
+                                      #   cardiversary — resets on the card open_date anniversary
+                                      #                  Chase/Capital One travel credits use this.
+                                      # Default: calendar (if omitted)
+
+    - name: Dining Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+
+    - name: Streaming Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+
+  # bonus_categories: Earn-rate multipliers for spending categories.
+  # These are displayed in the template info but NOT tracked as benefits.
+  bonus_categories:
+    - category: Travel                # Category description
+      multiplier: 5x                 # Earn rate (free-text: "5x", "3%", "6%", etc.)
+      portal_only: true              # true if only via issuer's travel portal (default: false)
+
+    - category: Dining
+      multiplier: 3x
+
+    - category: U.S. Supermarkets
+      multiplier: 4x
+      cap: 25000                     # Annual spending cap in dollars (null = unlimited)
+
+  # spend_thresholds: Spend-to-unlock perks that reset on a schedule.
+  # These track how much a cardholder has spent toward unlocking a perk
+  # (e.g. "spend $15K/year to earn a Free Night Award").
+  # Auto-populated as CardBenefits with benefit_type="spend_threshold".
+  spend_thresholds:
+    - name: Free Night Award           # Human-readable threshold name
+      spend_required: 15000            # Dollars that must be spent to unlock the perk
+      frequency: annual                # Reset frequency: monthly | quarterly | semi_annual | annual
+      reset_type: cardiversary         # Same options as credits: calendar | cardiversary
+      description: >                   # Optional description shown in the UI
+        Earn a Free Night Award (up to 35K points) after spending $15,000
+        on purchases in a cardmember year.
+
+    - name: Bonus Elite Night
+      spend_required: 75000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 1 bonus elite night for every $5,000 spent (max 15 nights).
+
+# --- Notes & Tags -----------------------------------------------------------
+
+notes: |
+  Free-form notes displayed in the template detail view.
+  Supports multi-line text. Good for mentioning perks like
+  lounge access, Global Entry credit, transfer partners, etc.
+
+tags:                                # Searchable/filterable tags
+  - travel
+  - transferable-points
+  - lounge-access
+  - premium
+  - no-annual-fee
+  - cashback
+  - business
+  - dining
+  - groceries
+  - rotating-categories
+  - flat-rate

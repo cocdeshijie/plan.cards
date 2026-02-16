@@ -1,0 +1,30 @@
+name: United Club Infinite Card
+issuer: Chase
+network: Visa
+annual_fee: 525
+currency: USD
+version_id: chase_united_club_2020_1
+
+benefits:
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 4x
+    - category: Travel
+      multiplier: 2x
+    - category: Dining
+      multiplier: 2x
+
+notes: |
+  United Club membership (unlimited lounge access).
+  Free first and second checked bags.
+  Priority boarding.
+  25% back on United in-flight purchases.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - united
+  - airline
+  - travel
+  - premium
+  - lounge-access

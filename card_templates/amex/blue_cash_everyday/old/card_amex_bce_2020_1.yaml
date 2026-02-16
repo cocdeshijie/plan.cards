@@ -1,0 +1,24 @@
+name: American Express Blue Cash Everyday Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_bce_2020_1
+
+benefits:
+  bonus_categories:
+    - category: U.S. Supermarkets
+      multiplier: 3%
+      cap: 6000
+    - category: U.S. Gas Stations
+      multiplier: 2%
+    - category: U.S. Department Stores
+      multiplier: 2%
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - groceries
+  - no-annual-fee

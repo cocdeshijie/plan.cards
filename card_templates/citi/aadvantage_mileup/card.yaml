@@ -1,0 +1,23 @@
+name: AAdvantage MileUp Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_aadvantage_mileup_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Grocery / American Airlines Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Entry-level AAdvantage card.
+  No checked bag benefit.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - american-airlines
+  - no-annual-fee

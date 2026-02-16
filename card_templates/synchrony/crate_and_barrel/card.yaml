@@ -1,0 +1,13 @@
+name: Crate & Barrel Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_crate_and_barrel_2020_1
+
+notes: |
+  Store card — can only be used at Crate & Barrel locations.
+  Special financing offers available on qualifying purchases.
+  Category: home furnishings.
+
+tags:
+  - no-annual-fee

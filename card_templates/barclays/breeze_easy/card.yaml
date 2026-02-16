@@ -1,0 +1,25 @@
+name: Breeze Easy Visa
+issuer: Barclays
+network: Visa
+annual_fee: 89
+currency: USD
+version_id: barclays_breeze_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Breeze Airways Purchases
+      multiplier: 10x
+    - category: Groceries & Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Zone 1 priority boarding on Breeze Airways.
+  Complimentary inflight WiFi on Breeze Airways.
+  7,500 anniversary bonus BreezePoints.
+  BreezePoints never expire.
+  Launched 2024.
+
+tags:
+  - airline

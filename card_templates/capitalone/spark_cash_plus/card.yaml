@@ -1,0 +1,28 @@
+name: Capital One Spark Cash Plus Card
+issuer: Capital One
+network: Visa
+annual_fee: 150
+currency: USD
+version_id: capitalone_spark_cash_plus_2020_1
+
+benefits:
+  spend_thresholds:
+    - name: Cash Bonus
+      spend_required: 200000
+      frequency: annual
+      reset_type: cardiversary
+      description: "$200 cash bonus after spending $200,000 per year."
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Charge card — no preset spending limit.
+  Flat 2% cash back on all purchases.
+  $200 bonus for every $200,000 spent per year.
+  Must pay balance in full each month.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback

@@ -1,0 +1,13 @@
+name: Hot Topic Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_hot_topic_2020_1
+
+notes: |
+  Store card — can only be used at Hot Topic locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: pop culture & music apparel.
+
+tags:
+  - no-annual-fee

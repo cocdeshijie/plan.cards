@@ -1,0 +1,28 @@
+name: Apple Card
+issuer: Apple
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: apple_card_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Apple + Select Partners (Apple Pay)
+      multiplier: 3%
+    - category: All Apple Pay Purchases
+      multiplier: 2%
+    - category: Physical Card Purchases
+      multiplier: 1%
+
+notes: |
+  Daily Cash rewards paid daily.
+  Apple Card Monthly Installments (0% financing for Apple products).
+  High-yield Apple Savings account for Daily Cash.
+  Titanium physical card.
+  Requires iPhone.
+  No foreign transaction fees.
+  Issued by Goldman Sachs (transitioning to JPMorgan Chase).
+
+tags:
+  - cashback
+  - no-annual-fee

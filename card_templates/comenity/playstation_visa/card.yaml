@@ -1,0 +1,23 @@
+name: PlayStation Visa Credit Card
+issuer: Comenity
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: comenity_playstation_2024_1
+
+benefits:
+  bonus_categories:
+    - category: PlayStation Store & Sony Store
+      multiplier: 5x
+    - category: Dining & Streaming
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Visa is accepted.
+  Points redeemable for PlayStation Store credit.
+  Issued by Comenity Bank (Bread Financial).
+
+tags:
+  - no-annual-fee

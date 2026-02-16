@@ -1,0 +1,13 @@
+name: Sally Beauty Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_sally_beauty_2020_1
+
+notes: |
+  Store card — can only be used at Sally Beauty locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: beauty supplies.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,13 @@
+name: Ulta Beauty Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_ulta_store_2020_1
+
+notes: |
+  Store card — can only be used at Ulta Beauty locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: beauty & cosmetics.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,15 @@
+name: BankAmericard Secured Card
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_bankamericard_secured_2020_1
+
+notes: |
+  Secured card — requires refundable security deposit ($200-$5,000).
+  No rewards earning.
+  Automatic review for upgrade to unsecured card.
+  3% foreign transaction fee.
+
+tags:
+  - no-annual-fee

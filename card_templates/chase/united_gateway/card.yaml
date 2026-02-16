@@ -1,0 +1,25 @@
+name: United Gateway Card
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_united_gateway_2020_1
+
+benefits:
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 2x
+    - category: Gas Stations
+      multiplier: 2x
+    - category: Transit & Rideshare
+      multiplier: 2x
+
+notes: |
+  Two free checked bags annually.
+  25% back on United in-flight purchases.
+  No foreign transaction fees.
+
+tags:
+  - united
+  - airline
+  - no-annual-fee

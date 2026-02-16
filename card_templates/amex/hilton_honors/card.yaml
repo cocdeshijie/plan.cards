@@ -1,0 +1,27 @@
+name: Hilton Honors American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_hilton_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Hilton Hotels & Resorts
+      multiplier: 7x
+    - category: U.S. Restaurants
+      multiplier: 5x
+    - category: U.S. Supermarkets
+      multiplier: 5x
+    - category: U.S. Gas Stations
+      multiplier: 5x
+
+notes: |
+  Hilton Honors Silver status.
+  Spend $20,000/yr for Gold status.
+  No foreign transaction fees.
+
+tags:
+  - hilton
+  - hotel
+  - no-annual-fee

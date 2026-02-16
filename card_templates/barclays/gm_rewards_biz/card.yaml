@@ -1,0 +1,23 @@
+name: GM Business Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_gm_biz_2025_1
+
+benefits:
+  bonus_categories:
+    - category: GM Purchases
+      multiplier: 5x
+    - category: Fuel & Office Supplies
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points redeemable toward GM vehicle purchases, parts, and services.
+  Employee card management tools.
+
+tags:
+  - business
+  - no-annual-fee

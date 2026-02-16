@@ -1,0 +1,21 @@
+name: Express Credit Card (Mastercard)
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_express_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Express Purchases
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  Earn Express NEXT rewards points.
+  Birthday reward and exclusive cardholder events.
+
+tags:
+  - no-annual-fee

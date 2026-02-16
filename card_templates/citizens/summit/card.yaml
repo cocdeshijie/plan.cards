@@ -1,0 +1,22 @@
+name: Citizens Summit World Mastercard
+issuer: Citizens
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citizens_summit_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Dining & Groceries
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  Unlimited 3% cash back on dining and groceries. Unlimited 1.5% on everything else. No annual fee. Launched June 2025.
+
+tags:
+  - cashback
+  - dining
+  - groceries
+  - no-annual-fee

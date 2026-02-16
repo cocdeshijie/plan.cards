@@ -1,0 +1,13 @@
+name: NAPA AutoCare Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_napa_autocare_2020_1
+
+notes: |
+  Store card — can only be used at NAPA AutoCare locations.
+  Special financing offers available on qualifying purchases.
+  Category: auto parts & service.
+
+tags:
+  - no-annual-fee

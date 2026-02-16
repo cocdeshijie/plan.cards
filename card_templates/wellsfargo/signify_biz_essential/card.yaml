@@ -1,0 +1,23 @@
+name: Wells Fargo Signify Business Essential Mastercard
+issuer: Wells Fargo
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: wf_signify_biz_essential_2025_1
+
+benefits:
+  bonus_categories:
+    - category: Dining / Gas / Office Supply
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  0% intro APR on purchases for 15 months.
+  Launched 2025.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

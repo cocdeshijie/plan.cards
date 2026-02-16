@@ -1,0 +1,23 @@
+name: US Bank Business Triple Cash Rewards
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_biz_triple_cash_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Gas / EV / Office Supply / Cell Phone / Restaurant
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  No spending caps on 3% categories.
+  0% intro APR on purchases and balance transfers for 15 billing cycles.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

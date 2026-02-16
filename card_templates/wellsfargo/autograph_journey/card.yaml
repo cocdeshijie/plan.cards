@@ -1,0 +1,34 @@
+name: Wells Fargo Autograph Journey Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: wf_autograph_journey_2024_1
+
+benefits:
+  credits:
+    - name: Airline Credit
+      amount: 50
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Hotels (Booked Directly)
+      multiplier: 5x
+    - category: Airlines (Booked Directly)
+      multiplier: 4x
+    - category: Other Travel / Restaurants
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points transferable to airline and hotel partners.
+  Airline credit requires $50+ transaction with airline merchant.
+  Cell phone protection up to $1,000 ($25 deductible, 2 claims/year).
+  Trip cancellation/interruption up to $15,000.
+  Launched 2024.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - premium

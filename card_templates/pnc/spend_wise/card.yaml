@@ -1,0 +1,19 @@
+name: PNC Spend Wise Visa
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_spend_wise_2024_1
+
+benefits:
+  credits:
+    - name: Streaming Credit
+      amount: 25
+      frequency: annual
+      reset_type: calendar
+
+notes: |
+  Reduce your APR by 2% every 12 billing cycles by spending $3,000 and making on-time payments. $25 annual streaming service credit. Cell phone protection.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,26 @@
+name: Capital One VentureOne Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: capitalone_ventureone_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Capital One Travel
+      multiplier: 5x
+      portal_only: true
+    - category: Hotels / Rental Cars (Booked via Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 1.25x
+
+notes: |
+  No annual fee alternative to Capital One Venture.
+  Transfer miles to airline and hotel partners.
+  No foreign transaction fee.
+
+tags:
+  - travel
+  - no-annual-fee

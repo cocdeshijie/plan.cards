@@ -1,0 +1,33 @@
+name: Atmos Rewards Summit Card
+issuer: Bank of America
+network: Visa
+annual_fee: 395
+currency: USD
+version_id: boa_atmos_summit_2025_1
+
+benefits:
+  spend_thresholds:
+    - name: Global Companion Award
+      spend_required: 60000
+      frequency: annual
+      reset_type: cardiversary
+      description: "100,000-point Global Companion Award after $60,000 spend in a cardmember year."
+  bonus_categories:
+    - category: Dining / Foreign Purchases
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Annual 25,000-point Global Companion Award.
+  8 Alaska Lounge passes annually (2 per quarter).
+  10% bonus on all miles earned with eligible BoA banking.
+  Works with Alaska Airlines and Hawaiian Airlines.
+  Launched 2025.
+  No foreign transaction fees.
+
+tags:
+  - airline
+  - alaska
+  - premium
+  - lounge-access

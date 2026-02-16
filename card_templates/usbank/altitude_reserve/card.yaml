@@ -1,0 +1,35 @@
+name: US Bank Altitude Reserve
+issuer: US Bank
+network: Visa
+annual_fee: 400
+currency: USD
+version_id: usbank_altitude_reserve_2025_1
+
+benefits:
+  credits:
+    - name: Travel Center Credit
+      amount: 325
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Travel Center Hotels & Cars
+      multiplier: 5x
+      portal_only: true
+    - category: Travel / Mobile Wallet
+      multiplier: 3x
+      cap: 5000
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Priority Pass Select (8 visits per year).
+  1 cent per point redemption via Travel Center.
+  Mobile wallet 3x capped at $5,000 per billing cycle (effective Dec 2025).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+  Discontinued for new applications November 2024.
+
+tags:
+  - premium
+  - travel
+  - lounge-access

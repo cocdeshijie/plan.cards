@@ -1,0 +1,21 @@
+name: Fidelity Rewards Visa Signature Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_fidelity_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% cash back deposited into eligible Fidelity account.
+  Co-branded with Fidelity Investments.
+  No spending caps.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

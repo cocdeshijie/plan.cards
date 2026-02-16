@@ -1,0 +1,23 @@
+name: Marriott Bonvoy Bold Card
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_marriott_bold_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Marriott
+      multiplier: 3x
+    - category: Grocery / Rideshare / Food Delivery / Streaming / Internet
+      multiplier: 2x
+
+notes: |
+  Marriott Bonvoy Silver Elite status.
+  5 Elite Night Credits per year.
+  No foreign transaction fees.
+
+tags:
+  - marriott
+  - hotel
+  - no-annual-fee

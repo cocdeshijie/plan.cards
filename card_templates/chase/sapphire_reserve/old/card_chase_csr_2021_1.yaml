@@ -1,0 +1,38 @@
+name: Chase Sapphire Reserve
+issuer: Chase
+network: Visa
+annual_fee: 550
+currency: USD
+version_id: chase_csr_2021_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Hotels & Car Rentals (Chase Travel)
+      multiplier: 10x
+    - category: Flights (Chase Travel)
+      multiplier: 5x
+    - category: Dining
+      multiplier: 3x
+    - category: Other Travel
+      multiplier: 3x
+
+notes: |
+  Chase Sapphire Lounge access.
+  Priority Pass Select.
+  1.5cpp redemption in Chase Travel.
+  Complimentary DashPass and Lyft Pink.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining
+  - premium
+  - lounge-access

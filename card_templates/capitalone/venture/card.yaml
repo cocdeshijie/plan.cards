@@ -1,0 +1,25 @@
+name: Capital One Venture Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: capitalone_venture_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Capital One Travel
+      multiplier: 5x
+      portal_only: true
+    - category: Hotels / Rental Cars (Booked via Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Global Entry/TSA Pre credit (up to $100).
+  Transfer miles to 15+ airline and hotel partners.
+  No foreign transaction fee.
+
+tags:
+  - travel

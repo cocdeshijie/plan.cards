@@ -1,0 +1,13 @@
+name: At Home Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_at_home_2020_1
+
+notes: |
+  Store card — can only be used at At Home locations.
+  Special financing offers available on qualifying purchases.
+  Category: home decor.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,28 @@
+name: DoorDash Rewards Card
+issuer: Chase
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: chase_doordash_2023_1
+
+benefits:
+  bonus_categories:
+    - category: DoorDash / Caviar
+      multiplier: 4%
+    - category: Restaurants (Direct)
+      multiplier: 3%
+    - category: Grocery
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Complimentary DashPass (12 months, renewable at $10k/yr spend).
+  Monthly 10% off one qualifying order (max $15).
+  No foreign transaction fees.
+
+tags:
+  - doordash
+  - cashback
+  - no-annual-fee
+  - dining

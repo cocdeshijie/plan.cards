@@ -1,0 +1,21 @@
+name: Capital One Quicksilver Secured Cash Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: capitalone_quicksilver_secured_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Secured card — requires refundable security deposit ($200 minimum).
+  Flat 1.5% cash back on all purchases.
+  Automatic credit line increase review after 6 months with on-time payments.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

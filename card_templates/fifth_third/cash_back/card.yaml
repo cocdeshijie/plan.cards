@@ -1,0 +1,19 @@
+name: Fifth Third Cash/Back Card
+issuer: Fifth Third
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: fifth_third_cash_back_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.67%
+
+notes: |
+  Unlimited 1.67% cash back on every purchase with no cap. Available to any eligible Fifth Third checking or savings account holder. Real Life Rewards points never expire.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

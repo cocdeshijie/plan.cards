@@ -1,0 +1,27 @@
+name: US Bank Business Altitude Connect
+issuer: US Bank
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: usbank_biz_altitude_connect_2022_1
+
+benefits:
+  bonus_categories:
+    - category: Travel Center
+      multiplier: 5x
+      portal_only: true
+    - category: Travel (Airfare / Hotels / Gas / EV / Rideshare / Transit)
+      multiplier: 4x
+    - category: Dining / Streaming / Office Supply / Cell Phone
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  4 Priority Pass visits per year.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - travel

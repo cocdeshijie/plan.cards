@@ -1,0 +1,30 @@
+name: US Bank Cash+
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_cash_plus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Choice Category 1
+      multiplier: 5%
+      cap: 2000
+    - category: Choice Category 2
+      multiplier: 2%
+      cap: 2500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  5% categories (choose 2): home utilities, TV/internet/streaming, cell phone,
+  gas/EV charging, electric bill, select clothing stores, fast food, grocery,
+  department stores, furniture stores, ground transportation.
+  2% categories (choose 1): gas stations, grocery stores, restaurants,
+  fast food, department stores.
+  Caps reset quarterly.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

@@ -1,0 +1,15 @@
+name: Capital One Platinum Card
+issuer: Capital One
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: capitalone_platinum_2020_1
+
+notes: |
+  No rewards earning.
+  Designed for fair credit (average/limited credit history).
+  Automatic credit line increase review after 5 months with on-time payments.
+  No foreign transaction fee.
+
+tags:
+  - no-annual-fee

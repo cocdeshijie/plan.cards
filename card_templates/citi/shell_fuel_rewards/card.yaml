@@ -1,0 +1,26 @@
+name: Shell Fuel Rewards Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_shell_fuel_rewards_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Shell Non-Fuel Purchases
+      multiplier: 10%
+      cap: 1200
+    - category: Dining / Grocery
+      multiplier: 2%
+      cap: 10000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  5¢/gallon fuel discount at Shell stations (up to 35 gallons per fill).
+  Co-branded with Shell.
+  3% foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

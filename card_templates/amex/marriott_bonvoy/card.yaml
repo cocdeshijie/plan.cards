@@ -1,0 +1,24 @@
+name: Marriott Bonvoy American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 95
+currency: USD
+version_id: amex_marriott_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Marriott Hotels
+      multiplier: 6x
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Marriott Bonvoy Silver Elite status.
+  15 Elite Night Credits per year.
+  Free Night Award at card anniversary (up to 35k points).
+  Closed to new applications.
+  No foreign transaction fees.
+
+tags:
+  - marriott
+  - hotel

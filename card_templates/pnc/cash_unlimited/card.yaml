@@ -1,0 +1,19 @@
+name: PNC Cash Unlimited Visa Signature
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_cash_unlimited_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all eligible purchases. Launched May 2024. No annual fee.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

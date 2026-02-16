@@ -1,0 +1,23 @@
+name: Chase Sapphire Preferred
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_csp_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Travel
+      multiplier: 2x
+    - category: Dining
+      multiplier: 2x
+
+notes: |
+  1.25cpp redemption in Chase Travel.
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining

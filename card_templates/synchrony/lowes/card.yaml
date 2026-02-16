@@ -1,0 +1,13 @@
+name: Lowe's Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_lowes_2020_1
+
+notes: |
+  Store card — can only be used at Lowe's locations.
+  Special financing offers available on qualifying purchases.
+  Category: home improvement.
+
+tags:
+  - no-annual-fee

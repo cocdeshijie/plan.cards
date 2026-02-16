@@ -1,0 +1,23 @@
+name: Discover it Chrome
+issuer: Discover
+network: Discover
+annual_fee: 0
+currency: USD
+version_id: discover_it_chrome_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Gas / Restaurants
+      multiplier: 2%
+      cap: 1000
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  2% cash back on gas and restaurants, combined $1,000 cap per quarter.
+  Cashback Match — Discover matches all cash back earned in the first year.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

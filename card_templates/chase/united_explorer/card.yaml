@@ -1,0 +1,42 @@
+name: United Explorer Card
+issuer: Chase
+network: Visa
+annual_fee: 150
+currency: USD
+version_id: chase_united_explorer_2025_1
+
+benefits:
+  credits:
+    - name: United Hotels Credit
+      amount: 100
+      frequency: yearly
+      reset_type: cardiversary
+    - name: Rideshare Credit
+      amount: 5
+      frequency: monthly
+    - name: Avis/Budget Credit
+      amount: 50
+      frequency: yearly
+    - name: JSX Credit
+      amount: 100
+      frequency: yearly
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 2x
+    - category: Dining
+      multiplier: 2x
+    - category: Hotel Bookings (Direct)
+      multiplier: 2x
+
+notes: |
+  Free first checked bag on United.
+  2 United Club one-time passes per year.
+  Priority boarding.
+  25% back on United in-flight purchases.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - united
+  - airline
+  - travel

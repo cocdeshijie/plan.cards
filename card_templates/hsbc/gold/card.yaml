@@ -1,0 +1,14 @@
+name: HSBC Gold Mastercard
+issuer: HSBC
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: hsbc_gold_2020_1
+
+notes: |
+  Discontinued — HSBC exited US mass market banking in 2022.
+  0% intro APR on purchases and balance transfers for 18 months.
+  No foreign transaction fees.
+
+tags:
+  - no-annual-fee

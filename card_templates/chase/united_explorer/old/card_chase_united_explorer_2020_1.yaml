@@ -1,0 +1,28 @@
+name: United Explorer Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_united_explorer_2020_1
+
+benefits:
+  bonus_categories:
+    - category: United Purchases
+      multiplier: 2x
+    - category: Dining
+      multiplier: 2x
+    - category: Hotel Bookings (Direct)
+      multiplier: 2x
+
+notes: |
+  Free first checked bag on United.
+  2 United Club one-time passes per year.
+  Priority boarding.
+  25% back on United in-flight purchases.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - united
+  - airline
+  - travel

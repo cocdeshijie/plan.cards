@@ -1,0 +1,22 @@
+name: PNC BusinessOptions Visa Signature
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_biz_options_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases (Cash Rebate Program)
+      multiplier: 1.5%
+    - category: All Purchases (Points Program)
+      multiplier: 5x
+    - category: All Purchases (Travel Miles Program)
+      multiplier: 1x
+
+notes: |
+  Choose from cash rebates (1.5%), PNC points (5x), or travel miles (1x). $0 annual fee with $100,000+ annual spend. Employee cards available.
+
+tags:
+  - business
+  - no-annual-fee

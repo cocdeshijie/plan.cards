@@ -1,0 +1,38 @@
+name: Capital One Venture X Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 395
+currency: USD
+version_id: capitalone_venture_x_2021_1
+
+benefits:
+  credits:
+    - name: Capital One Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Capital One Travel
+      multiplier: 10x
+      portal_only: true
+    - category: Hotels / Rental Cars (Booked via Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: Flights (Booked via Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Priority Pass lounge access + Capital One Lounges.
+  10,000 anniversary miles bonus.
+  Global Entry/TSA Pre credit (up to $100).
+  Hertz President's Circle status.
+  Cell phone protection.
+  No foreign transaction fee.
+
+tags:
+  - premium
+  - travel
+  - lounge-access

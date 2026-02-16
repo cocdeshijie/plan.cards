@@ -1,0 +1,17 @@
+name: Chime Credit Builder Card
+issuer: Chime
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chime_credit_builder_2020_1
+
+notes: |
+  Secured card for credit building.
+  No upfront deposit (uses Chime checking balance).
+  Requires Chime checking account.
+  No credit check, no interest, no fees.
+  Reports to all 3 credit bureaus.
+  No rewards earning.
+
+tags:
+  - no-annual-fee

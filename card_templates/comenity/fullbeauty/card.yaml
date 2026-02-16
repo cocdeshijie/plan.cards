@@ -1,0 +1,13 @@
+name: FullBeauty Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_fullbeauty_2020_1
+
+notes: |
+  Store card — can only be used at FullBeauty locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: plus-size fashion.
+
+tags:
+  - no-annual-fee

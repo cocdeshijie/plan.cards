@@ -1,0 +1,26 @@
+name: Marriott Bonvoy Boundless Card
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_marriott_boundless_2022_1
+
+benefits:
+  bonus_categories:
+    - category: Marriott
+      multiplier: 6x
+    - category: Grocery / Gas / Dining
+      multiplier: 3x
+      cap: 6000
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Marriott Bonvoy Silver Elite status.
+  15 Elite Night Credits per year (+1 per $5k spend).
+  Anniversary free night (up to 35k points, top up with 15k).
+  No foreign transaction fees.
+
+tags:
+  - marriott
+  - hotel

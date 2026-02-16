@@ -1,0 +1,13 @@
+name: Blue Nile Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_blue_nile_2020_1
+
+notes: |
+  Store card — can only be used at Blue Nile locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: fine jewelry & diamonds.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,30 @@
+name: Citi AAdvantage Globe Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 350
+currency: USD
+version_id: citi_aadvantage_globe_2024_1
+
+benefits:
+  bonus_categories:
+    - category: AAdvantage Hotels
+      multiplier: 6x
+      portal_only: true
+    - category: American Airlines Purchases
+      multiplier: 3x
+    - category: Restaurants / Rides / Rail
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  First checked bag free for cardholder + 1 companion on same ticket.
+  Preferred boarding.
+  Seat upgrades.
+  Launched ~2024.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - american-airlines
+  - premium

@@ -1,0 +1,35 @@
+name: American Express Green Card
+issuer: Amex
+network: Amex
+annual_fee: 150
+currency: USD
+version_id: amex_green_2020_1
+
+benefits:
+  credits:
+    - name: CLEAR Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+    - name: LoungeBuddy Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Restaurants
+      multiplier: 3x
+    - category: Transit
+      multiplier: 3x
+    - category: Travel
+      multiplier: 3x
+
+notes: |
+  LoungeBuddy credit for airport lounge access.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - dining
+  - transit
+  - transferable-points
+  - mr

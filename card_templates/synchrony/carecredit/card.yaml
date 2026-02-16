@@ -1,0 +1,14 @@
+name: CareCredit Credit Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_carecredit_2020_1
+
+notes: |
+  Healthcare financing card accepted at 260,000+ enrolled providers.
+  Special financing on purchases of $200+ (6, 12, 18, or 24 months).
+  Covers dental, vision, cosmetic, veterinary, and other health expenses.
+  No rewards program.
+
+tags:
+  - no-annual-fee

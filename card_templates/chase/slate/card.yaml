@@ -1,0 +1,13 @@
+name: Chase Slate
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_slate_2026_1
+
+notes: |
+  0% intro APR for 21 months on purchases and balance transfers.
+  No rewards program.
+
+tags:
+  - no-annual-fee

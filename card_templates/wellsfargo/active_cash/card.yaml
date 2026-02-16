@@ -1,0 +1,21 @@
+name: Wells Fargo Active Cash Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: wf_active_cash_2021_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Flat 2% unlimited cash back.
+  Cell phone protection up to $600 per claim ($25 deductible, 2 claims/year).
+  Launched 2021.
+  No foreign transaction fee.
+
+tags:
+  - cashback
+  - no-annual-fee

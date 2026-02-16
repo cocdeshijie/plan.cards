@@ -1,0 +1,21 @@
+name: American Eagle Credit Card
+issuer: Synchrony
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: synchrony_american_eagle_2020_1
+
+benefits:
+  bonus_categories:
+    - category: American Eagle & Aerie Purchases
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Usable anywhere Visa is accepted.
+  Extra rewards during AEO Connected events.
+  Birthday reward.
+
+tags:
+  - no-annual-fee

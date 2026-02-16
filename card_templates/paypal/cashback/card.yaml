@@ -1,0 +1,23 @@
+name: PayPal Cashback Mastercard
+issuer: PayPal
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: paypal_cashback_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Purchases via PayPal
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  Unlimited cash back, no caps.
+  Rewards redeemed to PayPal balance.
+  No foreign transaction fees.
+  Issued by Synchrony Bank.
+
+tags:
+  - cashback
+  - no-annual-fee

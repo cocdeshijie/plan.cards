@@ -1,0 +1,20 @@
+name: Wells Fargo Hotels.com Rewards Visa Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: wf_hotels_com_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2x
+
+notes: |
+  Rewards redeemable as Hotels.com reward nights (collect 10 → earn 1 free).
+  Applications paused April 2023; transitioned to One Key program July 2023.
+  No foreign transaction fee.
+
+tags:
+  - hotel
+  - no-annual-fee

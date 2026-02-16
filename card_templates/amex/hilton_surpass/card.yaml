@@ -1,0 +1,44 @@
+name: Hilton Honors American Express Surpass Card
+issuer: Amex
+network: Amex
+annual_fee: 150
+currency: USD
+version_id: amex_surpass_2023_1
+
+benefits:
+  credits:
+    - name: Hilton Property Credit
+      amount: 50
+      frequency: quarterly
+      reset_type: calendar
+  spend_thresholds:
+    - name: Free Night Award
+      spend_required: 15000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a Free Night Reward after spending $15,000 in a calendar year.
+    - name: Diamond Status
+      spend_required: 40000
+      frequency: annual
+      reset_type: calendar
+      description: Earn Hilton Honors Diamond status after spending $40,000 in a calendar year.
+  bonus_categories:
+    - category: Hilton Hotels & Resorts
+      multiplier: 12x
+    - category: U.S. Restaurants
+      multiplier: 6x
+    - category: U.S. Supermarkets
+      multiplier: 6x
+    - category: U.S. Gas Stations
+      multiplier: 6x
+    - category: U.S. Online Retail
+      multiplier: 4x
+
+notes: |
+  Hilton Honors Gold status.
+  National Car Rental Executive status.
+  No foreign transaction fees.
+
+tags:
+  - hilton
+  - hotel

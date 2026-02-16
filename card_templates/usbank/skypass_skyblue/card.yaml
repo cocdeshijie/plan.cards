@@ -1,0 +1,22 @@
+name: Korean Air SKYPASS Visa Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_skypass_skyblue_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Korean Air Purchases
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Entry-level Korean Air co-brand card.
+  No annual fee.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - no-annual-fee

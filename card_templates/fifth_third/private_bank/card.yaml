@@ -1,0 +1,18 @@
+name: Fifth Third Private Bank Card
+issuer: Fifth Third
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: fifth_third_private_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2x
+
+notes: |
+  Exclusively for Fifth Third Private Bank clients ($1M+ in assets). 2 points per $1 on all purchases. Lower APR. Travel benefits included.
+
+tags:
+  - premium
+  - flat-rate

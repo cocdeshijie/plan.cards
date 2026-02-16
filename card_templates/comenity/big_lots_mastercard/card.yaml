@@ -1,0 +1,21 @@
+name: Big Lots Credit Card (Mastercard)
+issuer: Comenity
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: comenity_big_lots_mc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Big Lots Purchases
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Usable anywhere Mastercard is accepted.
+  Special financing on Big Lots purchases.
+  Big Rewards loyalty perks.
+
+tags:
+  - no-annual-fee

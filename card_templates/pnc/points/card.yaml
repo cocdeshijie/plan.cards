@@ -1,0 +1,17 @@
+name: PNC Points Visa
+issuer: PNC
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: pnc_points_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 4x
+
+notes: |
+  Earn up to 75% bonus points with PNC Performance Select Checking account. Points redeemable for travel, gift cards, cash back, and merchandise.
+
+tags:
+  - no-annual-fee

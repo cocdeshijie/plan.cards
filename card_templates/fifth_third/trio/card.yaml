@@ -1,0 +1,26 @@
+name: Fifth Third TRIO Credit Card
+issuer: Fifth Third
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: fifth_third_trio_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining
+      multiplier: 3%
+      cap: 1500
+    - category: Gas, Groceries & Drugstores
+      multiplier: 2%
+      cap: 1500
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  $1,500 per quarter cap on bonus categories (3% and 2%). No annual fee.
+
+tags:
+  - cashback
+  - dining
+  - groceries
+  - no-annual-fee

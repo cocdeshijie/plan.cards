@@ -1,0 +1,21 @@
+name: Capital One Spark Classic for Business
+issuer: Capital One
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: capitalone_spark_classic_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1%
+
+notes: |
+  Designed for fair credit business owners.
+  Flat 1% cash back on all purchases.
+  No foreign transaction fee.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

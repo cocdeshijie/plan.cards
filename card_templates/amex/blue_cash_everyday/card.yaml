@@ -1,0 +1,35 @@
+name: American Express Blue Cash Everyday Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_bce_2022_1
+
+benefits:
+  credits:
+    - name: Disney Bundle Credit
+      amount: 7
+      frequency: monthly
+      reset_type: calendar
+    - name: Home Chef Credit
+      amount: 15
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: U.S. Supermarkets
+      multiplier: 3%
+      cap: 6000
+    - category: U.S. Gas Stations
+      multiplier: 3%
+      cap: 6000
+    - category: U.S. Online Retail
+      multiplier: 3%
+      cap: 6000
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - groceries
+  - no-annual-fee

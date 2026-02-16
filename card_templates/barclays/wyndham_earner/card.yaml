@@ -1,0 +1,25 @@
+name: Wyndham Rewards Earner Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_wyndham_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Wyndham Hotels
+      multiplier: 5x
+    - category: Gas, Dining & Groceries
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Wyndham Rewards Platinum status.
+  7,500 bonus points each anniversary (up to 1 free night).
+  Redeem 10% fewer points on free night awards.
+  No foreign transaction fees.
+
+tags:
+  - hotel
+  - no-annual-fee

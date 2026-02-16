@@ -1,0 +1,13 @@
+name: White House Black Market Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_white_house_black_market_2020_1
+
+notes: |
+  Store card — can only be used at White House Black Market locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: women's fashion.
+
+tags:
+  - no-annual-fee

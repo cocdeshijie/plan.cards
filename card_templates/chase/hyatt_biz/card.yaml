@@ -1,0 +1,40 @@
+name: World of Hyatt Business Card
+issuer: Chase
+network: Visa
+annual_fee: 199
+currency: USD
+version_id: chase_hyatt_biz_2021_1
+
+benefits:
+  credits:
+    - name: Hyatt Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+  spend_thresholds:
+    - name: Redemption Bonus
+      spend_required: 50000
+      frequency: annual
+      reset_type: cardiversary
+      description: "10% points-back bonus on award redemptions (up to 20,000 points) after $50,000 spend in a cardmember year."
+  bonus_categories:
+    - category: Hyatt Purchases
+      multiplier: 4x
+    - category: Top 3 Quarterly Categories / Fitness
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  World of Hyatt Discoverist elite status, gift to 5 employees.
+  5 qualifying night credits per $10,000 spent.
+  Hyatt Leverage corporate program access.
+  $100 Hyatt statement credit ($50 x 2 per year).
+  No anniversary free night.
+  Launched October 2021.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - hyatt
+  - hotel

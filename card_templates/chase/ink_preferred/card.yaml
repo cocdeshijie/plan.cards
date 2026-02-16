@@ -1,0 +1,26 @@
+name: Ink Business Preferred
+issuer: Chase
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: chase_ink_preferred_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Travel / Shipping / Internet-Cable-Phone / Social Media & Search Advertising
+      multiplier: 3x
+      cap: 150000
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Points transfer to Chase Ultimate Rewards partners.
+  1.25cpp redemption in Chase Travel.
+  Cell phone protection (up to $1,000/claim, $100 deductible).
+  Purchase protection and extended warranty.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ur
+  - transferable-points

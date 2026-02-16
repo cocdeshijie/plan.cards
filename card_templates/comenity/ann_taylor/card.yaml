@@ -1,0 +1,13 @@
+name: Ann Taylor Credit Card
+issuer: Comenity
+annual_fee: 0
+currency: USD
+version_id: comenity_ann_taylor_2020_1
+
+notes: |
+  Store card — can only be used at Ann Taylor locations.
+  Issued by Comenity Bank (Bread Financial).
+  Category: women's fashion.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,22 @@
+name: TD Cash Credit Card
+issuer: TD Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: td_cash_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Chosen Top Category
+      multiplier: 3%
+    - category: Second Category
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Choose your own top two earning categories each quarter. Categories include dining, groceries, gas, home improvement, entertainment, and more.
+
+tags:
+  - cashback
+  - no-annual-fee

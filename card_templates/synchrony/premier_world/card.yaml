@@ -1,0 +1,21 @@
+name: Synchrony Premier World Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_premier_world_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all purchases.
+  Requires excellent credit (720+ FICO).
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

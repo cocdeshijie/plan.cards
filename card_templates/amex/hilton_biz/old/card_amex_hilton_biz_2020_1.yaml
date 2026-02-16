@@ -1,0 +1,37 @@
+name: Hilton Honors American Express Business Card
+issuer: Amex
+network: Amex
+annual_fee: 95
+currency: USD
+version_id: amex_hilton_biz_2020_1
+
+benefits:
+  spend_thresholds:
+    - name: Free Night Certificate
+      spend_required: 15000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a Free Night Certificate after spending $15,000 in a calendar year.
+    - name: Free Night Certificate (2nd)
+      spend_required: 60000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a second Free Night Certificate after spending $60,000 in a calendar year.
+  bonus_categories:
+    - category: Hilton Hotels & Resorts
+      multiplier: 12x
+    - category: U.S. Restaurants/Gas/Shipping/Wireless/Flights/Car Rentals
+      multiplier: 6x
+    - category: All Other Purchases
+      multiplier: 3x
+
+notes: |
+  Hilton Honors Gold status.
+  Diamond status after $40k spend.
+  Priority Pass Select (10 visits/yr).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - hilton
+  - hotel

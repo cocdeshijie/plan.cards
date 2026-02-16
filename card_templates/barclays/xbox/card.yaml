@@ -1,0 +1,22 @@
+name: Xbox Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_xbox_2024_1
+
+benefits:
+  bonus_categories:
+    - category: Xbox & Microsoft Store
+      multiplier: 5x
+    - category: Dining, Groceries & Streaming
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  5,000 bonus card points welcome bonus ($50 value).
+  Points redeemable for Xbox and Microsoft Store purchases.
+
+tags:
+  - no-annual-fee

@@ -1,0 +1,28 @@
+name: Uber Visa Card
+issuer: Barclays
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: barclays_uber_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining (including UberEats)
+      multiplier: 4%
+    - category: Travel (flights, hotels)
+      multiplier: 3%
+    - category: Online Purchases
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Discontinued June 2020. Converted to Barclays View Mastercard October 2021.
+  Cell phone protection (up to $600/claim).
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - dining
+  - travel
+  - no-annual-fee

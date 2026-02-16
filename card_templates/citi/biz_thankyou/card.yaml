@@ -1,0 +1,21 @@
+name: CitiBusiness ThankYou Card
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_biz_thankyou_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Dining / Gas
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  ThankYou points.
+  Limited availability (select Citi branches in-person only).
+
+tags:
+  - business
+  - no-annual-fee

@@ -1,0 +1,23 @@
+name: American Express Blue Business Cash Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_bbc_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+      cap: 50000
+    - category: All Purchases (After Cap)
+      multiplier: 1%
+
+notes: |
+  No foreign transaction fees.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee
+  - flat-rate

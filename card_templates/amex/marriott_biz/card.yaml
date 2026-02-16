@@ -1,0 +1,39 @@
+name: Marriott Bonvoy Business American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 125
+currency: USD
+version_id: amex_marriott_biz_2022_1
+
+benefits:
+  spend_thresholds:
+    - name: Free Night Award
+      spend_required: 60000
+      frequency: annual
+      reset_type: calendar
+      description: Earn a Free Night Award after spending $60,000 in a calendar year.
+  bonus_categories:
+    - category: Marriott Hotels
+      multiplier: 6x
+    - category: Restaurants Worldwide
+      multiplier: 4x
+    - category: U.S. Gas Stations
+      multiplier: 4x
+    - category: U.S. Wireless
+      multiplier: 4x
+    - category: U.S. Shipping
+      multiplier: 4x
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Marriott Bonvoy Gold Elite status.
+  15 Elite Night Credits per year.
+  Free Night Award at card anniversary (up to 35k points).
+  7% discount on standard Marriott rates.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - marriott
+  - hotel

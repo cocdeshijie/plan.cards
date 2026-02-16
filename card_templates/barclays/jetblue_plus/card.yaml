@@ -1,0 +1,24 @@
+name: JetBlue Plus Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: barclays_jetblue_plus_2020_1
+
+benefits:
+  bonus_categories:
+    - category: JetBlue Purchases
+      multiplier: 6x
+    - category: Dining & Groceries
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Free first checked bag on JetBlue flights.
+  5,000 bonus TrueBlue points each account anniversary.
+  50% savings on inflight purchases.
+  No foreign transaction fees.
+
+tags:
+  - airline

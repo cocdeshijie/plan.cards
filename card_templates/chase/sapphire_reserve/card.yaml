@@ -1,0 +1,57 @@
+name: Chase Sapphire Reserve
+issuer: Chase
+network: Visa
+annual_fee: 795
+currency: USD
+version_id: chase_csr_2025_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+    - name: The Edit Hotel Credit
+      amount: 500
+      frequency: annual
+      reset_type: cardiversary
+    - name: Exclusive Tables Dining Credit
+      amount: 150
+      frequency: semi_annual
+      reset_type: calendar
+    - name: StubHub Credit
+      amount: 150
+      frequency: semi_annual
+      reset_type: calendar
+    - name: DoorDash Credit
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - name: Lyft Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Chase Travel
+      multiplier: 8x
+    - category: Flights (Direct)
+      multiplier: 4x
+    - category: Hotels (Direct)
+      multiplier: 4x
+    - category: Dining
+      multiplier: 3x
+
+notes: |
+  Chase Sapphire Lounge access.
+  Priority Pass Select.
+  Points Boost (up to 2cpp on select bookings).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining
+  - premium
+  - lounge-access

@@ -1,0 +1,20 @@
+name: Capital One QuicksilverOne Cash Rewards Card
+issuer: Capital One
+network: Visa
+annual_fee: 39
+currency: USD
+version_id: capitalone_quicksilverone_2020_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1.5%
+
+notes: |
+  Flat 1.5% cash back on all purchases.
+  Designed for fair credit (average/limited credit history).
+  Annual fee of $39.
+  No foreign transaction fee.
+
+tags:
+  - cashback

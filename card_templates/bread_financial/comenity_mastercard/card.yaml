@@ -1,0 +1,20 @@
+name: Comenity Mastercard
+issuer: Bread Financial
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: bread_comenity_mc_2024_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 2%
+
+notes: |
+  Unlimited 2% cash back on all purchases.
+  Issued by Comenity Bank (Bread Financial subsidiary).
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

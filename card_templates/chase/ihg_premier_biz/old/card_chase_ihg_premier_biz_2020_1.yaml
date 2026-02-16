@@ -1,0 +1,25 @@
+name: IHG Rewards Club Premier Business Card
+issuer: Chase
+network: Mastercard
+annual_fee: 89
+currency: USD
+version_id: chase_ihg_premier_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: IHG Hotels
+      multiplier: 10x
+    - category: Dining / Gas
+      multiplier: 2x
+
+notes: |
+  IHG Platinum Elite status.
+  Fourth reward night free on award stays.
+  Anniversary free night (up to 40k points).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ihg
+  - hotel
