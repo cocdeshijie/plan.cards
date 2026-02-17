@@ -25,7 +25,6 @@ import { ImportExportDialog } from "@/components/profile/import-export-dialog";
 import { DeleteProfileDialog } from "@/components/profile/delete-profile-dialog";
 import { TimezoneSelector } from "@/components/settings/timezone-selector";
 import {
-  CreditCard,
   Plus,
   LogOut,
   UserPlus,
@@ -36,6 +35,7 @@ import {
   Shield,
   User,
 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { createProfile } from "@/lib/api";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { AccountMenu } from "@/components/settings/account-menu";
@@ -98,7 +98,7 @@ export function TopNav() {
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
+              <Logo className="h-7 w-7" />
               <span className="font-semibold text-lg">plan.cards</span>
             </div>
             <nav className="flex items-center gap-1">
