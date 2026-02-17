@@ -13,6 +13,16 @@ from app.services.template_loader import get_template, get_old_version, get_temp
 from app.utils.period_utils import get_current_period
 from app.utils.timezone import get_today
 
+MAX_AF_BACKFILL_YEARS = 20
+
+
+def _cap_anniversary_start(anniversary: date, today: date) -> date:
+    """Advance anniversary forward so the backfill loop covers at most MAX_AF_BACKFILL_YEARS."""
+    earliest = today - relativedelta(years=MAX_AF_BACKFILL_YEARS)
+    while anniversary + relativedelta(years=1) <= earliest:
+        anniversary = anniversary + relativedelta(years=1)
+    return anniversary
+
 
 def _build_fee_timeline(template_id: str, current_fee: int) -> dict[int, int]:
     """Build a year→annual_fee mapping from template version history.
@@ -195,8 +205,8 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
         if data.template_id:
             fee_timeline = _build_fee_timeline(data.template_id, data.annual_fee)
 
-        # Start from open_date (first year fee), then each anniversary
-        anniversary = data.open_date
+        # Start from open_date (first year fee), capped to avoid excessive backfill
+        anniversary = _cap_anniversary_start(data.open_date, today)
         while anniversary <= today:
             fee = (
                 _get_fee_for_year(fee_timeline, anniversary.year)
@@ -256,7 +266,7 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
             if card.template_id:
                 fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
 
-            anniversary = card.open_date
+            anniversary = _cap_anniversary_start(card.open_date, today)
             while anniversary <= today:
                 fee = (
                     _get_fee_for_year(fee_timeline, anniversary.year)
@@ -323,8 +333,8 @@ def reopen_card(db: Session, card: Card, user_id: int | None = None) -> Card:
         if card.template_id:
             fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
 
-        # Find the next upcoming anniversary from open_date
-        anniversary = card.open_date
+        # Find the next upcoming anniversary from open_date, capped to avoid excessive backfill
+        anniversary = _cap_anniversary_start(card.open_date, today)
         while anniversary <= today:
             # Generate AF events for any missed anniversaries that don't already exist
             existing = (

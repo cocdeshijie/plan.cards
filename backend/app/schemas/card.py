@@ -22,16 +22,16 @@ class CardCreate(BaseModel):
     status: CardStatus = "active"
     open_date: date | None = None
     close_date: date | None = None
-    annual_fee: int | None = Field(default=None, ge=0)
+    annual_fee: int | None = Field(default=None, ge=0, le=99_999_999)
     annual_fee_date: date | None = None
-    credit_limit: int | None = Field(default=None, gt=0)
+    credit_limit: int | None = Field(default=None, gt=0, le=99_999_999)
     custom_notes: str | None = Field(default=None, max_length=5000)
     custom_tags: list[str] | None = None
     spend_reminder_enabled: bool = False
-    spend_requirement: int | None = Field(default=None, gt=0)
+    spend_requirement: int | None = Field(default=None, gt=0, le=99_999_999)
     spend_deadline: date | None = None
     spend_reminder_notes: str | None = Field(default=None, max_length=1000)
-    signup_bonus_amount: int | None = Field(default=None, gt=0)
+    signup_bonus_amount: int | None = Field(default=None, gt=0, le=99_999_999)
     signup_bonus_type: str | None = Field(default=None, max_length=50)
     signup_bonus_earned: bool = False
     template_version_id: str | None = None
@@ -51,6 +51,7 @@ class CardCreate(BaseModel):
         if v is not None:
             if len(v) > 20:
                 raise ValueError("Maximum 20 tags allowed")
+            seen: set[str] = set()
             cleaned = []
             for tag in v:
                 tag = tag.strip()
@@ -58,7 +59,10 @@ class CardCreate(BaseModel):
                     continue
                 if len(tag) > 50:
                     raise ValueError("Each tag must be 50 characters or less")
-                cleaned.append(tag)
+                lower = tag.lower()
+                if lower not in seen:
+                    seen.add(lower)
+                    cleaned.append(tag)
             return cleaned or None
         return v
 
@@ -81,16 +85,16 @@ class CardUpdate(BaseModel):
     card_type: CardType | None = None
     open_date: date | None = None
     close_date: date | None = None
-    annual_fee: int | None = Field(default=None, ge=0)
+    annual_fee: int | None = Field(default=None, ge=0, le=99_999_999)
     annual_fee_date: date | None = None
-    credit_limit: int | None = Field(default=None, gt=0)
+    credit_limit: int | None = Field(default=None, gt=0, le=99_999_999)
     custom_notes: str | None = Field(default=None, max_length=5000)
     custom_tags: list[str] | None = None
     spend_reminder_enabled: bool | None = None
-    spend_requirement: int | None = Field(default=None, gt=0)
+    spend_requirement: int | None = Field(default=None, gt=0, le=99_999_999)
     spend_deadline: date | None = None
     spend_reminder_notes: str | None = Field(default=None, max_length=1000)
-    signup_bonus_amount: int | None = Field(default=None, gt=0)
+    signup_bonus_amount: int | None = Field(default=None, gt=0, le=99_999_999)
     signup_bonus_type: str | None = Field(default=None, max_length=50)
     signup_bonus_earned: bool | None = None
 
@@ -109,6 +113,7 @@ class CardUpdate(BaseModel):
         if v is not None:
             if len(v) > 20:
                 raise ValueError("Maximum 20 tags allowed")
+            seen: set[str] = set()
             cleaned = []
             for tag in v:
                 tag = tag.strip()
@@ -116,7 +121,10 @@ class CardUpdate(BaseModel):
                     continue
                 if len(tag) > 50:
                     raise ValueError("Each tag must be 50 characters or less")
-                cleaned.append(tag)
+                lower = tag.lower()
+                if lower not in seen:
+                    seen.add(lower)
+                    cleaned.append(tag)
             return cleaned or None
         return v
 
@@ -137,13 +145,13 @@ class ProductChangeRequest(BaseModel):
     new_template_id: str | None = None
     new_card_name: str = Field(min_length=1, max_length=200)
     change_date: date
-    new_annual_fee: int | None = Field(default=None, ge=0)
+    new_annual_fee: int | None = Field(default=None, ge=0, le=99_999_999)
     new_network: str | None = Field(default=None, max_length=50)
     new_card_image: str | None = None
     sync_benefits: bool = False
     upgrade_bonus_amount: int | None = Field(default=None, gt=0, le=99_999_999)
     upgrade_bonus_type: str | None = None
-    upgrade_spend_requirement: int | None = None
+    upgrade_spend_requirement: int | None = Field(default=None, gt=0, le=99_999_999)
     upgrade_spend_deadline: date | None = None
     upgrade_spend_reminder_notes: str | None = None
     reset_af_anniversary: bool = True

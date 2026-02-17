@@ -36,6 +36,8 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
     for profile in profiles:
         export_cards = []
         for card in profile.cards:
+            if card.deleted_at is not None:
+                continue
             export_events = [
                 ExportEvent(
                     original_id=e.id,
@@ -289,8 +291,10 @@ def import_profiles(
         if not profile:
             raise ValueError("Target profile not found")
 
-        # Build set of existing cards for duplicate detection (case-insensitive)
-        existing_cards = db.query(Card).filter(Card.profile_id == profile.id).all()
+        # Build set of existing (non-deleted) cards for duplicate detection (case-insensitive)
+        existing_cards = db.query(Card).filter(
+            Card.profile_id == profile.id, Card.deleted_at == None  # noqa: E711
+        ).all()
         existing_keys = {
             (c.card_name.lower(), c.issuer.lower(), c.open_date) for c in existing_cards
         }

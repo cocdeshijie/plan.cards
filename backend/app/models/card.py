@@ -40,6 +40,8 @@ class Card(Base):
     signup_bonus_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     signup_bonus_earned: Mapped[bool] = mapped_column(Boolean, default=False)
 
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None, index=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
