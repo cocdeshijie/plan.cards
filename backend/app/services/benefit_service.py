@@ -100,11 +100,13 @@ def update_benefit(
     db: Session, benefit: CardBenefit, card: Card, data: CardBenefitUpdate, user_id: int | None = None
 ) -> CardBenefitOut:
     update_data = data.model_dump(exclude_unset=True)
+    old_frequency = benefit.frequency
+    old_reset_type = benefit.reset_type
     for field, value in update_data.items():
         setattr(benefit, field, value)
 
-    # Recompute period if frequency or reset_type changed
-    if "frequency" in update_data or "reset_type" in update_data:
+    # Only reset tracking if frequency or reset_type actually changed
+    if benefit.frequency != old_frequency or benefit.reset_type != old_reset_type:
         period_start, _ = get_current_period(
             benefit.frequency, benefit.reset_type, card.open_date
         )
