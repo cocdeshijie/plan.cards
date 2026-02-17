@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAppStore } from "@/hooks/use-app-store";
 import { TopNav } from "./top-nav";
 import { MobileTopBar } from "./mobile-top-bar";
 import { BottomTabs } from "./bottom-tabs";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
-import { LoginRouter } from "@/components/auth/login-router";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     refresh,
   } = useAppStore();
   const pathname = usePathname();
+  const router = useRouter();
   const lastRefreshRef = useRef(Date.now());
   const bootRef = useRef(false);
 
@@ -96,14 +96,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Let the OAuth callback page render even when not authenticated
-  if (pathname === "/auth/callback") {
-    return <>{children}</>;
+  // Public pages: landing page and OAuth callback always render their children
+  const isPublicPage = pathname === "/" || pathname === "/auth/callback";
+
+  if (!authed) {
+    if (isPublicPage) {
+      return <>{children}</>;
+    }
+    // Redirect protected pages to landing
+    router.replace("/");
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
-  // Login
-  if (!authed) {
-    return <LoginRouter />;
+  // Authenticated user on landing page — let them stay (landing page shows "Go to Dashboard" button)
+  if (pathname === "/") {
+    return <>{children}</>;
   }
 
   if (dataError) {

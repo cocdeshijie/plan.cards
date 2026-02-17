@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, CreditCard } from "lucide-react";
 
 const tabs = [
-  { href: "/", label: "Summary", icon: LayoutDashboard },
+  { href: "/summary", label: "Summary", icon: LayoutDashboard },
   { href: "/cards", label: "Cards", icon: CreditCard },
 ];
 
