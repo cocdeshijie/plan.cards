@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, Home, Globe, Lock, Users, Shield, KeyRound, ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
+import { Home, Globe, Lock, Users, Shield, KeyRound, ChevronRight, ChevronLeft, Check, Loader2, Copy } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -220,9 +221,7 @@ export function OnboardingWizard() {
 function WelcomeStep({ hasExistingData }: { hasExistingData: boolean }) {
   return (
     <div className="text-center space-y-4">
-      <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10">
-        <CreditCard className="h-10 w-10 text-primary" />
-      </div>
+      <Logo className="h-20 w-20 mx-auto" />
       <h1 className="text-2xl font-bold tracking-tight">Welcome to plan.cards</h1>
       <p className="text-muted-foreground">
         {hasExistingData
@@ -316,6 +315,38 @@ function AuthModeStep({
   );
 }
 
+function RedirectUriDisplay({ provider }: { provider: string }) {
+  const [copied, setCopied] = useState(false);
+  const redirectUri = typeof window !== "undefined"
+    ? `${window.location.origin}/auth/callback?provider=${provider}`
+    : "";
+
+  if (!provider || !redirectUri) return null;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(redirectUri);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <Label>Redirect URI</Label>
+      <p className="text-xs text-muted-foreground">
+        Add this URI to your OAuth provider&apos;s allowed redirect URIs. It must match exactly.
+      </p>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
+          {redirectUri}
+        </code>
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={handleCopy}>
+          {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function ConfigStep({
   state,
   onChange,
@@ -375,6 +406,7 @@ function ConfigStep({
                   </SelectContent>
                 </Select>
               </div>
+              <RedirectUriDisplay provider={state.oauthPreset} />
               <div className="space-y-1.5">
                 <Label htmlFor="oauth-client-id">Client ID</Label>
                 <Input
