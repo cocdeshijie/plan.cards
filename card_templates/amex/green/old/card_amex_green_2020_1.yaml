@@ -7,7 +7,7 @@ version_id: amex_green_2020_1
 
 benefits:
   credits:
-    - name: CLEAR Credit
+    - name: CLEAR+ Credit
       amount: 100
       frequency: annual
       reset_type: calendar

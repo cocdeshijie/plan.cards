@@ -14,7 +14,7 @@ benefits:
     - category: All Other Purchases
       multiplier: 1x
   credits:
-    - name: Air Travel Credit
+    - name: Airline Fee Credit
       amount: 100
       frequency: annual
       reset_type: calendar

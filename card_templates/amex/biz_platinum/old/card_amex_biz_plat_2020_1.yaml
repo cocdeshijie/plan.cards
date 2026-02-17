@@ -11,7 +11,7 @@ benefits:
       amount: 200
       frequency: annual
       reset_type: calendar
-    - name: CLEAR Credit
+    - name: CLEAR+ Credit
       amount: 179
       frequency: annual
       reset_type: calendar

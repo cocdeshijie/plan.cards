@@ -23,7 +23,7 @@ benefits:
       amount: 75
       frequency: quarterly
       reset_type: calendar
-    - name: Hotel Credit (FHR/Hotel Collection)
+    - name: FHR/Hotel Collection Credit
       amount: 300
       frequency: semi_annual
       reset_type: calendar

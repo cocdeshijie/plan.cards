@@ -14,7 +14,7 @@ benefits:
     - category: All Other Purchases
       multiplier: 1x
   credits:
-    - name: Airline Incidental Credit
+    - name: Airline Fee Credit
       amount: 200
       frequency: annual
       reset_type: calendar
@@ -22,7 +22,7 @@ benefits:
       amount: 100
       frequency: annual
       reset_type: calendar
-    - name: CLEAR Plus Credit
+    - name: CLEAR+ Credit
       amount: 189
       frequency: annual
       reset_type: calendar

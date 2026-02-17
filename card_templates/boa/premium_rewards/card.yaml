@@ -7,7 +7,7 @@ version_id: boa_premium_rewards_2020_1
 
 benefits:
   credits:
-    - name: Airline Incidental Credit
+    - name: Airline Fee Credit
       amount: 100
       frequency: annual
       reset_type: calendar

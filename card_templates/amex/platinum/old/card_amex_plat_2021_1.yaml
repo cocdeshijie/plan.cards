@@ -19,7 +19,7 @@ benefits:
       amount: 50
       frequency: semi_annual
       reset_type: calendar
-    - name: Hotel Credit (FHR/Hotel Collection)
+    - name: FHR/Hotel Collection Credit
       amount: 200
       frequency: annual
       reset_type: calendar
@@ -27,7 +27,7 @@ benefits:
       amount: 200
       frequency: annual
       reset_type: calendar
-    - name: CLEAR Plus Credit
+    - name: CLEAR+ Credit
       amount: 189
       frequency: annual
       reset_type: calendar

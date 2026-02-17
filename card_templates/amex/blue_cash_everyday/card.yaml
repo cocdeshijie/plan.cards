@@ -7,7 +7,7 @@ version_id: amex_bce_2022_1
 
 benefits:
   credits:
-    - name: Disney Bundle Credit
+    - name: Disney Streaming Credit
       amount: 7
       frequency: monthly
       reset_type: calendar
