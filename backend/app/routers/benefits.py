@@ -35,7 +35,7 @@ def _get_card(card_id: int, user: User, db: Session) -> Card:
     card = (
         db.query(Card)
         .join(Profile)
-        .filter(Card.id == card_id, Profile.user_id == user.id)
+        .filter(Card.id == card_id, Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
         .first()
     )
     if not card:

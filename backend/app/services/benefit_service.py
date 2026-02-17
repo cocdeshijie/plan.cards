@@ -180,6 +180,7 @@ def list_all_benefits(
         .join(Card, CardBenefit.card_id == Card.id)
         .join(Profile, Card.profile_id == Profile.id)
         .filter(Card.status == "active")
+        .filter(Card.deleted_at == None)  # noqa: E711
         .filter(CardBenefit.retired == False)  # noqa: E712
     )
     if user_id is not None:

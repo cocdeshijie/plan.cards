@@ -23,7 +23,7 @@ def _verify_card_ownership(db: Session, user: User, card_id: int) -> Card:
     card = (
         db.query(Card)
         .join(Profile)
-        .filter(Card.id == card_id, Profile.user_id == user.id)
+        .filter(Card.id == card_id, Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
         .first()
     )
     if not card:
@@ -173,7 +173,7 @@ def list_all_events(
     user: User = Depends(require_auth),
     db: Session = Depends(get_db),
 ):
-    query = db.query(CardEvent).join(Card).join(Profile).filter(Profile.user_id == user.id)
+    query = db.query(CardEvent).join(Card).join(Profile).filter(Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
     if profile_id is not None:
         query = query.filter(Card.profile_id == profile_id)
     if event_type is not None:

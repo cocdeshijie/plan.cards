@@ -17,7 +17,7 @@ def _verify_card_ownership(db: Session, user: User, card_id: int) -> Card:
     card = (
         db.query(Card)
         .join(Profile)
-        .filter(Card.id == card_id, Profile.user_id == user.id)
+        .filter(Card.id == card_id, Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
         .first()
     )
     if not card:

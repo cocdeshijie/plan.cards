@@ -50,6 +50,10 @@ def _calendar_period(frequency: str, ref: date) -> tuple[date, date]:
 def _cardiversary_period(frequency: str, open_date: date, ref: date) -> tuple[date, date]:
     delta = _FREQUENCY_DELTA.get(frequency, relativedelta(years=1))
 
+    # Guard: if open_date is in the future, return the first period immediately
+    if open_date > ref:
+        return open_date, open_date + delta - relativedelta(days=1)
+
     # Walk forward from open_date to find the period containing ref
     cursor = open_date
     while True:

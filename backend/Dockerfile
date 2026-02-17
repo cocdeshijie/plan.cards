@@ -6,6 +6,8 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/app ./app
+COPY backend/alembic ./alembic
+COPY backend/alembic.ini .
 COPY card_templates /card_templates
 
 RUN mkdir -p /data && \

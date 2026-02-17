@@ -16,6 +16,7 @@ def get_524_count(db: Session, profile_id: int, user_id: int | None = None) -> i
             Card.card_type == "personal",
             Card.open_date != None,  # noqa: E711
             Card.open_date >= cutoff,
+            Card.deleted_at == None,  # noqa: E711
         )
         .count()
     )
@@ -31,6 +32,7 @@ def get_524_details(db: Session, profile_id: int, user_id: int | None = None) ->
             Card.card_type == "personal",
             Card.open_date != None,  # noqa: E711
             Card.open_date >= cutoff,
+            Card.deleted_at == None,  # noqa: E711
         )
         .order_by(Card.open_date)
         .all()

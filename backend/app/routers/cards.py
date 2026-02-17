@@ -1,12 +1,14 @@
 import mimetypes
+from datetime import datetime, timezone
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.database import get_db
 from app.models.card import Card
+from app.rate_limit import limiter
 from app.models.profile import Profile
 from app.models.user import User
 from app.routers.auth import require_auth
@@ -21,14 +23,16 @@ from app.services.template_loader import (
 router = APIRouter(prefix="/api/cards", tags=["cards"])
 
 
-def _verify_card_ownership(db: Session, user: User, card_id: int) -> Card:
+def _verify_card_ownership(db: Session, user: User, card_id: int, include_deleted: bool = False) -> Card:
     """Load a card and verify it belongs to the user via its profile."""
-    card = (
+    query = (
         db.query(Card)
         .join(Profile)
         .filter(Card.id == card_id, Profile.user_id == user.id)
-        .first()
     )
+    if not include_deleted:
+        query = query.filter(Card.deleted_at == None)  # noqa: E711
+    card = query.first()
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
     return card
@@ -47,7 +51,7 @@ def list_cards(
         db.query(Card)
         .join(Profile)
         .options(selectinload(Card.events), selectinload(Card.bonuses))
-        .filter(Profile.user_id == user.id)
+        .filter(Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
     )
     if profile_id is not None:
         query = query.filter(Card.profile_id == profile_id)
@@ -61,7 +65,8 @@ def list_cards(
 
 
 @router.post("", response_model=CardOut, status_code=201)
-def create_card_endpoint(data: CardCreate, user: User = Depends(require_auth), db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def create_card_endpoint(request: Request, data: CardCreate, user: User = Depends(require_auth), db: Session = Depends(get_db)):
     # Verify the target profile belongs to the user
     profile = db.get(Profile, data.profile_id)
     if not profile or profile.user_id != user.id:
@@ -77,7 +82,7 @@ def get_card(card_id: int, user: User = Depends(require_auth), db: Session = Dep
         db.query(Card)
         .join(Profile)
         .options(joinedload(Card.events), joinedload(Card.bonuses))
-        .filter(Card.id == card_id, Profile.user_id == user.id)
+        .filter(Card.id == card_id, Profile.user_id == user.id, Card.deleted_at == None)  # noqa: E711
         .first()
     )
     if not card:
@@ -86,7 +91,8 @@ def get_card(card_id: int, user: User = Depends(require_auth), db: Session = Dep
 
 
 @router.put("/{card_id}", response_model=CardOut)
-def update_card_endpoint(card_id: int, data: CardUpdate, user: User = Depends(require_auth), db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def update_card_endpoint(request: Request, card_id: int, data: CardUpdate, user: User = Depends(require_auth), db: Session = Depends(get_db)):
     card = _verify_card_ownership(db, user, card_id)
     try:
         card = update_card(db, card, data, user_id=user.id)
@@ -97,10 +103,22 @@ def update_card_endpoint(card_id: int, data: CardUpdate, user: User = Depends(re
 
 
 @router.delete("/{card_id}", status_code=204)
-def delete_card(card_id: int, user: User = Depends(require_auth), db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def delete_card(request: Request, card_id: int, user: User = Depends(require_auth), db: Session = Depends(get_db)):
     card = _verify_card_ownership(db, user, card_id)
-    db.delete(card)
+    card.deleted_at = datetime.now(timezone.utc)
     db.commit()
+
+
+@router.post("/{card_id}/restore", response_model=CardOut)
+def restore_card(card_id: int, user: User = Depends(require_auth), db: Session = Depends(get_db)):
+    card = _verify_card_ownership(db, user, card_id, include_deleted=True)
+    if not card.deleted_at:
+        raise HTTPException(status_code=400, detail="Card is not deleted")
+    card.deleted_at = None
+    db.commit()
+    db.refresh(card, ["events", "bonuses"])
+    return card
 
 
 @router.post("/{card_id}/close", response_model=CardOut)

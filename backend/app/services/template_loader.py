@@ -178,8 +178,14 @@ def load_templates() -> None:
             except Exception as exc:
                 logger.warning("Skipping template %s: failed to parse YAML: %s", template_id, exc)
                 continue
-            if data is None:
+            if data is None or not isinstance(data, dict):
                 continue
+
+            # Validate required fields exist
+            if not data.get("name"):
+                data["name"] = card_dir.name
+            if not data.get("issuer"):
+                data["issuer"] = issuer_dir.name
 
             image_path = _find_image(card_dir)
             if image_path:
@@ -217,6 +223,7 @@ def load_templates() -> None:
     _old_versions = new_old_versions
     _old_image_paths = new_old_image_paths
     _last_fingerprint = _compute_fingerprint()
+    logger.info("Loaded %d templates (%d with images)", len(new_templates), len(new_image_paths))
 
 
 def reload_if_changed() -> bool:
@@ -262,7 +269,7 @@ def get_template_image_path_by_filename(template_id: str, filename: str) -> Path
         return None
     templates_dir = Path(settings.card_templates_dir).resolve()
     resolved = path.resolve()
-    if not str(resolved).startswith(str(templates_dir)):
+    if not resolved.is_relative_to(templates_dir):
         return None
     return resolved if resolved.exists() else None
 

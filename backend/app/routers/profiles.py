@@ -58,7 +58,7 @@ def export_profiles_endpoint(
 
 
 @router.post("/import", response_model=ImportResult)
-def import_profiles_endpoint(
+async def import_profiles_endpoint(
     request: Request,
     data: ExportData,
     mode: Literal["new", "override", "merge"] = Query("new"),
@@ -66,12 +66,13 @@ def import_profiles_endpoint(
     user: User = Depends(require_auth),
     db: Session = Depends(get_db),
 ):
+    # Check Content-Length header as a fast reject
     content_length = request.headers.get("content-length")
     try:
         if content_length and int(content_length) > MAX_IMPORT_SIZE:
             raise HTTPException(status_code=413, detail="Import file too large (max 50MB)")
     except ValueError:
-        pass  # Non-integer Content-Length — let the framework handle it
+        pass
     if mode in ("override", "merge") and target_profile_id is None:
         raise HTTPException(status_code=400, detail=f"{mode} mode requires target_profile_id")
     if target_profile_id is not None:

@@ -155,6 +155,7 @@ def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
         # Check against system config stored hash
         stored_hash = get_system_config(db, "single_password_hash", "")
         if not stored_hash or not verify_password(data.password, stored_hash):
+            logger.warning("Failed login attempt (single_password mode)")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
             )
@@ -176,10 +177,12 @@ def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
             )
         user = db.query(User).filter(User.username == data.username).first()
         if not user or not user.password_hash:
+            logger.warning("Failed login attempt for user: %s", data.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
             )
         if not verify_password(data.password, user.password_hash):
+            logger.warning("Failed login attempt for user: %s", data.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
             )
