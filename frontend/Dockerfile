@@ -8,8 +8,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG COMMIT_HASH=dev
+ARG BACKEND_URL=http://backend:8000
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_COMMIT_HASH=${COMMIT_HASH}
+ENV BACKEND_URL=${BACKEND_URL}
 RUN npx next build
 
 FROM node:20-alpine AS runner

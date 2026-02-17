@@ -9,10 +9,20 @@ const commitHash = process.env.NEXT_PUBLIC_COMMIT_HASH || (() => {
   }
 })();
 
+const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
+
 const nextConfig: NextConfig = {
   output: "standalone",
   env: {
     NEXT_PUBLIC_COMMIT_HASH: commitHash,
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
   },
   async headers() {
     return [

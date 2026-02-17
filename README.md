@@ -10,20 +10,7 @@ cd plan.cards
 docker compose up -d
 ```
 
-Open **http://localhost:3000** (or your server's IP/hostname) and follow the setup wizard to pick an auth mode and create your account. The frontend auto-detects the backend from the hostname — no extra configuration needed.
-
-### Reverse proxy / custom ports
-
-For production behind a reverse proxy or non-default ports, set optional env vars:
-
-```bash
-NEXT_PUBLIC_API_URL=https://api.example.com ALLOWED_ORIGINS=https://example.com docker compose up -d
-```
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `NEXT_PUBLIC_API_URL` | auto-detected | Override backend URL (e.g. behind reverse proxy) |
-| `ALLOWED_ORIGINS` | `*` (allow all) | Restrict CORS to specific frontend origins |
+Open **http://localhost:3000** (or your server's IP/hostname) and follow the setup wizard. Only port 3000 is exposed — the frontend proxies API requests to the backend internally.
 
 ## Features
 

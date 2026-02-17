@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    ports:
-      - "8000:8000"
     environment:
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
       - DATABASE_URL=sqlite:////data/cards.db
