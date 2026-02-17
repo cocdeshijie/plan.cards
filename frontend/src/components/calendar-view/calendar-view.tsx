@@ -18,6 +18,7 @@ import {
 } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToday } from "@/hooks/use-timezone";
+import { parseDateStr } from "@/lib/utils";
 
 interface CalendarViewProps {
   cards: Card[];
@@ -55,7 +56,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
       const prefix = profileName ? `${profileName} \u2022 ` : "";
 
       if (card.open_date && card.status === "active") {
-        const openDate = new Date(card.open_date + "T00:00:00");
+        const openDate = parseDateStr(card.open_date);
         const hasFee = card.annual_fee && card.annual_fee > 0;
         // Generate for both viewYear and viewYear+1 to handle month boundary views
         for (const yr of [year, year + 1]) {
@@ -72,7 +73,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
         }
       }
       if (card.spend_reminder_enabled && card.spend_deadline && !card.signup_bonus_earned) {
-        const deadline = new Date(card.spend_deadline + "T00:00:00");
+        const deadline = parseDateStr(card.spend_deadline);
         events.push({
           date: deadline,
           type: "spend_deadline",
@@ -82,7 +83,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
         });
       }
       if (card.annual_fee_date) {
-        const afDate = new Date(card.annual_fee_date + "T00:00:00");
+        const afDate = parseDateStr(card.annual_fee_date);
         events.push({
           date: afDate,
           type: "annual_fee_due",
@@ -94,7 +95,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
       // Upgrade/retention bonus spend deadlines
       for (const bonus of card.bonuses ?? []) {
         if (bonus.spend_reminder_enabled && bonus.spend_deadline && !bonus.bonus_earned) {
-          const dl = new Date(bonus.spend_deadline + "T00:00:00");
+          const dl = parseDateStr(bonus.spend_deadline);
           const label = bonus.bonus_source === "retention" ? "Retention" : "Upgrade";
           events.push({
             date: dl,
@@ -156,7 +157,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
     let minYear = currentYear - 5;
     for (const card of cards) {
       if (card.open_date) {
-        const yr = new Date(card.open_date + "T00:00:00").getFullYear();
+        const yr = parseDateStr(card.open_date).getFullYear();
         if (yr < minYear) minYear = yr;
       }
     }

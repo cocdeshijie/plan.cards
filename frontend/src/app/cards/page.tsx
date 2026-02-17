@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import type { Card } from "@/types";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CardShowcaseTile } from "@/components/cards/card-showcase-tile";
 import { CardFilters, type SortField, type SortDir } from "@/components/cards/card-filters";
@@ -13,7 +14,7 @@ import { CalendarView } from "@/components/calendar-view/calendar-view";
 import { TimelineView } from "@/components/timeline-view/timeline-view";
 import { FiveTwentyFourBadge } from "@/components/five-twenty-four/badge";
 import { CardGridSkeleton } from "@/components/cards/card-grid-skeleton";
-import { Plus, Wallet, FilterX } from "lucide-react";
+import { Plus, Wallet, FilterX, Search } from "lucide-react";
 
 function sortCards(cards: Card[], field: SortField, dir: SortDir): Card[] {
   const sorted = [...cards].sort((a, b) => {
@@ -41,6 +42,14 @@ export default function CardsPage() {
 
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
   const [showAddCard, setShowAddCard] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Filters (persisted in localStorage, hydrated in useEffect to avoid SSR mismatch)
   const [statusFilter, setStatusFilter] = useState("all");
@@ -72,15 +81,25 @@ export default function CardsPage() {
   };
 
   const filteredCards = useMemo(() => {
+    const q = debouncedSearch.toLowerCase().trim();
     const filtered = cards.filter((card) => {
       if (selectedProfileId !== "all" && card.profile_id !== parseInt(selectedProfileId)) return false;
       if (statusFilter !== "all" && card.status !== statusFilter) return false;
       if (typeFilter !== "all" && card.card_type !== typeFilter) return false;
       if (issuerFilter !== "all" && card.issuer !== issuerFilter) return false;
+      if (q) {
+        const searchable = [
+          card.card_name,
+          card.issuer,
+          card.custom_notes,
+          ...(card.custom_tags || []),
+        ].filter(Boolean).join(" ").toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
       return true;
     });
     return sortCards(filtered, sortField, sortDir);
-  }, [cards, selectedProfileId, statusFilter, typeFilter, issuerFilter, sortField, sortDir]);
+  }, [cards, selectedProfileId, statusFilter, typeFilter, issuerFilter, sortField, sortDir, debouncedSearch]);
 
   const issuers = useMemo(() => [...new Set(cards.map((c) => c.issuer))].sort(), [cards]);
 
@@ -125,6 +144,15 @@ export default function CardsPage() {
         </TabsList>
 
         <TabsContent value="list" className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search cards..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
           <CardFilters
             statusFilter={statusFilter}
             onStatusChange={handleStatusChange}
@@ -143,18 +171,23 @@ export default function CardsPage() {
           {filteredCards.length === 0 ? (
             (() => {
               const hasFilters = statusFilter !== "all" || typeFilter !== "all" || issuerFilter !== "all";
+              const hasSearch = debouncedSearch.trim().length > 0;
               return (
                 <div className="flex flex-col items-center justify-center py-16 space-y-4">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted">
-                    {hasFilters ? <FilterX className="h-8 w-8 text-muted-foreground" /> : <Wallet className="h-8 w-8 text-muted-foreground" />}
+                    {hasFilters || hasSearch ? <FilterX className="h-8 w-8 text-muted-foreground" /> : <Wallet className="h-8 w-8 text-muted-foreground" />}
                   </div>
                   <div className="text-center space-y-1">
-                    <p className="font-medium">{hasFilters ? "No matching cards" : "No cards yet"}</p>
-                    <p className="text-sm text-muted-foreground">{hasFilters ? "Try adjusting your filters" : "Add your first card to start tracking"}</p>
+                    <p className="font-medium">
+                      {hasSearch ? `No results for "${debouncedSearch}"` : hasFilters ? "No matching cards" : "No cards yet"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {hasSearch ? "Try a different search term" : hasFilters ? "Try adjusting your filters" : "Add your first card to start tracking"}
+                    </p>
                   </div>
-                  {hasFilters ? (
-                    <Button variant="outline" onClick={() => { handleStatusChange("all"); handleTypeChange("all"); handleIssuerChange("all"); }}>
-                      Clear Filters
+                  {hasFilters || hasSearch ? (
+                    <Button variant="outline" onClick={() => { handleStatusChange("all"); handleTypeChange("all"); handleIssuerChange("all"); setSearchQuery(""); }}>
+                      {hasSearch ? "Clear Search" : "Clear Filters"}
                     </Button>
                   ) : (
                     <Button onClick={() => setShowAddCard(true)}>

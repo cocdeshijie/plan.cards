@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { updateEvent, deleteEvent, createCardEvent } from "@/lib/api";
-import { parseIntStrict } from "@/lib/utils";
+import { parseIntStrict, parseDateStr } from "@/lib/utils";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -47,7 +47,7 @@ function isApproximate(event: CardEvent): boolean {
 }
 
 function formatFeeDate(event: CardEvent): string {
-  const d = new Date(event.event_date + "T00:00:00");
+  const d = parseDateStr(event.event_date);
   if (isApproximate(event)) {
     return "~" + format(d, "MMM yyyy");
   }
@@ -81,7 +81,7 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
   const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date);
 
   const openYear = card.open_date
-    ? new Date(card.open_date + "T00:00:00").getFullYear()
+    ? parseDateStr(card.open_date).getFullYear()
     : null;
 
   const yearEntries = afEvents.map((event, i) => ({
@@ -89,7 +89,7 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
     yearLabel: event.event_type === "annual_fee_refund"
       ? "Refund"
       : openYear != null
-        ? `Year ${new Date(event.event_date + "T00:00:00").getFullYear() - openYear + 1}`
+        ? `Year ${parseDateStr(event.event_date).getFullYear() - openYear + 1}`
         : `Year ${i + 1}`,
     fee: extractFee(event, card.annual_fee),
     date: event.event_date,
@@ -176,7 +176,7 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
     setEditingEventId(event.id);
     setDeletingEventId(null);
     setEditFeeValue(String(Math.abs(currentFee)));
-    setEditDateValue(new Date(event.event_date + "T00:00:00"));
+    setEditDateValue(parseDateStr(event.event_date));
     setEditDescription(event.description || "");
   };
 

@@ -1,3 +1,5 @@
+import { parseDateStr } from "@/lib/utils";
+
 export type Proximity = "far" | "soon" | "imminent";
 
 export interface NextFeeInfo {
@@ -32,9 +34,9 @@ export function getNextFeeInfo(
   let next: Date;
   if (annualFeeDate) {
     // Prefer backend-computed annual_fee_date
-    next = new Date(annualFeeDate + "T00:00:00");
+    next = parseDateStr(annualFeeDate);
   } else if (openDate) {
-    const open = new Date(openDate + "T00:00:00");
+    const open = parseDateStr(openDate);
     next = getAnniversaryForYear(open, today.getFullYear());
     if (next < today) {
       next = getAnniversaryForYear(open, today.getFullYear() + 1);

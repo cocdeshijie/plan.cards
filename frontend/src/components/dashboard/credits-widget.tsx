@@ -186,7 +186,18 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
           <Gift className="h-5 w-5 text-purple-500" />
           <h2 className="font-semibold">Credits & Benefits</h2>
         </div>
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded bg-muted animate-pulse" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 w-32 rounded bg-muted animate-pulse" />
+                <div className="h-2.5 w-20 rounded bg-muted animate-pulse" />
+              </div>
+              <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

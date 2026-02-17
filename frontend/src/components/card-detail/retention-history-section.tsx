@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Switch } from "@/components/ui/switch";
 import { updateEvent, deleteEvent, createRetentionOffer, createBonus, updateBonus, deleteBonus } from "@/lib/api";
-import { formatDate, parseIntStrict } from "@/lib/utils";
+import { formatDate, parseIntStrict, parseDateStr } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Gift, Pencil, Check, X, Trash2, Plus, ChevronDown } from "lucide-react";
@@ -174,7 +174,7 @@ export function RetentionHistorySection({ card, accentTint, onUpdated, expanded,
     const linkedBonus = findLinkedBonus(card, event.id);
     setEditingEventId(event.id);
     setDeletingEventId(null);
-    setEditDate(new Date(event.event_date + "T00:00:00"));
+    setEditDate(parseDateStr(event.event_date));
     setEditPoints(meta.offer_points ? String(meta.offer_points) : "");
     setEditCredit(meta.offer_credit ? String(meta.offer_credit) : "");
     setEditAccepted(meta.accepted !== false);
@@ -182,7 +182,7 @@ export function RetentionHistorySection({ card, accentTint, onUpdated, expanded,
     if (linkedBonus) {
       setEditHasSpend(true);
       setEditSpendReq(linkedBonus.spend_requirement ? String(linkedBonus.spend_requirement) : "");
-      setEditSpendDeadline(linkedBonus.spend_deadline ? new Date(linkedBonus.spend_deadline + "T00:00:00") : undefined);
+      setEditSpendDeadline(linkedBonus.spend_deadline ? parseDateStr(linkedBonus.spend_deadline) : undefined);
       setEditSpendNotes(linkedBonus.spend_reminder_notes || "");
     } else {
       setEditHasSpend(false);

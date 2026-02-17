@@ -58,7 +58,16 @@ export function FiveTwentyFourWidget() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="space-y-3">
+          <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+          <div className="flex items-center gap-3">
+            <div className="h-16 w-16 rounded-full bg-muted animate-pulse" />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+              <div className="h-2.5 w-32 rounded bg-muted animate-pulse" />
+            </div>
+          </div>
+        </div>
       ) : rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No profiles to show. Create a profile first.</p>
       ) : (

@@ -31,7 +31,9 @@ export function useToday(): Date {
       month: "2-digit",
       day: "2-digit",
     }).format(new Date());
-    return new Date(parts + "T00:00:00");
+    // Parse via UTC then construct local Date to avoid browser date-string ambiguity
+    const d = new Date(parts + "T00:00:00Z");
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tz, tick]);
 }

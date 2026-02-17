@@ -68,7 +68,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || `API error: ${res.status}`);
   }
-  return res.json();
+  return res.json().catch(() => undefined as T);
 }
 
 // Setup
@@ -142,6 +142,8 @@ export const updateCard = (id: number, data: Partial<CardCreate>) =>
   apiFetch<Card>(`/api/cards/${id}`, { method: "PUT", body: JSON.stringify(data) });
 export const deleteCard = (id: number) =>
   apiFetch<void>(`/api/cards/${id}`, { method: "DELETE" });
+export const restoreCard = (id: number) =>
+  apiFetch<Card>(`/api/cards/${id}/restore`, { method: "POST" });
 export const closeCard = (id: number, closeDate: string) =>
   apiFetch<Card>(`/api/cards/${id}/close`, {
     method: "POST",

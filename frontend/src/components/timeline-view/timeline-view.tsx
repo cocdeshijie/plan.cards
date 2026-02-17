@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAllEvents } from "@/lib/api";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getEventMeta } from "@/lib/event-icons";
@@ -45,7 +45,7 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
 
     // Next AF date
     if (card.annual_fee_date && card.annual_fee && card.annual_fee > 0) {
-      const afDate = new Date(card.annual_fee_date + "T00:00:00");
+      const afDate = parseDateStr(card.annual_fee_date);
       if (afDate >= today) {
         items.push({
           id: `af-${card.id}`,
@@ -62,7 +62,7 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
 
     // Spend deadline
     if (card.spend_reminder_enabled && card.spend_deadline && !card.signup_bonus_earned) {
-      const deadline = new Date(card.spend_deadline + "T00:00:00");
+      const deadline = parseDateStr(card.spend_deadline);
       if (deadline >= today) {
         items.push({
           id: `spend-${card.id}`,
@@ -82,7 +82,7 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
     // Bonus deadlines
     for (const bonus of card.bonuses ?? []) {
       if (bonus.spend_reminder_enabled && bonus.spend_deadline && !bonus.bonus_earned) {
-        const dl = new Date(bonus.spend_deadline + "T00:00:00");
+        const dl = parseDateStr(bonus.spend_deadline);
         if (dl >= today) {
           const sourceLabel = bonus.bonus_source === "retention" ? "Retention" : "Upgrade";
           items.push({
@@ -103,7 +103,7 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
 
     // Next anniversary
     if (card.open_date) {
-      const openDate = new Date(card.open_date + "T00:00:00");
+      const openDate = parseDateStr(card.open_date);
       const thisYear = today.getFullYear();
       let anniv = new Date(thisYear, openDate.getMonth(), openDate.getDate());
       if (anniv < today) anniv = new Date(thisYear + 1, openDate.getMonth(), openDate.getDate());
@@ -130,7 +130,7 @@ function realEventToItem(event: CardEvent, card: Card, profileMap: Record<number
   const meta = getEventMeta(event.event_type);
   return {
     id: `evt-${event.id}`,
-    date: new Date(event.event_date + "T00:00:00"),
+    date: parseDateStr(event.event_date),
     type: event.event_type,
     card,
     isFuture: false,

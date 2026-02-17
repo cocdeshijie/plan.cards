@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, updateBonus, deleteBonus, deleteCard } from "@/lib/api";
+import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, updateBonus, deleteBonus, deleteCard, restoreCard } from "@/lib/api";
 import { frequencyShort } from "@/lib/benefit-utils";
-import { formatDate, formatCurrency, parseIntStrict } from "@/lib/utils";
+import { formatDate, formatCurrency, parseIntStrict, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { AnnualFeeHistorySection } from "@/components/card-detail/annual-fee-history-section";
@@ -308,7 +308,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
   const startEditEvent = (event: CardEvent) => {
     setEditingEventId(event.id);
     setEditEventDesc(event.description ?? "");
-    setEditEventDate(event.event_date ? new Date(event.event_date + "T00:00:00") : undefined);
+    setEditEventDate(event.event_date ? parseDateStr(event.event_date) : undefined);
     setEditEventType(event.event_type);
     if ((event.event_type === "annual_fee_posted" || event.event_type === "annual_fee_refund") && event.metadata_json) {
       const fee = (event.metadata_json as Record<string, unknown>).annual_fee;
@@ -362,15 +362,15 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       issuer: card.issuer,
       network: card.network || "",
       card_type: card.card_type,
-      open_date: card.open_date ? new Date(card.open_date + "T00:00:00") : undefined,
+      open_date: card.open_date ? parseDateStr(card.open_date) : undefined,
       annual_fee: card.annual_fee != null ? String(card.annual_fee) : "",
-      annual_fee_date: card.annual_fee_date ? new Date(card.annual_fee_date + "T00:00:00") : undefined,
+      annual_fee_date: card.annual_fee_date ? parseDateStr(card.annual_fee_date) : undefined,
       credit_limit: card.credit_limit != null ? String(card.credit_limit) : "",
       custom_tags: (card.custom_tags || []).join(", "),
       signup_bonus_amount: card.signup_bonus_amount != null ? String(card.signup_bonus_amount) : "",
       signup_bonus_type: card.signup_bonus_type || "",
       spend_requirement: card.spend_requirement != null ? String(card.spend_requirement) : "",
-      spend_deadline: card.spend_deadline ? new Date(card.spend_deadline + "T00:00:00") : undefined,
+      spend_deadline: card.spend_deadline ? parseDateStr(card.spend_deadline) : undefined,
       spend_reminder_notes: card.spend_reminder_notes || "",
       card_image: card.card_image || null,
     });
@@ -438,14 +438,14 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
 
   const isDeadlineApproaching = () => {
     if (!card.spend_reminder_enabled || !card.spend_deadline) return false;
-    const deadline = new Date(card.spend_deadline + "T00:00:00");
+    const deadline = parseDateStr(card.spend_deadline);
     const daysLeft = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return daysLeft <= 30 && daysLeft >= 0;
   };
 
   const isDeadlinePassed = () => {
     if (!card.spend_reminder_enabled || !card.spend_deadline) return false;
-    const deadline = new Date(card.spend_deadline + "T00:00:00");
+    const deadline = parseDateStr(card.spend_deadline);
     return today > deadline;
   };
 
@@ -757,7 +757,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           })()}
           {/* Upgrade / Retention bonuses */}
           {visibleBonuses.map((bonus) => {
-            const deadlineDate = bonus.spend_deadline ? new Date(bonus.spend_deadline + "T00:00:00") : null;
+            const deadlineDate = bonus.spend_deadline ? parseDateStr(bonus.spend_deadline) : null;
             const daysLeft = deadlineDate ? Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
             const isPastDue = daysLeft !== null && daysLeft < 0;
             const isApproaching = daysLeft !== null && daysLeft <= 30 && daysLeft >= 0;
@@ -1077,7 +1077,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {(event.event_type === "annual_fee_posted" || event.event_type === "annual_fee_refund") && (event.metadata_json as Record<string, unknown> | null)?.approximate_date
-                              ? "~" + format(new Date(event.event_date + "T00:00:00"), "MMM yyyy")
+                              ? "~" + format(parseDateStr(event.event_date), "MMM yyyy")
                               : formatDate(event.event_date)}
                           </span>
                           <button
@@ -1206,8 +1206,22 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                 setSubmittingAction("delete");
                 try {
                   await deleteCard(card.id);
-                  toast.success("Card deleted");
                   onDeleted?.();
+                  toast(`${card.card_name} deleted`, {
+                    action: {
+                      label: "Undo",
+                      onClick: async () => {
+                        try {
+                          await restoreCard(card.id);
+                          toast.success(`${card.card_name} restored`);
+                          onUpdated();
+                        } catch {
+                          toast.error("Failed to restore card");
+                        }
+                      },
+                    },
+                    duration: 10000,
+                  });
                 } catch (e) {
                   toast.error(e instanceof Error ? e.message : "Failed to delete card");
                 } finally {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Card } from "@/types";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL } from "@/lib/api";
@@ -33,13 +33,13 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
 
   const daysUntilDeadline = () => {
     if (!card.spend_deadline) return null;
-    const deadline = new Date(card.spend_deadline + "T00:00:00");
+    const deadline = parseDateStr(card.spend_deadline);
     return Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
 
   const isDeadlinePassed = () => {
     if (!card.spend_reminder_enabled || !card.spend_deadline) return false;
-    return today > new Date(card.spend_deadline + "T00:00:00");
+    return today > parseDateStr(card.spend_deadline);
   };
 
   const isDeadlineApproaching = () => {
@@ -163,7 +163,7 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
 
         {/* Upgrade/Retention bonus reminders */}
         {card.bonuses?.filter((b) => b.spend_reminder_enabled && !b.bonus_earned && !b.bonus_missed && b.spend_deadline).map((bonus) => {
-          const dl = new Date(bonus.spend_deadline! + "T00:00:00");
+          const dl = parseDateStr(bonus.spend_deadline!);
           const days = Math.ceil((dl.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
           const past = days < 0;
           const approaching = days <= 30 && days >= 0;

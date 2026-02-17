@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { AlertTriangle, Clock } from "lucide-react";
@@ -32,7 +32,7 @@ export function AlertsWidget() {
       if (card.status !== "active") continue;
 
       if (card.spend_reminder_enabled && card.spend_deadline && !card.signup_bonus_earned) {
-        const deadline = new Date(card.spend_deadline + "T00:00:00");
+        const deadline = parseDateStr(card.spend_deadline);
         const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         if (daysLeft <= 30) {
           result.push({
@@ -50,7 +50,7 @@ export function AlertsWidget() {
       // Upgrade/Retention bonus alerts
       for (const bonus of (card.bonuses || [])) {
         if (bonus.spend_reminder_enabled && bonus.spend_deadline && !bonus.bonus_earned && !bonus.bonus_missed) {
-          const dl = new Date(bonus.spend_deadline + "T00:00:00");
+          const dl = parseDateStr(bonus.spend_deadline);
           const days = Math.ceil((dl.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
           if (days <= 30) {
             result.push({
