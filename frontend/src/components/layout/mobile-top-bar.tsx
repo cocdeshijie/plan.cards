@@ -41,6 +41,7 @@ import {
   Shield,
   User,
 } from "lucide-react";
+import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
 import { createProfile } from "@/lib/api";
 import { AdminPanel } from "@/components/admin/admin-panel";
@@ -96,10 +97,10 @@ export function MobileTopBar() {
     <>
       <header className="md:hidden flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 px-3 h-12">
         {/* Left: Logo */}
-        <div className="flex items-center gap-1.5">
+        <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
           <Logo className="h-4 w-4" />
           <span className="font-semibold text-sm">plan.cards</span>
-        </div>
+        </Link>
 
         {/* Center: Profile selector */}
         <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
