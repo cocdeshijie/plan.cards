@@ -10,6 +10,7 @@ import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { AppFooter } from "@/components/ui/app-footer";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const {
@@ -130,12 +131,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col min-h-[200vh] md:min-h-[calc(100vh+60px)]">
       <MobileTopBar />
       <TopNav />
-      <main className="container mx-auto px-4 py-6 pb-20 md:pb-6 animate-fade-in">
+      <main className="flex-1 container mx-auto px-4 py-6 pb-20 md:pb-6 animate-fade-in">
         {children}
       </main>
+      <div className="hidden md:block">
+        <AppFooter />
+      </div>
       <BottomTabs />
     </div>
   );
