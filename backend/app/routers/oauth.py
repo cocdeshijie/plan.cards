@@ -63,7 +63,7 @@ def _require_oauth_or_admin(
     raise HTTPException(status_code=400, detail="OAuth login is not enabled")
 
 
-STATE_TTL = 600  # 10 minutes
+from app.config import OAUTH_STATE_TTL as STATE_TTL
 
 
 class AuthorizeResponse(BaseModel):
@@ -248,15 +248,19 @@ async def token_exchange(
     db: Session = Depends(get_db),
     _mode=Depends(_require_oauth_mode),
 ):
-    # Validate state
-    oauth_state = db.query(OAuthState).filter(OAuthState.state == data.state).first()
-    if not oauth_state or (time.time() - oauth_state.created_at) > STATE_TTL:
-        if oauth_state:
-            db.delete(oauth_state)
-            db.commit()
-        raise HTTPException(status_code=400, detail="Invalid or expired state")
-    db.delete(oauth_state)
+    # 1a: Validate redirect_uri in token exchange (not just in /authorize)
+    _validate_redirect_uri(data.redirect_uri)
+
+    # 1e: Atomic state consumption — delete first, check rows affected
+    now = time.time()
+    deleted = (
+        db.query(OAuthState)
+        .filter(OAuthState.state == data.state, OAuthState.created_at >= now - STATE_TTL)
+        .delete()
+    )
     db.commit()
+    if deleted == 0:
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
 
     provider = (
         db.query(OAuthProvider)

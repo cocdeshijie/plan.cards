@@ -4,7 +4,10 @@ import os
 import pathlib
 import secrets
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
+from alembic import command as alembic_command
+from alembic.config import Config as AlembicConfig
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -23,11 +26,40 @@ logger = logging.getLogger(__name__)
 SECRET_FILE = pathlib.Path("/data/.secret_key")
 
 
-def _run_migrations():
-    """Run schema migrations for new columns."""
+def _get_alembic_config() -> AlembicConfig:
+    """Build an AlembicConfig pointing at our alembic/ directory."""
+    ini_path = pathlib.Path(__file__).resolve().parent.parent / "alembic.ini"
+    cfg = AlembicConfig(str(ini_path))
+    cfg.set_main_option("script_location", str(ini_path.parent / "alembic"))
+    return cfg
+
+
+def _run_alembic_migrations():
+    """Run Alembic migrations. For pre-Alembic databases, run legacy migrations first then stamp."""
     inspector = inspect(engine)
     table_names = inspector.get_table_names()
 
+    has_alembic = "alembic_version" in table_names
+    has_tables = "cards" in table_names
+
+    if has_tables and not has_alembic:
+        # Legacy database: run manual migrations to bring it up to the initial schema,
+        # then stamp so Alembic takes over from here.
+        _run_legacy_migrations(inspector, table_names)
+        cfg = _get_alembic_config()
+        # Stamp with the initial schema revision (skip the migration, schema is already there)
+        alembic_command.stamp(cfg, "8abde7989620")
+        logger.info("Stamped legacy database at initial Alembic revision")
+        # Now run remaining migrations (e.g. add deleted_at)
+        alembic_command.upgrade(cfg, "head")
+    else:
+        # Fresh or already-Alembic database
+        cfg = _get_alembic_config()
+        alembic_command.upgrade(cfg, "head")
+
+
+def _run_legacy_migrations(inspector, table_names):
+    """Run pre-Alembic schema migrations for existing databases."""
     if "cards" in table_names:
         existing = {col["name"] for col in inspector.get_columns("cards")}
         card_migrations = [
@@ -49,14 +81,13 @@ def _run_migrations():
                     conn.execute(text(
                         f"ALTER TABLE cards ADD COLUMN {col_name} {col_type}"
                     ))
-                    logger.info(f"Added column cards.{col_name}")
+                    logger.info(f"Legacy migration: added column cards.{col_name}")
 
-            # Rename last_four → last_digits (SQLite 3.25+)
             if "last_four" in existing and "last_digits" not in existing:
                 conn.execute(text(
                     "ALTER TABLE cards RENAME COLUMN last_four TO last_digits"
                 ))
-                logger.info("Renamed column cards.last_four → last_digits")
+                logger.info("Legacy migration: renamed cards.last_four → last_digits")
 
     if "card_benefits" in table_names:
         existing = {col["name"] for col in inspector.get_columns("card_benefits")}
@@ -72,7 +103,7 @@ def _run_migrations():
                     conn.execute(text(
                         f"ALTER TABLE card_benefits ADD COLUMN {col_name} {col_type}"
                     ))
-                    logger.info(f"Added column card_benefits.{col_name}")
+                    logger.info(f"Legacy migration: added column card_benefits.{col_name}")
 
     if "card_bonuses" in table_names:
         existing = {col["name"] for col in inspector.get_columns("card_bonuses")}
@@ -86,30 +117,34 @@ def _run_migrations():
                     conn.execute(text(
                         f"ALTER TABLE card_bonuses ADD COLUMN {col_name} {col_type}"
                     ))
-                    logger.info(f"Added column card_bonuses.{col_name}")
+                    logger.info(f"Legacy migration: added column card_bonuses.{col_name}")
 
     if "signup_bonuses" in table_names:
         with engine.begin() as conn:
             conn.execute(text("DROP TABLE signup_bonuses"))
-            logger.info("Dropped table signup_bonuses")
+            logger.info("Legacy migration: dropped table signup_bonuses")
 
     if "profiles" in table_names:
         existing = {col["name"] for col in inspector.get_columns("profiles")}
         if "user_id" not in existing:
             with engine.begin() as conn:
                 conn.execute(text("ALTER TABLE profiles ADD COLUMN user_id INTEGER"))
-                logger.info("Added column profiles.user_id")
+                logger.info("Legacy migration: added column profiles.user_id")
 
     if "users" in table_names:
         existing = {col["name"] for col in inspector.get_columns("users")}
         if "password_changed_at" not in existing:
             with engine.begin() as conn:
                 conn.execute(text("ALTER TABLE users ADD COLUMN password_changed_at DATETIME"))
-                logger.info("Added column users.password_changed_at")
+                logger.info("Legacy migration: added column users.password_changed_at")
 
 
 async def _template_reload_loop(interval: int) -> None:
-    """Background task that periodically checks for template changes."""
+    """Background task that periodically checks for template changes and cleans up expired OAuth states."""
+    import time as _time
+    from app.config import OAUTH_STATE_TTL
+    from app.models.oauth_state import OAuthState
+
     while True:
         await asyncio.sleep(interval)
         try:
@@ -123,6 +158,18 @@ async def _template_reload_loop(interval: int) -> None:
                     db.close()
         except Exception:
             logger.exception("Error during template hot-reload")
+
+        # Periodic OAuth state cleanup
+        try:
+            db = SessionLocal()
+            try:
+                expired = db.query(OAuthState).filter(OAuthState.created_at < _time.time() - OAUTH_STATE_TTL).delete()
+                if expired:
+                    db.commit()
+            finally:
+                db.close()
+        except Exception:
+            pass  # Non-critical cleanup
 
 
 @asynccontextmanager
@@ -142,11 +189,32 @@ async def lifespan(app: FastAPI):
             except OSError:
                 logger.warning("Could not persist SECRET_KEY to /data/.secret_key — tokens will not survive restarts")
 
-    Base.metadata.create_all(bind=engine)
-    _run_migrations()
+    # Validate ALLOWED_ORIGINS format at startup — skip invalid entries
+    _valid_origins = []
+    for origin in settings.allowed_origins.split(","):
+        origin = origin.strip()
+        if not origin:
+            continue
+        parsed = urlparse(origin)
+        if not parsed.scheme or not parsed.netloc:
+            logger.warning("Skipping invalid ALLOWED_ORIGINS entry (missing scheme/host): %s", origin)
+            continue
+        _valid_origins.append(origin)
+    app.state.valid_origins = _valid_origins
+
+    _run_alembic_migrations()
     load_templates()
     db = SessionLocal()
     try:
+        # Clean up expired OAuth states on startup
+        import time as _time
+        from app.config import OAUTH_STATE_TTL
+        from app.models.oauth_state import OAuthState
+        expired = db.query(OAuthState).filter(OAuthState.created_at < _time.time() - OAUTH_STATE_TTL).delete()
+        if expired:
+            logger.info("Cleaned up %d expired OAuth states", expired)
+            db.commit()
+
         summary = sync_cards_to_templates(db)
         if summary["cards_synced"] or summary["cards_initialized"]:
             logger.info(f"Template sync: {summary}")
@@ -183,9 +251,22 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(status_code=429, content={"detail": "Too many requests. Please try again later."})
 
 
+def _validated_origins() -> list[str]:
+    """Parse ALLOWED_ORIGINS and return only valid entries."""
+    origins = []
+    for origin in settings.allowed_origins.split(","):
+        origin = origin.strip()
+        if not origin:
+            continue
+        parsed = urlparse(origin)
+        if parsed.scheme and parsed.netloc:
+            origins.append(origin)
+    return origins
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in settings.allowed_origins.split(",")],
+    allow_origins=_validated_origins(),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
@@ -213,6 +294,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
 

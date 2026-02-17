@@ -13,3 +13,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# OAuth state time-to-live in seconds (used for state creation, validation, and cleanup)
+OAUTH_STATE_TTL = 600

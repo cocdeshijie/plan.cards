@@ -302,17 +302,22 @@ async def admin_link_oauth(
 ):
     """Link the admin's account to an OAuth provider (for OAuth mode setup)."""
     from app.models.oauth_state import OAuthState
+    from app.routers.oauth import STATE_TTL, _validate_redirect_uri
     from app.services.oauth_service import exchange_code, extract_user_info
 
-    # Validate state
-    oauth_state = db.query(OAuthState).filter(OAuthState.state == data.state).first()
-    if not oauth_state or (time.time() - oauth_state.created_at) > 600:
-        if oauth_state:
-            db.delete(oauth_state)
-            db.commit()
-        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
-    db.delete(oauth_state)
+    # Validate redirect_uri against ALLOWED_ORIGINS
+    _validate_redirect_uri(data.redirect_uri)
+
+    # Atomic state consumption — delete first, check rows affected
+    now = time.time()
+    deleted = (
+        db.query(OAuthState)
+        .filter(OAuthState.state == data.state, OAuthState.created_at >= now - STATE_TTL)
+        .delete()
+    )
     db.commit()
+    if deleted == 0:
+        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
 
     # Get the provider config
     provider = (
