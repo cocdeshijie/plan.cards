@@ -1,1258 +1,1288 @@
 {
   "version": 1,
-  "exported_at": "2026-02-09T00:00:00Z",
+  "exported_at": "2026-02-17T12:00:00Z",
+  "settings": {
+    "timezone": "America/New_York"
+  },
   "profiles": [
     {
-      "name": "Alex",
+      "name": "First1 Last1",
       "cards": [
         {
-          "template_id": "chase/sapphire_preferred",
-          "template_version_id": null,
-          "card_image": null,
-          "card_name": "Chase Sapphire Preferred",
+          "template_id": "chase/sapphire_reserve",
+          "card_name": "Chase Sapphire Reserve",
           "last_digits": "4821",
           "issuer": "Chase",
           "network": "Visa",
           "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-03-10",
-          "close_date": "2023-04-15",
-          "annual_fee": 95,
-          "annual_fee_date": "2023-03-10",
-          "credit_limit": 12000,
-          "custom_notes": "First CSP churn. Got 80k SUB.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 80000,
-          "signup_bonus_type": "Ultimate Rewards",
+          "status": "active",
+          "open_date": "2021-03-15",
+          "annual_fee": 795,
+          "annual_fee_date": "2026-03-15",
+          "credit_limit": 34000,
+          "custom_tags": ["ur", "travel", "premium", "keeper"],
+          "custom_notes": "Primary travel card. MDD with CSP in March 2021.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "Ultimate Rewards points",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2022-03-10", "description": "Applied in-branch", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-03-10", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-03-10", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2023-04-15", "description": "Closed after first AF", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2021-03-15", "description": "MDD day 1 - CSR approved"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-03-01", "description": "Year 2 annual fee $550"},
+            {"event_type": "retention_offer", "event_date": "2022-03-10", "description": "Called retention, received $150 statement credit", "metadata_json": {"offer_amount": 15000, "offer_type": "statement_credit"}},
+            {"event_type": "annual_fee_posted", "event_date": "2023-03-01", "description": "Year 3 annual fee $550"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-03-01", "description": "Year 4 annual fee $550"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-03-01", "description": "Year 5 annual fee $795 (new fee)"}
           ],
-          "benefits": [],
-          "bonuses": []
+          "benefits": [
+            {"benefit_name": "Travel Credit", "benefit_amount": 300, "frequency": "annual", "reset_type": "cardiversary", "from_template": true, "amount_used": 300, "benefit_type": "credit"},
+            {"benefit_name": "DoorDash Credit", "benefit_amount": 25, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 25, "benefit_type": "credit"},
+            {"benefit_name": "Lyft Credit", "benefit_amount": 10, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 0, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2021-06-15", "description": "60k UR after $4k spend in 3 months"},
+            {"bonus_source": "retention", "bonus_amount": 15000, "bonus_credit_amount": 15000, "bonus_type": "statement_credit", "bonus_earned": true, "description": "$150 statement credit retention offer year 2"}
+          ]
         },
         {
           "template_id": "chase/sapphire_preferred",
           "card_name": "Chase Sapphire Preferred",
-          "last_digits": "7293",
+          "last_digits": "7392",
           "issuer": "Chase",
           "network": "Visa",
           "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-10-15",
-          "close_date": null,
+          "status": "closed",
+          "open_date": "2021-03-16",
+          "close_date": "2022-04-01",
           "annual_fee": 95,
-          "annual_fee_date": "2026-10-15",
-          "credit_limit": 15000,
-          "custom_notes": "Second CSP. Got 75k SUB.",
-          "custom_tags": ["travel", "churn-2"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 4000,
-          "spend_deadline": "2025-01-15",
-          "spend_reminder_notes": "Need $4k in 3 months for 75k UR",
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": false,
+          "credit_limit": 12000,
+          "custom_tags": ["ur", "downgraded"],
+          "custom_notes": "MDD day 2. Product changed to Freedom Unlimited after first year.",
+          "signup_bonus_amount": 80000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2024-10-15", "description": "Applied online, instant approval", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-10-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-10-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
+            {"event_type": "opened", "event_date": "2021-03-16", "description": "MDD day 2 - CSP approved"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-03-01", "description": "Year 2 annual fee $95"},
+            {"event_type": "product_change", "event_date": "2022-04-01", "description": "Product changed to Chase Freedom Unlimited", "metadata_json": {"from_template": "chase/sapphire_preferred", "to_template": "chase/freedom_unlimited"}}
           ],
-          "benefits": [
-            {
-              "benefit_name": "Hotel Credit (Chase Travel)",
-              "benefit_amount": 50,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "credit",
-              "amount_used": 50,
-              "period_start": "2025-10-15"
-            }
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 80000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2021-06-16", "description": "80k UR after $4k spend in 3 months"}
           ]
-        },
-        {
-          "template_id": "chase/freedom_flex",
-          "card_name": "Chase Freedom Flex",
-          "last_digits": "3019",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2022-07-01",
-          "close_date": null,
-          "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 8000,
-          "custom_notes": "Keeper card, no AF.",
-          "custom_tags": ["cashback", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-07-01", "description": null, "metadata_json": null }
-          ],
-          "benefits": []
         },
         {
           "template_id": "chase/freedom_unlimited",
           "card_name": "Chase Freedom Unlimited",
-          "last_digits": "5547",
+          "last_digits": "7392",
           "issuer": "Chase",
           "network": "Visa",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2022-11-15",
-          "close_date": null,
+          "open_date": "2022-04-01",
           "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 6000,
-          "custom_notes": null,
-          "custom_tags": ["cashback", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-11-15", "description": null, "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "chase/sapphire_reserve",
-          "card_name": "Chase Sapphire Reserve",
-          "last_digits": "9136",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2023-09-05",
-          "close_date": "2024-10-01",
-          "annual_fee": 550,
-          "annual_fee_date": "2024-09-05",
-          "credit_limit": 20000,
-          "custom_notes": "Downgraded to CFU then closed. Got 60k SUB.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 60000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-09-05", "description": "MDD day 1", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-09-05", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-09-05", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} },
-            { "original_id": 104, "event_type": "product_change", "event_date": "2024-09-20", "description": "PC to Freedom Unlimited to avoid AF", "metadata_json": { "previous_template_id": "chase/sapphire_reserve", "previous_card_name": "Chase Sapphire Reserve", "new_template_id": "chase/freedom_unlimited", "new_card_name": "Chase Freedom Unlimited" } },
-            { "event_type": "closed", "event_date": "2024-10-01", "description": "Already had a CFU, closed this one", "metadata_json": null }
-          ],
-          "benefits": [],
-          "bonuses": []
-        },
-        {
-          "template_id": "chase/ink_preferred",
-          "card_name": "Chase Ink Business Preferred",
-          "last_digits": "2748",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "business",
-          "status": "active",
-          "open_date": "2023-02-14",
-          "close_date": null,
-          "annual_fee": 95,
-          "annual_fee_date": "2026-02-14",
-          "credit_limit": 10000,
-          "custom_notes": "Business card, doesn't count for 5/24.",
-          "custom_tags": ["travel", "business"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-02-14", "description": "Sole prop application", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-02-14", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-02-14", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-02-14", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "amex/platinum",
-          "card_name": "Amex Platinum",
-          "last_digits": "31005",
-          "issuer": "Amex",
-          "network": "Amex",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-01-20",
-          "close_date": "2023-02-10",
-          "annual_fee": 695,
-          "annual_fee_date": "2023-01-20",
-          "credit_limit": null,
-          "custom_notes": "First Plat churn. 150k SUB via Resy offer.",
-          "custom_tags": ["travel", "churn-1", "charge-card"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 150000,
-          "signup_bonus_type": "Membership Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-01-20", "description": "Resy 150k offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-01-20", "description": null, "metadata_json": {"annual_fee": 695, "approximate_date": true} },
-            { "event_type": "retention_offer", "event_date": "2023-01-05", "description": "Offered 30k MR, declined", "metadata_json": { "offer_points": 30000, "accepted": false } },
-            { "event_type": "annual_fee_posted", "event_date": "2023-01-20", "description": null, "metadata_json": {"annual_fee": 695, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2023-02-10", "description": "Closed after 13 months", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "amex/platinum",
-          "template_version_id": "amex_plat_2024_1",
-          "card_image": null,
-          "card_name": "Amex Platinum",
-          "last_digits": "82147",
-          "issuer": "Amex",
-          "network": "Amex",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2025-05-01",
-          "close_date": null,
-          "annual_fee": 695,
-          "annual_fee_date": "2026-05-01",
-          "credit_limit": null,
-          "custom_notes": "Second Plat churn. 175k via targeted mailer. On old $695 AF — sync should update to $895 and add new credits.",
-          "custom_tags": ["travel", "churn-2", "charge-card"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 8000,
-          "spend_deadline": "2025-11-01",
-          "spend_reminder_notes": "$8k in 6 months for 175k MR",
-          "signup_bonus_amount": 175000,
-          "signup_bonus_type": "Membership Rewards",
-          "signup_bonus_earned": false,
-          "events": [
-            { "event_type": "opened", "event_date": "2025-05-01", "description": "Targeted 175k mailer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2025-05-01", "description": null, "metadata_json": {"annual_fee": 695, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Uber Cash",
-              "benefit_amount": 15,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 15,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Digital Entertainment Credit",
-              "benefit_amount": 20,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 20,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Hotel Credit (FHR/Hotel Collection)",
-              "benefit_amount": 200,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 0,
-              "period_start": "2026-01-01"
-            },
-            {
-              "benefit_name": "Saks Credit",
-              "benefit_amount": 50,
-              "frequency": "semi_annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 50,
-              "period_start": "2026-01-01"
-            },
-            {
-              "benefit_name": "Airline Fee Credit",
-              "benefit_amount": 200,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 100,
-              "period_start": "2026-01-01"
-            },
-            {
-              "benefit_name": "CLEAR Plus Credit",
-              "benefit_amount": 189,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 189,
-              "period_start": "2026-01-01"
-            },
-            {
-              "benefit_name": "Centurion Lounge Guest Policy",
-              "benefit_amount": 75000,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "spend_threshold",
-              "from_template": false,
-              "notes": "Spend $75k/yr to bring 2 guests to Centurion Lounges for free",
-              "amount_used": 12500,
-              "period_start": "2026-01-01"
-            }
-          ]
-        },
-        {
-          "template_id": "amex/gold",
-          "template_version_id": "amex_gold_2024_1",
-          "card_image": null,
-          "card_name": "Amex Gold",
-          "last_digits": "64018",
-          "issuer": "Amex",
-          "network": "Amex",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2023-06-15",
-          "close_date": null,
-          "annual_fee": 250,
-          "annual_fee_date": "2026-06-15",
-          "credit_limit": null,
-          "custom_notes": "Keeper for dining 4x. Still on old $250 AF — sync should update to $325 and add Dunkin'/Resy credits.",
-          "custom_tags": ["dining", "keeper", "charge-card"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 90000,
-          "signup_bonus_type": "Membership Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-06-15", "description": "90k referral offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-06-15", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-06-15", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "retention_offer", "event_date": "2024-06-20", "description": "20k MR + $75 dining credit, accepted", "metadata_json": { "offer_points": 20000, "offer_credit": 75, "accepted": true } },
-            { "event_type": "annual_fee_posted", "event_date": "2025-06-15", "description": "Increased from $250", "metadata_json": {"annual_fee": 325, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Uber Cash",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 10,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Dining Credit",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 7,
-              "period_start": "2026-02-01"
-            }
-          ]
-        },
-        {
-          "template_id": "citi/premier",
-          "card_name": "Citi Premier",
-          "last_digits": "4230",
-          "issuer": "Citi",
-          "network": "Mastercard",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-09-01",
-          "close_date": "2023-10-15",
-          "annual_fee": 95,
-          "annual_fee_date": "2023-09-01",
-          "credit_limit": 10000,
-          "custom_notes": "Churned, got 80k TYP. Downgraded to Double Cash.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 80000,
-          "signup_bonus_type": "ThankYou Points",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-09-01", "description": "80k online offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-09-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-09-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "product_change", "event_date": "2023-10-01", "description": "PC to Citi Double Cash", "metadata_json": { "previous_template_id": "citi/premier", "previous_card_name": "Citi Premier", "new_template_id": "citi/double_cash", "new_card_name": "Citi Double Cash" } },
-            { "event_type": "closed", "event_date": "2023-10-15", "description": "Closed after PC", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "citi/premier",
-          "card_name": "Citi Strata Premier",
-          "last_digits": "8156",
-          "issuer": "Citi",
-          "network": "Mastercard",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2025-03-01",
-          "close_date": null,
-          "annual_fee": 95,
-          "annual_fee_date": "2026-03-01",
           "credit_limit": 12000,
-          "custom_notes": "Second Premier churn. 75k TYP. Rebranded to Strata Premier.",
-          "custom_tags": ["travel", "churn-2"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 4000,
-          "spend_deadline": "2025-06-01",
-          "spend_reminder_notes": "$4k in 3 months for 75k TYP",
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "ThankYou Points",
-          "signup_bonus_earned": false,
+          "custom_tags": ["ur", "product-change"],
+          "custom_notes": "Product changed from CSP. Sock drawer card for UR pooling.",
           "events": [
-            { "event_type": "opened", "event_date": "2025-03-01", "description": "75k online offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2025-03-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Hotel Credit",
-              "benefit_amount": 100,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 0,
-              "period_start": "2026-01-01"
-            }
-          ]
-        },
-        {
-          "template_id": "capital_one/venture_x",
-          "card_name": "Capital One Venture X",
-          "last_digits": "6724",
-          "issuer": "Capital One",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-03-01",
-          "close_date": null,
-          "annual_fee": 395,
-          "annual_fee_date": "2026-03-01",
-          "credit_limit": 20000,
-          "custom_notes": "Keeper for lounge access. 75k mile SUB.",
-          "custom_tags": ["travel", "keeper", "lounge"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "Capital One Miles",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2024-03-01", "description": "75k miles offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-03-01", "description": null, "metadata_json": {"annual_fee": 395, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-03-01", "description": "Offset by $300 travel credit", "metadata_json": {"annual_fee": 395, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Travel Credit (Capital One Travel)",
-              "benefit_amount": 300,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "credit",
-              "amount_used": 300,
-              "period_start": "2025-03-01"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Jordan",
-      "cards": [
-        {
-          "template_id": "chase/sapphire_preferred",
-          "card_name": "Chase Sapphire Preferred",
-          "last_digits": "5610",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-06-01",
-          "close_date": "2023-07-10",
-          "annual_fee": 95,
-          "annual_fee_date": "2023-06-01",
-          "credit_limit": 10000,
-          "custom_notes": "First CSP, 60k SUB. Product changed to CFF.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 60000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-06-01", "description": "60k offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-06-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-06-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "product_change", "event_date": "2023-07-01", "description": "PC to Freedom Flex", "metadata_json": { "previous_template_id": "chase/sapphire_preferred", "previous_card_name": "Chase Sapphire Preferred", "new_template_id": "chase/freedom_flex", "new_card_name": "Chase Freedom Flex" } },
-            { "event_type": "closed", "event_date": "2023-07-10", "description": "Closed the PC'd card", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "chase/sapphire_reserve",
-          "template_version_id": "chase_csr_2024_1",
-          "card_image": null,
-          "card_name": "Chase Sapphire Reserve",
-          "last_digits": "8374",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-11-01",
-          "close_date": null,
-          "annual_fee": 550,
-          "annual_fee_date": "2026-11-01",
-          "credit_limit": 18000,
-          "custom_notes": "On old $550 AF — sync should update to $795, retire DoorDash, add new credits.",
-          "custom_tags": ["travel", "churn-2"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 4000,
-          "spend_deadline": "2025-02-01",
-          "spend_reminder_notes": "$4k in 3 months for 60k UR",
-          "signup_bonus_amount": 60000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": false,
-          "events": [
-            { "event_type": "opened", "event_date": "2024-11-01", "description": "Applied online", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-11-01", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-11-01", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Travel Credit",
-              "benefit_amount": 300,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 185,
-              "period_start": "2025-11-01"
-            },
-            {
-              "benefit_name": "DoorDash DashPass Credit",
-              "benefit_amount": 5,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 5,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Lyft Credit",
-              "benefit_amount": 5,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "from_template": true,
-              "amount_used": 5,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Chase Sapphire Lounge Guest Access",
-              "benefit_amount": 50000,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "spend_threshold",
-              "from_template": false,
-              "notes": "Spend $50k/yr for unlimited guests at Chase Sapphire Lounges",
-              "amount_used": 18500,
-              "period_start": "2025-11-01"
-            }
+            {"event_type": "opened", "event_date": "2022-04-01", "description": "Product change from CSP"}
           ]
         },
         {
           "template_id": "chase/freedom_flex",
           "card_name": "Chase Freedom Flex",
-          "last_digits": "7483",
+          "last_digits": "5517",
           "issuer": "Chase",
-          "network": "Visa",
+          "network": "Mastercard",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2022-10-20",
-          "close_date": null,
+          "open_date": "2021-06-22",
           "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 5000,
-          "custom_notes": null,
-          "custom_tags": ["cashback", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-10-20", "description": null, "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "chase/ink_preferred",
-          "card_name": "Chase Ink Business Preferred",
-          "last_digits": "6201",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "business",
-          "status": "closed",
-          "open_date": "2023-04-01",
-          "close_date": "2024-05-15",
-          "annual_fee": 95,
-          "annual_fee_date": "2024-04-01",
-          "credit_limit": 8000,
-          "custom_notes": "First Ink churn, 100k SUB.",
-          "custom_tags": ["business", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 100000,
-          "signup_bonus_type": "Ultimate Rewards",
+          "credit_limit": 8500,
+          "custom_tags": ["ur", "rotating-categories"],
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "Ultimate Rewards points",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2023-04-01", "description": "100k SUB offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-04-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-04-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2024-05-15", "description": "Closed after first year", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2021-06-22", "description": "Applied for CFF bonus categories"}
           ],
-          "benefits": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2021-09-22", "description": "20k UR after $500 spend in 3 months"}
+          ]
         },
         {
           "template_id": "chase/ink_preferred",
-          "card_name": "Chase Ink Business Preferred",
-          "last_digits": "9455",
+          "card_name": "Ink Business Preferred",
+          "last_digits": "9104",
           "issuer": "Chase",
           "network": "Visa",
           "card_type": "business",
           "status": "active",
-          "open_date": "2025-07-01",
-          "close_date": null,
+          "open_date": "2021-10-05",
           "annual_fee": 95,
-          "annual_fee_date": "2026-07-01",
-          "credit_limit": 10000,
-          "custom_notes": "Second Ink Preferred churn. 100k SUB again.",
-          "custom_tags": ["business", "churn-2"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 8000,
-          "spend_deadline": "2025-10-01",
-          "spend_reminder_notes": "$8k in 3 months for 100k UR",
+          "annual_fee_date": "2026-10-05",
+          "credit_limit": 15000,
+          "custom_tags": ["ur", "business", "travel"],
+          "custom_notes": "Side business expenses. Great for advertising and shipping.",
           "signup_bonus_amount": 100000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": false,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2025-07-01", "description": "Reapplied after 24+ months", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2025-07-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
+            {"event_type": "opened", "event_date": "2021-10-05", "description": "Approved for Ink Preferred"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-10-01", "description": "Year 2 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-10-01", "description": "Year 3 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-10-01", "description": "Year 4 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-10-01", "description": "Year 5 annual fee $95"}
           ],
-          "benefits": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 100000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 1500000, "spend_deadline": "2022-01-05", "description": "100k UR after $15k spend in 3 months"}
+          ]
         },
         {
-          "template_id": "amex/gold",
-          "card_name": "Amex Gold",
-          "last_digits": "71023",
+          "template_id": "chase/ink_cash",
+          "card_name": "Ink Business Cash",
+          "last_digits": "3388",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "business",
+          "status": "active",
+          "open_date": "2022-02-14",
+          "annual_fee": 0,
+          "credit_limit": 10000,
+          "custom_tags": ["ur", "business", "office-supplies"],
+          "signup_bonus_amount": 75000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-02-14", "description": "Approved for Ink Cash"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 75000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2022-05-14", "description": "75k UR after $6k spend in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/platinum",
+          "card_name": "American Express Platinum Card",
+          "last_digits": "1008",
           "issuer": "Amex",
           "network": "Amex",
           "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-04-10",
-          "close_date": "2023-05-20",
-          "annual_fee": 250,
-          "annual_fee_date": "2023-04-10",
+          "status": "active",
+          "open_date": "2022-06-20",
+          "annual_fee": 895,
+          "annual_fee_date": "2026-06-20",
           "credit_limit": null,
-          "custom_notes": "First Gold churn. 90k SUB via Resy.",
-          "custom_tags": ["dining", "churn-1", "charge-card"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 90000,
-          "signup_bonus_type": "Membership Rewards",
+          "custom_tags": ["mr", "premium", "lounge-access", "keeper"],
+          "custom_notes": "Centurion lounge access. Use Uber and streaming credits monthly.",
+          "signup_bonus_amount": 150000,
+          "signup_bonus_type": "Membership Rewards points",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2022-04-10", "description": "Resy 90k offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-04-10", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-04-10", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2023-05-20", "description": "Closed after first year", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2022-06-20", "description": "Approved via targeted 150k offer"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-06-01", "description": "Year 2 annual fee $695"},
+            {"event_type": "retention_offer", "event_date": "2023-06-15", "description": "40k MR points after $3k spend in 3 months", "metadata_json": {"offer_amount": 40000, "offer_type": "points", "spend_required": 300000}},
+            {"event_type": "annual_fee_posted", "event_date": "2024-06-01", "description": "Year 3 annual fee $695"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-06-01", "description": "Year 4 annual fee $895"}
           ],
-          "benefits": []
+          "benefits": [
+            {"benefit_name": "Uber Cash", "benefit_amount": 15, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 15, "benefit_type": "credit"},
+            {"benefit_name": "Digital Entertainment Credit", "benefit_amount": 25, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 25, "benefit_type": "credit"},
+            {"benefit_name": "Resy Dining Credit", "benefit_amount": 100, "frequency": "quarterly", "reset_type": "calendar", "from_template": true, "amount_used": 0, "benefit_type": "credit"},
+            {"benefit_name": "Saks Credit", "benefit_amount": 50, "frequency": "semi_annual", "reset_type": "calendar", "from_template": true, "amount_used": 50, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 150000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2022-12-20", "description": "150k MR after $6k spend in 6 months"},
+            {"bonus_source": "retention", "bonus_amount": 40000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 300000, "spend_deadline": "2023-09-15", "description": "40k MR retention after $3k spend"}
+          ]
         },
         {
           "template_id": "amex/gold",
-          "card_name": "Amex Gold",
-          "last_digits": "40982",
+          "card_name": "American Express Gold Card",
+          "last_digits": "2045",
           "issuer": "Amex",
           "network": "Amex",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-01-10",
+          "annual_fee": 325,
+          "annual_fee_date": "2026-01-10",
+          "credit_limit": null,
+          "custom_tags": ["mr", "dining", "groceries"],
+          "custom_notes": "Primary dining and grocery card. 4x MR on dining and groceries.",
+          "signup_bonus_amount": 90000,
+          "signup_bonus_type": "Membership Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-01-10", "description": "Approved via Resy offer 90k + $200 dining"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-01-01", "description": "Year 2 annual fee $250"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-01-01", "description": "Year 3 annual fee $325"}
+          ],
+          "benefits": [
+            {"benefit_name": "Uber Cash", "benefit_amount": 10, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 10, "benefit_type": "credit"},
+            {"benefit_name": "Dining Credit", "benefit_amount": 10, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 10, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 90000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2023-07-10", "description": "90k MR after $4k spend in 6 months"}
+          ]
+        },
+        {
+          "template_id": "amex/biz_platinum",
+          "card_name": "American Express Business Platinum Card",
+          "last_digits": "6671",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "business",
+          "status": "closed",
+          "open_date": "2022-11-01",
+          "close_date": "2024-01-15",
+          "annual_fee": 895,
+          "custom_tags": ["mr", "business", "premium"],
+          "custom_notes": "Closed after getting retention denied in year 2.",
+          "signup_bonus_amount": 150000,
+          "signup_bonus_type": "Membership Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-11-01", "description": "Approved for Biz Plat via NLL offer"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-11-01", "description": "Year 2 annual fee $695"},
+            {"event_type": "closed", "event_date": "2024-01-15", "description": "Closed card, no retention offer available"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 150000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 1500000, "spend_deadline": "2023-02-01", "description": "150k MR after $15k spend in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/hilton_aspire",
+          "card_name": "Hilton Honors American Express Aspire Card",
+          "last_digits": "8834",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-04-18",
+          "annual_fee": 550,
+          "annual_fee_date": "2026-04-18",
+          "credit_limit": null,
+          "custom_tags": ["hilton", "hotel", "diamond-status"],
+          "signup_bonus_amount": 175000,
+          "signup_bonus_type": "Hilton Honors points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-04-18", "description": "Approved for Hilton Aspire"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-04-01", "description": "Year 2 annual fee $550"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-04-01", "description": "Year 3 annual fee $550"}
+          ],
+          "benefits": [
+            {"benefit_name": "Hilton Resort Credit", "benefit_amount": 400, "frequency": "annual", "reset_type": "cardiversary", "from_template": true, "amount_used": 400, "benefit_type": "credit"},
+            {"benefit_name": "Airline Fee Credit", "benefit_amount": 250, "frequency": "annual", "reset_type": "calendar", "from_template": true, "amount_used": 250, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 175000, "bonus_type": "Hilton Honors points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2023-10-18", "description": "175k Hilton after $6k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "capitalone/venture_x",
+          "card_name": "Capital One Venture X Rewards Card",
+          "last_digits": "5523",
+          "issuer": "Capital One",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-01-20",
+          "annual_fee": 395,
+          "annual_fee_date": "2026-01-20",
+          "credit_limit": 30000,
+          "custom_tags": ["travel", "lounge-access", "transferable-points"],
+          "custom_notes": "Capital One lounge access. 10k anniversary miles each year easily offsets AF.",
+          "signup_bonus_amount": 100000,
+          "signup_bonus_type": "Capital One miles",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-01-20", "description": "Approved for Venture X"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-01-01", "description": "Year 2 annual fee $395"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-01-01", "description": "Year 3 annual fee $395"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-01-01", "description": "Year 4 annual fee $395"}
+          ],
+          "benefits": [
+            {"benefit_name": "Capital One Travel Credit", "benefit_amount": 300, "frequency": "annual", "reset_type": "cardiversary", "from_template": true, "amount_used": 300, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 100000, "bonus_type": "Capital One miles", "bonus_earned": true, "spend_requirement": 1000000, "spend_deadline": "2022-07-20", "description": "100k miles after $10k spend in 6 months"}
+          ]
+        },
+        {
+          "template_id": "citi/strata_premier",
+          "card_name": "Citi Strata Premier Card",
+          "last_digits": "6190",
+          "issuer": "Citi",
+          "network": "Mastercard",
           "card_type": "personal",
           "status": "active",
           "open_date": "2024-07-01",
-          "close_date": null,
-          "annual_fee": 325,
-          "annual_fee_date": "2026-07-01",
-          "credit_limit": null,
-          "custom_notes": "Second Gold churn. 75k SUB. Amex NLL offer.",
-          "custom_tags": ["dining", "churn-2", "charge-card"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 6000,
-          "spend_deadline": "2025-01-01",
-          "spend_reminder_notes": "$6k in 6 months for 75k MR",
+          "annual_fee": 95,
+          "annual_fee_date": "2025-07-01",
+          "credit_limit": 18000,
+          "custom_tags": ["thankyou-points", "travel"],
+          "custom_notes": "Opened after rebrand from Citi Premier. 75k TYP offer.",
           "signup_bonus_amount": 75000,
-          "signup_bonus_type": "Membership Rewards",
-          "signup_bonus_earned": false,
+          "signup_bonus_type": "ThankYou Points",
+          "signup_bonus_earned": true,
           "events": [
-            { "original_id": 301, "event_type": "opened", "event_date": "2024-07-01", "description": "NLL no-lifetime-language offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-07-01", "description": null, "metadata_json": {"annual_fee": 325, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-07-01", "description": null, "metadata_json": {"annual_fee": 325, "approximate_date": true} }
+            {"event_type": "opened", "event_date": "2024-07-01", "description": "Approved for Citi Strata Premier"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-07-01", "description": "Year 2 annual fee $95"}
           ],
-          "benefits": [
-            {
-              "benefit_name": "Uber Cash",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 10,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Dining Credit",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 0,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Dunkin' Credit",
-              "benefit_amount": 7,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 5,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Resy Dining Credit",
-              "benefit_amount": 50,
-              "frequency": "semi_annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 0,
-              "period_start": "2026-01-01"
-            }
-          ],
-          "bonuses": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 75000, "bonus_type": "ThankYou Points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2024-10-01", "description": "75k TYP after $4k in 3 months"}
+          ]
         },
         {
-          "template_id": "amex/blue_cash_preferred",
-          "card_name": "Amex Blue Cash Preferred",
-          "last_digits": "50213",
+          "template_id": "chase/hyatt",
+          "card_name": "World of Hyatt Card",
+          "last_digits": "2277",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-08-14",
+          "annual_fee": 95,
+          "annual_fee_date": "2026-08-14",
+          "credit_limit": 16000,
+          "custom_tags": ["hyatt", "hotel", "keeper"],
+          "custom_notes": "Discoverist status automatically. Earn free night cert at anniversary.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "World of Hyatt points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-08-14", "description": "Approved for Hyatt card"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-08-01", "description": "Year 2 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-08-01", "description": "Year 3 annual fee $95"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "World of Hyatt points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2024-02-14", "description": "60k Hyatt after $6k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "chase/united_quest",
+          "card_name": "United Quest Card",
+          "last_digits": "4410",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-01-22",
+          "annual_fee": 350,
+          "annual_fee_date": "2026-01-22",
+          "credit_limit": 20000,
+          "custom_tags": ["united", "airline", "travel"],
+          "custom_notes": "United status card. Two free checked bags + priority boarding.",
+          "signup_bonus_amount": 70000,
+          "signup_bonus_type": "United MileagePlus miles",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-01-22", "description": "Approved for United Quest"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-01-01", "description": "Year 2 annual fee $350"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 70000, "bonus_type": "United MileagePlus miles", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2024-04-22", "description": "70k United miles after $4k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/delta_platinum",
+          "card_name": "Delta SkyMiles Platinum American Express Card",
+          "last_digits": "3091",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "personal",
+          "status": "closed",
+          "open_date": "2021-07-15",
+          "close_date": "2023-08-01",
+          "annual_fee": 350,
+          "custom_tags": ["delta", "airline"],
+          "custom_notes": "Closed after downgrade path not available. Had companion certificate.",
+          "signup_bonus_amount": 90000,
+          "signup_bonus_type": "Delta SkyMiles",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-07-15", "description": "Approved for Delta Plat"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-07-01", "description": "Year 2 annual fee $250"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-07-01", "description": "Year 3 annual fee $350"},
+            {"event_type": "closed", "event_date": "2023-08-01", "description": "Closed card after AF posted"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 90000, "bonus_type": "Delta SkyMiles", "bonus_earned": true, "spend_requirement": 300000, "spend_deadline": "2021-10-15", "description": "90k SkyMiles after $3k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "barclays/aadvantage_aviator_red",
+          "card_name": "AAdvantage Aviator Red World Elite Mastercard",
+          "last_digits": "7756",
+          "issuer": "Barclays",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-11-02",
+          "annual_fee": 99,
+          "annual_fee_date": "2025-11-02",
+          "credit_limit": 10000,
+          "custom_tags": ["aa", "airline"],
+          "custom_notes": "Easy bonus - just one purchase required. Keeping for AA miles earning.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "AAdvantage miles",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-11-02", "description": "Approved for Aviator Red"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-11-01", "description": "Year 2 annual fee $99"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "AAdvantage miles", "bonus_earned": true, "spend_requirement": 100, "spend_deadline": "2024-02-02", "description": "60k AA miles after first purchase"}
+          ]
+        },
+        {
+          "template_id": "usbank/altitude_reserve",
+          "card_name": "US Bank Altitude Reserve",
+          "last_digits": "8001",
+          "issuer": "US Bank",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-04-10",
+          "annual_fee": 400,
+          "annual_fee_date": "2025-04-10",
+          "credit_limit": 25000,
+          "custom_tags": ["mobile-wallet", "travel"],
+          "custom_notes": "3x on mobile wallet purchases everywhere. Real-time rewards.",
+          "signup_bonus_amount": 50000,
+          "signup_bonus_type": "Altitude Reserve points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-04-10", "description": "Approved for Altitude Reserve"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-04-01", "description": "Year 2 annual fee $400"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 50000, "bonus_type": "Altitude Reserve points", "bonus_earned": true, "spend_requirement": 450000, "spend_deadline": "2024-07-10", "description": "50k points after $4.5k in 90 days"}
+          ]
+        },
+        {
+          "template_id": "bilt/bilt_card",
+          "card_name": "Bilt Card",
+          "last_digits": "9420",
+          "issuer": "Bilt",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-09-01",
+          "annual_fee": 0,
+          "credit_limit": 7500,
+          "custom_tags": ["rent", "transferable-points"],
+          "custom_notes": "Use on rent day for 1x points on rent. Transfer to Hyatt.",
+          "events": [
+            {"event_type": "opened", "event_date": "2022-09-01", "description": "Approved for Bilt card"}
+          ]
+        },
+        {
+          "template_id": "chase/southwest_priority",
+          "card_name": "Southwest Rapid Rewards Priority Card",
+          "last_digits": "1932",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "closed",
+          "open_date": "2021-11-15",
+          "close_date": "2023-12-01",
+          "annual_fee": 229,
+          "custom_tags": ["southwest", "companion-pass"],
+          "custom_notes": "Opened for companion pass push. Closed after 2 years.",
+          "signup_bonus_amount": 50000,
+          "signup_bonus_type": "Rapid Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-11-15", "description": "Approved for SW Priority"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-11-01", "description": "Year 2 annual fee $149"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-11-01", "description": "Year 3 annual fee $149"},
+            {"event_type": "closed", "event_date": "2023-12-01", "description": "Closed card, no longer chasing companion pass"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 50000, "bonus_type": "Rapid Rewards points", "bonus_earned": true, "spend_requirement": 100000, "spend_deadline": "2022-02-15", "description": "50k RR after $1k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/biz_gold",
+          "card_name": "American Express Business Gold Card",
+          "last_digits": "4455",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "business",
+          "status": "active",
+          "open_date": "2024-03-05",
+          "annual_fee": 375,
+          "annual_fee_date": "2025-03-05",
+          "credit_limit": null,
+          "custom_tags": ["mr", "business"],
+          "custom_notes": "4x MR on top 2 spending categories each month up to $150k.",
+          "signup_bonus_amount": 100000,
+          "signup_bonus_type": "Membership Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-03-05", "description": "Approved for Biz Gold"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-03-01", "description": "Year 2 annual fee $375"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 100000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 1000000, "spend_deadline": "2024-06-05", "description": "100k MR after $10k spend in 3 months"}
+          ]
+        },
+        {
+          "template_id": "chase/ink_unlimited",
+          "card_name": "Ink Business Unlimited",
+          "last_digits": "2200",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "business",
+          "status": "active",
+          "open_date": "2023-05-20",
+          "annual_fee": 0,
+          "credit_limit": 12000,
+          "custom_tags": ["ur", "business", "flat-rate"],
+          "signup_bonus_amount": 75000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-05-20", "description": "Approved for Ink Unlimited"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 75000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2023-08-20", "description": "75k UR after $6k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "wellsfargo/autograph_journey",
+          "card_name": "Wells Fargo Autograph Journey Card",
+          "last_digits": "6780",
+          "issuer": "Wells Fargo",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-06-15",
+          "annual_fee": 95,
+          "annual_fee_date": "2026-06-15",
+          "credit_limit": 22000,
+          "custom_tags": ["travel", "transferable-points"],
+          "custom_notes": "New transferable points card from WF. Using for airline transfers.",
+          "signup_bonus_amount": 50000,
+          "signup_bonus_type": "Autograph Journey points",
+          "signup_bonus_earned": false,
+          "spend_requirement": 400000,
+          "spend_deadline": "2025-09-15",
+          "spend_reminder_enabled": true,
+          "spend_reminder_notes": "Need $1,200 more spend by Sept 15",
+          "events": [
+            {"event_type": "opened", "event_date": "2025-06-15", "description": "Approved for Autograph Journey"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 50000, "bonus_type": "Autograph Journey points", "bonus_earned": false, "spend_requirement": 400000, "spend_deadline": "2025-09-15", "spend_reminder_enabled": true, "spend_reminder_notes": "Need $1,200 more spend by Sept 15", "description": "50k points after $4k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "chase/marriott_boundless",
+          "card_name": "Marriott Bonvoy Boundless Card",
+          "last_digits": "8845",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "closed",
+          "open_date": "2021-05-10",
+          "close_date": "2022-06-15",
+          "annual_fee": 95,
+          "custom_tags": ["marriott", "hotel"],
+          "signup_bonus_amount": 100000,
+          "signup_bonus_type": "Marriott Bonvoy points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-05-10", "description": "Approved for Marriott Boundless"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-05-01", "description": "Year 2 annual fee $95"},
+            {"event_type": "closed", "event_date": "2022-06-15", "description": "Closed after getting Amex Marriott Brilliant instead"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 100000, "bonus_type": "Marriott Bonvoy points", "bonus_earned": true, "spend_requirement": 300000, "spend_deadline": "2021-08-10", "description": "100k Marriott after $3k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "robinhood/gold_card",
+          "card_name": "Robinhood Gold Card",
+          "last_digits": "1177",
+          "issuer": "Robinhood",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-01-08",
+          "annual_fee": 0,
+          "credit_limit": 15000,
+          "custom_tags": ["cashback", "3x-everything"],
+          "custom_notes": "3% cashback on everything with Gold membership. Using as default card.",
+          "events": [
+            {"event_type": "opened", "event_date": "2025-01-08", "description": "Got off waitlist, approved for Robinhood Gold Card"}
+          ]
+        },
+        {
+          "template_id": "amex/marriott_brilliant",
+          "card_name": "Marriott Bonvoy Brilliant American Express Card",
+          "last_digits": "5590",
           "issuer": "Amex",
           "network": "Amex",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2024-01-15",
-          "close_date": null,
-          "annual_fee": 95,
-          "annual_fee_date": "2026-01-15",
-          "credit_limit": 15000,
-          "custom_notes": "Grocery card. 6% back on groceries.",
-          "custom_tags": ["grocery", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 350,
-          "signup_bonus_type": "Cash (statement credit)",
+          "open_date": "2022-07-01",
+          "annual_fee": 650,
+          "annual_fee_date": "2026-07-01",
+          "credit_limit": null,
+          "custom_tags": ["marriott", "hotel", "premium"],
+          "custom_notes": "Platinum Elite status. Annual free night cert up to 85k points.",
+          "signup_bonus_amount": 150000,
+          "signup_bonus_type": "Marriott Bonvoy points",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2024-01-15", "description": "$350 SUB offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-01-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-01-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "retention_offer", "event_date": "2025-01-20", "description": "$75 statement credit, accepted", "metadata_json": { "offer_credit": 75, "accepted": true } },
-            { "event_type": "annual_fee_posted", "event_date": "2026-01-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
+            {"event_type": "opened", "event_date": "2022-07-01", "description": "Approved for Marriott Brilliant"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-07-01", "description": "Year 2 annual fee $650"},
+            {"event_type": "retention_offer", "event_date": "2023-07-10", "description": "50k Marriott points after $2k spend", "metadata_json": {"offer_amount": 50000, "offer_type": "points", "spend_required": 200000}},
+            {"event_type": "annual_fee_posted", "event_date": "2024-07-01", "description": "Year 3 annual fee $650"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-07-01", "description": "Year 4 annual fee $650"}
           ],
           "benefits": [
-            {
-              "benefit_name": "Disney+/Hulu/ESPN+ Streaming Credit",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 10,
-              "period_start": "2026-02-01"
-            }
+            {"benefit_name": "Marriott Property Credit", "benefit_amount": 300, "frequency": "annual", "reset_type": "cardiversary", "from_template": true, "amount_used": 300, "benefit_type": "credit"},
+            {"benefit_name": "Dining Credit", "benefit_amount": 25, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 25, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 150000, "bonus_type": "Marriott Bonvoy points", "bonus_earned": true, "spend_requirement": 600000, "spend_deadline": "2023-01-01", "description": "150k Marriott after $6k in 6 months"},
+            {"bonus_source": "retention", "bonus_amount": 50000, "bonus_type": "Marriott Bonvoy points", "bonus_earned": true, "spend_requirement": 200000, "spend_deadline": "2023-10-10", "description": "50k Marriott retention after $2k spend"}
           ]
         },
         {
-          "template_id": "citi/double_cash",
-          "card_name": "Citi Double Cash",
-          "last_digits": "3841",
-          "issuer": "Citi",
-          "network": "Mastercard",
+          "template_id": "discover/it_cash_back",
+          "card_name": "Discover it Cash Back",
+          "last_digits": "6001",
+          "issuer": "Discover",
+          "network": "Discover",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2022-12-01",
-          "close_date": null,
+          "open_date": "2021-01-10",
           "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 7000,
-          "custom_notes": "Flat 2% card for non-category spend.",
-          "custom_tags": ["cashback", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
+          "credit_limit": 9000,
+          "custom_tags": ["cashback", "rotating-categories", "oldest-card"],
+          "custom_notes": "First credit card. Sock drawer now but keeping for credit history.",
           "events": [
-            { "event_type": "opened", "event_date": "2022-12-01", "description": null, "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "capital_one/savor_one",
-          "card_name": "Capital One SavorOne",
-          "last_digits": "2059",
-          "issuer": "Capital One",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-08-10",
-          "close_date": null,
-          "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 10000,
-          "custom_notes": "Entertainment & dining card. $200 SUB.",
-          "custom_tags": ["dining", "entertainment"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 200,
-          "signup_bonus_type": "Cash (statement credit)",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2024-08-10", "description": "$200 bonus after $500 spend", "metadata_json": null }
-          ],
-          "benefits": []
+            {"event_type": "opened", "event_date": "2021-01-10", "description": "First ever credit card approved"}
+          ]
         }
       ]
     },
     {
-      "name": "Morgan",
+      "name": "First2 Last2",
       "cards": [
         {
-          "template_id": "chase/sapphire_preferred",
-          "card_name": "Chase Sapphire Preferred",
-          "last_digits": "3847",
-          "issuer": "Chase",
-          "network": "Visa",
+          "template_id": "citi/double_cash",
+          "card_name": "Citi Double Cash Card",
+          "last_digits": "3344",
+          "issuer": "Citi",
+          "network": "Mastercard",
           "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-02-01",
-          "close_date": "2023-03-01",
-          "annual_fee": 95,
-          "annual_fee_date": "2023-02-01",
-          "credit_limit": 9000,
-          "custom_notes": "First CSP. 80k SUB. PC'd to CFU.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 80000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": true,
+          "status": "active",
+          "open_date": "2021-02-20",
+          "annual_fee": 0,
+          "credit_limit": 12000,
+          "custom_tags": ["cashback", "flat-rate", "daily-driver"],
+          "custom_notes": "2% cashback on everything. Main daily spending card.",
           "events": [
-            { "event_type": "opened", "event_date": "2022-02-01", "description": "80k online offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-02-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-02-01", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "product_change", "event_date": "2023-02-15", "description": "PC to Freedom Unlimited", "metadata_json": { "previous_template_id": "chase/sapphire_preferred", "previous_card_name": "Chase Sapphire Preferred", "new_template_id": "chase/freedom_unlimited", "new_card_name": "Chase Freedom Unlimited" } },
-            { "event_type": "closed", "event_date": "2023-03-01", "description": "Closed PC'd card", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "chase/sapphire_reserve",
-          "card_name": "Chase Sapphire Reserve",
-          "last_digits": "5082",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2023-10-01",
-          "close_date": "2024-11-01",
-          "annual_fee": 550,
-          "annual_fee_date": "2024-10-01",
-          "credit_limit": 15000,
-          "custom_notes": "MDD attempt with CSP. CSR approved day 1.",
-          "custom_tags": ["travel", "MDD"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 60000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-10-01", "description": "MDD day 1 - CSR", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-10-01", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-10-01", "description": null, "metadata_json": {"annual_fee": 550, "approximate_date": true} },
-            { "event_type": "retention_offer", "event_date": "2024-10-05", "description": "No offer available", "metadata_json": { "accepted": false } },
-            { "event_type": "closed", "event_date": "2024-11-01", "description": "Closed after AF posted", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "chase/sapphire_preferred",
-          "card_name": "Chase Sapphire Preferred",
-          "last_digits": "6129",
-          "issuer": "Chase",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2023-10-02",
-          "close_date": "2024-11-15",
-          "annual_fee": 95,
-          "annual_fee_date": "2024-10-02",
-          "credit_limit": 8000,
-          "custom_notes": "MDD day 2 with CSR. Both approved!",
-          "custom_tags": ["travel", "MDD", "churn-2"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 60000,
-          "signup_bonus_type": "Ultimate Rewards",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-10-02", "description": "MDD day 2 - CSP, instant approval", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-10-02", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-10-02", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "product_change", "event_date": "2024-11-01", "description": "PC to Freedom Flex", "metadata_json": { "previous_template_id": "chase/sapphire_preferred", "previous_card_name": "Chase Sapphire Preferred", "new_template_id": "chase/freedom_flex", "new_card_name": "Chase Freedom Flex" } },
-            { "event_type": "closed", "event_date": "2024-11-15", "description": "Closed after PC", "metadata_json": null }
-          ],
-          "benefits": []
+            {"event_type": "opened", "event_date": "2021-02-20", "description": "Approved for Citi Double Cash"}
+          ]
         },
         {
           "template_id": "chase/freedom_unlimited",
           "card_name": "Chase Freedom Unlimited",
-          "last_digits": "4190",
+          "last_digits": "5589",
           "issuer": "Chase",
           "network": "Visa",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2022-05-10",
-          "close_date": null,
+          "open_date": "2021-06-01",
           "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 4000,
-          "custom_notes": "Oldest Chase card. Keeper.",
-          "custom_tags": ["cashback", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "events": [
-            { "event_type": "opened", "event_date": "2022-05-10", "description": null, "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "amex/platinum",
-          "card_name": "Amex Platinum",
-          "last_digits": "91345",
-          "issuer": "Amex",
-          "network": "Amex",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2022-08-15",
-          "close_date": "2023-09-10",
-          "annual_fee": 695,
-          "annual_fee_date": "2023-08-15",
-          "credit_limit": null,
-          "custom_notes": "125k Resy offer. Closed after year 1.",
-          "custom_tags": ["travel", "churn-1", "charge-card"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 125000,
-          "signup_bonus_type": "Membership Rewards",
+          "credit_limit": 10000,
+          "custom_tags": ["cashback", "flat-rate"],
+          "custom_notes": "1.5% on everything. Use for non-category spend.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "Ultimate Rewards points",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2022-08-15", "description": "Resy 125k", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2022-08-15", "description": null, "metadata_json": {"annual_fee": 695, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2023-08-15", "description": null, "metadata_json": {"annual_fee": 695, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2023-09-10", "description": "Closed, no retention offered", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2021-06-01", "description": "Approved for CFU"}
           ],
-          "benefits": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2021-09-01", "description": "20k UR after $500 in 3 months"}
+          ]
         },
         {
-          "template_id": "amex/gold",
-          "card_name": "Amex Gold",
-          "last_digits": "53891",
+          "template_id": "chase/freedom_flex",
+          "card_name": "Chase Freedom Flex",
+          "last_digits": "2298",
+          "issuer": "Chase",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-01-15",
+          "annual_fee": 0,
+          "credit_limit": 7500,
+          "custom_tags": ["cashback", "rotating-categories"],
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-01-15", "description": "Approved for CFF"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2022-04-15", "description": "20k UR after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/blue_cash_preferred",
+          "card_name": "American Express Blue Cash Preferred Card",
+          "last_digits": "4401",
           "issuer": "Amex",
           "network": "Amex",
           "card_type": "personal",
-          "status": "closed",
+          "status": "active",
+          "open_date": "2021-09-10",
+          "annual_fee": 95,
+          "annual_fee_date": "2025-09-10",
+          "credit_limit": 15000,
+          "custom_tags": ["cashback", "groceries", "streaming"],
+          "custom_notes": "6% at US supermarkets up to $6k/yr. 6% on streaming too.",
+          "signup_bonus_amount": 35000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-09-10", "description": "Approved for BCP"},
+            {"event_type": "annual_fee_posted", "event_date": "2022-09-01", "description": "Year 2 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-09-01", "description": "Year 3 annual fee $95"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-09-01", "description": "Year 4 annual fee $95"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 35000, "bonus_credit_amount": 35000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 300000, "spend_deadline": "2022-03-10", "description": "$350 back after $3k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "discover/it_cash_back",
+          "card_name": "Discover it Cash Back",
+          "last_digits": "9012",
+          "issuer": "Discover",
+          "network": "Discover",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2021-04-05",
+          "annual_fee": 0,
+          "credit_limit": 6500,
+          "custom_tags": ["cashback", "rotating-categories"],
+          "custom_notes": "5% rotating categories. Cashback match first year was great.",
+          "events": [
+            {"event_type": "opened", "event_date": "2021-04-05", "description": "Approved for Discover it"}
+          ]
+        },
+        {
+          "template_id": "capitalone/savorone",
+          "card_name": "Capital One SavorOne Cash Rewards Card",
+          "last_digits": "7710",
+          "issuer": "Capital One",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-05-20",
+          "annual_fee": 39,
+          "annual_fee_date": "2025-05-20",
+          "credit_limit": 8000,
+          "custom_tags": ["cashback", "dining", "entertainment"],
+          "custom_notes": "3% on dining, entertainment, grocery. Good all-around card.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-05-20", "description": "Approved for SavorOne"},
+            {"event_type": "annual_fee_posted", "event_date": "2023-05-01", "description": "Year 2 annual fee $0"},
+            {"event_type": "annual_fee_posted", "event_date": "2024-05-01", "description": "Year 3 annual fee $0"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-05-01", "description": "Year 4 annual fee $39 (new fee)"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2022-08-20", "description": "$200 back after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "capitalone/quicksilver",
+          "card_name": "Capital One Quicksilver Cash Rewards Card",
+          "last_digits": "1156",
+          "issuer": "Capital One",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2021-12-01",
+          "annual_fee": 0,
+          "credit_limit": 10000,
+          "custom_tags": ["cashback", "flat-rate"],
+          "custom_notes": "1.5% flat cashback. Backup card.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-12-01", "description": "Approved for Quicksilver"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2022-03-01", "description": "$200 after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "boa/customized_cash",
+          "card_name": "Bank of America Customized Cash Rewards Card",
+          "last_digits": "8833",
+          "issuer": "Bank of America",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-08-10",
+          "annual_fee": 0,
+          "credit_limit": 5000,
+          "custom_tags": ["cashback", "category-choice"],
+          "custom_notes": "3% on category of choice (online shopping). 2% on grocery/wholesale.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2022-08-10", "description": "Approved for BoA Customized Cash"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 100000, "spend_deadline": "2023-01-10", "description": "$200 after $1k in 90 days"}
+          ]
+        },
+        {
+          "template_id": "wellsfargo/active_cash",
+          "card_name": "Wells Fargo Active Cash Card",
+          "last_digits": "4409",
+          "issuer": "Wells Fargo",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
           "open_date": "2023-03-01",
-          "close_date": "2024-04-15",
-          "annual_fee": 250,
-          "annual_fee_date": "2024-03-01",
-          "credit_limit": null,
-          "custom_notes": "First Gold. 75k SUB.",
-          "custom_tags": ["dining", "churn-1", "charge-card"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "Membership Rewards",
+          "annual_fee": 0,
+          "credit_limit": 9000,
+          "custom_tags": ["cashback", "flat-rate"],
+          "custom_notes": "2% flat cashback everywhere. Complementary to Citi DC.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2023-03-01", "description": "75k public offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-03-01", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-03-01", "description": null, "metadata_json": {"annual_fee": 250, "approximate_date": true} },
-            { "event_type": "closed", "event_date": "2024-04-15", "description": "Closed after year 1", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2023-03-01", "description": "Approved for WF Active Cash"}
           ],
-          "benefits": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 100000, "spend_deadline": "2023-06-01", "description": "$200 after $1k in 3 months"}
+          ]
         },
         {
-          "template_id": "amex/gold",
-          "card_name": "Amex Gold",
-          "last_digits": "20764",
+          "template_id": "citi/custom_cash",
+          "card_name": "Citi Custom Cash Card",
+          "last_digits": "6677",
+          "issuer": "Citi",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-07-15",
+          "annual_fee": 0,
+          "credit_limit": 7000,
+          "custom_tags": ["cashback", "auto-category"],
+          "custom_notes": "5% on top spend category each cycle up to $500. Using for gas.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-07-15", "description": "Approved for Citi Custom Cash"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 150000, "spend_deadline": "2024-01-15", "description": "$200 after $1.5k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "usbank/cash_plus",
+          "card_name": "US Bank Cash+",
+          "last_digits": "3001",
+          "issuer": "US Bank",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-01-08",
+          "annual_fee": 0,
+          "credit_limit": 5500,
+          "custom_tags": ["cashback", "category-choice"],
+          "custom_notes": "5% on 2 chosen categories (utilities + internet). 2% on one chosen everyday.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-01-08", "description": "Approved for US Bank Cash+"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 100000, "spend_deadline": "2024-04-08", "description": "$200 after $1k in 90 days"}
+          ]
+        },
+        {
+          "template_id": "chase/amazon_prime",
+          "card_name": "Amazon Prime Card",
+          "last_digits": "2580",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2022-11-25",
+          "annual_fee": 0,
+          "credit_limit": 8000,
+          "custom_tags": ["cashback", "amazon"],
+          "custom_notes": "5% at Amazon and Whole Foods with Prime. Use for all Amazon purchases.",
+          "events": [
+            {"event_type": "opened", "event_date": "2022-11-25", "description": "Approved for Amazon Prime card on Black Friday"}
+          ]
+        },
+        {
+          "template_id": "citi/costco_anywhere",
+          "card_name": "Costco Anywhere Visa Card by Citi",
+          "last_digits": "0055",
+          "issuer": "Citi",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-11-01",
+          "annual_fee": 0,
+          "credit_limit": 10000,
+          "custom_tags": ["cashback", "costco", "gas"],
+          "custom_notes": "4% gas, 3% restaurants, 2% Costco, 1% everything else. Executive member.",
+          "events": [
+            {"event_type": "opened", "event_date": "2023-11-01", "description": "Approved for Costco Anywhere Visa"}
+          ]
+        },
+        {
+          "template_id": "boa/unlimited_cash",
+          "card_name": "Bank of America Unlimited Cash Rewards Card",
+          "last_digits": "9922",
+          "issuer": "Bank of America",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "closed",
+          "open_date": "2021-08-15",
+          "close_date": "2023-09-01",
+          "annual_fee": 0,
+          "credit_limit": 5000,
+          "custom_tags": ["cashback"],
+          "custom_notes": "Closed due to too many flat-rate cards. Had for 2 years.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2021-08-15", "description": "Approved for BoA Unlimited Cash"},
+            {"event_type": "closed", "event_date": "2023-09-01", "description": "Closed card, too many flat-rate cards"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 100000, "spend_deadline": "2021-11-15", "description": "$200 after $1k in 90 days"}
+          ]
+        },
+        {
+          "template_id": "wellsfargo/autograph",
+          "card_name": "Wells Fargo Autograph Card",
+          "last_digits": "5501",
+          "issuer": "Wells Fargo",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-10-20",
+          "annual_fee": 0,
+          "credit_limit": 12000,
+          "custom_tags": ["cashback", "no-af"],
+          "custom_notes": "3x on restaurants, travel, gas, transit, streaming, phone plans. No annual fee.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "rewards points",
+          "signup_bonus_earned": false,
+          "spend_requirement": 150000,
+          "spend_deadline": "2026-04-20",
+          "spend_reminder_enabled": true,
+          "spend_reminder_notes": "About halfway to $1.5k spend requirement",
+          "events": [
+            {"event_type": "opened", "event_date": "2025-10-20", "description": "Approved for WF Autograph"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_type": "rewards points", "bonus_earned": false, "spend_requirement": 150000, "spend_deadline": "2026-04-20", "spend_reminder_enabled": true, "spend_reminder_notes": "About halfway to $1.5k spend requirement", "description": "200 bonus after $1.5k in 6 months"}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "First3 Last3",
+      "cards": [
+        {
+          "template_id": "discover/it_cash_back",
+          "card_name": "Discover it Cash Back",
+          "last_digits": "4455",
+          "issuer": "Discover",
+          "network": "Discover",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-03-15",
+          "annual_fee": 0,
+          "credit_limit": 3500,
+          "custom_tags": ["cashback", "first-card"],
+          "custom_notes": "First credit card. Cashback match doubled first year rewards.",
+          "events": [
+            {"event_type": "opened", "event_date": "2023-03-15", "description": "First credit card approved"}
+          ]
+        },
+        {
+          "template_id": "chase/freedom_flex",
+          "card_name": "Chase Freedom Flex",
+          "last_digits": "8812",
+          "issuer": "Chase",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2023-08-20",
+          "annual_fee": 0,
+          "credit_limit": 5000,
+          "custom_tags": ["ur", "rotating-categories"],
+          "custom_notes": "Building Chase relationship for future Sapphire card.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2023-08-20", "description": "Approved for CFF, second card"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2023-11-20", "description": "20k UR after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "capitalone/quicksilver",
+          "card_name": "Capital One Quicksilver Cash Rewards Card",
+          "last_digits": "3390",
+          "issuer": "Capital One",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-01-05",
+          "annual_fee": 0,
+          "credit_limit": 6000,
+          "custom_tags": ["cashback", "flat-rate"],
+          "custom_notes": "1.5% flat rate everywhere. Good backup card.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-01-05", "description": "Approved for Quicksilver"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2024-04-05", "description": "$200 after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "chase/sapphire_preferred",
+          "card_name": "Chase Sapphire Preferred",
+          "last_digits": "6678",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-05-15",
+          "annual_fee": 95,
+          "annual_fee_date": "2025-05-15",
+          "credit_limit": 10000,
+          "custom_tags": ["ur", "travel", "first-premium"],
+          "custom_notes": "First premium travel card! Using for dining and travel bookings.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "Ultimate Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-05-15", "description": "Approved for CSP, first travel card"},
+            {"event_type": "annual_fee_posted", "event_date": "2025-05-01", "description": "Year 2 annual fee $95"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "Ultimate Rewards points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2024-08-15", "description": "60k UR after $4k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "amex/blue_cash_everyday",
+          "card_name": "American Express Blue Cash Everyday Card",
+          "last_digits": "1234",
           "issuer": "Amex",
           "network": "Amex",
           "card_type": "personal",
           "status": "active",
-          "open_date": "2025-01-15",
-          "close_date": null,
-          "annual_fee": 325,
-          "annual_fee_date": "2026-01-15",
-          "credit_limit": null,
-          "custom_notes": "Second Gold churn via NLL targeted link.",
-          "custom_tags": ["dining", "churn-2", "charge-card"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 6000,
-          "spend_deadline": "2025-07-15",
-          "spend_reminder_notes": "$6k in 6 months for 90k MR",
-          "signup_bonus_amount": 90000,
-          "signup_bonus_type": "Membership Rewards",
-          "signup_bonus_earned": false,
-          "events": [
-            { "event_type": "opened", "event_date": "2025-01-15", "description": "NLL 90k targeted link", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2025-01-15", "description": null, "metadata_json": {"annual_fee": 325, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2026-01-15", "description": null, "metadata_json": {"annual_fee": 325, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Uber Cash",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 5,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Dining Credit",
-              "benefit_amount": 10,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 10,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Dunkin' Credit",
-              "benefit_amount": 7,
-              "frequency": "monthly",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 0,
-              "period_start": "2026-02-01"
-            },
-            {
-              "benefit_name": "Resy Dining Credit",
-              "benefit_amount": 50,
-              "frequency": "semi_annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 30,
-              "period_start": "2026-01-01"
-            }
-          ],
-          "bonuses": []
-        },
-        {
-          "template_id": "citi/premier",
-          "card_name": "Citi Premier",
-          "last_digits": "7284",
-          "issuer": "Citi",
-          "network": "Mastercard",
-          "card_type": "personal",
-          "status": "closed",
-          "open_date": "2023-01-15",
-          "close_date": "2024-02-20",
-          "annual_fee": 95,
-          "annual_fee_date": "2024-01-15",
-          "credit_limit": 8000,
-          "custom_notes": "80k TYP. PC'd to Double Cash.",
-          "custom_tags": ["travel", "churn-1"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 80000,
-          "signup_bonus_type": "ThankYou Points",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2023-01-15", "description": "80k offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2023-01-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2024-01-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} },
-            { "event_type": "product_change", "event_date": "2024-02-01", "description": "PC to Double Cash", "metadata_json": { "previous_template_id": "citi/premier", "previous_card_name": "Citi Premier", "new_template_id": "citi/double_cash", "new_card_name": "Citi Double Cash" } },
-            { "event_type": "closed", "event_date": "2024-02-20", "description": "Closed after PC", "metadata_json": null }
-          ],
-          "benefits": []
-        },
-        {
-          "template_id": "citi/premier",
-          "card_name": "Citi Strata Premier",
-          "last_digits": "1593",
-          "issuer": "Citi",
-          "network": "Mastercard",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2025-11-15",
-          "close_date": null,
-          "annual_fee": 95,
-          "annual_fee_date": "2026-11-15",
-          "credit_limit": 9000,
-          "custom_notes": "Second Premier churn. 75k TYP. Now Citi Strata Premier.",
-          "custom_tags": ["travel", "churn-2"],
-          "spend_reminder_enabled": true,
-          "spend_requirement": 4000,
-          "spend_deadline": "2026-02-15",
-          "spend_reminder_notes": "$4k in 3 months for 75k TYP",
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "ThankYou Points",
-          "signup_bonus_earned": false,
-          "events": [
-            { "event_type": "opened", "event_date": "2025-11-15", "description": "75k offer", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2025-11-15", "description": null, "metadata_json": {"annual_fee": 95, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Hotel Credit",
-              "benefit_amount": 100,
-              "frequency": "annual",
-              "reset_type": "calendar",
-              "benefit_type": "credit",
-              "amount_used": 0,
-              "period_start": "2026-01-01"
-            }
-          ]
-        },
-        {
-          "template_id": "capital_one/venture_x",
-          "card_name": "Capital One Venture X",
-          "last_digits": "8312",
-          "issuer": "Capital One",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-06-01",
-          "close_date": null,
-          "annual_fee": 395,
-          "annual_fee_date": "2026-06-01",
-          "credit_limit": 18000,
-          "custom_notes": "Lounge access card. 75k miles.",
-          "custom_tags": ["travel", "keeper", "lounge"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 75000,
-          "signup_bonus_type": "Capital One Miles",
-          "signup_bonus_earned": true,
-          "events": [
-            { "event_type": "opened", "event_date": "2024-06-01", "description": "75k miles after $4k spend", "metadata_json": null },
-            { "event_type": "annual_fee_posted", "event_date": "2024-06-01", "description": null, "metadata_json": {"annual_fee": 395, "approximate_date": true} },
-            { "event_type": "annual_fee_posted", "event_date": "2025-06-01", "description": null, "metadata_json": {"annual_fee": 395, "approximate_date": true} }
-          ],
-          "benefits": [
-            {
-              "benefit_name": "Travel Credit (Capital One Travel)",
-              "benefit_amount": 300,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "credit",
-              "amount_used": 215,
-              "period_start": "2025-06-01"
-            },
-            {
-              "benefit_name": "Anniversary Bonus Miles Boost",
-              "benefit_amount": 30000,
-              "frequency": "annual",
-              "reset_type": "cardiversary",
-              "benefit_type": "spend_threshold",
-              "from_template": false,
-              "notes": "Spend $30k to earn 20k bonus miles on top of standard 10k anniversary miles",
-              "amount_used": 22000,
-              "period_start": "2025-06-01"
-            }
-          ]
-        },
-        {
-          "template_id": "capital_one/savor_one",
-          "card_name": "Capital One SavorOne",
-          "last_digits": "5671",
-          "issuer": "Capital One",
-          "network": "Visa",
-          "card_type": "personal",
-          "status": "active",
-          "open_date": "2024-06-01",
-          "close_date": null,
+          "open_date": "2024-03-10",
           "annual_fee": 0,
-          "annual_fee_date": null,
-          "credit_limit": 8000,
-          "custom_notes": "No AF dining/entertainment card.",
-          "custom_tags": ["dining", "entertainment", "keeper"],
-          "spend_reminder_enabled": false,
-          "spend_requirement": null,
-          "spend_deadline": null,
-          "spend_reminder_notes": null,
-          "signup_bonus_amount": 200,
-          "signup_bonus_type": "Cash (statement credit)",
+          "credit_limit": 4000,
+          "custom_tags": ["cashback", "groceries"],
+          "custom_notes": "3% at US supermarkets up to $6k/yr. No annual fee alternative to BCP.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
           "signup_bonus_earned": true,
           "events": [
-            { "event_type": "opened", "event_date": "2024-06-01", "description": "$200 SUB", "metadata_json": null }
+            {"event_type": "opened", "event_date": "2024-03-10", "description": "Approved for Blue Cash Everyday"}
           ],
-          "benefits": []
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 200000, "spend_deadline": "2024-09-10", "description": "$200 back after $2k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "amex/gold",
+          "card_name": "American Express Gold Card",
+          "last_digits": "7789",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-02-01",
+          "annual_fee": 325,
+          "annual_fee_date": "2026-02-01",
+          "credit_limit": null,
+          "custom_tags": ["mr", "dining", "groceries"],
+          "custom_notes": "Upgraded from BCE for the 4x dining and groceries. Resy 90k offer.",
+          "signup_bonus_amount": 90000,
+          "signup_bonus_type": "Membership Rewards points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2025-02-01", "description": "Approved via Resy 90k offer"},
+            {"event_type": "annual_fee_posted", "event_date": "2026-02-01", "description": "Year 2 annual fee $325"}
+          ],
+          "benefits": [
+            {"benefit_name": "Uber Cash", "benefit_amount": 10, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 10, "benefit_type": "credit"},
+            {"benefit_name": "Dining Credit", "benefit_amount": 10, "frequency": "monthly", "reset_type": "calendar", "from_template": true, "amount_used": 10, "benefit_type": "credit"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 90000, "bonus_type": "Membership Rewards points", "bonus_earned": true, "spend_requirement": 400000, "spend_deadline": "2025-08-01", "description": "90k MR after $4k in 6 months"}
+          ]
+        },
+        {
+          "template_id": "bilt/bilt_card",
+          "card_name": "Bilt Card",
+          "last_digits": "5567",
+          "issuer": "Bilt",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-08-01",
+          "annual_fee": 0,
+          "credit_limit": 5000,
+          "custom_tags": ["rent", "transferable-points"],
+          "custom_notes": "Using for rent payments. 1x on rent with no fee.",
+          "events": [
+            {"event_type": "opened", "event_date": "2024-08-01", "description": "Approved for Bilt card for rent payments"}
+          ]
+        },
+        {
+          "template_id": "wellsfargo/active_cash",
+          "card_name": "Wells Fargo Active Cash Card",
+          "last_digits": "2211",
+          "issuer": "Wells Fargo",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2024-11-15",
+          "annual_fee": 0,
+          "credit_limit": 8000,
+          "custom_tags": ["cashback", "flat-rate"],
+          "custom_notes": "2% flat rate. Opened for the SUB.",
+          "signup_bonus_amount": 20000,
+          "signup_bonus_type": "cashback (cents)",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2024-11-15", "description": "Approved for WF Active Cash"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 20000, "bonus_credit_amount": 20000, "bonus_type": "cashback (cents)", "bonus_earned": true, "spend_requirement": 50000, "spend_deadline": "2025-02-15", "description": "$200 after $500 in 3 months"}
+          ]
+        },
+        {
+          "template_id": "chase/united_explorer",
+          "card_name": "United Explorer Card",
+          "last_digits": "9034",
+          "issuer": "Chase",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-05-20",
+          "annual_fee": 150,
+          "annual_fee_date": "2026-05-20",
+          "credit_limit": 12000,
+          "custom_tags": ["united", "airline", "travel"],
+          "custom_notes": "Free checked bag saves $70/roundtrip. Planning Hawaii trip.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "United MileagePlus miles",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2025-05-20", "description": "Approved for United Explorer for Hawaii trip"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "United MileagePlus miles", "bonus_earned": true, "spend_requirement": 300000, "spend_deadline": "2025-08-20", "description": "60k United miles after $3k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "barclays/jetblue_plus",
+          "card_name": "JetBlue Plus Card",
+          "last_digits": "4420",
+          "issuer": "Barclays",
+          "network": "Mastercard",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-09-10",
+          "annual_fee": 99,
+          "annual_fee_date": "2026-09-10",
+          "credit_limit": 8000,
+          "custom_tags": ["jetblue", "airline"],
+          "custom_notes": "6x on JetBlue purchases, free checked bags. Fly JetBlue out of BOS often.",
+          "signup_bonus_amount": 60000,
+          "signup_bonus_type": "TrueBlue points",
+          "signup_bonus_earned": false,
+          "spend_requirement": 100000,
+          "spend_deadline": "2025-12-10",
+          "spend_reminder_enabled": true,
+          "spend_reminder_notes": "Need $400 more by Dec 10",
+          "events": [
+            {"event_type": "opened", "event_date": "2025-09-10", "description": "Approved for JetBlue Plus"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 60000, "bonus_type": "TrueBlue points", "bonus_earned": false, "spend_requirement": 100000, "spend_deadline": "2025-12-10", "spend_reminder_enabled": true, "spend_reminder_notes": "Need $400 more by Dec 10", "description": "60k TrueBlue after $1k in 3 months"}
+          ]
+        },
+        {
+          "template_id": "robinhood/gold_card",
+          "card_name": "Robinhood Gold Card",
+          "last_digits": "6688",
+          "issuer": "Robinhood",
+          "network": "Visa",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2026-01-20",
+          "annual_fee": 0,
+          "credit_limit": 10000,
+          "custom_tags": ["cashback", "3x-everything"],
+          "custom_notes": "3% on everything with Gold sub. New daily driver.",
+          "events": [
+            {"event_type": "opened", "event_date": "2026-01-20", "description": "Approved for Robinhood Gold Card"}
+          ]
+        },
+        {
+          "template_id": "amex/hilton_honors",
+          "card_name": "Hilton Honors American Express Card",
+          "last_digits": "3345",
+          "issuer": "Amex",
+          "network": "Amex",
+          "card_type": "personal",
+          "status": "active",
+          "open_date": "2025-07-01",
+          "annual_fee": 0,
+          "credit_limit": null,
+          "custom_tags": ["hilton", "hotel", "no-af"],
+          "custom_notes": "No AF Hilton card. Silver status. Good for occasional hotel stays.",
+          "signup_bonus_amount": 80000,
+          "signup_bonus_type": "Hilton Honors points",
+          "signup_bonus_earned": true,
+          "events": [
+            {"event_type": "opened", "event_date": "2025-07-01", "description": "Approved for Hilton Honors no-AF card"}
+          ],
+          "bonuses": [
+            {"bonus_source": "signup", "bonus_amount": 80000, "bonus_type": "Hilton Honors points", "bonus_earned": true, "spend_requirement": 200000, "spend_deadline": "2026-01-01", "description": "80k Hilton after $2k in 6 months"}
+          ]
         }
       ]
     }
