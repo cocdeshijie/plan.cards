@@ -5,7 +5,7 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "CreditCardTracker",
+  title: "plan.cards",
   description: "Track your credit card lifecycle",
 };
 

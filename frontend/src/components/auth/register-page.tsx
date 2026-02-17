@@ -47,7 +47,7 @@ export function RegisterPage({ onBack }: { onBack: () => void }) {
               <CreditCard className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
-            <p className="text-sm text-muted-foreground">Join CreditCardTracker</p>
+            <p className="text-sm text-muted-foreground">Join plan.cards</p>
           </div>
 
           <form

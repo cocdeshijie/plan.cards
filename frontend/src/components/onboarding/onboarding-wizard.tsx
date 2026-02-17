@@ -223,7 +223,7 @@ function WelcomeStep({ hasExistingData }: { hasExistingData: boolean }) {
       <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10">
         <CreditCard className="h-10 w-10 text-primary" />
       </div>
-      <h1 className="text-2xl font-bold tracking-tight">Welcome to CreditCardTracker</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Welcome to plan.cards</h1>
       <p className="text-muted-foreground">
         {hasExistingData
           ? "We detected existing data. Let's set up authentication to secure your instance."

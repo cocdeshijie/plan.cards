@@ -174,7 +174,7 @@ async def lifespan(app: FastAPI):
             pass
 
 
-app = FastAPI(title="CreditCardTracker API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="plan.cards API", version="1.0.0", lifespan=lifespan)
 app.state.limiter = limiter
 
 

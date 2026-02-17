@@ -41,7 +41,7 @@ export function UsernamePasswordLogin() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-2">
               <CreditCard className="h-8 w-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">CreditCardTracker</h1>
+            <h1 className="text-2xl font-bold tracking-tight">plan.cards</h1>
             <p className="text-sm text-muted-foreground">Sign in to your account</p>
           </div>
 

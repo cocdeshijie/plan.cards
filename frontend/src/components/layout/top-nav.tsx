@@ -88,7 +88,7 @@ export function TopNav() {
   };
 
   const navLinks = [
-    { href: "/", label: "Summary" },
+    { href: "/summary", label: "Summary" },
     { href: "/cards", label: "Cards" },
   ];
 
@@ -99,7 +99,7 @@ export function TopNav() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-lg">CCT</span>
+              <span className="font-semibold text-lg">plan.cards</span>
             </div>
             <nav className="flex items-center gap-1">
               {navLinks.map((link) => (

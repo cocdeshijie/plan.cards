@@ -98,7 +98,7 @@ export function MobileTopBar() {
         {/* Left: Logo */}
         <div className="flex items-center gap-1.5">
           <CreditCard className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">CCT</span>
+          <span className="font-semibold text-sm">plan.cards</span>
         </div>
 
         {/* Center: Profile selector */}
