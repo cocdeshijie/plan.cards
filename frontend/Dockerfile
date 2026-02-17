@@ -1,23 +1,18 @@
-FROM alpine:3.20 AS git-hash
-RUN apk add --no-cache git
-COPY .git /repo/.git
-WORKDIR /repo
-RUN git rev-parse --short HEAD > /commit-hash 2>/dev/null || echo "dev" > /commit-hash
-
 FROM oven/bun:1-alpine AS deps
 WORKDIR /app
-COPY frontend/package.json frontend/bun.lock* ./
+COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY frontend/ .
-COPY --from=git-hash /commit-hash /tmp/commit-hash
+COPY . .
+ARG COMMIT_HASH=dev
 ARG BACKEND_URL=http://backend:8000
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_COMMIT_HASH=${COMMIT_HASH}
 ENV BACKEND_URL=${BACKEND_URL}
-RUN export NEXT_PUBLIC_COMMIT_HASH=$(cat /tmp/commit-hash) && npx next build
+RUN npx next build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
@@ -29,7 +24,7 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/docker-entrypoint.sh ./
+COPY --chown=nextjs:nodejs docker-entrypoint.sh ./
 
 USER nextjs
 EXPOSE 3000
