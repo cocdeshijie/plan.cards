@@ -2883,3 +2883,38 @@ def test_import_merge_case_insensitive(client, auth_headers):
 
     assert result["cards_skipped"] == 1
     assert result["cards_imported"] == 0
+
+
+def test_import_merge_allows_reimport_of_soft_deleted_card(client, auth_headers):
+    """Merge import should not count soft-deleted cards as duplicates."""
+    profile = client.post("/api/profiles", json={"name": "SoftDelTest"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "CSP",
+        "issuer": "Chase",
+        "open_date": "2024-06-01",
+    }, headers=auth_headers).json()
+
+    # Soft-delete the card
+    r = client.delete(f"/api/cards/{card['id']}", headers=auth_headers)
+    assert r.status_code == 204
+
+    # Import the same card via merge — should succeed since original is soft-deleted
+    import_data = ExportData(
+        version=1,
+        exported_at=datetime.now(timezone.utc),
+        profiles=[ExportProfile(
+            name="SoftDelTest",
+            cards=[
+                ExportCard(card_name="CSP", issuer="Chase", open_date=date(2024, 6, 1)),
+            ],
+        )],
+    )
+    result = client.post(
+        f"/api/profiles/import?mode=merge&target_profile_id={profile['id']}",
+        json=import_data.model_dump(mode="json"),
+        headers=auth_headers,
+    ).json()
+
+    assert result["cards_imported"] == 1
+    assert result["cards_skipped"] == 0

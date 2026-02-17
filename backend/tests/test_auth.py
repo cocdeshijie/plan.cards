@@ -1082,6 +1082,7 @@ def test_security_headers(client):
     assert r.headers["X-Content-Type-Options"] == "nosniff"
     assert r.headers["X-Frame-Options"] == "DENY"
     assert r.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
+    assert "max-age=31536000" in r.headers["Strict-Transport-Security"]
 
 
 # ── PyJWT Token Roundtrip ───────────────────────────────────────────
@@ -1787,3 +1788,211 @@ def test_delete_provider_blocked_when_admin_linked(client, db_session):
     # Deleting google (admin is NOT linked to it) should succeed
     r = client.delete("/api/auth/oauth/providers/google", headers=headers)
     assert r.status_code == 204
+
+
+# ── Phase 1 Security Regression Tests ─────────────────────────────
+
+
+def test_card_monetary_field_upper_bounds(client, auth_headers):
+    """Card create/update rejects monetary fields exceeding 99,999,999."""
+    profile = client.post("/api/profiles", json={"name": "Test"}, headers=auth_headers).json()
+    # annual_fee too large
+    r = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "X", "issuer": "Chase",
+        "annual_fee": 100_000_000,
+    }, headers=auth_headers)
+    assert r.status_code == 422
+
+    # credit_limit too large
+    r = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "X", "issuer": "Chase",
+        "credit_limit": 100_000_000,
+    }, headers=auth_headers)
+    assert r.status_code == 422
+
+    # spend_requirement too large
+    r = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "X", "issuer": "Chase",
+        "spend_requirement": 100_000_000,
+    }, headers=auth_headers)
+    assert r.status_code == 422
+
+    # signup_bonus_amount too large
+    r = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "X", "issuer": "Chase",
+        "signup_bonus_amount": 100_000_000,
+    }, headers=auth_headers)
+    assert r.status_code == 422
+
+
+def test_cardiversary_future_open_date():
+    """Cardiversary period with future open_date should not loop infinitely."""
+    from datetime import date
+    from app.utils.period_utils import get_current_period
+
+    # open_date in the future relative to reference_date
+    start, end = get_current_period(
+        "annual", "cardiversary",
+        open_date=date(2030, 1, 1),
+        reference_date=date(2025, 6, 15),
+    )
+    assert start == date(2030, 1, 1)
+    assert end == date(2030, 12, 31)
+
+
+def test_soft_delete_and_restore(client, auth_headers):
+    """Delete sets deleted_at, card disappears from list, restore brings it back."""
+    profile = client.post("/api/profiles", json={"name": "Test"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "Test Card", "issuer": "Chase",
+    }, headers=auth_headers).json()
+
+    # Delete card (soft)
+    r = client.delete(f"/api/cards/{card['id']}", headers=auth_headers)
+    assert r.status_code == 204
+
+    # Card should not appear in list
+    cards = client.get("/api/cards", headers=auth_headers).json()
+    assert not any(c["id"] == card["id"] for c in cards)
+
+    # Card should not be accessible via GET
+    r = client.get(f"/api/cards/{card['id']}", headers=auth_headers)
+    assert r.status_code == 404
+
+    # Restore card
+    r = client.post(f"/api/cards/{card['id']}/restore", headers=auth_headers)
+    assert r.status_code == 200
+    assert r.json()["id"] == card["id"]
+
+    # Card should reappear in list
+    cards = client.get("/api/cards", headers=auth_headers).json()
+    assert any(c["id"] == card["id"] for c in cards)
+
+
+# ── Phase 2 Security & Business Logic Regression Tests ─────────────
+
+
+def test_admin_oauth_link_validates_redirect_uri(client, multi_user_headers):
+    """Admin OAuth link endpoint rejects redirect_uri with disallowed origin."""
+    # Configure a provider first
+    client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "test-id",
+        "client_secret": "test-secret",
+    }, headers=multi_user_headers)
+
+    r = client.post("/api/admin/oauth/link", json={
+        "provider_name": "google",
+        "code": "fake-code",
+        "state": "fake-state",
+        "redirect_uri": "http://evil.com/callback",
+    }, headers=multi_user_headers)
+    assert r.status_code == 400
+    assert "not allowed" in r.json()["detail"]
+
+
+def test_admin_oauth_link_atomic_state_consumption(client, multi_user_headers, db_session):
+    """Admin OAuth link uses atomic delete-first state consumption."""
+    from app.models.oauth_state import OAuthState
+
+    # Configure a provider
+    client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "test-id",
+        "client_secret": "test-secret",
+    }, headers=multi_user_headers)
+
+    # Try with a completely invalid state — should fail with "Invalid or expired"
+    r = client.post("/api/admin/oauth/link", json={
+        "provider_name": "google",
+        "code": "fake-code",
+        "state": "nonexistent-state",
+        "redirect_uri": "http://localhost:3000/auth/callback",
+    }, headers=multi_user_headers)
+    assert r.status_code == 400
+    assert "invalid or expired" in r.json()["detail"].lower()
+
+    # Insert a valid state and try to use it twice (second should fail)
+    import time
+    state_val = "test-state-atomic"
+    db_session.add(OAuthState(state=state_val, created_at=time.time()))
+    db_session.commit()
+
+    # First attempt will fail at the code exchange step (no real OAuth server),
+    # but the state should be consumed (deleted) before that step
+    r1 = client.post("/api/admin/oauth/link", json={
+        "provider_name": "google",
+        "code": "fake-code",
+        "state": state_val,
+        "redirect_uri": "http://localhost:3000/auth/callback",
+    }, headers=multi_user_headers)
+    # Will fail at token exchange, but state should be consumed
+    # (status could be 400 for token exchange failure)
+
+    # Second attempt with same state should fail with "Invalid or expired"
+    r2 = client.post("/api/admin/oauth/link", json={
+        "provider_name": "google",
+        "code": "fake-code",
+        "state": state_val,
+        "redirect_uri": "http://localhost:3000/auth/callback",
+    }, headers=multi_user_headers)
+    assert r2.status_code == 400
+    assert "invalid or expired" in r2.json()["detail"].lower()
+
+    # Verify state was deleted from DB
+    remaining = db_session.query(OAuthState).filter(OAuthState.state == state_val).count()
+    assert remaining == 0
+
+
+def test_af_backfill_capped_at_20_years(client, auth_headers):
+    """Card opened 25 years ago should produce at most ~20 AF anniversary events."""
+    from datetime import date, timedelta
+
+    profile = client.post("/api/profiles", json={"name": "AFCapTest"}, headers=auth_headers).json()
+    today = date.today()
+
+    # Card opened 25 years ago with annual fee
+    open_date = date(today.year - 25, today.month, today.day)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Ancient Card",
+        "issuer": "TestIssuer",
+        "open_date": open_date.isoformat(),
+        "annual_fee": 100,
+    }, headers=auth_headers).json()
+
+    # Count annual_fee_posted events
+    af_events = [e for e in card["events"] if e["event_type"] == "annual_fee_posted"]
+    # Should be capped at roughly 20 (MAX_AF_BACKFILL_YEARS), not 25
+    assert len(af_events) <= 21  # Allow 1 extra for boundary
+    assert len(af_events) >= 18  # Sanity: should still have plenty of events
+
+
+def test_custom_tags_deduplication(client, auth_headers):
+    """Duplicate custom tags (case-insensitive) are removed, first occurrence preserved."""
+    profile = client.post("/api/profiles", json={"name": "TagTest"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Tag Card",
+        "issuer": "Test",
+        "custom_tags": ["Travel", "travel", "TRAVEL", "dining"],
+    }, headers=auth_headers).json()
+
+    # Should deduplicate to 2 tags, preserving first casing
+    assert card["custom_tags"] == ["Travel", "dining"]
+
+
+def test_custom_tags_deduplication_on_update(client, auth_headers):
+    """Updating custom tags also deduplicates."""
+    profile = client.post("/api/profiles", json={"name": "TagUpdateTest"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Tag Card",
+        "issuer": "Test",
+    }, headers=auth_headers).json()
+
+    updated = client.put(f"/api/cards/{card['id']}", json={
+        "custom_tags": ["Hotels", "hotels", "HOTELS", "flights", "Flights"],
+    }, headers=auth_headers).json()
+
+    assert updated["custom_tags"] == ["Hotels", "flights"]
