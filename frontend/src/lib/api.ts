@@ -30,7 +30,9 @@ export const API_BASE =
     (window as unknown as Record<string, unknown>).__ENV &&
     ((window as unknown as Record<string, unknown>).__ENV as Record<string, string>).API_BASE) ||
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8000";
+  (typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}:8000`
+    : "http://localhost:8000");
 
 export const getTemplateImageUrl = (templateId: string) =>
   `${API_BASE}/api/templates/${templateId}/image`;

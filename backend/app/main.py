@@ -189,18 +189,22 @@ async def lifespan(app: FastAPI):
             except OSError:
                 logger.warning("Could not persist SECRET_KEY to /data/.secret_key — tokens will not survive restarts")
 
-    # Validate ALLOWED_ORIGINS format at startup — skip invalid entries
-    _valid_origins = []
-    for origin in settings.allowed_origins.split(","):
-        origin = origin.strip()
-        if not origin:
-            continue
-        parsed = urlparse(origin)
-        if not parsed.scheme or not parsed.netloc:
-            logger.warning("Skipping invalid ALLOWED_ORIGINS entry (missing scheme/host): %s", origin)
-            continue
-        _valid_origins.append(origin)
-    app.state.valid_origins = _valid_origins
+    # Parse ALLOWED_ORIGINS at startup
+    raw_origins = settings.allowed_origins.strip()
+    if raw_origins == "*" or not raw_origins:
+        app.state.valid_origins = None  # unrestricted
+    else:
+        _valid_origins = []
+        for origin in raw_origins.split(","):
+            origin = origin.strip()
+            if not origin:
+                continue
+            parsed = urlparse(origin)
+            if not parsed.scheme or not parsed.netloc:
+                logger.warning("Skipping invalid ALLOWED_ORIGINS entry (missing scheme/host): %s", origin)
+                continue
+            _valid_origins.append(origin)
+        app.state.valid_origins = _valid_origins
 
     _run_alembic_migrations()
     load_templates()
@@ -251,22 +255,26 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(status_code=429, content={"detail": "Too many requests. Please try again later."})
 
 
-def _validated_origins() -> list[str]:
-    """Parse ALLOWED_ORIGINS and return only valid entries."""
+def _cors_kwargs() -> dict:
+    """Build CORSMiddleware origin kwargs based on ALLOWED_ORIGINS setting."""
+    raw = settings.allowed_origins.strip()
+    if raw == "*" or not raw:
+        # Reflect actual request origin (required when allow_credentials=True)
+        return {"allow_origin_regex": ".*"}
     origins = []
-    for origin in settings.allowed_origins.split(","):
+    for origin in raw.split(","):
         origin = origin.strip()
         if not origin:
             continue
         parsed = urlparse(origin)
         if parsed.scheme and parsed.netloc:
             origins.append(origin)
-    return origins
+    return {"allow_origins": origins}
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_validated_origins(),
+    **_cors_kwargs(),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],

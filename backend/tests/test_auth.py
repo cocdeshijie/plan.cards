@@ -1214,15 +1214,21 @@ def test_oauth_state_db_persistence(client, multi_user_headers, db_session):
 
 
 def test_redirect_uri_validation(client, multi_user_headers):
-    """OAuth authorize rejects redirect_uri with disallowed origin."""
-    client.post("/api/auth/oauth/providers", json={
-        "provider_name": "google",
-        "client_id": "test-id",
-        "client_secret": "test-secret",
-    }, headers=multi_user_headers)
-    r = client.get("/api/auth/oauth/google/authorize?redirect_uri=http://evil.com/callback", headers=multi_user_headers)
-    assert r.status_code == 400
-    assert "not allowed" in r.json()["detail"]
+    """OAuth authorize rejects redirect_uri with disallowed origin when ALLOWED_ORIGINS is set."""
+    from app.config import settings
+    original = settings.allowed_origins
+    settings.allowed_origins = "http://localhost:3000"
+    try:
+        client.post("/api/auth/oauth/providers", json={
+            "provider_name": "google",
+            "client_id": "test-id",
+            "client_secret": "test-secret",
+        }, headers=multi_user_headers)
+        r = client.get("/api/auth/oauth/google/authorize?redirect_uri=http://evil.com/callback", headers=multi_user_headers)
+        assert r.status_code == 400
+        assert "not allowed" in r.json()["detail"]
+    finally:
+        settings.allowed_origins = original
 
 
 def test_path_traversal_template_image(client, auth_headers):
@@ -1873,22 +1879,28 @@ def test_soft_delete_and_restore(client, auth_headers):
 
 
 def test_admin_oauth_link_validates_redirect_uri(client, multi_user_headers):
-    """Admin OAuth link endpoint rejects redirect_uri with disallowed origin."""
-    # Configure a provider first
-    client.post("/api/auth/oauth/providers", json={
-        "provider_name": "google",
-        "client_id": "test-id",
-        "client_secret": "test-secret",
-    }, headers=multi_user_headers)
+    """Admin OAuth link endpoint rejects redirect_uri with disallowed origin when ALLOWED_ORIGINS is set."""
+    from app.config import settings
+    original = settings.allowed_origins
+    settings.allowed_origins = "http://localhost:3000"
+    try:
+        # Configure a provider first
+        client.post("/api/auth/oauth/providers", json={
+            "provider_name": "google",
+            "client_id": "test-id",
+            "client_secret": "test-secret",
+        }, headers=multi_user_headers)
 
-    r = client.post("/api/admin/oauth/link", json={
-        "provider_name": "google",
-        "code": "fake-code",
-        "state": "fake-state",
-        "redirect_uri": "http://evil.com/callback",
-    }, headers=multi_user_headers)
-    assert r.status_code == 400
-    assert "not allowed" in r.json()["detail"]
+        r = client.post("/api/admin/oauth/link", json={
+            "provider_name": "google",
+            "code": "fake-code",
+            "state": "fake-state",
+            "redirect_uri": "http://evil.com/callback",
+        }, headers=multi_user_headers)
+        assert r.status_code == 400
+        assert "not allowed" in r.json()["detail"]
+    finally:
+        settings.allowed_origins = original
 
 
 def test_admin_oauth_link_atomic_state_consumption(client, multi_user_headers, db_session):

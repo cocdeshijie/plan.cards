@@ -210,8 +210,14 @@ def _validate_redirect_uri(redirect_uri: str) -> None:
     if not parsed.scheme or not parsed.netloc:
         raise HTTPException(status_code=400, detail="Invalid redirect_uri")
 
+    # When ALLOWED_ORIGINS is unrestricted, skip origin check —
+    # OAuth providers themselves validate redirect_uri against their config.
+    raw = settings.allowed_origins.strip()
+    if raw == "*" or not raw:
+        return
+
     redirect_origin = f"{parsed.scheme}://{parsed.netloc}"
-    allowed = [o.strip() for o in settings.allowed_origins.split(",")]
+    allowed = [o.strip() for o in raw.split(",")]
     if redirect_origin not in allowed:
         raise HTTPException(status_code=400, detail="redirect_uri origin not allowed")
 

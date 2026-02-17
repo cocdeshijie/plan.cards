@@ -9,7 +9,6 @@ services:
       - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
       - DATABASE_URL=sqlite:////data/cards.db
       - CARD_TEMPLATES_DIR=/card_templates
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000}
     volumes:
       - db-data:/data
       - ./card_templates:/card_templates:ro
@@ -23,8 +22,6 @@ services:
         COMMIT_HASH: ${COMMIT_HASH:-dev}
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - backend
     restart: unless-stopped
