@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import type { BenefitSummaryItem } from "@/types";
 import { useAppStore } from "@/hooks/use-app-store";
-import { getAllBenefits, updateBenefitUsage } from "@/lib/api";
+import { getAllBenefits, updateBenefitUsage, updateCardBenefit, deleteCardBenefit } from "@/lib/api";
 import { toast } from "sonner";
 import { frequencyLabel, usagePercentage, usageColor } from "@/lib/benefit-utils";
 import { formatCurrency, parseIntStrict } from "@/lib/utils";
@@ -11,7 +11,9 @@ import { CardThumbnail } from "@/components/shared/card-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, ChevronDown, ChevronRight, Target } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Gift, ChevronDown, ChevronRight, Target, Pencil, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FREQUENCY_ORDER = ["monthly", "quarterly", "semi_annual", "annual"] as const;
@@ -27,6 +29,16 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [addAmounts, setAddAmounts] = useState<Record<number, string>>({});
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editAmount, setEditAmount] = useState("");
+  const [editFrequency, setEditFrequency] = useState("");
+  const [editResetType, setEditResetType] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [editingUsageId, setEditingUsageId] = useState<number | null>(null);
+  const [editUsageAmount, setEditUsageAmount] = useState("");
 
   useEffect(() => {
     try {
@@ -52,22 +64,22 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   }, [fetchBenefits]);
 
   const groupByFrequency = (items: BenefitSummaryItem[]) => {
-    const result: { frequency: string; issuers: { issuer: string; items: BenefitSummaryItem[] }[] }[] = [];
+    const result: { frequency: string; creditTypes: { benefitName: string; items: BenefitSummaryItem[] }[] }[] = [];
     for (const freq of FREQUENCY_ORDER) {
       const freqBenefits = items.filter((b) => b.frequency === freq);
       if (freqBenefits.length === 0) continue;
 
-      const issuerMap = new Map<string, BenefitSummaryItem[]>();
+      const nameMap = new Map<string, BenefitSummaryItem[]>();
       for (const b of freqBenefits) {
-        const list = issuerMap.get(b.issuer) || [];
+        const list = nameMap.get(b.benefit_name) || [];
         list.push(b);
-        issuerMap.set(b.issuer, list);
+        nameMap.set(b.benefit_name, list);
       }
-      const issuers = [...issuerMap.entries()]
+      const creditTypes = [...nameMap.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([issuer, items]) => ({ issuer, items }));
+        .map(([benefitName, items]) => ({ benefitName, items }));
 
-      result.push({ frequency: freq, issuers });
+      result.push({ frequency: freq, creditTypes });
     }
     return result;
   };
@@ -104,6 +116,69 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
     }
   };
 
+  const startEdit = (benefit: BenefitSummaryItem) => {
+    setEditingId(benefit.id);
+    setEditName(benefit.benefit_name);
+    setEditAmount(benefit.benefit_amount.toString());
+    setEditFrequency(benefit.frequency);
+    setEditResetType(benefit.reset_type);
+    setEditNotes(benefit.notes || "");
+    setDeletingId(null);
+  };
+
+  const handleEdit = async (benefitId: number, cardId: number) => {
+    setSubmitting(true);
+    try {
+      const parsedAmount = editAmount ? parseIntStrict(editAmount) : undefined;
+      if (editAmount && parsedAmount === null) {
+        toast.error("Amount must be a valid number");
+        setSubmitting(false);
+        return;
+      }
+      await updateCardBenefit(cardId, benefitId, {
+        benefit_name: editName || undefined,
+        benefit_amount: parsedAmount ?? undefined,
+        frequency: editFrequency || undefined,
+        reset_type: editResetType || undefined,
+        notes: editNotes,
+      });
+      setEditingId(null);
+      fetchBenefits();
+      toast.success("Benefit updated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update benefit");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (benefitId: number, cardId: number) => {
+    try {
+      await deleteCardBenefit(cardId, benefitId);
+      setDeletingId(null);
+      fetchBenefits();
+      toast.success("Benefit deleted");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to delete benefit");
+    }
+  };
+
+  const handleSetUsage = async (benefit: BenefitSummaryItem) => {
+    const val = parseIntStrict(editUsageAmount);
+    if (val === null || val < 0) {
+      toast.error("Amount must be a non-negative number");
+      return;
+    }
+    try {
+      await updateBenefitUsage(benefit.card_id, benefit.id, { amount_used: val });
+      setEditingUsageId(null);
+      setEditUsageAmount("");
+      fetchBenefits();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update usage");
+    }
+  };
+
   if (loading) {
     return (
       <div className={cn("bg-card rounded-xl border p-5 space-y-4", className)}>
@@ -130,9 +205,9 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
         <p className="text-sm text-muted-foreground">No active credits to track.</p>
       ) : (
         <div className="space-y-4">
-          {creditGroups.map(({ frequency, issuers }) => {
+          {creditGroups.map(({ frequency, creditTypes }) => {
             const isCollapsed = collapsed.has(frequency);
-            const freqBenefits = issuers.flatMap((g) => g.items);
+            const freqBenefits = creditTypes.flatMap((g) => g.items);
             const remaining = freqBenefits.reduce(
               (sum, b) => sum + Math.max(b.benefit_amount - b.amount_used, 0), 0
             );
@@ -157,103 +232,211 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                   )}
                 </button>
 
-                {/* Issuer groups */}
+                {/* Benefit name groups — 2-col grid on desktop */}
                 {!isCollapsed && (
-                  <div className="mt-2 space-y-3 pl-6">
-                    {issuers.map(({ issuer, items }) => (
-                      <div key={issuer}>
-                        <p className="text-xs font-medium text-muted-foreground mb-1.5">{issuer}</p>
-                        <div className="space-y-2">
-                          {items.map((benefit) => {
-                            const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
-                            const barColor = usageColor(pct);
+                  <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 pl-6">
+                    {creditTypes.map(({ benefitName, items }) => {
+                      const hasEditingItem = items.some(b => editingId === b.id);
+                      const isMulti = items.length > 1;
+                      return (
+                        <div
+                          key={benefitName}
+                          className={cn(
+                            "border border-dashed rounded-lg p-3 space-y-2",
+                            (isMulti || hasEditingItem) && "lg:col-span-2"
+                          )}
+                        >
+                          <p className="text-xs font-semibold text-muted-foreground">{benefitName}</p>
+                          <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2")}>
+                            {items.map((benefit) => {
+                              const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
+                              const barColor = usageColor(pct);
 
-                            return (
-                              <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
-                                {/* Card info + benefit name */}
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => onCardClick?.(benefit.card_id)}
-                                    className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity"
-                                  >
-                                    <CardThumbnail
-                                      templateId={benefit.template_id}
-                                      cardName={benefit.card_name}
-                                      cardImage={benefit.card_image}
-                                      className="w-10 h-[25px] shrink-0"
-                                    />
-                                    <div className="min-w-0 text-left">
-                                      <p className="text-xs text-muted-foreground truncate">
-                                        {benefit.card_name}
-                                        {benefit.last_digits && ` ···${benefit.last_digits}`}
-                                        {selectedProfileId === "all" && (
-                                          <span className="text-muted-foreground/60"> · {benefit.profile_name}</span>
-                                        )}
-                                      </p>
+                              if (editingId === benefit.id) {
+                                return (
+                                  <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <h5 className="text-sm font-medium">Edit Benefit</h5>
+                                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setEditingId(null)}>
+                                        <X className="h-3 w-3" />
+                                      </Button>
                                     </div>
-                                  </button>
-                                  <div className="ml-auto flex items-center gap-2 shrink-0">
-                                    <span className="text-sm font-medium">
-                                      {benefit.benefit_name}
-                                    </span>
-                                    <Badge variant="outline" className="text-[10px]">
-                                      {formatCurrency(benefit.benefit_amount)}
-                                    </Badge>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <Label className="text-xs">Name</Label>
+                                        <Input className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} />
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs">Amount ($)</Label>
+                                        <Input className="h-8 text-sm" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} />
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div>
+                                        <Label className="text-xs">Frequency</Label>
+                                        <Select value={editFrequency} onValueChange={setEditFrequency}>
+                                          <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="monthly">Monthly</SelectItem>
+                                            <SelectItem value="quarterly">Quarterly</SelectItem>
+                                            <SelectItem value="semi_annual">Semi-Annual</SelectItem>
+                                            <SelectItem value="annual">Annual</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs">Reset Type</Label>
+                                        <Select value={editResetType} onValueChange={setEditResetType}>
+                                          <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="calendar">Calendar</SelectItem>
+                                            <SelectItem value="cardiversary">Cardiversary</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <Label className="text-xs">Notes</Label>
+                                      <textarea
+                                        className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+                                        value={editNotes}
+                                        onChange={(e) => setEditNotes(e.target.value)}
+                                        maxLength={1000}
+                                        placeholder="Optional notes..."
+                                      />
+                                    </div>
+                                    <Button size="sm" className="h-7 text-xs" onClick={() => handleEdit(benefit.id, benefit.card_id)} disabled={submitting}>
+                                      {submitting ? "Saving..." : "Save"}
+                                    </Button>
                                   </div>
-                                </div>
+                                );
+                              }
 
-                                {/* Progress bar */}
-                                <div className="space-y-1">
-                                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                    <div
-                                      className={`h-full rounded-full transition-all ${barColor}`}
-                                      style={{ width: `${Math.min(pct, 100)}%` }}
+                              return (
+                                <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                                  {/* Card info + actions */}
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => onCardClick?.(benefit.card_id)}
+                                      className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
+                                    >
+                                      <CardThumbnail
+                                        templateId={benefit.template_id}
+                                        cardName={benefit.card_name}
+                                        cardImage={benefit.card_image}
+                                        className="w-10 h-[25px] shrink-0"
+                                      />
+                                      <div className="min-w-0 text-left">
+                                        <p className="text-xs text-muted-foreground truncate">
+                                          {benefit.card_name}
+                                          {benefit.last_digits && ` ···${benefit.last_digits}`}
+                                          {selectedProfileId === "all" && (
+                                            <span className="text-muted-foreground/60"> · {benefit.profile_name}</span>
+                                          )}
+                                        </p>
+                                      </div>
+                                    </button>
+                                    <div className="ml-auto flex items-center gap-1 shrink-0">
+                                      <Badge variant="outline" className="text-[10px]">
+                                        {formatCurrency(benefit.benefit_amount)}
+                                      </Badge>
+                                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)}>
+                                        <Pencil className="h-3 w-3" />
+                                      </Button>
+                                      {deletingId === benefit.id ? (
+                                        <Button size="sm" variant="destructive" className="h-6 px-2 text-xs" onClick={() => handleDelete(benefit.id, benefit.card_id)}>
+                                          Delete?
+                                        </Button>
+                                      ) : (
+                                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive" onClick={() => setDeletingId(benefit.id)}>
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Progress bar */}
+                                  <div className="space-y-1">
+                                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                                      <div
+                                        className={`h-full rounded-full transition-all ${barColor}`}
+                                        style={{ width: `${Math.min(pct, 100)}%` }}
+                                      />
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                      {editingUsageId === benefit.id ? (
+                                        <form
+                                          className="flex items-center gap-1"
+                                          onSubmit={(e) => { e.preventDefault(); handleSetUsage(benefit); }}
+                                        >
+                                          <span>$</span>
+                                          <Input
+                                            className="h-5 w-16 text-xs px-1"
+                                            type="number"
+                                            min="0"
+                                            autoFocus
+                                            value={editUsageAmount}
+                                            onChange={(e) => setEditUsageAmount(e.target.value)}
+                                            onBlur={() => { setEditingUsageId(null); setEditUsageAmount(""); }}
+                                            onKeyDown={(e) => { if (e.key === "Escape") { setEditingUsageId(null); setEditUsageAmount(""); } }}
+                                          />
+                                          <span>/ ${benefit.benefit_amount}</span>
+                                        </form>
+                                      ) : (
+                                        <button
+                                          className="group/usage inline-flex items-center gap-0.5 hover:underline cursor-pointer"
+                                          onClick={() => { setEditingUsageId(benefit.id); setEditUsageAmount(benefit.amount_used.toString()); }}
+                                          title="Click to edit usage"
+                                        >
+                                          ${benefit.amount_used} / ${benefit.benefit_amount}
+                                          {pct > 100
+                                            ? <span className="ml-1 text-amber-600 dark:text-amber-400 font-medium">(exceeded)</span>
+                                            : pct > 0 && <span className="ml-1">({pct}%)</span>}
+                                          <Pencil className="h-2.5 w-2.5 opacity-0 group-hover/usage:opacity-60 transition-opacity" />
+                                        </button>
+                                      )}
+                                      {benefit.reset_label && benefit.days_until_reset != null && (
+                                        <span>{benefit.reset_label} · {benefit.days_until_reset}d left</span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {benefit.notes && (
+                                    <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
+                                  )}
+
+                                  {/* Quick add usage */}
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs text-muted-foreground">+$</span>
+                                    <Input
+                                      className="h-7 w-20 text-sm"
+                                      type="number"
+                                      min="0"
+                                      placeholder="0"
+                                      value={addAmounts[benefit.id] || ""}
+                                      onChange={(e) =>
+                                        setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))
+                                      }
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleAddUsage(benefit);
+                                      }}
                                     />
-                                  </div>
-                                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>
-                                      ${benefit.amount_used} / ${benefit.benefit_amount}
-                                      {pct > 100
-                                        ? <span className="ml-1 text-amber-600 dark:text-amber-400 font-medium">(exceeded)</span>
-                                        : pct > 0 && <span className="ml-1">({pct}%)</span>}
-                                    </span>
-                                    {benefit.reset_label && benefit.days_until_reset != null && (
-                                      <span>{benefit.reset_label} · {benefit.days_until_reset}d left</span>
-                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 px-2 text-xs"
+                                      onClick={() => handleAddUsage(benefit)}
+                                    >
+                                      Add
+                                    </Button>
                                   </div>
                                 </div>
-
-                                {/* Quick add usage */}
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-xs text-muted-foreground">+$</span>
-                                  <Input
-                                    className="h-7 w-20 text-sm"
-                                    type="number"
-                                    min="0"
-                                    placeholder="0"
-                                    value={addAmounts[benefit.id] || ""}
-                                    onChange={(e) =>
-                                      setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))
-                                    }
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter") handleAddUsage(benefit);
-                                    }}
-                                  />
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-7 px-2 text-xs"
-                                    onClick={() => handleAddUsage(benefit)}
-                                  >
-                                    Add
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -270,7 +453,7 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                   {benefits.filter(b => b.benefit_type === "spend_threshold").length}
                 </Badge>
               </div>
-              {thresholdGroups.map(({ frequency, issuers }) => {
+              {thresholdGroups.map(({ frequency, creditTypes }) => {
                 const isCollapsed = collapsed.has(`threshold_${frequency}`);
                 return (
                   <div key={`threshold_${frequency}`}>
@@ -287,94 +470,204 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                     </button>
 
                     {!isCollapsed && (
-                      <div className="mt-2 space-y-3 pl-6">
-                        {issuers.map(({ issuer, items }) => (
-                          <div key={issuer}>
-                            <p className="text-xs font-medium text-muted-foreground mb-1.5">{issuer}</p>
-                            <div className="space-y-2">
-                              {items.map((benefit) => {
-                                const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
-                                const isUnlocked = pct >= 100;
-                                const barColor = isUnlocked ? "bg-green-500" : pct >= 75 ? "bg-blue-500" : pct >= 50 ? "bg-blue-400" : "bg-muted-foreground/30";
+                      <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 pl-6">
+                        {creditTypes.map(({ benefitName, items }) => {
+                          const hasEditingItem = items.some(b => editingId === b.id);
+                          const isMulti = items.length > 1;
+                          return (
+                            <div
+                              key={benefitName}
+                              className={cn(
+                                "border border-dashed rounded-lg p-3 space-y-2",
+                                (isMulti || hasEditingItem) && "lg:col-span-2"
+                              )}
+                            >
+                              <p className="text-xs font-semibold text-muted-foreground">{benefitName}</p>
+                              <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2")}>
+                                {items.map((benefit) => {
+                                  const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
+                                  const isUnlocked = pct >= 100;
+                                  const barColor = isUnlocked ? "bg-green-500" : pct >= 75 ? "bg-blue-500" : pct >= 50 ? "bg-blue-400" : "bg-muted-foreground/30";
 
-                                return (
-                                  <div key={benefit.id} className={`rounded-lg border p-3 space-y-2 ${isUnlocked ? "bg-green-50/50 border-green-200 dark:bg-green-950/20 dark:border-green-800" : "bg-muted/20"}`}>
-                                    <div className="flex items-center gap-3">
-                                      <button
-                                        onClick={() => onCardClick?.(benefit.card_id)}
-                                        className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity"
-                                      >
-                                        <CardThumbnail
-                                          templateId={benefit.template_id}
-                                          cardName={benefit.card_name}
-                                          cardImage={benefit.card_image}
-                                          className="w-10 h-[25px] shrink-0"
-                                        />
-                                        <div className="min-w-0 text-left">
-                                          <p className="text-xs text-muted-foreground truncate">
-                                            {benefit.card_name}
-                                            {benefit.last_digits && ` ···${benefit.last_digits}`}
-                                          </p>
+                                  if (editingId === benefit.id) {
+                                    return (
+                                      <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                          <h5 className="text-sm font-medium">Edit Threshold</h5>
+                                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setEditingId(null)}>
+                                            <X className="h-3 w-3" />
+                                          </Button>
                                         </div>
-                                      </button>
-                                      <div className="ml-auto flex items-center gap-2 shrink-0">
-                                        <span className="text-sm font-medium">{benefit.benefit_name}</span>
-                                        {isUnlocked && (
-                                          <Badge className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border-green-200 dark:border-green-800">
-                                            Unlocked!
-                                          </Badge>
-                                        )}
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <div>
+                                            <Label className="text-xs">Name</Label>
+                                            <Input className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} />
+                                          </div>
+                                          <div>
+                                            <Label className="text-xs">Spend Required ($)</Label>
+                                            <Input className="h-8 text-sm" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} />
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          <div>
+                                            <Label className="text-xs">Frequency</Label>
+                                            <Select value={editFrequency} onValueChange={setEditFrequency}>
+                                              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="monthly">Monthly</SelectItem>
+                                                <SelectItem value="quarterly">Quarterly</SelectItem>
+                                                <SelectItem value="semi_annual">Semi-Annual</SelectItem>
+                                                <SelectItem value="annual">Annual</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                          <div>
+                                            <Label className="text-xs">Reset Type</Label>
+                                            <Select value={editResetType} onValueChange={setEditResetType}>
+                                              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="calendar">Calendar</SelectItem>
+                                                <SelectItem value="cardiversary">Cardiversary</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <Label className="text-xs">Notes</Label>
+                                          <textarea
+                                            className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+                                            value={editNotes}
+                                            onChange={(e) => setEditNotes(e.target.value)}
+                                            maxLength={1000}
+                                            placeholder="Optional notes..."
+                                          />
+                                        </div>
+                                        <Button size="sm" className="h-7 text-xs" onClick={() => handleEdit(benefit.id, benefit.card_id)} disabled={submitting}>
+                                          {submitting ? "Saving..." : "Save"}
+                                        </Button>
                                       </div>
-                                    </div>
+                                    );
+                                  }
 
-                                    <div className="space-y-1">
-                                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                        <div
-                                          className={`h-full rounded-full transition-all ${barColor}`}
-                                          style={{ width: `${Math.min(pct, 100)}%` }}
+                                  return (
+                                    <div key={benefit.id} className={`rounded-lg border p-3 space-y-2 ${isUnlocked ? "bg-green-50/50 border-green-200 dark:bg-green-950/20 dark:border-green-800" : "bg-muted/20"}`}>
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => onCardClick?.(benefit.card_id)}
+                                          className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity"
+                                        >
+                                          <CardThumbnail
+                                            templateId={benefit.template_id}
+                                            cardName={benefit.card_name}
+                                            cardImage={benefit.card_image}
+                                            className="w-10 h-[25px] shrink-0"
+                                          />
+                                          <div className="min-w-0 text-left">
+                                            <p className="text-xs text-muted-foreground truncate">
+                                              {benefit.card_name}
+                                              {benefit.last_digits && ` ···${benefit.last_digits}`}
+                                            </p>
+                                          </div>
+                                        </button>
+                                        <div className="ml-auto flex items-center gap-1 shrink-0">
+                                          {isUnlocked && (
+                                            <Badge className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border-green-200 dark:border-green-800">
+                                              Unlocked!
+                                            </Badge>
+                                          )}
+                                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)}>
+                                            <Pencil className="h-3 w-3" />
+                                          </Button>
+                                          {deletingId === benefit.id ? (
+                                            <Button size="sm" variant="destructive" className="h-6 px-2 text-xs" onClick={() => handleDelete(benefit.id, benefit.card_id)}>
+                                              Delete?
+                                            </Button>
+                                          ) : (
+                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive" onClick={() => setDeletingId(benefit.id)}>
+                                              <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      <div className="space-y-1">
+                                        <div className="h-2 rounded-full bg-muted overflow-hidden">
+                                          <div
+                                            className={`h-full rounded-full transition-all ${barColor}`}
+                                            style={{ width: `${Math.min(pct, 100)}%` }}
+                                          />
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                          {editingUsageId === benefit.id ? (
+                                            <form
+                                              className="flex items-center gap-1"
+                                              onSubmit={(e) => { e.preventDefault(); handleSetUsage(benefit); }}
+                                            >
+                                              <span>$</span>
+                                              <Input
+                                                className="h-5 w-16 text-xs px-1"
+                                                type="number"
+                                                min="0"
+                                                autoFocus
+                                                value={editUsageAmount}
+                                                onChange={(e) => setEditUsageAmount(e.target.value)}
+                                                onBlur={() => { setEditingUsageId(null); setEditUsageAmount(""); }}
+                                                onKeyDown={(e) => { if (e.key === "Escape") { setEditingUsageId(null); setEditUsageAmount(""); } }}
+                                              />
+                                              <span>/ ${benefit.benefit_amount.toLocaleString()} spent</span>
+                                            </form>
+                                          ) : (
+                                            <button
+                                              className="group/usage inline-flex items-center gap-0.5 hover:underline cursor-pointer"
+                                              onClick={() => { setEditingUsageId(benefit.id); setEditUsageAmount(benefit.amount_used.toString()); }}
+                                              title="Click to edit usage"
+                                            >
+                                              ${benefit.amount_used.toLocaleString()} / ${benefit.benefit_amount.toLocaleString()} spent
+                                              {pct > 0 && <span className="ml-1">({pct}%)</span>}
+                                              <Pencil className="h-2.5 w-2.5 opacity-0 group-hover/usage:opacity-60 transition-opacity" />
+                                            </button>
+                                          )}
+                                          {benefit.reset_label && benefit.days_until_reset != null && (
+                                            <span>{benefit.reset_label} · {benefit.days_until_reset}d left</span>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {benefit.notes && (
+                                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
+                                      )}
+
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs text-muted-foreground">+$</span>
+                                        <Input
+                                          className="h-7 w-20 text-sm"
+                                          type="number"
+                                          min="0"
+                                          placeholder="0"
+                                          value={addAmounts[benefit.id] || ""}
+                                          onChange={(e) =>
+                                            setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))
+                                          }
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") handleAddUsage(benefit);
+                                          }}
                                         />
-                                      </div>
-                                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>
-                                          ${benefit.amount_used.toLocaleString()} / ${benefit.benefit_amount.toLocaleString()} spent
-                                          {pct > 0 && <span className="ml-1">({pct}%)</span>}
-                                        </span>
-                                        {benefit.reset_label && benefit.days_until_reset != null && (
-                                          <span>{benefit.reset_label} · {benefit.days_until_reset}d left</span>
-                                        )}
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-7 px-2 text-xs"
+                                          onClick={() => handleAddUsage(benefit)}
+                                        >
+                                          Add
+                                        </Button>
                                       </div>
                                     </div>
-
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-xs text-muted-foreground">+$</span>
-                                      <Input
-                                        className="h-7 w-20 text-sm"
-                                        type="number"
-                                        min="0"
-                                        placeholder="0"
-                                        value={addAmounts[benefit.id] || ""}
-                                        onChange={(e) =>
-                                          setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))
-                                        }
-                                        onKeyDown={(e) => {
-                                          if (e.key === "Enter") handleAddUsage(benefit);
-                                        }}
-                                      />
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-7 px-2 text-xs"
-                                        onClick={() => handleAddUsage(benefit)}
-                                      >
-                                        Add
-                                      </Button>
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
