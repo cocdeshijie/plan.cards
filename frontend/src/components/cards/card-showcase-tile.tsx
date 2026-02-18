@@ -56,7 +56,7 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
-      className="group bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none"
+      className="group flex flex-col bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none"
       style={!hasFallback ? {
         borderColor: `color-mix(in srgb, ${accentColor} 25%, transparent)`,
         boxShadow: `0 2px 12px color-mix(in srgb, ${accentColor} 10%, transparent)`,
@@ -86,7 +86,7 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
       </div>
 
       {/* Content */}
-      <div className="p-3 space-y-2">
+      <div className="p-3 space-y-2 flex-1">
         <div>
           <h3 className="font-semibold text-sm leading-tight truncate">
             {card.card_name}
