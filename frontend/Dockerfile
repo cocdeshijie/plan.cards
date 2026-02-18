@@ -7,10 +7,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG COMMIT_HASH=dev
+ARG COMMIT_HASH=
+ARG SOURCE_COMMIT=
 ARG BACKEND_URL=http://backend:8000
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_COMMIT_HASH=${COMMIT_HASH}
+ENV NEXT_PUBLIC_COMMIT_HASH=${SOURCE_COMMIT:-${COMMIT_HASH}}
 ENV BACKEND_URL=${BACKEND_URL}
 RUN npx next build
 
@@ -31,7 +32,7 @@ EXPOSE 3000
 ENV PORT=3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000 || exit 1
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]
