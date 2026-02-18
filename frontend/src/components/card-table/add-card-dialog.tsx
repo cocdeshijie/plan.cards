@@ -78,6 +78,7 @@ export function AddCardDialog({ profiles, open, onClose, onCreated, defaultProfi
       setIssuer(tmpl.issuer);
       setNetwork(tmpl.network || "");
       setAnnualFee(tmpl.annual_fee?.toString() || "0");
+      setCardType(tmpl.tags?.includes("business") ? "business" : "personal");
       // Fetch versions
       const [issuer, cardName] = templateId.split("/");
       getTemplateVersions(issuer, cardName).then((v) => {

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, updateBonus, deleteBonus, deleteCard, restoreCard } from "@/lib/api";
+import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, deleteEvent, updateBonus, deleteBonus, deleteCard, restoreCard } from "@/lib/api";
 import { frequencyShort } from "@/lib/benefit-utils";
 import { formatDate, formatCurrency, parseIntStrict, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
@@ -91,6 +91,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState(card.custom_notes || "");
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const [deletingTimelineEventId, setDeletingTimelineEventId] = useState<number | null>(null);
   const [editEventDesc, setEditEventDesc] = useState("");
   const [editEventDate, setEditEventDate] = useState<Date | undefined>();
   const [editEventType, setEditEventType] = useState("");
@@ -1087,6 +1088,38 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                           >
                             <Pencil className="h-3 w-3 text-muted-foreground" />
                           </button>
+                          {!["opened", "closed", "product_change", "reopened"].includes(event.event_type) && (
+                            deletingTimelineEventId === event.id ? (
+                              <>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      await deleteEvent(event.id);
+                                      setDeletingTimelineEventId(null);
+                                      onUpdated();
+                                      toast.success("Event deleted");
+                                    } catch (e) {
+                                      toast.error(e instanceof Error ? e.message : "Failed to delete event");
+                                    }
+                                  }}
+                                  className="text-[10px] text-destructive font-medium px-1 hover:underline"
+                                >
+                                  Delete?
+                                </button>
+                                <button onClick={() => setDeletingTimelineEventId(null)} className="p-0.5 rounded hover:bg-muted">
+                                  <X className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => setDeletingTimelineEventId(event.id)}
+                                className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                                aria-label="Delete event"
+                              >
+                                <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                              </button>
+                            )
+                          )}
                         </div>
                         {(event.event_type === "annual_fee_posted" || event.event_type === "annual_fee_refund") && event.metadata_json && (event.metadata_json as Record<string, unknown>).annual_fee != null && (
                           <span className={`text-sm font-medium ${event.event_type === "annual_fee_refund" ? "text-green-600 dark:text-green-400" : ""}`}>
