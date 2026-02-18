@@ -1,5 +1,6 @@
 from datetime import date
 
+from dateutil.relativedelta import relativedelta
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -12,11 +13,73 @@ from app.models.profile import Profile
 from app.models.user import User
 from app.routers.auth import require_auth
 from app.schemas.card_event import CardEventCreate, CardEventOut, CardEventUpdate, EventType
+from app.services.card_service import _next_af_anniversary
+from app.utils.timezone import get_today
 
 router = APIRouter(prefix="/api", tags=["events"])
 
 # Event types managed by card lifecycle actions (open, close, product change, reopen)
 SYSTEM_EVENT_TYPES = {"opened", "closed", "product_change", "reopened"}
+
+
+def _maybe_anchor_af_date(db: Session, event: CardEvent) -> None:
+    """If this is the most recent exact AF event, update card.annual_fee_date to event_date + 12mo."""
+    if event.event_type != "annual_fee_posted":
+        return
+    meta = event.metadata_json if isinstance(event.metadata_json, dict) else {}
+    if meta.get("approximate_date"):
+        return
+    latest_af = (
+        db.query(CardEvent)
+        .filter(CardEvent.card_id == event.card_id, CardEvent.event_type == "annual_fee_posted")
+        .order_by(CardEvent.event_date.desc())
+        .first()
+    )
+    if latest_af and latest_af.id == event.id:
+        card = db.query(Card).filter(Card.id == event.card_id).first()
+        if card:
+            card.annual_fee_date = event.event_date + relativedelta(months=12)
+
+
+def _recalculate_af_date_after_delete(db: Session, card: Card, user_id: int | None) -> None:
+    """Recalculate annual_fee_date after an AF event is deleted."""
+    if card.status == "closed" or not card.annual_fee or card.annual_fee <= 0:
+        return
+
+    today = get_today(db, user_id)
+    latest_af = (
+        db.query(CardEvent)
+        .filter(CardEvent.card_id == card.id, CardEvent.event_type == "annual_fee_posted")
+        .order_by(CardEvent.event_date.desc())
+        .first()
+    )
+
+    if latest_af:
+        meta = latest_af.metadata_json if isinstance(latest_af.metadata_json, dict) else {}
+        if not meta.get("approximate_date"):
+            # Exact event: step by +12mo until future
+            next_date = latest_af.event_date + relativedelta(months=12)
+            while next_date <= today:
+                next_date += relativedelta(years=1)
+            card.annual_fee_date = next_date
+        else:
+            # Approximate event: step using +13mo/+12mo schedule until future
+            anniversary = latest_af.event_date
+            while True:
+                next_ann = _next_af_anniversary(card.open_date, anniversary)
+                if next_ann > today:
+                    card.annual_fee_date = next_ann
+                    break
+                anniversary = next_ann
+    elif card.open_date:
+        # No AF events remain: recalculate from open_date schedule
+        anniversary = card.open_date
+        while True:
+            next_ann = _next_af_anniversary(card.open_date, anniversary)
+            if next_ann > today:
+                card.annual_fee_date = next_ann
+                break
+            anniversary = next_ann
 
 
 def _verify_card_ownership(db: Session, user: User, card_id: int) -> Card:
@@ -61,6 +124,8 @@ def create_event(card_id: int, data: CardEventCreate, user: User = Depends(requi
     db.add(event)
     db.commit()
     db.refresh(event)
+    _maybe_anchor_af_date(db, event)
+    db.commit()
     return event
 
 
@@ -126,10 +191,12 @@ def update_event(event_id: int, data: CardEventUpdate, user: User = Depends(requ
 
     # Block changes to/from system-managed event types
     if "event_type" in update_data:
-        if event.event_type in SYSTEM_EVENT_TYPES:
-            raise HTTPException(status_code=400, detail="Cannot modify system-managed event type")
-        if update_data["event_type"] in SYSTEM_EVENT_TYPES:
-            raise HTTPException(status_code=400, detail="Cannot change event to a system-managed type")
+        new_type = update_data["event_type"]
+        if new_type != event.event_type:
+            if event.event_type in SYSTEM_EVENT_TYPES:
+                raise HTTPException(status_code=400, detail="Cannot modify system-managed event type")
+            if new_type in SYSTEM_EVENT_TYPES:
+                raise HTTPException(status_code=400, detail="Cannot change event to a system-managed type")
 
     for field, value in update_data.items():
         setattr(event, field, value)
@@ -141,6 +208,8 @@ def update_event(event_id: int, data: CardEventUpdate, user: User = Depends(requ
             linked = db.query(CardBonus).filter(CardBonus.event_id == event.id).all()
             for b in linked:
                 db.delete(b)
+
+    _maybe_anchor_af_date(db, event)
 
     db.commit()
     db.refresh(event)
@@ -154,12 +223,26 @@ def delete_event(event_id: int, user: User = Depends(require_auth), db: Session 
         raise HTTPException(status_code=404, detail="Event not found")
     _verify_card_ownership(db, user, event.card_id)
 
+    if event.event_type in SYSTEM_EVENT_TYPES:
+        raise HTTPException(status_code=400, detail="Cannot delete system-managed events")
+
+    event_type = event.event_type
+    card_id = event.card_id
+
     # Cascade delete any bonuses linked to this event
     linked = db.query(CardBonus).filter(CardBonus.event_id == event.id).all()
     for b in linked:
         db.delete(b)
 
     db.delete(event)
+    db.flush()
+
+    # Recalculate annual_fee_date if an AF event was deleted
+    if event_type == "annual_fee_posted":
+        card = db.query(Card).filter(Card.id == card_id).first()
+        if card:
+            _recalculate_af_date_after_delete(db, card, user.id)
+
     db.commit()
 
 

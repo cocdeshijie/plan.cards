@@ -16,11 +16,21 @@ from app.utils.timezone import get_today
 MAX_AF_BACKFILL_YEARS = 20
 
 
-def _cap_anniversary_start(anniversary: date, today: date) -> date:
+def _next_af_anniversary(origin: date, current: date) -> date:
+    """First step from origin is +13 months; all subsequent are +12 months."""
+    if current == origin:
+        return origin + relativedelta(months=13)
+    return current + relativedelta(years=1)
+
+
+def _cap_anniversary_start(origin: date, anniversary: date, today: date) -> date:
     """Advance anniversary forward so the backfill loop covers at most MAX_AF_BACKFILL_YEARS."""
     earliest = today - relativedelta(years=MAX_AF_BACKFILL_YEARS)
-    while anniversary + relativedelta(years=1) <= earliest:
-        anniversary = anniversary + relativedelta(years=1)
+    while True:
+        next_ann = _next_af_anniversary(origin, anniversary)
+        if next_ann > earliest:
+            break
+        anniversary = next_ann
     return anniversary
 
 
@@ -206,7 +216,7 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
             fee_timeline = _build_fee_timeline(data.template_id, data.annual_fee)
 
         # Start from open_date (first year fee), capped to avoid excessive backfill
-        anniversary = _cap_anniversary_start(data.open_date, today)
+        anniversary = _cap_anniversary_start(data.open_date, data.open_date, today)
         while anniversary <= today:
             fee = (
                 _get_fee_for_year(fee_timeline, anniversary.year)
@@ -222,7 +232,7 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
                 metadata_json={"annual_fee": fee, "approximate_date": True},
             )
             db.add(af_event)
-            anniversary = anniversary + relativedelta(years=1)
+            anniversary = _next_af_anniversary(data.open_date, anniversary)
         # Set annual_fee_date to the next upcoming anniversary if not already set
         if not data.annual_fee_date:
             card.annual_fee_date = anniversary
@@ -266,7 +276,7 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
             if card.template_id:
                 fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
 
-            anniversary = _cap_anniversary_start(card.open_date, today)
+            anniversary = _cap_anniversary_start(card.open_date, card.open_date, today)
             while anniversary <= today:
                 fee = (
                     _get_fee_for_year(fee_timeline, anniversary.year)
@@ -282,7 +292,7 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
                     metadata_json={"annual_fee": fee, "approximate_date": True},
                 )
                 db.add(af_event)
-                anniversary = anniversary + relativedelta(years=1)
+                anniversary = _next_af_anniversary(card.open_date, anniversary)
             if not card.annual_fee_date:
                 card.annual_fee_date = anniversary
 
@@ -301,6 +311,20 @@ def close_card(db: Session, card: Card, close_date: date) -> Card:
     card.annual_fee_date = None
     card.spend_reminder_enabled = False
     card.spend_deadline = None
+    # Delete approximate AF events after close_date
+    future_af = (
+        db.query(CardEvent)
+        .filter(
+            CardEvent.card_id == card.id,
+            CardEvent.event_type == "annual_fee_posted",
+            CardEvent.event_date > close_date,
+        )
+        .all()
+    )
+    for evt in future_af:
+        if evt.metadata_json and evt.metadata_json.get("approximate_date"):
+            db.delete(evt)
+
     event = CardEvent(
         card_id=card.id,
         event_type="closed",
@@ -334,7 +358,7 @@ def reopen_card(db: Session, card: Card, user_id: int | None = None) -> Card:
             fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
 
         # Find the next upcoming anniversary from open_date, capped to avoid excessive backfill
-        anniversary = _cap_anniversary_start(card.open_date, today)
+        anniversary = _cap_anniversary_start(card.open_date, card.open_date, today)
         while anniversary <= today:
             # Generate AF events for any missed anniversaries that don't already exist
             existing = (
@@ -361,7 +385,7 @@ def reopen_card(db: Session, card: Card, user_id: int | None = None) -> Card:
                     metadata_json={"annual_fee": fee, "approximate_date": True},
                 )
                 db.add(af_event)
-            anniversary = anniversary + relativedelta(years=1)
+            anniversary = _next_af_anniversary(card.open_date, anniversary)
         card.annual_fee_date = anniversary
 
     db.commit()

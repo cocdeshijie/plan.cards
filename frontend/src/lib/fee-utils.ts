@@ -36,10 +36,13 @@ export function getNextFeeInfo(
     // Prefer backend-computed annual_fee_date
     next = parseDateStr(annualFeeDate);
   } else if (openDate) {
+    // Fallback: first renewal is open + 13 months, subsequent +12 months
     const open = parseDateStr(openDate);
-    next = getAnniversaryForYear(open, today.getFullYear());
-    if (next < today) {
-      next = getAnniversaryForYear(open, today.getFullYear() + 1);
+    const firstRenewal = new Date(open);
+    firstRenewal.setMonth(firstRenewal.getMonth() + 13);
+    next = new Date(firstRenewal);
+    while (next < today) {
+      next.setFullYear(next.getFullYear() + 1);
     }
   } else {
     return null;
