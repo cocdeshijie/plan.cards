@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import { completeSetup, getOAuthPresets, API_BASE, type OAuthPreset } from "@/lib/api";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { AuthMode } from "@/types";
@@ -401,7 +402,12 @@ function ConfigStep({
                   </SelectTrigger>
                   <SelectContent>
                     {oauthPresets.map((p) => (
-                      <SelectItem key={p.name} value={p.name}>{p.display_name}</SelectItem>
+                      <SelectItem key={p.name} value={p.name}>
+                        <span className="flex items-center gap-2">
+                          <OAuthProviderIcon provider={p.name} className="h-4 w-4" />
+                          {p.display_name}
+                        </span>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

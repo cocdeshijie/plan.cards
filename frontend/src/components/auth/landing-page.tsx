@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { AppFooter } from "@/components/ui/app-footer";
+import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import { API_BASE, getTemplateImageUrl, getTemplates } from "@/lib/api";
 import type { CardTemplate } from "@/types";
 
@@ -461,7 +462,7 @@ function OAuthLoginForm() {
           {loading === provider.name ? (
             <><Loader2 className="h-4 w-4 animate-spin mr-2" />Redirecting...</>
           ) : (
-            `Continue with ${provider.display_name}`
+            <><OAuthProviderIcon provider={provider.name} className="h-4 w-4 mr-2" />Continue with {provider.display_name}</>
           )}
         </Button>
       ))}

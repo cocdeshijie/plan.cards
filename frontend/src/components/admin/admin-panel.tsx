@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import {
   API_BASE,
   getAdminUsers,
@@ -431,7 +432,12 @@ function OAuthTab({
               </SelectTrigger>
               <SelectContent>
                 {availablePresets.map((p) => (
-                  <SelectItem key={p.name} value={p.name}>{p.display_name}</SelectItem>
+                  <SelectItem key={p.name} value={p.name}>
+                    <span className="flex items-center gap-2">
+                      <OAuthProviderIcon provider={p.name} className="h-4 w-4" />
+                      {p.display_name}
+                    </span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -460,7 +466,7 @@ function OAuthTab({
             <div key={provider.id} className="border rounded-lg p-3 flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <Key className="h-3.5 w-3.5 text-muted-foreground" />
+                  <OAuthProviderIcon provider={provider.provider_name} className="h-3.5 w-3.5" />
                   <span className="font-medium">{provider.display_name || provider.provider_name}</span>
                   <span className={`text-xs px-1.5 py-0.5 rounded ${
                     provider.enabled ? "bg-green-500/10 text-green-600 dark:text-green-400" : "bg-muted text-muted-foreground"
@@ -696,7 +702,7 @@ function SettingsTab({
                     <div className="ml-7 space-y-1">
                       {wizardProviders.map((p) => (
                         <div key={p.id} className="flex items-center gap-2 text-sm">
-                          <Key className="h-3 w-3 text-green-500" />
+                          <OAuthProviderIcon provider={p.provider_name} className="h-3 w-3" />
                           <span>{p.display_name || p.provider_name}</span>
                           <span className="text-xs text-muted-foreground">({p.client_id.slice(0, 12)}...)</span>
                         </div>
@@ -739,6 +745,7 @@ function SettingsTab({
                       <p className="text-xs text-muted-foreground">Sign in with your OAuth provider to link your admin account.</p>
                       {wizardProviders.map((p) => (
                         <Button key={p.id} size="sm" variant="outline" onClick={() => handleOAuthConnect(p.provider_name)}>
+                          <OAuthProviderIcon provider={p.provider_name} className="h-3.5 w-3.5 mr-1.5" />
                           Connect with {p.display_name || p.provider_name}
                         </Button>
                       ))}

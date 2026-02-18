@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Loader2 } from "lucide-react";
+import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import { API_BASE } from "@/lib/api";
 
 export function OAuthLogin() {
@@ -53,7 +54,7 @@ export function OAuthLogin() {
                 {loading === provider.name ? (
                   <><Loader2 className="h-4 w-4 animate-spin mr-2" />Redirecting...</>
                 ) : (
-                  `Continue with ${provider.display_name}`
+                  <><OAuthProviderIcon provider={provider.name} className="h-4 w-4 mr-2" />Continue with {provider.display_name}</>
                 )}
               </Button>
             ))}

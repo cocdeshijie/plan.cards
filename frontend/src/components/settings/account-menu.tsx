@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import {
   API_BASE,
   getCurrentUser,
@@ -266,7 +267,10 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
                             className="flex items-center justify-between border rounded-lg p-3"
                           >
                             <div>
-                              <div className="text-sm font-medium capitalize">{account.provider}</div>
+                              <div className="flex items-center gap-1.5 text-sm font-medium capitalize">
+                                <OAuthProviderIcon provider={account.provider} className="h-3.5 w-3.5" />
+                                {account.provider}
+                              </div>
                               {account.provider_email && (
                                 <div className="text-xs text-muted-foreground">{account.provider_email}</div>
                               )}
@@ -300,7 +304,7 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
                             className="w-full justify-start"
                             onClick={() => handleLinkOAuth(provider.provider_name)}
                           >
-                            <Link2 className="h-3.5 w-3.5 mr-1.5" />
+                            <OAuthProviderIcon provider={provider.provider_name} className="h-3.5 w-3.5 mr-1.5" />
                             Link {provider.display_name || provider.provider_name}
                           </Button>
                         ))}
