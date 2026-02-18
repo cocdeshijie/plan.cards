@@ -17,6 +17,8 @@ import {
   ArrowRight,
   Sun,
   Moon,
+  Server,
+  ArrowDownUp,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { AppFooter } from "@/components/ui/app-footer";
@@ -57,6 +59,18 @@ const FEATURES = [
     title: "Card Timeline",
     description:
       "View your complete card history — openings, closings, product changes, and more.",
+  },
+  {
+    icon: Server,
+    title: "Self-Hosted",
+    description:
+      "Run it on your own server with Docker. Your data stays with you — no third-party accounts or subscriptions.",
+  },
+  {
+    icon: ArrowDownUp,
+    title: "Easy Export & Import",
+    description:
+      "Export all your data as JSON anytime. Import it back or migrate between instances in seconds.",
   },
 ];
 
