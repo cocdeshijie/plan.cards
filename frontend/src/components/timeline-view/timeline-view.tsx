@@ -265,7 +265,7 @@ function CompactEventRow({
 
       {/* Card name + issuer */}
       <span className="text-xs font-medium truncate shrink min-w-0">
-        {item.card.card_name}
+        {item.card.card_name}{item.card.last_digits && <span className="font-normal text-muted-foreground"> ••• {item.card.last_digits}</span>}
         <span className="font-normal text-muted-foreground"> &middot; {item.card.issuer}</span>
       </span>
 

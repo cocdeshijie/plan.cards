@@ -274,7 +274,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
                     aria-label={event.label}
                     onClick={() => onCardClick?.(event.card)}
                   >
-                    {event.shortLabel}<span className="hidden sm:inline"> {event.card.card_name}</span>
+                    {event.shortLabel}<span className="hidden sm:inline"> {event.card.card_name}{event.card.last_digits && <span className="opacity-60"> ••• {event.card.last_digits}</span>}</span>
                   </button>
                 ))}
                 {hasOverflow && (
@@ -309,7 +309,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
                         onCardClick?.(event.card);
                       }}
                     >
-                      {event.shortLabel} {event.card.card_name}
+                      {event.shortLabel} {event.card.card_name}{event.card.last_digits && <span className="opacity-60"> ••• {event.card.last_digits}</span>}
                     </button>
                   ))}
                 </div>
@@ -349,7 +349,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
                   onCardClick?.(event.card);
                 }}
               >
-                {event.shortLabel} {event.card.card_name}
+                {event.shortLabel} {event.card.card_name}{event.card.last_digits && <span className="opacity-60"> ••• {event.card.last_digits}</span>}
               </button>
             ));
           })()}
