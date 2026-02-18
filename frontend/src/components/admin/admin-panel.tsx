@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
-import { X, Users, Settings, Shield, Plus, UserCheck, UserX, Key, Trash2, Loader2, AlertTriangle } from "lucide-react";
+import { X, Users, Settings, Shield, Plus, UserCheck, UserX, Key, Trash2, Loader2, AlertTriangle, Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -325,6 +325,38 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
   );
 }
 
+function RedirectUriDisplay({ provider }: { provider: string }) {
+  const [copied, setCopied] = useState(false);
+  const redirectUri = typeof window !== "undefined"
+    ? `${window.location.origin}/auth/callback?provider=${provider}`
+    : "";
+
+  if (!provider || !redirectUri) return null;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(redirectUri);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <Label>Redirect URI</Label>
+      <p className="text-xs text-muted-foreground">
+        Add this URI to your OAuth provider&apos;s allowed redirect URIs. It must match exactly.
+      </p>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
+          {redirectUri}
+        </code>
+        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={handleCopy}>
+          {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function OAuthTab({
   providers,
   presets,
@@ -412,6 +444,7 @@ function OAuthTab({
             <Label>Client Secret</Label>
             <Input type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="OAuth client secret" />
           </div>
+          <RedirectUriDisplay provider={selectedPreset} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleAdd}>Add</Button>
             <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Button>
@@ -683,6 +716,7 @@ function SettingsTab({
                       </select>
                       <Input size={1} value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Client ID" className="h-8 text-sm" />
                       <Input size={1} type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="Client Secret" className="h-8 text-sm" />
+                      <RedirectUriDisplay provider={selectedPreset} />
                       <Button size="sm" onClick={handleAddProvider} disabled={oauthLoading || !clientId || !clientSecret}>
                         {oauthLoading ? "Adding..." : "Add Provider"}
                       </Button>
