@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models.card import Card
 from app.models.card_benefit import CardBenefit
 from app.models.card_bonus import CardBonus
+from app.models.card_bonus_category import CardBonusCategory
 from app.models.card_event import CardEvent
 from app.schemas.card import CardCreate, CardUpdate
 from app.services.template_loader import get_template, get_old_version, get_template_versions
@@ -75,9 +76,10 @@ def _populate_benefits_from_template(
     open_date: date | None,
     version_id: str | None = None,
 ) -> None:
-    """Populate benefits from a template (or a specific old version)."""
+    """Populate benefits and bonus categories from a template (or a specific old version)."""
     credits = None
     spend_thresholds = None
+    bonus_categories = None
 
     if version_id:
         # Check if it's the current version
@@ -86,16 +88,19 @@ def _populate_benefits_from_template(
             if tmpl.benefits:
                 credits = tmpl.benefits.credits
                 spend_thresholds = tmpl.benefits.spend_thresholds
+                bonus_categories = tmpl.benefits.bonus_categories
         else:
             old_ver = get_old_version(template_id, version_id)
             if old_ver and old_ver.benefits:
                 credits = old_ver.benefits.credits
                 spend_thresholds = old_ver.benefits.spend_thresholds
+                bonus_categories = old_ver.benefits.bonus_categories
     else:
         tmpl = get_template(template_id)
         if tmpl and tmpl.benefits:
             credits = tmpl.benefits.credits
             spend_thresholds = tmpl.benefits.spend_thresholds
+            bonus_categories = tmpl.benefits.bonus_categories
 
     if credits:
         for credit in credits:
@@ -136,6 +141,17 @@ def _populate_benefits_from_template(
                 period_start=period_start,
             )
             db.add(benefit)
+
+    if bonus_categories:
+        for bc in bonus_categories:
+            db.add(CardBonusCategory(
+                card_id=card_id,
+                category=bc.category,
+                multiplier=bc.multiplier,
+                portal_only=bc.portal_only,
+                cap=bc.cap,
+                from_template=True,
+            ))
 
 
 def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Card:
@@ -494,7 +510,7 @@ def product_change(
 
 
 def _sync_benefits_for_product_change(db: Session, card: Card) -> None:
-    """Retire old template benefits and populate new ones from the new template."""
+    """Retire old template benefits, replace bonus categories, and populate new ones."""
     # Retire all from_template benefits
     old_benefits = (
         db.query(CardBenefit)
@@ -507,7 +523,13 @@ def _sync_benefits_for_product_change(db: Session, card: Card) -> None:
     for b in old_benefits:
         b.retired = True
 
-    # Populate new template benefits
+    # Delete old from_template bonus categories
+    db.query(CardBonusCategory).filter(
+        CardBonusCategory.card_id == card.id,
+        CardBonusCategory.from_template == True,
+    ).delete()
+
+    # Populate new template benefits + bonus categories
     if card.template_id:
         _populate_benefits_from_template(
             db, card.id, card.template_id, card.open_date

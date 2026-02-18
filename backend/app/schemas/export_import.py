@@ -40,6 +40,14 @@ class ExportBonus(BaseModel):
     description: str | None = None
 
 
+class ExportBonusCategory(BaseModel):
+    category: str = Field(max_length=200)
+    multiplier: str = Field(max_length=50)
+    portal_only: bool = False
+    cap: int | None = Field(default=None, gt=0, le=99_999_999)
+    from_template: bool = False
+
+
 class ExportCard(BaseModel):
     template_id: str | None = None
     template_version_id: str | None = None
@@ -67,6 +75,7 @@ class ExportCard(BaseModel):
     events: list[ExportEvent] = []
     benefits: list[ExportBenefit] = []
     bonuses: list[ExportBonus] = []
+    bonus_categories: list[ExportBonusCategory] = []
 
 
 class ExportProfile(BaseModel):
@@ -94,4 +103,5 @@ class ImportResult(BaseModel):
     events_imported: int = 0
     benefits_imported: int = 0
     bonuses_imported: int = 0
+    bonus_categories_imported: int = 0
     cards_skipped: int = 0

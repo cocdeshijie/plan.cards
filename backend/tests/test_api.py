@@ -3246,3 +3246,166 @@ def test_cannot_delete_system_events(client, setup_complete, auth_headers):
     resp = client.delete(f"/api/events/{closed_event['id']}", headers=auth_headers)
     assert resp.status_code == 400
     assert "system-managed" in resp.json()["detail"]
+
+
+# ── Bonus Categories ────────────────────────────────────────────────
+
+
+def test_bonus_category_crud(client, auth_headers):
+    """Create, list, update, delete bonus categories."""
+    profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Custom Card",
+        "issuer": "Test",
+    }, headers=auth_headers).json()
+
+    # Create
+    resp = client.post(f"/api/cards/{card['id']}/bonus-categories", json={
+        "category": "Dining",
+        "multiplier": "4x",
+        "portal_only": False,
+        "cap": 25000,
+    }, headers=auth_headers)
+    assert resp.status_code == 201
+    cat = resp.json()
+    assert cat["category"] == "Dining"
+    assert cat["multiplier"] == "4x"
+    assert cat["cap"] == 25000
+    assert cat["from_template"] is False
+
+    # List
+    cats = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(cats) == 1
+
+    # Update
+    resp = client.put(f"/api/cards/{card['id']}/bonus-categories/{cat['id']}", json={
+        "multiplier": "5x",
+        "cap": None,
+    }, headers=auth_headers)
+    assert resp.status_code == 200
+    assert resp.json()["multiplier"] == "5x"
+
+    # Delete
+    resp = client.delete(f"/api/cards/{card['id']}/bonus-categories/{cat['id']}", headers=auth_headers)
+    assert resp.status_code == 204
+    cats = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(cats) == 0
+
+
+def test_bonus_category_populate_from_template(client, auth_headers):
+    """Populate bonus categories from a template."""
+    profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Sapphire Preferred",
+        "issuer": "Chase",
+        "template_id": "chase/sapphire_preferred",
+    }, headers=auth_headers).json()
+
+    # Auto-populated from template on creation
+    cats = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(cats) > 0
+    assert all(c["from_template"] for c in cats)
+
+    # Populate again — should not create duplicates
+    resp = client.post(f"/api/cards/{card['id']}/bonus-categories/populate", headers=auth_headers)
+    assert resp.status_code == 200
+    assert len(resp.json()) == 0  # no new ones
+
+    cats2 = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(cats2) == len(cats)
+
+
+def test_bonus_category_populate_no_template(client, auth_headers):
+    """Cannot populate bonus categories for a card without template."""
+    profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Custom",
+        "issuer": "Test",
+    }, headers=auth_headers).json()
+
+    resp = client.post(f"/api/cards/{card['id']}/bonus-categories/populate", headers=auth_headers)
+    assert resp.status_code == 400
+
+
+def test_bonus_category_export_import(client, auth_headers):
+    """Bonus categories survive export/import round-trip."""
+    profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Test Card",
+        "issuer": "Test",
+    }, headers=auth_headers).json()
+
+    # Add bonus categories
+    client.post(f"/api/cards/{card['id']}/bonus-categories", json={
+        "category": "Travel",
+        "multiplier": "3x",
+        "portal_only": True,
+        "cap": 50000,
+    }, headers=auth_headers)
+    client.post(f"/api/cards/{card['id']}/bonus-categories", json={
+        "category": "All Other",
+        "multiplier": "1x",
+    }, headers=auth_headers)
+
+    # Export
+    export = client.get(f"/api/profiles/export?profile_id={profile['id']}", headers=auth_headers).json()
+    exported_cats = export["profiles"][0]["cards"][0]["bonus_categories"]
+    assert len(exported_cats) == 2
+
+    # Import as new profile
+    resp = client.post("/api/profiles/import?mode=new", json=export, headers=auth_headers)
+    assert resp.status_code == 200
+    result = resp.json()
+    assert result["bonus_categories_imported"] == 2
+
+    # Verify imported categories
+    profiles = client.get("/api/profiles", headers=auth_headers).json()
+    new_profile = [p for p in profiles if p["name"] != "P"][0]
+    new_cards = client.get(f"/api/cards?profile_id={new_profile['id']}", headers=auth_headers).json()
+    imported_cats = client.get(f"/api/cards/{new_cards[0]['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(imported_cats) == 2
+    travel = next(c for c in imported_cats if c["category"] == "Travel")
+    assert travel["multiplier"] == "3x"
+    assert travel["portal_only"] is True
+    assert travel["cap"] == 50000
+
+
+def test_product_change_syncs_bonus_categories(client, auth_headers):
+    """Product change replaces template bonus categories."""
+    profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Sapphire Preferred",
+        "issuer": "Chase",
+        "template_id": "chase/sapphire_preferred",
+        "open_date": "2023-01-01",
+    }, headers=auth_headers).json()
+
+    cats_before = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    assert len(cats_before) > 0
+
+    # Add a custom bonus category
+    client.post(f"/api/cards/{card['id']}/bonus-categories", json={
+        "category": "My Custom Category",
+        "multiplier": "10x",
+    }, headers=auth_headers)
+
+    # Product change to Sapphire Reserve
+    resp = client.post(f"/api/cards/{card['id']}/product-change", json={
+        "new_card_name": "Sapphire Reserve",
+        "new_template_id": "chase/sapphire_reserve",
+        "change_date": date.today().isoformat(),
+    }, headers=auth_headers)
+    assert resp.status_code == 200
+
+    cats_after = client.get(f"/api/cards/{card['id']}/bonus-categories", headers=auth_headers).json()
+    # Custom category should survive
+    custom = [c for c in cats_after if c["category"] == "My Custom Category"]
+    assert len(custom) == 1
+    # Template categories should be from new template
+    template_cats = [c for c in cats_after if c["from_template"]]
+    assert len(template_cats) > 0

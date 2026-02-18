@@ -55,3 +55,4 @@ class Card(Base):
     events: Mapped[list["CardEvent"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
     benefits: Mapped[list["CardBenefit"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
     bonuses: Mapped[list["CardBonus"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
+    bonus_categories: Mapped[list["CardBonusCategory"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821

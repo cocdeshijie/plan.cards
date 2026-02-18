@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const SECTION_KEYS = ["af", "benefits", "retention", "bonuses"] as const;
+const SECTION_KEYS = ["af", "benefits", "retention", "bonuses", "rewards"] as const;
 export type SectionKey = (typeof SECTION_KEYS)[number];
 
 const DEFAULTS: Record<SectionKey, boolean> = {
@@ -10,6 +10,7 @@ const DEFAULTS: Record<SectionKey, boolean> = {
   benefits: false,
   retention: false,
   bonuses: false,
+  rewards: false,
 };
 
 function storageKey(cardId: number) {

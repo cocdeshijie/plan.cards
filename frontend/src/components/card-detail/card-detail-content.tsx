@@ -15,6 +15,7 @@ import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { AnnualFeeHistorySection } from "@/components/card-detail/annual-fee-history-section";
 import { BenefitsSection } from "@/components/card-detail/benefits-section";
+import { BonusCategoriesSection } from "@/components/card-detail/bonus-categories-section";
 import { RetentionHistorySection } from "@/components/card-detail/retention-history-section";
 import { useCardSections } from "@/hooks/use-card-sections";
 import { toast } from "sonner";
@@ -590,6 +591,16 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       {/* Section 2.5b — Benefits & Credits */}
       <BenefitsSection card={card} accentTint={accentTint} onUpdated={onUpdated} expanded={isExpanded("benefits")} onToggleExpand={() => toggle("benefits")} onExpand={() => expand("benefits")} />
 
+      {/* Section 2.5b2 — Reward Categories */}
+      <BonusCategoriesSection
+        card={card}
+        accentTint={accentTint}
+        onUpdated={onUpdated}
+        expanded={isExpanded("rewards")}
+        onToggleExpand={() => toggle("rewards")}
+        onExpand={() => expand("rewards")}
+      />
+
       {/* Section 2.5c — Retention History */}
       <RetentionHistorySection card={card} accentTint={accentTint} onUpdated={onUpdated} expanded={isExpanded("retention")} onToggleExpand={() => toggle("retention")} onExpand={() => expand("retention")} />
 
@@ -993,6 +1004,45 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           <h4 className="font-medium text-sm">Event Timeline</h4>
           <Badge variant="secondary" className="text-xs">{sortedEvents.length} event{sortedEvents.length !== 1 ? "s" : ""}</Badge>
         </div>
+        {showEventForm && (
+          <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <PlusCircle className="h-4 w-4 text-primary" />
+                <h4 className="font-medium text-sm">Add Event</h4>
+              </div>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowEventForm(false)}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <Label>Event Type</Label>
+              <Select value={eventType} onValueChange={setEventType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="annual_fee_posted">Annual Fee Posted</SelectItem>
+                  <SelectItem value="annual_fee_refund">Annual Fee Refund</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Event Date</Label>
+              <DatePicker value={eventDate} onChange={setEventDate} placeholder="Select event date" />
+            </div>
+            {(eventType === "annual_fee_posted" || eventType === "annual_fee_refund") && (
+              <div className="space-y-2">
+                <Label>{eventType === "annual_fee_refund" ? "Refund Amount" : "Fee Amount"}</Label>
+                <Input type="number" value={eventFee} onChange={(e) => setEventFee(e.target.value)} placeholder="e.g. 550" />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label>Description (optional)</Label>
+              <Input value={eventDesc} onChange={(e) => setEventDesc(e.target.value)} maxLength={1000} />
+            </div>
+            <Button size="sm" onClick={handleAddEvent} disabled={submittingAction !== null}>{submittingAction === "event" ? "Adding..." : "Add Event"}</Button>
+          </div>
+        )}
         {sortedEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">No events recorded.</p>
         ) : (
@@ -1649,45 +1699,6 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         </div>
       )}
 
-      {showEventForm && (
-        <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <PlusCircle className="h-4 w-4 text-primary" />
-              <h4 className="font-medium text-sm">Add Event</h4>
-            </div>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowEventForm(false)}>
-              <X className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <Label>Event Type</Label>
-            <Select value={eventType} onValueChange={setEventType}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="annual_fee_posted">Annual Fee Posted</SelectItem>
-                <SelectItem value="annual_fee_refund">Annual Fee Refund</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Event Date</Label>
-            <DatePicker value={eventDate} onChange={setEventDate} placeholder="Select event date" />
-          </div>
-          {(eventType === "annual_fee_posted" || eventType === "annual_fee_refund") && (
-            <div className="space-y-2">
-              <Label>{eventType === "annual_fee_refund" ? "Refund Amount" : "Fee Amount"}</Label>
-              <Input type="number" value={eventFee} onChange={(e) => setEventFee(e.target.value)} placeholder="e.g. 550" />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label>Description (optional)</Label>
-            <Input value={eventDesc} onChange={(e) => setEventDesc(e.target.value)} maxLength={1000} />
-          </div>
-          <Button size="sm" onClick={handleAddEvent} disabled={submittingAction !== null}>{submittingAction === "event" ? "Adding..." : "Add Event"}</Button>
-        </div>
-      )}
     </div>
   );
 }

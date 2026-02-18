@@ -17,7 +17,7 @@ from sqlalchemy import inspect, text
 from app.config import settings
 from app.rate_limit import limiter
 from app.database import Base, engine, SessionLocal
-from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, settings as settings_router, setup, users, admin, oauth
+from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth
 from app.services.template_loader import load_templates, reload_if_changed
 from app.services.template_sync import sync_cards_to_templates
 
@@ -289,6 +289,7 @@ app.include_router(templates.router)
 app.include_router(benefits.router)
 app.include_router(benefits.summary_router)
 app.include_router(bonuses.router)
+app.include_router(bonus_categories.router)
 app.include_router(settings_router.router)
 app.include_router(users.router)
 app.include_router(admin.router)

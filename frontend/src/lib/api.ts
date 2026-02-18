@@ -13,6 +13,7 @@ import type {
   BenefitSummaryItem,
   FiveTwentyFourData,
   CardBonus,
+  CardBonusCategory,
   ExportData,
   ImportResult,
   TemplateVersionSummary,
@@ -252,6 +253,18 @@ export const populateBenefits = (cardId: number) =>
   apiFetch<CardBenefit[]>(`/api/cards/${cardId}/benefits/populate`, { method: "POST" });
 export const getAllBenefits = (profileId?: number) =>
   apiFetch<BenefitSummaryItem[]>(`/api/benefits${profileId ? `?profile_id=${profileId}` : ""}`);
+
+// Bonus Categories
+export const getCardBonusCategories = (cardId: number) =>
+  apiFetch<CardBonusCategory[]>(`/api/cards/${cardId}/bonus-categories`);
+export const createCardBonusCategory = (cardId: number, data: Record<string, unknown>) =>
+  apiFetch<CardBonusCategory>(`/api/cards/${cardId}/bonus-categories`, { method: "POST", body: JSON.stringify(data) });
+export const updateCardBonusCategory = (cardId: number, categoryId: number, data: Record<string, unknown>) =>
+  apiFetch<CardBonusCategory>(`/api/cards/${cardId}/bonus-categories/${categoryId}`, { method: "PUT", body: JSON.stringify(data) });
+export const deleteCardBonusCategory = (cardId: number, categoryId: number) =>
+  apiFetch<void>(`/api/cards/${cardId}/bonus-categories/${categoryId}`, { method: "DELETE" });
+export const populateBonusCategories = (cardId: number) =>
+  apiFetch<CardBonusCategory[]>(`/api/cards/${cardId}/bonus-categories/populate`, { method: "POST" });
 
 // Templates
 export const getTemplates = (issuer?: string) => {

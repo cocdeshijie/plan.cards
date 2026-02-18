@@ -129,6 +129,17 @@ export interface TemplateBonusCategory {
   cap?: number | null;
 }
 
+export interface CardBonusCategory {
+  id: number;
+  card_id: number;
+  category: string;
+  multiplier: string;
+  portal_only: boolean;
+  cap: number | null;
+  from_template: boolean;
+  created_at: string;
+}
+
 export interface TemplateSpendThreshold {
   name: string;
   spend_required: number;
@@ -252,6 +263,14 @@ export interface ExportBonus {
   description: string | null;
 }
 
+export interface ExportBonusCategory {
+  category: string;
+  multiplier: string;
+  portal_only: boolean;
+  cap: number | null;
+  from_template: boolean;
+}
+
 export interface ExportCard {
   template_id: string | null;
   template_version_id: string | null;
@@ -279,6 +298,7 @@ export interface ExportCard {
   events: ExportEvent[];
   benefits: ExportBenefit[];
   bonuses: ExportBonus[];
+  bonus_categories: ExportBonusCategory[];
 }
 
 export interface ExportProfile {
@@ -299,6 +319,7 @@ export interface ImportResult {
   events_imported: number;
   benefits_imported: number;
   bonuses_imported: number;
+  bonus_categories_imported: number;
   cards_skipped: number;
 }
 

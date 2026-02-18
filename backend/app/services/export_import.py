@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.card import Card
 from app.models.card_benefit import CardBenefit
 from app.models.card_bonus import CardBonus
+from app.models.card_bonus_category import CardBonusCategory
 from app.models.card_event import CardEvent
 from app.models.profile import Profile
 from app.models.setting import Setting
@@ -12,6 +13,7 @@ from app.models.user_setting import UserSetting
 from app.schemas.export_import import (
     ExportBenefit,
     ExportBonus,
+    ExportBonusCategory,
     ExportCard,
     ExportData,
     ExportEvent,
@@ -25,6 +27,7 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
         selectinload(Profile.cards).selectinload(Card.events),
         selectinload(Profile.cards).selectinload(Card.benefits),
         selectinload(Profile.cards).selectinload(Card.bonuses),
+        selectinload(Profile.cards).selectinload(Card.bonus_categories),
     )
     if user_id is not None:
         query = query.filter(Profile.user_id == user_id)
@@ -80,6 +83,16 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
                 )
                 for b in card.bonuses
             ]
+            export_bonus_categories = [
+                ExportBonusCategory(
+                    category=bc.category,
+                    multiplier=bc.multiplier,
+                    portal_only=bc.portal_only,
+                    cap=bc.cap,
+                    from_template=bc.from_template,
+                )
+                for bc in card.bonus_categories
+            ]
             export_cards.append(
                 ExportCard(
                     template_id=card.template_id,
@@ -108,6 +121,7 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
                     events=export_events,
                     benefits=export_benefits,
                     bonuses=export_bonuses,
+                    bonus_categories=export_bonus_categories,
                 )
             )
         export_profiles_list.append(
@@ -131,11 +145,12 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
 
 def _create_cards_and_events(
     db: Session, profile: Profile, cards_data: list[ExportCard]
-) -> tuple[int, int, int, int]:
+) -> tuple[int, int, int, int, int]:
     cards_count = 0
     events_count = 0
     benefits_count = 0
     bonuses_count = 0
+    bonus_categories_count = 0
     for card_data in cards_data:
         card = Card(
             profile_id=profile.id,
@@ -221,7 +236,18 @@ def _create_cards_and_events(
             db.add(bonus)
             bonuses_count += 1
 
-    return cards_count, events_count, benefits_count, bonuses_count
+        for bc_data in card_data.bonus_categories:
+            db.add(CardBonusCategory(
+                card_id=card.id,
+                category=bc_data.category,
+                multiplier=bc_data.multiplier,
+                portal_only=bc_data.portal_only,
+                cap=bc_data.cap,
+                from_template=bc_data.from_template,
+            ))
+            bonus_categories_count += 1
+
+    return cards_count, events_count, benefits_count, bonuses_count, bonus_categories_count
 
 
 def import_profiles(
@@ -252,11 +278,12 @@ def import_profiles(
             db.flush()
             result.profiles_imported += 1
 
-            cards, events, benefits, bonuses = _create_cards_and_events(db, profile, profile_data.cards)
+            cards, events, benefits, bonuses, bcats = _create_cards_and_events(db, profile, profile_data.cards)
             result.cards_imported += cards
             result.events_imported += events
             result.benefits_imported += benefits
             result.bonuses_imported += bonuses
+            result.bonus_categories_imported += bcats
 
     elif mode == "override":
         if len(data.profiles) != 1:
@@ -274,12 +301,13 @@ def import_profiles(
         db.flush()
 
         profile_data = data.profiles[0]
-        cards, events, benefits, bonuses = _create_cards_and_events(db, profile, profile_data.cards)
+        cards, events, benefits, bonuses, bcats = _create_cards_and_events(db, profile, profile_data.cards)
         result.profiles_imported = 1
         result.cards_imported = cards
         result.events_imported = events
         result.benefits_imported = benefits
         result.bonuses_imported = bonuses
+        result.bonus_categories_imported = bcats
 
     elif mode == "merge":
         if len(data.profiles) != 1:
@@ -309,12 +337,13 @@ def import_profiles(
             else:
                 new_cards.append(card_data)
 
-        cards, events, benefits, bonuses = _create_cards_and_events(db, profile, new_cards)
+        cards, events, benefits, bonuses, bcats = _create_cards_and_events(db, profile, new_cards)
         result.profiles_imported = 1
         result.cards_imported = cards
         result.events_imported = events
         result.benefits_imported = benefits
         result.bonuses_imported = bonuses
+        result.bonus_categories_imported = bcats
 
     else:
         raise ValueError(f"Invalid import mode: {mode}")
