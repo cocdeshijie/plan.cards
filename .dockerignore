@@ -6,4 +6,3 @@ backend/.pytest_cache
 backend/venv
 **/*.pyc
 .env
-.git
