@@ -236,6 +236,77 @@ export function RetentionHistorySection({ card, accentTint, onUpdated, expanded,
       )}
 
       <div className="space-y-1">
+        {/* Add new retention offer form */}
+        {showAddForm && (
+          <div className="rounded-md border border-dashed border-muted-foreground/30 px-3 py-3 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Date</Label>
+                <DatePicker value={addDate} onChange={setAddDate} placeholder="Date" />
+              </div>
+              <div className="flex items-center gap-2 pt-5">
+                <Switch checked={addAccepted} onCheckedChange={setAddAccepted} />
+                <Label className="text-xs font-normal">{addAccepted ? "Accepted" : "Declined"}</Label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Points</Label>
+                <Input className="h-7 text-sm" type="number" min="1" value={addPoints} onChange={(e) => setAddPoints(e.target.value)} placeholder="e.g. 30000" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Credit ($)</Label>
+                <Input className="h-7 text-sm" type="number" min="1" value={addCredit} onChange={(e) => setAddCredit(e.target.value)} placeholder="e.g. 75" />
+              </div>
+            </div>
+            <Input
+              className="h-7 text-xs"
+              placeholder="Description (optional)"
+              value={addDescription}
+              onChange={(e) => setAddDescription(e.target.value)}
+            />
+
+            {/* Spend requirement section (only for accepted offers) */}
+            {addAccepted && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Switch checked={addHasSpend} onCheckedChange={setAddHasSpend} />
+                  <Label className="text-xs font-normal">Spend requirement</Label>
+                </div>
+                {addHasSpend && (
+                  <div className="rounded-lg border bg-muted/20 p-2 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">Spend ($)</Label>
+                        <Input className="h-7 text-sm" type="number" min="1" value={addSpendReq} onChange={(e) => setAddSpendReq(e.target.value)} placeholder="e.g. 3000" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Deadline</Label>
+                        <DatePicker value={addSpendDeadline} onChange={setAddSpendDeadline} placeholder="Date" />
+                      </div>
+                    </div>
+                    <Input
+                      className="h-7 text-xs"
+                      placeholder="Spend notes (optional)"
+                      value={addSpendNotes}
+                      onChange={(e) => setAddSpendNotes(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-1.5">
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" disabled={saving || !addDate} onClick={handleAdd}>
+                <Check className="h-3 w-3 mr-1" />{saving ? "Adding..." : "Add"}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={resetAddForm}>
+                <X className="h-3 w-3 mr-1" />Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
         {retentionEvents.map((event) => {
           const meta = (event.metadata_json as Record<string, unknown>) || {};
           const isEditing = editingEventId === event.id;
@@ -378,76 +449,6 @@ export function RetentionHistorySection({ card, accentTint, onUpdated, expanded,
           );
         })}
 
-        {/* Add new retention offer form */}
-        {showAddForm && (
-          <div className="rounded-md border border-dashed border-muted-foreground/30 px-3 py-3 space-y-2">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Date</Label>
-                <DatePicker value={addDate} onChange={setAddDate} placeholder="Date" />
-              </div>
-              <div className="flex items-center gap-2 pt-5">
-                <Switch checked={addAccepted} onCheckedChange={setAddAccepted} />
-                <Label className="text-xs font-normal">{addAccepted ? "Accepted" : "Declined"}</Label>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Points</Label>
-                <Input className="h-7 text-sm" type="number" min="1" value={addPoints} onChange={(e) => setAddPoints(e.target.value)} placeholder="e.g. 30000" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Credit ($)</Label>
-                <Input className="h-7 text-sm" type="number" min="1" value={addCredit} onChange={(e) => setAddCredit(e.target.value)} placeholder="e.g. 75" />
-              </div>
-            </div>
-            <Input
-              className="h-7 text-xs"
-              placeholder="Description (optional)"
-              value={addDescription}
-              onChange={(e) => setAddDescription(e.target.value)}
-            />
-
-            {/* Spend requirement section (only for accepted offers) */}
-            {addAccepted && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Switch checked={addHasSpend} onCheckedChange={setAddHasSpend} />
-                  <Label className="text-xs font-normal">Spend requirement</Label>
-                </div>
-                {addHasSpend && (
-                  <div className="rounded-lg border bg-muted/20 p-2 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <Label className="text-xs">Spend ($)</Label>
-                        <Input className="h-7 text-sm" type="number" min="1" value={addSpendReq} onChange={(e) => setAddSpendReq(e.target.value)} placeholder="e.g. 3000" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Deadline</Label>
-                        <DatePicker value={addSpendDeadline} onChange={setAddSpendDeadline} placeholder="Date" />
-                      </div>
-                    </div>
-                    <Input
-                      className="h-7 text-xs"
-                      placeholder="Spend notes (optional)"
-                      value={addSpendNotes}
-                      onChange={(e) => setAddSpendNotes(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="flex gap-1.5">
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" disabled={saving || !addDate} onClick={handleAdd}>
-                <Check className="h-3 w-3 mr-1" />{saving ? "Adding..." : "Add"}
-              </Button>
-              <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={resetAddForm}>
-                <X className="h-3 w-3 mr-1" />Cancel
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
       </>}
     </div>

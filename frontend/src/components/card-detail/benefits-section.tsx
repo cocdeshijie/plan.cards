@@ -251,6 +251,76 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
         <p className="text-sm text-muted-foreground">No benefits tracked.</p>
       )}
 
+      {/* Add benefit form */}
+      {showAddForm && (
+        <div className="rounded-lg border bg-muted/20 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h5 className="text-sm font-medium">Add Benefit</h5>
+            <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setShowAddForm(false)}>
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div>
+            <Label className="text-xs">Type</Label>
+            <Select value={addBenefitType} onValueChange={setAddBenefitType}>
+              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="credit">Credit</SelectItem>
+                <SelectItem value="spend_threshold">Spend Threshold</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Name</Label>
+              <Input className="h-8 text-sm" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "e.g. Free Night Award" : "e.g. Uber Cash"} maxLength={100} />
+            </div>
+            <div>
+              <Label className="text-xs">{addBenefitType === "spend_threshold" ? "Spend Required ($)" : "Amount ($)"}</Label>
+              <Input className="h-8 text-sm" type="number" value={addAmount} onChange={(e) => setAddAmount(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "15000" : "15"} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Frequency</Label>
+              <Select value={addFrequency} onValueChange={setAddFrequency}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="semi_annual">Semi-Annual</SelectItem>
+                  <SelectItem value="annual">Annual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Reset Type</Label>
+              <Select value={addResetType} onValueChange={setAddResetType}>
+                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="calendar">Calendar</SelectItem>
+                  <SelectItem value="cardiversary">Cardiversary</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Notes</Label>
+            <textarea
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+              value={addNotes}
+              onChange={(e) => setAddNotes(e.target.value)}
+              maxLength={1000}
+              placeholder="Optional notes..."
+            />
+            <span className="text-[10px] text-muted-foreground">{addNotes.length}/1000</span>
+          </div>
+          <Button size="sm" className="h-7 text-xs" onClick={handleAdd} disabled={submitting || !addName || !addAmount}>
+            {submitting ? "Adding..." : "Add Benefit"}
+          </Button>
+        </div>
+      )}
+
       {benefits.filter(b => b.benefit_type !== "spend_threshold").map((benefit) => {
         const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
         const barColor = usageColor(pct);
@@ -565,75 +635,6 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
         </>
       )}
 
-      {/* Add benefit form */}
-      {showAddForm && (
-        <div className="rounded-lg border bg-muted/20 p-3 space-y-2">
-          <div className="flex items-center justify-between">
-            <h5 className="text-sm font-medium">Add Benefit</h5>
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setShowAddForm(false)}>
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-          <div>
-            <Label className="text-xs">Type</Label>
-            <Select value={addBenefitType} onValueChange={setAddBenefitType}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="credit">Credit</SelectItem>
-                <SelectItem value="spend_threshold">Spend Threshold</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Name</Label>
-              <Input className="h-8 text-sm" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "e.g. Free Night Award" : "e.g. Uber Cash"} maxLength={100} />
-            </div>
-            <div>
-              <Label className="text-xs">{addBenefitType === "spend_threshold" ? "Spend Required ($)" : "Amount ($)"}</Label>
-              <Input className="h-8 text-sm" type="number" value={addAmount} onChange={(e) => setAddAmount(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "15000" : "15"} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Frequency</Label>
-              <Select value={addFrequency} onValueChange={setAddFrequency}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="semi_annual">Semi-Annual</SelectItem>
-                  <SelectItem value="annual">Annual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs">Reset Type</Label>
-              <Select value={addResetType} onValueChange={setAddResetType}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="calendar">Calendar</SelectItem>
-                  <SelectItem value="cardiversary">Cardiversary</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs">Notes</Label>
-            <textarea
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
-              value={addNotes}
-              onChange={(e) => setAddNotes(e.target.value)}
-              maxLength={1000}
-              placeholder="Optional notes..."
-            />
-            <span className="text-[10px] text-muted-foreground">{addNotes.length}/1000</span>
-          </div>
-          <Button size="sm" className="h-7 text-xs" onClick={handleAdd} disabled={submitting || !addName || !addAmount}>
-            {submitting ? "Adding..." : "Add Benefit"}
-          </Button>
-        </div>
-      )}
       </>}
     </div>
   );
