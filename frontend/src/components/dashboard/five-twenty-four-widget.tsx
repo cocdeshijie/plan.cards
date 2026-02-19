@@ -14,7 +14,11 @@ interface ProfileRow {
   data: FiveTwentyFourData;
 }
 
-export function FiveTwentyFourWidget() {
+interface FiveTwentyFourWidgetProps {
+  onCardClick?: (cardId: number) => void;
+}
+
+export function FiveTwentyFourWidget({ onCardClick }: FiveTwentyFourWidgetProps) {
   const { profiles, selectedProfileId } = useAppStore();
   const [rows, setRows] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +88,12 @@ export function FiveTwentyFourWidget() {
                 <div className="text-xs text-muted-foreground space-y-0.5 pl-1">
                   {row.data.dropoff_dates.map((d) => (
                     <p key={d.card_id}>
-                      {d.card_name}: drops off {formatDate(d.dropoff_date)}
+                      <button
+                        onClick={() => onCardClick?.(d.card_id)}
+                        className="hover:underline hover:text-primary transition-colors text-left"
+                      >
+                        {d.card_name}
+                      </button>: drops off {formatDate(d.dropoff_date)}
                     </p>
                   ))}
                 </div>

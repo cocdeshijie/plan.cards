@@ -9,6 +9,7 @@ import { AlertTriangle, Clock } from "lucide-react";
 
 interface Alert {
   type: "spend" | "fee" | "upgrade" | "retention";
+  cardId: number;
   cardName: string;
   date: string;
   daysLeft: number;
@@ -17,7 +18,11 @@ interface Alert {
   spendRequirement?: number | null;
 }
 
-export function AlertsWidget() {
+interface AlertsWidgetProps {
+  onCardClick?: (cardId: number) => void;
+}
+
+export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
   const { cards, selectedProfileId } = useAppStore();
   const now = useToday();
 
@@ -37,6 +42,7 @@ export function AlertsWidget() {
         if (daysLeft <= 30) {
           result.push({
             type: "spend",
+            cardId: card.id,
             cardName: card.card_name,
             date: card.spend_deadline,
             daysLeft,
@@ -55,6 +61,7 @@ export function AlertsWidget() {
           if (days <= 30) {
             result.push({
               type: bonus.bonus_source === "retention" ? "retention" : "upgrade",
+              cardId: card.id,
               cardName: card.card_name,
               date: bonus.spend_deadline,
               daysLeft: days,
@@ -70,6 +77,7 @@ export function AlertsWidget() {
       if (feeInfo && feeInfo.daysUntil <= 30) {
         result.push({
           type: "fee",
+          cardId: card.id,
           cardName: card.card_name,
           date: feeInfo.nextDate.toISOString().split("T")[0],
           daysLeft: feeInfo.daysUntil,
@@ -103,7 +111,12 @@ export function AlertsWidget() {
               />
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">
-                  {alert.cardName}
+                  <button
+                    onClick={() => onCardClick?.(alert.cardId)}
+                    className="hover:underline hover:text-primary transition-colors text-left"
+                  >
+                    {alert.cardName}
+                  </button>
                   <span className="text-muted-foreground font-normal ml-1.5">
                     {alert.type === "spend"
                       ? alert.bonusAmount

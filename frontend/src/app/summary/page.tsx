@@ -28,8 +28,8 @@ export default function SummaryPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AlertsWidget />
-        <FiveTwentyFourWidget />
+        <AlertsWidget onCardClick={(id) => setSelectedCardId(id)} />
+        <FiveTwentyFourWidget onCardClick={(id) => setSelectedCardId(id)} />
         <PortfolioWidget className="lg:col-span-2" />
         <CreditsWidget className="lg:col-span-2" onCardClick={(id) => setSelectedCardId(id)} />
       </div>
