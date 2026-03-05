@@ -182,6 +182,7 @@ export interface FiveTwentyFourData {
   dropoff_dates: {
     card_id: number;
     card_name: string;
+    last_digits: string | null;
     open_date: string;
     dropoff_date: string;
   }[];

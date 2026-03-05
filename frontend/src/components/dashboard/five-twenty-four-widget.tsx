@@ -92,7 +92,7 @@ export function FiveTwentyFourWidget({ onCardClick }: FiveTwentyFourWidgetProps)
                         onClick={() => onCardClick?.(d.card_id)}
                         className="hover:underline hover:text-primary transition-colors text-left"
                       >
-                        {d.card_name}
+                        {d.card_name}{d.last_digits && <span className="opacity-60"> ···{d.last_digits}</span>}
                       </button>: drops off {formatDate(d.dropoff_date)}
                     </p>
                   ))}

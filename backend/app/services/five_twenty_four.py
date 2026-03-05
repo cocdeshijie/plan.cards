@@ -44,6 +44,7 @@ def get_524_details(db: Session, profile_id: int, user_id: int | None = None) ->
         dropoff_dates.append({
             "card_id": card.id,
             "card_name": card.card_name,
+            "last_digits": card.last_digits,
             "open_date": card.open_date.isoformat(),
             "dropoff_date": dropoff.isoformat(),
         })

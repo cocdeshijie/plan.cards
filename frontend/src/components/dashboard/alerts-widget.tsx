@@ -11,6 +11,8 @@ interface Alert {
   type: "spend" | "fee" | "upgrade" | "retention";
   cardId: number;
   cardName: string;
+  lastDigits?: string | null;
+  profileName?: string;
   date: string;
   daysLeft: number;
   bonusAmount?: number | null;
@@ -23,8 +25,14 @@ interface AlertsWidgetProps {
 }
 
 export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
-  const { cards, selectedProfileId } = useAppStore();
+  const { cards, profiles, selectedProfileId } = useAppStore();
   const now = useToday();
+
+  const profileMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    for (const p of profiles) map[p.id] = p.name;
+    return map;
+  }, [profiles]);
 
   const alerts = useMemo(() => {
     const result: Alert[] = [];
@@ -36,6 +44,8 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
     for (const card of filtered) {
       if (card.status !== "active") continue;
 
+      const profileName = profileMap[card.profile_id];
+
       if (card.spend_reminder_enabled && card.spend_deadline && !card.signup_bonus_earned) {
         const deadline = parseDateStr(card.spend_deadline);
         const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -44,6 +54,8 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
             type: "spend",
             cardId: card.id,
             cardName: card.card_name,
+            lastDigits: card.last_digits,
+            profileName,
             date: card.spend_deadline,
             daysLeft,
             bonusAmount: card.signup_bonus_amount,
@@ -63,6 +75,8 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
               type: bonus.bonus_source === "retention" ? "retention" : "upgrade",
               cardId: card.id,
               cardName: card.card_name,
+              lastDigits: card.last_digits,
+              profileName,
               date: bonus.spend_deadline,
               daysLeft: days,
               bonusAmount: bonus.bonus_amount,
@@ -79,6 +93,8 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
           type: "fee",
           cardId: card.id,
           cardName: card.card_name,
+          lastDigits: card.last_digits,
+          profileName,
           date: feeInfo.nextDate.toISOString().split("T")[0],
           daysLeft: feeInfo.daysUntil,
         });
@@ -86,7 +102,7 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
     }
 
     return result.sort((a, b) => a.daysLeft - b.daysLeft);
-  }, [cards, selectedProfileId, now]);
+  }, [cards, profiles, profileMap, selectedProfileId, now]);
 
   return (
     <div className="bg-card rounded-xl border p-5 space-y-4">
@@ -115,7 +131,7 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
                     onClick={() => onCardClick?.(alert.cardId)}
                     className="hover:underline hover:text-primary transition-colors text-left"
                   >
-                    {alert.cardName}
+                    {alert.profileName && <span className="text-muted-foreground font-normal">{alert.profileName} &bull; </span>}{alert.cardName}{alert.lastDigits && <span className="text-muted-foreground font-normal"> &middot;&middot;&middot;{alert.lastDigits}</span>}
                   </button>
                   <span className="text-muted-foreground font-normal ml-1.5">
                     {alert.type === "spend"
