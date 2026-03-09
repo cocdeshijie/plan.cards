@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Gift, ChevronDown, ChevronRight, Target, Pencil, Trash2, X } from "lucide-react";
+import { Gift, ChevronDown, ChevronRight, Target, Pencil, Trash2, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FREQUENCY_ORDER = ["monthly", "quarterly", "semi_annual", "annual"] as const;
@@ -77,7 +77,13 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
       }
       const creditTypes = [...nameMap.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
-        .map(([benefitName, items]) => ({ benefitName, items }));
+        .map(([benefitName, items]) => ({
+          benefitName,
+          items: items.sort((a, b) =>
+            (a.profile_name || "").localeCompare(b.profile_name || "") ||
+            a.card_name.localeCompare(b.card_name)
+          ),
+        }));
 
       result.push({ frequency: freq, creditTypes });
     }
@@ -160,6 +166,15 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
       toast.success("Benefit deleted");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete benefit");
+    }
+  };
+
+  const handleAutoComplete = async (benefit: BenefitSummaryItem) => {
+    try {
+      await updateBenefitUsage(benefit.card_id, benefit.id, { amount_used: benefit.benefit_amount });
+      fetchBenefits();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update usage");
     }
   };
 
@@ -440,6 +455,16 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                     >
                                       Add
                                     </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 w-7 p-0"
+                                      title="Mark as fully used"
+                                      disabled={benefit.amount_used >= benefit.benefit_amount}
+                                      onClick={() => handleAutoComplete(benefit)}
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                    </Button>
                                   </div>
                                 </div>
                               );
@@ -577,6 +602,9 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                             <p className="text-xs text-muted-foreground truncate">
                                               {benefit.card_name}
                                               {benefit.last_digits && ` ···${benefit.last_digits}`}
+                                              {selectedProfileId === "all" && (
+                                                <span className="text-muted-foreground/60"> · {benefit.profile_name}</span>
+                                              )}
                                             </p>
                                           </div>
                                         </button>
@@ -670,6 +698,16 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                           onClick={() => handleAddUsage(benefit)}
                                         >
                                           Add
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-7 w-7 p-0"
+                                          title="Mark as fully used"
+                                          disabled={benefit.amount_used >= benefit.benefit_amount}
+                                          onClick={() => handleAutoComplete(benefit)}
+                                        >
+                                          <Check className="h-3.5 w-3.5" />
                                         </Button>
                                       </div>
                                     </div>
