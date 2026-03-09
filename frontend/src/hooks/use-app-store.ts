@@ -165,7 +165,21 @@ export const useAppStore = create<AppState>((set, get) => ({
           if (typeof window !== "undefined") localStorage.setItem("selectedProfileId", "all");
         }
       }
-      set({ profiles, cards, timezone: settings.timezone || "", serverTimezone: settings.server_timezone || "", selectedProfileId, dataLoading: false, dataError: null });
+      const current = get();
+      const updates: Partial<AppState> = {
+        timezone: settings.timezone || "",
+        serverTimezone: settings.server_timezone || "",
+        selectedProfileId,
+        dataLoading: false,
+        dataError: null,
+      };
+      if (JSON.stringify(profiles) !== JSON.stringify(current.profiles)) {
+        updates.profiles = profiles;
+      }
+      if (JSON.stringify(cards) !== JSON.stringify(current.cards)) {
+        updates.cards = cards;
+      }
+      set(updates);
     } catch {
       set({ dataLoading: false, dataError: "Failed to load data. Check your connection." });
     }
