@@ -287,6 +287,7 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
   const [offset, setOffset] = useState(0);
   const [filterType, setFilterType] = useState<string>("all");
   const [filterIssuer, setFilterIssuer] = useState<string>("all");
+  const hasLoadedRef = useRef(false);
   const requestIdRef = useRef(0);
   const todayRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -311,7 +312,7 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
     if (filterIssuer !== "all") params.issuer = filterIssuer;
 
     if (!append) {
-      setLoading(true);
+      if (!hasLoadedRef.current) setLoading(true);
       setFetchError(false);
     } else {
       setLoadingMore(true);
@@ -330,6 +331,7 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
         setPastEvents((prev) => [...prev, ...data]);
       } else {
         setPastEvents(data);
+        hasLoadedRef.current = true;
       }
       setOffset(newOffset + data.length);
     } catch {
@@ -344,10 +346,12 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
 
   // Initial fetch
   useEffect(() => {
-    hasScrolledToToday.current = false;
+    if (!hasLoadedRef.current) {
+      hasScrolledToToday.current = false;
+      setPastEvents([]);
+    }
     setOffset(0);
     setHasMore(true);
-    setPastEvents([]);
     fetchEvents(0, false);
   }, [fetchEvents, cards]);
 

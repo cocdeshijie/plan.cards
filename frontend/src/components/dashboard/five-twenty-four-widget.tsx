@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Badge } from "@/components/ui/badge";
 import { get524 } from "@/lib/api";
@@ -22,10 +22,11 @@ export function FiveTwentyFourWidget({ onCardClick }: FiveTwentyFourWidgetProps)
   const { profiles, selectedProfileId } = useAppStore();
   const [rows, setRows] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      if (!hasLoadedRef.current) setLoading(true);
       try {
         const targetProfiles =
           selectedProfileId === "all"
@@ -43,6 +44,7 @@ export function FiveTwentyFourWidget({ onCardClick }: FiveTwentyFourWidgetProps)
           })
         );
         setRows(results.filter((r): r is ProfileRow => r !== null));
+        hasLoadedRef.current = true;
       } finally {
         setLoading(false);
       }
