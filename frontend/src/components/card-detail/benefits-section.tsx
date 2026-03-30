@@ -25,7 +25,7 @@ import {
 import { parseIntStrict } from "@/lib/utils";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Gift, Plus, Pencil, Trash2, X, RefreshCw, Target, ChevronDown } from "lucide-react";
+import { Gift, Plus, Pencil, Trash2, X, RefreshCw, Target, ChevronDown, Check } from "lucide-react";
 
 interface BenefitsSectionProps {
   card: Card;
@@ -159,6 +159,15 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
       fetchBenefits();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to update usage");
+    }
+  };
+
+  const handleAutoComplete = async (benefit: CardBenefit) => {
+    try {
+      await updateBenefitUsage(card.id, benefit.id, { amount_used: benefit.benefit_amount });
+      fetchBenefits();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update usage");
     }
   };
 
@@ -412,6 +421,9 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                 </span>
               </div>
               <div className="flex gap-0.5">
+                <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" title="Mark as fully used" disabled={benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
+                  <Check className="h-3 w-3" />
+                </Button>
                 <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
                   <Pencil className="h-3 w-3" />
                 </Button>
@@ -578,6 +590,9 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                     </span>
                   </div>
                   <div className="flex gap-0.5">
+                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" title="Mark as fully used" disabled={benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
+                      <Check className="h-3 w-3" />
+                    </Button>
                     <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
                       <Pencil className="h-3 w-3" />
                     </Button>
