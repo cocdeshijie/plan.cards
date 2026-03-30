@@ -88,13 +88,21 @@ export default function CardsPage() {
       if (typeFilter !== "all" && card.card_type !== typeFilter) return false;
       if (issuerFilter !== "all" && card.issuer !== issuerFilter) return false;
       if (q) {
+        const tokens = q.split(/\s+/).filter(Boolean);
         const searchable = [
           card.card_name,
           card.issuer,
           card.custom_notes,
           ...(card.custom_tags || []),
         ].filter(Boolean).join(" ").toLowerCase();
-        if (!searchable.includes(q)) return false;
+        const digits = card.last_digits || "";
+        for (const token of tokens) {
+          if (/^\d{4,5}$/.test(token)) {
+            if (!digits.includes(token)) return false;
+          } else {
+            if (!searchable.includes(token)) return false;
+          }
+        }
       }
       return true;
     });
