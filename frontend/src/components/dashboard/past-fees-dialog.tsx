@@ -105,12 +105,14 @@ export function PastFeesDialog({
   cards,
   profiles,
   selectedProfileId,
+  onCardClick,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   cards: Card[];
   profiles: Profile[];
   selectedProfileId: string;
+  onCardClick?: (cardId: number) => void;
 }) {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
@@ -178,6 +180,7 @@ export function PastFeesDialog({
                   expanded={expanded.has(y.year)}
                   onToggle={() => toggle(y.year)}
                   showProfile={showProfileOnRow}
+                  onCardClick={onCardClick}
                 />
               ))}
             </div>
@@ -193,11 +196,13 @@ function YearRow({
   expanded,
   onToggle,
   showProfile,
+  onCardClick,
 }: {
   year: YearBreakdown;
   expanded: boolean;
   onToggle: () => void;
   showProfile: boolean;
+  onCardClick?: (cardId: number) => void;
 }) {
   const hasPersonal = year.personal !== 0;
   const hasBusiness = year.business !== 0;
@@ -235,57 +240,74 @@ function YearRow({
       </button>
       {expanded && (
         <div className="border-t divide-y">
-          {year.cards.map((c) => (
-            <div key={c.cardId} className="flex items-start gap-3 px-4 py-2.5 text-sm">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="truncate font-medium">{c.cardName}</span>
-                  {c.lastDigits && (
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      ··{c.lastDigits}
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap mt-0.5">
-                  <span>{c.issuer}</span>
-                  <span className="text-muted-foreground/50">·</span>
-                  <span
-                    className={cn(
-                      "px-1.5 py-0.5 rounded text-[10px] font-medium",
-                      c.cardType === "business"
-                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                        : "bg-green-500/10 text-green-600 dark:text-green-400",
-                    )}
-                  >
-                    {c.cardType === "business" ? "Business" : "Personal"}
-                  </span>
-                  {showProfile && c.profileName && (
-                    <>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span>{c.profileName}</span>
-                    </>
-                  )}
-                  {c.refunded > 0 && (
-                    <>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span className="text-orange-600 dark:text-orange-400">
-                        refund −${c.refunded.toLocaleString()}
+          {year.cards.map((c) => {
+            const clickable = !!onCardClick;
+            const inner = (
+              <>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="truncate font-medium">{c.cardName}</span>
+                    {c.lastDigits && (
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        ··{c.lastDigits}
                       </span>
-                    </>
-                  )}
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap mt-0.5">
+                    <span>{c.issuer}</span>
+                    <span className="text-muted-foreground/50">·</span>
+                    <span
+                      className={cn(
+                        "px-1.5 py-0.5 rounded text-[10px] font-medium",
+                        c.cardType === "business"
+                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                          : "bg-green-500/10 text-green-600 dark:text-green-400",
+                      )}
+                    >
+                      {c.cardType === "business" ? "Business" : "Personal"}
+                    </span>
+                    {showProfile && c.profileName && (
+                      <>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span>{c.profileName}</span>
+                      </>
+                    )}
+                    {c.refunded > 0 && (
+                      <>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span className="text-orange-600 dark:text-orange-400">
+                          refund −${c.refunded.toLocaleString()}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <span
-                className={cn(
-                  "tabular-nums text-sm font-semibold shrink-0 mt-0.5",
-                  c.net < 0 && "text-green-600 dark:text-green-500",
-                  c.net === 0 && "text-muted-foreground",
-                )}
+                <span
+                  className={cn(
+                    "tabular-nums text-sm font-semibold shrink-0 mt-0.5",
+                    c.net < 0 && "text-green-600 dark:text-green-500",
+                    c.net === 0 && "text-muted-foreground",
+                  )}
+                >
+                  {fmt(c.net)}
+                </span>
+              </>
+            );
+            return clickable ? (
+              <button
+                key={c.cardId}
+                type="button"
+                onClick={() => onCardClick!(c.cardId)}
+                className="w-full flex items-start gap-3 px-4 py-2.5 text-sm hover:bg-accent/60 transition-colors text-left"
               >
-                {fmt(c.net)}
-              </span>
-            </div>
-          ))}
+                {inner}
+              </button>
+            ) : (
+              <div key={c.cardId} className="flex items-start gap-3 px-4 py-2.5 text-sm">
+                {inner}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

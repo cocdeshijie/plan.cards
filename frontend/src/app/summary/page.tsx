@@ -30,7 +30,7 @@ export default function SummaryPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AlertsWidget onCardClick={(id) => setSelectedCardId(id)} />
         <FiveTwentyFourWidget onCardClick={(id) => setSelectedCardId(id)} />
-        <PortfolioWidget className="lg:col-span-2" />
+        <PortfolioWidget className="lg:col-span-2" onCardClick={(id) => setSelectedCardId(id)} />
         <CreditsWidget className="lg:col-span-2" onCardClick={(id) => setSelectedCardId(id)} />
       </div>
 

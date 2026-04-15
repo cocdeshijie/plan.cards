@@ -8,7 +8,13 @@ import { getNextFeeInfo } from "@/lib/fee-utils";
 import { useToday } from "@/hooks/use-timezone";
 import { PastFeesDialog } from "./past-fees-dialog";
 
-export function PortfolioWidget({ className }: { className?: string }) {
+export function PortfolioWidget({
+  className,
+  onCardClick,
+}: {
+  className?: string;
+  onCardClick?: (cardId: number) => void;
+}) {
   const { cards, profiles, selectedProfileId } = useAppStore();
   const today = useToday();
   const [showPastFees, setShowPastFees] = useState(false);
@@ -132,6 +138,7 @@ export function PortfolioWidget({ className }: { className?: string }) {
         cards={cards}
         profiles={profiles}
         selectedProfileId={selectedProfileId}
+        onCardClick={onCardClick}
       />
 
       {stats.issuerBreakdown.length > 0 && (
