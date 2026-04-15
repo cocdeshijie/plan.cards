@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
-import { CreditCard, DollarSign, CalendarDays, Building2, TrendingUp } from "lucide-react";
+import { CreditCard, DollarSign, CalendarDays, Building2, TrendingUp, ChevronRight } from "lucide-react";
 import { cn, parseDateStr } from "@/lib/utils";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { useToday } from "@/hooks/use-timezone";
+import { PastFeesDialog } from "./past-fees-dialog";
 
 export function PortfolioWidget({ className }: { className?: string }) {
-  const { cards, selectedProfileId } = useAppStore();
+  const { cards, profiles, selectedProfileId } = useAppStore();
   const today = useToday();
+  const [showPastFees, setShowPastFees] = useState(false);
 
   const stats = useMemo(() => {
     const filtered = selectedProfileId === "all"
@@ -74,11 +76,11 @@ export function PortfolioWidget({ className }: { className?: string }) {
   }, [cards, selectedProfileId, today]);
 
   const statCards = [
-    { label: "Active Cards", value: stats.active, icon: CreditCard, color: "text-green-500" },
-    { label: "Closed Cards", value: stats.closed, icon: TrendingUp, color: "text-muted-foreground" },
-    { label: `${today.getFullYear()} Estimated Fees`, value: `$${stats.thisYearFees.toLocaleString()}`, icon: CalendarDays, color: "text-blue-500" },
-    { label: "Lifetime Annual Fees", value: `$${stats.lifetimeFees.toLocaleString()}`, icon: DollarSign, color: "text-orange-500" },
-  ];
+    { key: "active", label: "Active Cards", value: stats.active, icon: CreditCard, color: "text-green-500" },
+    { key: "closed", label: "Closed Cards", value: stats.closed, icon: TrendingUp, color: "text-muted-foreground" },
+    { key: "thisYear", label: `${today.getFullYear()} Estimated Fees`, value: `$${stats.thisYearFees.toLocaleString()}`, icon: CalendarDays, color: "text-blue-500" },
+    { key: "lifetime", label: "Lifetime Annual Fees", value: `$${stats.lifetimeFees.toLocaleString()}`, icon: DollarSign, color: "text-orange-500" },
+  ] as const;
 
   return (
     <div className={cn("bg-card rounded-xl border p-5 space-y-4", className)}>
@@ -88,14 +90,49 @@ export function PortfolioWidget({ className }: { className?: string }) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {statCards.map((s) => (
-          <div key={s.label} className="text-center space-y-1">
-            <s.icon className={`h-5 w-5 mx-auto ${s.color}`} />
-            <p className="text-2xl font-bold">{s.value}</p>
-            <p className="text-xs text-muted-foreground">{s.label}</p>
-          </div>
-        ))}
+        {statCards.map((s) => {
+          const isLifetime = s.key === "lifetime";
+          const content = (
+            <>
+              <s.icon className={`h-5 w-5 mx-auto ${s.color}`} />
+              <p className="text-2xl font-bold">{s.value}</p>
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+              {isLifetime && (
+                <p className="text-[11px] text-primary font-medium inline-flex items-center gap-0.5">
+                  View by year
+                  <ChevronRight className="h-3 w-3" />
+                </p>
+              )}
+            </>
+          );
+          if (isLifetime) {
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setShowPastFees(true)}
+                className="text-center space-y-1 rounded-lg -mx-2 px-2 py-1 hover:bg-accent/60 transition-colors cursor-pointer"
+                aria-label="View past annual fees by year"
+              >
+                {content}
+              </button>
+            );
+          }
+          return (
+            <div key={s.key} className="text-center space-y-1">
+              {content}
+            </div>
+          );
+        })}
       </div>
+
+      <PastFeesDialog
+        open={showPastFees}
+        onOpenChange={setShowPastFees}
+        cards={cards}
+        profiles={profiles}
+        selectedProfileId={selectedProfileId}
+      />
 
       {stats.issuerBreakdown.length > 0 && (
         <div className="space-y-2 pt-2 border-t">
