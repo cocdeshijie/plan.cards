@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useAppStore } from "@/hooks/use-app-store";
-import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
+import { formatDate, formatCurrency, parseDateStr, toDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
-import { AlertTriangle, Clock } from "lucide-react";
+import { getDismissedAlerts, dismissAlertKey } from "@/lib/api";
+import { AlertTriangle, Clock, X } from "lucide-react";
 
 interface Alert {
   type: "spend" | "fee" | "upgrade" | "retention";
@@ -20,6 +22,12 @@ interface Alert {
   spendRequirement?: number | null;
 }
 
+// Stable per-occurrence key so a dismissed annual fee reappears next year
+// (different date) but stays hidden for the current cycle.
+function alertKey(alert: Alert): string {
+  return `${alert.type}-${alert.cardId}-${alert.date}`;
+}
+
 interface AlertsWidgetProps {
   onCardClick?: (cardId: number) => void;
 }
@@ -27,6 +35,33 @@ interface AlertsWidgetProps {
 export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
   const { cards, profiles, selectedProfileId } = useAppStore();
   const now = useToday();
+
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    let active = true;
+    getDismissedAlerts()
+      .then((keys) => {
+        if (active) setDismissed(new Set(keys));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const dismissAlert = (key: string) => {
+    // Optimistic update; revert on failure.
+    setDismissed((prev) => new Set(prev).add(key));
+    dismissAlertKey(key).catch(() => {
+      setDismissed((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      toast.error("Failed to dismiss alert");
+    });
+  };
 
   const profileMap = useMemo(() => {
     const map: Record<number, string> = {};
@@ -95,14 +130,16 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
           cardName: card.card_name,
           lastDigits: card.last_digits,
           profileName,
-          date: feeInfo.nextDate.toISOString().split("T")[0],
+          date: toDateStr(feeInfo.nextDate),
           daysLeft: feeInfo.daysUntil,
         });
       }
     }
 
-    return result.sort((a, b) => a.daysLeft - b.daysLeft);
-  }, [cards, profiles, profileMap, selectedProfileId, now]);
+    return result
+      .filter((a) => !dismissed.has(alertKey(a)))
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [cards, profiles, profileMap, selectedProfileId, now, dismissed]);
 
   return (
     <div className="bg-card rounded-xl border p-5 space-y-4">
@@ -117,8 +154,8 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
         <div className="space-y-2">
           {alerts.map((alert, i) => (
             <div
-              key={`${alert.type}-${alert.cardName}-${i}`}
-              className="flex items-center gap-3 text-sm"
+              key={`${alertKey(alert)}-${i}`}
+              className="group flex items-center gap-3 text-sm"
             >
               <div
                 className={`w-2 h-2 rounded-full shrink-0 ${
@@ -159,6 +196,14 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
                     : `${alert.daysLeft}d left`}
                 </p>
               </div>
+              <button
+                onClick={() => dismissAlert(alertKey(alert))}
+                aria-label="Dismiss alert"
+                title="Dismiss alert"
+                className="shrink-0 p-1 rounded-md text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100 hover:bg-muted hover:text-foreground transition-opacity"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           ))}
         </div>

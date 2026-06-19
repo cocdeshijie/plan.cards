@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { API_BASE, adminLinkOAuth, userLinkOAuth } from "@/lib/api";
+import { API_BASE, adminLinkOAuth, userLinkOAuth, storeToken } from "@/lib/api";
 import { CreditCard, Loader2 } from "lucide-react";
 
 function OAuthCallbackContent() {
@@ -36,6 +36,11 @@ function OAuthCallbackContent() {
       setError("Missing OAuth callback parameters. Please start the sign-in process from the login page.");
       return;
     }
+    // Validate the provider slug before interpolating it into API paths / redirect_uri.
+    if (!/^[a-z0-9_-]+$/.test(provider)) {
+      setError("Invalid OAuth provider. Please start the sign-in process from the login page.");
+      return;
+    }
 
     const redirectUri = `${window.location.origin}/auth/callback?provider=${provider}`;
     const flowType = localStorage.getItem("oauth_flow_type");
@@ -65,6 +70,7 @@ function OAuthCallbackContent() {
       fetch(`${API_BASE}/api/auth/oauth/${provider}/token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ code, state, redirect_uri: redirectUri }),
       })
         .then(async (res) => {
@@ -75,7 +81,7 @@ function OAuthCallbackContent() {
           return res.json();
         })
         .then((data) => {
-          localStorage.setItem("token", data.access_token);
+          storeToken(data.access_token);
           window.location.href = "/";
         })
         .catch((e) => {

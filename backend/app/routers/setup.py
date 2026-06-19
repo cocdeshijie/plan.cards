@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.rate_limit import limiter
 from app.schemas.setup import SetupStatusResponse, SetupCompleteRequest, SetupCompleteResponse
+from app.services.auth_service import set_auth_cookie
 from app.services.setup_service import is_setup_complete, has_existing_data, complete_setup
 
 router = APIRouter(prefix="/api/setup", tags=["setup"])
@@ -20,7 +21,7 @@ def get_setup_status(db: Session = Depends(get_db)):
 
 @router.post("/complete", response_model=SetupCompleteResponse)
 @limiter.limit("5/minute")
-def complete_setup_endpoint(request: Request, data: SetupCompleteRequest, db: Session = Depends(get_db)):
+def complete_setup_endpoint(request: Request, response: Response, data: SetupCompleteRequest, db: Session = Depends(get_db)):
     if is_setup_complete(db):
         raise HTTPException(status_code=400, detail="Setup already completed")
     try:
@@ -29,6 +30,8 @@ def complete_setup_endpoint(request: Request, data: SetupCompleteRequest, db: Se
         raise HTTPException(status_code=400, detail="Setup already completed")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    if token:
+        set_auth_cookie(response, token, request)
     return SetupCompleteResponse(
         success=True,
         auth_mode=data.auth_mode,

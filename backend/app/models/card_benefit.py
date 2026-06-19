@@ -10,7 +10,7 @@ class CardBenefit(Base):
     __tablename__ = "card_benefits"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"), index=True)
+    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"), index=True)
     benefit_name: Mapped[str] = mapped_column(String(200))
     benefit_amount: Mapped[int] = mapped_column(Integer)
     frequency: Mapped[str] = mapped_column(String(20))  # monthly|quarterly|semi_annual|annual

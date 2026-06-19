@@ -12,7 +12,7 @@ class Profile(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True, index=True
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
     name: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(

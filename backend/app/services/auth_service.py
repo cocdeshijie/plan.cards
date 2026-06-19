@@ -2,10 +2,44 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
+from fastapi import Request, Response
 
 from app.config import settings
 
 ALGORITHM = "HS256"
+
+# HttpOnly cookie holding the JWT. Set alongside the response-body token so that
+# same-origin browser clients never need to keep the token in JS-readable storage
+# (XSS can't exfiltrate an HttpOnly cookie). Cross-origin clients fall back to the
+# Authorization: Bearer header.
+AUTH_COOKIE_NAME = "cct_token"
+
+
+def _request_is_secure(request: Request | None) -> bool:
+    """True if the external request is HTTPS (directly or via a TLS-terminating
+    proxy). Secure cookies are skipped on plain-HTTP deployments so auth keeps
+    working over a LAN without TLS."""
+    if request is None:
+        return False
+    if request.url.scheme == "https":
+        return True
+    return request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https"
+
+
+def set_auth_cookie(response: Response, token: str, request: Request | None = None) -> None:
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        max_age=settings.access_token_expire_minutes * 60,
+        httponly=True,
+        secure=_request_is_secure(request),
+        samesite="lax",
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    response.delete_cookie(AUTH_COOKIE_NAME, path="/")
 
 
 def hash_password(password: str) -> str:

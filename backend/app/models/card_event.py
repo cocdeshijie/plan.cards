@@ -10,7 +10,7 @@ class CardEvent(Base):
     __tablename__ = "card_events"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"), index=True)
+    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"), index=True)
     event_type: Mapped[str] = mapped_column(String(50))  # opened | closed | product_change | annual_fee_posted | annual_fee_refund | retention_offer | reopened | other
     event_date: Mapped[date] = mapped_column(Date)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)

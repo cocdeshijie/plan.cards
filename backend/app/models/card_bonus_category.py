@@ -10,7 +10,7 @@ class CardBonusCategory(Base):
     __tablename__ = "card_bonus_categories"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"), index=True)
+    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"), index=True)
     category: Mapped[str] = mapped_column(String(200))
     multiplier: Mapped[str] = mapped_column(String(50))
     portal_only: Mapped[bool] = mapped_column(Boolean, default=False)

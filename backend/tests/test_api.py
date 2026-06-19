@@ -1,7 +1,33 @@
 from datetime import date, datetime, timedelta, timezone
 
+from dateutil.relativedelta import relativedelta
+
 from app.schemas.export_import import ExportData, ExportProfile, ExportCard, ExportEvent, ExportBenefit, ExportBonus
 from tests.conftest import TEST_PASSWORD
+
+
+def _next_anniversary_after_today(origin: date) -> str:
+    """Mirror the backend's post-PC AF logic: the first yearly anniversary of
+    `origin` that is strictly after today. Computed dynamically so these
+    assertions don't go stale as the calendar advances past hardcoded dates."""
+    anniversary = origin + relativedelta(years=1)
+    while anniversary <= date.today():
+        anniversary += relativedelta(years=1)
+    return anniversary.isoformat()
+
+
+def _pre_pc_af_date(open_date: date) -> str:
+    """Mirror the backend's pre-product-change AF date: step open_date by +13
+    months once, then +12 months until strictly after today. (Ignores the
+    deep-backfill cap, which doesn't affect recent open_dates.)"""
+    anniversary = open_date
+    while anniversary <= date.today():
+        anniversary = (
+            open_date + relativedelta(months=13)
+            if anniversary == open_date
+            else anniversary + relativedelta(years=1)
+        )
+    return anniversary.isoformat()
 
 
 def test_health(client):
@@ -24,6 +50,7 @@ def test_login_failure(client, setup_complete):
 
 
 def test_unauthorized(client, setup_complete):
+    client.cookies.clear()  # setup sets an auth cookie; simulate no credentials
     response = client.get("/api/profiles")
     assert response.status_code == 401
 
@@ -1771,9 +1798,10 @@ def test_product_change_zero_to_af_generates_future_events(client, auth_headers)
     anniversary_dates = [e["event_date"] for e in after_change]
     assert "2025-03-01" in anniversary_dates
 
-    # annual_fee_date should be change_date anniversary in the future (2026-03-01)
+    # annual_fee_date should be the first change_date (2024-03-01) anniversary
+    # still in the future relative to today.
     updated = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
-    assert updated["annual_fee_date"] == "2026-03-01"
+    assert updated["annual_fee_date"] == _next_anniversary_after_today(date(2024, 3, 1))
 
 
 def test_product_change_af_to_af_resets_anniversary(client, auth_headers):
@@ -1788,8 +1816,8 @@ def test_product_change_af_to_af_resets_anniversary(client, auth_headers):
         "annual_fee": 325,
     }, headers=auth_headers).json()
 
-    # Before PC: annual_fee_date should be open + 13mo, then +12mo (2026-08-01)
-    assert card["annual_fee_date"] == "2026-08-01"
+    # Before PC: annual_fee_date is open_date + 13mo, then +12mo until future.
+    assert card["annual_fee_date"] == _pre_pc_af_date(date(2023, 7, 1))
 
     # Verify AF events exist at open_date anniversaries before PC (+13mo first, +12mo after)
     events = client.get(f"/api/cards/{card['id']}/events", headers=auth_headers).json()
@@ -1811,9 +1839,9 @@ def test_product_change_af_to_af_resets_anniversary(client, auth_headers):
     data = resp.json()
     assert data["annual_fee"] == 695
 
-    # annual_fee_date should now be based on change_date, not open_date
-    # change_date + 1yr = 2026-06-15 (in the future), so that's the next AF date
-    assert data["annual_fee_date"] == "2026-06-15"
+    # annual_fee_date should now be based on change_date (2025-06-15), not
+    # open_date: the first of its yearly anniversaries still in the future.
+    assert data["annual_fee_date"] == _next_anniversary_after_today(date(2025, 6, 15))
 
     # Verify events
     events = client.get(f"/api/cards/{card['id']}/events", headers=auth_headers).json()
@@ -3409,3 +3437,137 @@ def test_product_change_syncs_bonus_categories(client, auth_headers):
     # Template categories should be from new template
     template_cats = [c for c in cats_after if c["from_template"]]
     assert len(template_cats) > 0
+
+
+def test_dismissed_alerts_empty_by_default(client, auth_headers):
+    resp = client.get("/api/alerts/dismissed", headers=auth_headers)
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+def test_dismiss_and_persist_alert(client, auth_headers):
+    key = "fee-12-2026-06-20"
+    resp = client.post("/api/alerts/dismissed", json={"alert_key": key}, headers=auth_headers)
+    assert resp.status_code == 200
+    assert resp.json() == [key]
+
+    # Idempotent — dismissing again does not duplicate
+    resp = client.post("/api/alerts/dismissed", json={"alert_key": key}, headers=auth_headers)
+    assert resp.json() == [key]
+
+    # Persists across requests
+    resp = client.get("/api/alerts/dismissed", headers=auth_headers)
+    assert resp.json() == [key]
+
+
+def test_undismiss_alert(client, auth_headers):
+    key = "upgrade-7-2026-09-15"
+    client.post("/api/alerts/dismissed", json={"alert_key": key}, headers=auth_headers)
+    resp = client.request("DELETE", "/api/alerts/dismissed", json={"alert_key": key}, headers=auth_headers)
+    assert resp.status_code == 200
+    assert key not in resp.json()
+    assert client.get("/api/alerts/dismissed", headers=auth_headers).json() == []
+
+
+def test_dismissed_alerts_require_auth(client, setup_complete):
+    client.cookies.clear()  # setup sets an auth cookie; simulate no credentials
+    assert client.get("/api/alerts/dismissed").status_code == 401
+    assert client.post("/api/alerts/dismissed", json={"alert_key": "x"}).status_code == 401
+
+
+def test_import_preserves_annual_fee_user_modified(client, auth_headers):
+    """A user-customized annual fee must survive an export→import round trip
+    (the flag prevents post-import template sync from overwriting it)."""
+    profile = client.post("/api/profiles", json={"name": "AFMod"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Sapphire Reserve",
+        "template_id": "chase/sapphire_reserve",
+        "issuer": "Chase",
+        "open_date": "2024-01-01",
+        "annual_fee": 1,  # deliberately non-template custom fee
+    }, headers=auth_headers).json()
+    # Mark the fee as user-modified via an update
+    client.put(f"/api/cards/{card['id']}", json={"annual_fee": 1}, headers=auth_headers)
+
+    export = client.get(f"/api/profiles/export?profile_id={profile['id']}", headers=auth_headers).json()
+    exported_card = export["profiles"][0]["cards"][0]
+    assert exported_card["annual_fee_user_modified"] is True
+    assert exported_card["annual_fee"] == 1
+
+    # Import as a new profile; post-import sync must NOT overwrite the custom fee
+    resp = client.post("/api/profiles/import?mode=new", json=export, headers=auth_headers)
+    assert resp.status_code == 200
+    profiles = client.get("/api/profiles", headers=auth_headers).json()
+    new_profile = [p for p in profiles if p["id"] != profile["id"]][0]
+    cards = client.get(f"/api/cards?profile_id={new_profile['id']}", headers=auth_headers).json()
+    assert cards[0]["annual_fee"] == 1
+
+
+def test_anchor_af_date_never_set_in_past(client, auth_headers):
+    """Adding an exact, back-dated annual-fee event must not set annual_fee_date
+    in the past — it should advance to the next future anniversary."""
+    profile = client.post("/api/profiles", json={"name": "Anchor"}, headers=auth_headers).json()
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Gold",
+        "issuer": "Amex",
+        "open_date": "2020-01-01",
+        "annual_fee": 250,
+    }, headers=auth_headers).json()
+
+    # Exact AF event two years in the past
+    past = (date.today() - relativedelta(years=2)).isoformat()
+    client.post(f"/api/cards/{card['id']}/events", json={
+        "event_type": "annual_fee_posted",
+        "event_date": past,
+        "metadata_json": {"annual_fee": 250},
+    }, headers=auth_headers)
+
+    updated = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert updated["annual_fee_date"] is not None
+    assert updated["annual_fee_date"] > date.today().isoformat()
+
+
+def test_db_cascade_delete_removes_children():
+    """DB-level ON DELETE CASCADE cleans up a profile's cards and their children
+    even on a bulk/Core delete that bypasses ORM relationship cascade."""
+    from sqlalchemy import create_engine, event, delete
+    from sqlalchemy.orm import sessionmaker
+    from app.database import Base
+    from app.models.user import User
+    from app.models.profile import Profile
+    from app.models.card import Card
+    from app.models.card_event import CardEvent
+    from app.models.card_benefit import CardBenefit
+
+    eng = create_engine("sqlite://", connect_args={"check_same_thread": False})
+
+    @event.listens_for(eng, "connect")
+    def _fk_on(dbapi_con, _rec):  # enforce FKs like production does
+        dbapi_con.execute("PRAGMA foreign_keys=ON")
+
+    Base.metadata.create_all(eng)
+    Session = sessionmaker(bind=eng)
+    s = Session()
+    u = User(username="cascade_u", role="admin")
+    s.add(u)
+    s.flush()
+    p = Profile(name="P", user_id=u.id)
+    s.add(p)
+    s.flush()
+    c = Card(profile_id=p.id, card_name="C", issuer="I")
+    s.add(c)
+    s.flush()
+    s.add(CardEvent(card_id=c.id, event_type="opened", event_date=date.today()))
+    s.add(CardBenefit(card_id=c.id, benefit_name="B", benefit_amount=10, frequency="monthly"))
+    s.commit()
+
+    # Core bulk delete bypasses the ORM's delete-orphan cascade entirely.
+    s.execute(delete(Profile).where(Profile.id == p.id))
+    s.commit()
+
+    assert s.query(Card).count() == 0
+    assert s.query(CardEvent).count() == 0
+    assert s.query(CardBenefit).count() == 0
+    s.close()

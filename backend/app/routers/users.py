@@ -1,8 +1,7 @@
 import logging
 import time
-import zoneinfo
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -10,7 +9,6 @@ from app.database import get_db
 from app.models.oauth_account import OAuthAccount
 from app.models.oauth_provider import OAuthProvider
 from app.models.user import User
-from app.models.user_setting import UserSetting
 from app.routers.auth import require_auth
 from app.schemas.user import UserOut
 from app.rate_limit import limiter
@@ -62,12 +60,13 @@ def update_current_user(
 @limiter.limit("5/minute")
 def change_password(
     request: Request,
+    response: Response,
     data: ChangePasswordRequest,
     user: User = Depends(require_auth),
     db: Session = Depends(get_db),
 ):
     from datetime import datetime, timezone
-    from app.services.auth_service import create_access_token
+    from app.services.auth_service import create_access_token, set_auth_cookie
 
     if not user.password_hash:
         raise HTTPException(status_code=400, detail="No password set (OAuth-only account)")
@@ -76,51 +75,10 @@ def change_password(
     user.password_hash = hash_password(data.new_password)
     user.password_changed_at = datetime.now(timezone.utc)
     db.commit()
-    # Return a new token so the current session stays valid
+    # Issue a fresh token (old ones are invalidated via pwd_ts) and refresh the cookie.
     token = create_access_token(user.id, user.role, user.password_changed_at)
+    set_auth_cookie(response, token, request)
     return {"status": "ok", "access_token": token}
-
-
-@router.get("/me/settings")
-def get_user_settings(user: User = Depends(require_auth), db: Session = Depends(get_db)):
-    settings = db.query(UserSetting).filter(UserSetting.user_id == user.id).all()
-    return {s.key: s.value for s in settings}
-
-
-ALLOWED_SETTING_KEYS = {"timezone", "theme"}
-
-
-@router.put("/me/settings")
-def update_user_settings(
-    data: dict,
-    user: User = Depends(require_auth),
-    db: Session = Depends(get_db),
-):
-    invalid_keys = set(data.keys()) - ALLOWED_SETTING_KEYS
-    if invalid_keys:
-        raise HTTPException(status_code=400, detail=f"Unknown settings: {', '.join(sorted(invalid_keys))}")
-    for key, value in data.items():
-        if value is not None and len(str(value)) > 200:
-            raise HTTPException(status_code=400, detail=f"Setting value for '{key}' too long (max 200 chars)")
-        if key == "timezone" and value is not None and value != "":
-            try:
-                zoneinfo.ZoneInfo(str(value))
-            except (KeyError, zoneinfo.ZoneInfoNotFoundError):
-                raise HTTPException(status_code=400, detail="Invalid timezone")
-        existing = (
-            db.query(UserSetting)
-            .filter(UserSetting.user_id == user.id, UserSetting.key == key)
-            .first()
-        )
-        if value is None:
-            if existing:
-                db.delete(existing)
-        elif existing:
-            existing.value = str(value)
-        else:
-            db.add(UserSetting(user_id=user.id, key=key, value=str(value)))
-    db.commit()
-    return get_user_settings(user, db)
 
 
 # ── OAuth account linking ──────────────────────────────────────────

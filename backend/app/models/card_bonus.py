@@ -10,7 +10,7 @@ class CardBonus(Base):
     __tablename__ = "card_bonuses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id"), index=True)
+    card_id: Mapped[int] = mapped_column(ForeignKey("cards.id", ondelete="CASCADE"), index=True)
     bonus_source: Mapped[str] = mapped_column(String(20))  # "upgrade" | "retention"
     event_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("card_events.id", ondelete="SET NULL"), nullable=True

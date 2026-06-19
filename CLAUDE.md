@@ -17,7 +17,7 @@ Docker self-hosted credit card lifecycle tracker. Tracks openings, closings, pro
 
 ## Project Structure
 - `backend/app/` — FastAPI application
-  - `routers/` — auth, cards, events, profiles, benefits, bonuses, templates, settings, setup, admin, oauth, users
+  - `routers/` — auth, cards, events, profiles, benefits, bonuses, bonus_categories, templates, settings, setup, admin, oauth, users, alerts
   - `models/` — SQLAlchemy models (card, profile, user, oauth_provider, oauth_account, etc.)
   - `schemas/` — Pydantic request/response schemas
   - `services/` — Business logic (card_service, auth_service, oauth_service, etc.)
