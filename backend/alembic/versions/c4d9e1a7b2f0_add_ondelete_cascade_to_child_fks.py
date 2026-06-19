@@ -39,6 +39,17 @@ _CASCADE_FKS = [
 _NAMING = {"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"}
 
 
+def _disable_sqlite_fk_enforcement() -> None:
+    """Batch table-rebuilds drop a parent table while children still reference it;
+    with PRAGMA foreign_keys=ON (set by the app's connect listener) the DROP fails.
+    Disable enforcement for this migration connection. PRAGMA foreign_keys is a
+    no-op inside a transaction, so it must run in an autocommit block."""
+    bind = op.get_bind()
+    if bind.dialect.name == "sqlite":
+        with op.get_context().autocommit_block():
+            op.execute("PRAGMA foreign_keys=OFF")
+
+
 def _rebuild_fks(ondelete: str | None) -> None:
     for table, column, ref_table in _CASCADE_FKS:
         fk_name = f"fk_{table}_{column}_{ref_table}"
@@ -50,8 +61,10 @@ def _rebuild_fks(ondelete: str | None) -> None:
 
 
 def upgrade() -> None:
+    _disable_sqlite_fk_enforcement()
     _rebuild_fks("CASCADE")
 
 
 def downgrade() -> None:
+    _disable_sqlite_fk_enforcement()
     _rebuild_fks(None)
