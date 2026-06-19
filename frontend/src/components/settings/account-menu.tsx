@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import {
   API_BASE,
+  storeToken,
   getCurrentUser,
   updateCurrentUser,
   changePassword,
@@ -100,7 +101,7 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
     try {
       const result = await changePassword({ current_password: currentPassword, new_password: newPassword });
       if (result.access_token) {
-        localStorage.setItem("token", result.access_token);
+        storeToken(result.access_token);
       }
       toast.success("Password changed");
       setCurrentPassword("");
@@ -121,7 +122,7 @@ export function AccountMenu({ onClose }: AccountMenuProps) {
       const token = localStorage.getItem("token");
       const res = await fetch(
         `${API_BASE}/api/auth/oauth/${providerName}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to start OAuth");

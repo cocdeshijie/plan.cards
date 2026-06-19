@@ -2,7 +2,7 @@ import logging
 import time
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ from app.models.user import User
 from app.rate_limit import limiter
 from app.routers.auth import require_admin
 from app.schemas.user import TokenResponse, UserBrief
-from app.services.auth_service import create_access_token, decode_token
+from app.services.auth_service import create_access_token, decode_token, set_auth_cookie
 from app.services.crypto import encrypt_value
 from app.services.oauth_presets import get_preset, list_presets
 from app.services.oauth_service import (
@@ -210,6 +210,11 @@ def _validate_redirect_uri(redirect_uri: str) -> None:
     if not parsed.scheme or not parsed.netloc:
         raise HTTPException(status_code=400, detail="Invalid redirect_uri")
 
+    # Always reject non-web schemes (javascript:, data:, file:, …) regardless of
+    # ALLOWED_ORIGINS, so a crafted redirect_uri can't smuggle a dangerous scheme.
+    if parsed.scheme not in ("http", "https"):
+        raise HTTPException(status_code=400, detail="Invalid redirect_uri")
+
     # When ALLOWED_ORIGINS is unrestricted, skip origin check —
     # OAuth providers themselves validate redirect_uri against their config.
     raw = settings.allowed_origins.strip()
@@ -249,6 +254,7 @@ def authorize(provider_name: str, redirect_uri: str, db: Session = Depends(get_d
 @limiter.limit("10/minute")
 async def token_exchange(
     request: Request,
+    response: Response,
     provider_name: str,
     data: TokenExchangeRequest,
     db: Session = Depends(get_db),
@@ -294,6 +300,7 @@ async def token_exchange(
         raise HTTPException(status_code=403, detail="Registration is disabled. Contact an administrator to get an account.")
 
     token = create_access_token(user.id, user.role, user.password_changed_at)
+    set_auth_cookie(response, token, request)
     return TokenResponse(
         access_token=token,
         user=UserBrief(

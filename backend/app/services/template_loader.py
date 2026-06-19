@@ -320,10 +320,6 @@ def get_old_version(template_id: str, version_id: str) -> TemplateVersionDetail 
     )
 
 
-def get_old_version_image_path(template_id: str, version_id: str) -> Path | None:
-    return _old_image_paths.get(template_id, {}).get(version_id)
-
-
 def get_placeholder_image_path() -> Path | None:
     path = Path(settings.card_templates_dir) / "placeholder.png"
     return path if path.exists() else None

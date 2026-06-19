@@ -10,7 +10,7 @@ class OAuthAccount(Base):
     __tablename__ = "oauth_accounts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     provider: Mapped[str] = mapped_column(String(50))
     provider_user_id: Mapped[str] = mapped_column(String(255))
     provider_email: Mapped[str | None] = mapped_column(String(255), nullable=True)

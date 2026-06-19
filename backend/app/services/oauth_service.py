@@ -84,6 +84,23 @@ async def exchange_code(
         userinfo_resp.raise_for_status()
         userinfo = userinfo_resp.json()
 
+    # GitHub's userinfo `email` is the public profile email and may be unverified
+    # or null. Resolve the verified primary email so extract_user_info can trust it.
+    if provider.provider_name == "github":
+        try:
+            async with httpx.AsyncClient() as client:
+                emails_resp = await client.get(
+                    "https://api.github.com/user/emails",
+                    headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+                )
+            if emails_resp.status_code == 200:
+                for entry in emails_resp.json():
+                    if entry.get("primary") and entry.get("verified") and entry.get("email"):
+                        userinfo["_verified_email"] = entry["email"]
+                        break
+        except httpx.HTTPError:
+            pass  # No verified email resolved → email stays unset (safe default)
+
     return {
         "access_token": access_token,
         "refresh_token": token_data.get("refresh_token"),
@@ -92,29 +109,46 @@ async def exchange_code(
     }
 
 
+def _is_verified(claim) -> bool:
+    """OIDC `email_verified` (and Discord `verified`) may arrive as a bool or a
+    string ("true"); treat only an affirmative value as verified."""
+    return claim is True or (isinstance(claim, str) and claim.lower() == "true")
+
+
 def extract_user_info(provider_name: str, userinfo: dict) -> dict:
-    """Extract standardized user info from provider-specific userinfo response."""
+    """Extract standardized user info from a provider's userinfo response.
+
+    SECURITY: `email` is only populated when the provider asserts it as verified.
+    An unverified (hence spoofable) email must never drive account auto-linking or
+    the email-conflict check in find_or_create_user, or it becomes an
+    account-takeover primitive.
+    """
     if provider_name == "github":
+        # GitHub's profile `email` is the public email and may be unverified or
+        # null; exchange_code() resolves the verified primary into _verified_email.
         return {
             "provider_user_id": str(userinfo.get("id", "")),
-            "email": userinfo.get("email"),
+            "email": userinfo.get("_verified_email"),
             "name": userinfo.get("name") or userinfo.get("login", ""),
             "username": userinfo.get("login", ""),
         }
     elif provider_name == "discord":
+        raw_email = userinfo.get("email")
         return {
             "provider_user_id": userinfo.get("id", ""),
-            "email": userinfo.get("email"),
+            "email": raw_email if _is_verified(userinfo.get("verified")) else None,
             "name": userinfo.get("global_name") or userinfo.get("username", ""),
             "username": userinfo.get("username", ""),
         }
     else:
         # Standard OIDC (Google, Apple, generic)
+        raw_email = userinfo.get("email")
+        email = raw_email if (raw_email and _is_verified(userinfo.get("email_verified"))) else None
         return {
             "provider_user_id": userinfo.get("sub", ""),
-            "email": userinfo.get("email"),
+            "email": email,
             "name": userinfo.get("name", ""),
-            "username": userinfo.get("email", "").split("@")[0] if userinfo.get("email") else "",
+            "username": raw_email.split("@")[0] if raw_email else "",
         }
 
 

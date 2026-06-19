@@ -16,8 +16,8 @@ from sqlalchemy import inspect, text
 
 from app.config import settings
 from app.rate_limit import limiter
-from app.database import Base, engine, SessionLocal
-from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth
+from app.database import engine, SessionLocal
+from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
 from app.services.template_loader import load_templates, reload_if_changed
 from app.services.template_sync import sync_cards_to_templates
 
@@ -188,6 +188,14 @@ async def lifespan(app: FastAPI):
                 logger.info("Generated new SECRET_KEY and saved to /data/.secret_key")
             except OSError:
                 logger.warning("Could not persist SECRET_KEY to /data/.secret_key — tokens will not survive restarts")
+    elif len(settings.secret_key) < 32:
+        # An operator-provided key that's too short weakens both JWT signing and
+        # OAuth client-secret encryption (both derive from SECRET_KEY).
+        logger.error(
+            "SECRET_KEY is set but shorter than 32 characters — this is insecure. "
+            "Use a long random value (e.g. `openssl rand -base64 32`), or leave it "
+            "unset to auto-generate one."
+        )
 
     # Parse ALLOWED_ORIGINS at startup
     raw_origins = settings.allowed_origins.strip()
@@ -294,6 +302,7 @@ app.include_router(settings_router.router)
 app.include_router(users.router)
 app.include_router(admin.router)
 app.include_router(oauth.router)
+app.include_router(alerts.router)
 
 
 @app.middleware("http")

@@ -38,9 +38,24 @@ export const getTemplateImageUrl = (templateId: string) =>
 
 export const PLACEHOLDER_IMAGE_URL = `${API_BASE}/api/templates/placeholder-image`;
 
+/**
+ * Same-origin deployments (the default, where Next proxies /api/*) authenticate
+ * via an HttpOnly cookie the backend sets — the token is never kept in
+ * JS-readable storage, so XSS can't steal it. Cross-origin setups (when
+ * NEXT_PUBLIC_API_URL points the browser at a different backend origin) fall
+ * back to the Authorization: Bearer header from localStorage, since a same-site
+ * cookie wouldn't be sent across origins.
+ */
+export const USE_COOKIE_AUTH = API_BASE === "";
+
 function getToken(): string | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined" || USE_COOKIE_AUTH) return null;
   return localStorage.getItem("token");
+}
+
+/** Persist the session token only when we can't use the HttpOnly cookie. */
+export function storeToken(token: string): void {
+  if (!USE_COOKIE_AUTH) localStorage.setItem("token", token);
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -52,7 +67,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: "include" });
   if (res.status === 401) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
@@ -79,7 +94,7 @@ export const completeSetup = async (data: SetupCompleteRequest): Promise<SetupCo
     method: "POST",
     body: JSON.stringify(data),
   });
-  if (resp.access_token) localStorage.setItem("token", resp.access_token);
+  if (resp.access_token) storeToken(resp.access_token);
   return resp;
 };
 
@@ -91,7 +106,7 @@ export async function login(body: { username?: string; password?: string } = {})
     method: "POST",
     body: JSON.stringify(body),
   });
-  localStorage.setItem("token", data.access_token);
+  storeToken(data.access_token);
   return data;
 }
 
@@ -105,12 +120,18 @@ export async function register(body: {
     method: "POST",
     body: JSON.stringify(body),
   });
-  localStorage.setItem("token", data.access_token);
+  storeToken(data.access_token);
   return data;
 }
 
-export function logout() {
-  localStorage.removeItem("token");
+export async function logout() {
+  // Clear the server-set HttpOnly cookie; also drop any header-mode token.
+  try {
+    await apiFetch("/api/auth/logout", { method: "POST" });
+  } catch {
+    // ignore — best-effort
+  }
+  if (typeof window !== "undefined") localStorage.removeItem("token");
 }
 
 export async function verifyAuth(): Promise<{ ok: boolean; user?: UserBrief }> {
@@ -284,6 +305,19 @@ export const getTemplateVersions = (issuer: string, cardName: string) =>
 export const getSettings = () => apiFetch<AppSettings>("/api/settings");
 export const updateSettings = (data: Partial<AppSettings>) =>
   apiFetch<AppSettings>("/api/settings", { method: "PUT", body: JSON.stringify(data) });
+
+// Alerts (dismissed)
+export const getDismissedAlerts = () => apiFetch<string[]>("/api/alerts/dismissed");
+export const dismissAlertKey = (alertKey: string) =>
+  apiFetch<string[]>("/api/alerts/dismissed", {
+    method: "POST",
+    body: JSON.stringify({ alert_key: alertKey }),
+  });
+export const undismissAlertKey = (alertKey: string) =>
+  apiFetch<string[]>("/api/alerts/dismissed", {
+    method: "DELETE",
+    body: JSON.stringify({ alert_key: alertKey }),
+  });
 
 // User account
 export const getCurrentUser = () => apiFetch<UserBrief>("/api/users/me");

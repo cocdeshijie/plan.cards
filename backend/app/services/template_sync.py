@@ -29,7 +29,11 @@ def sync_cards_to_templates(db: Session) -> dict:
 
     cards = (
         db.query(Card)
-        .filter(Card.template_id.isnot(None), Card.status == "active")
+        .filter(
+            Card.template_id.isnot(None),
+            Card.status == "active",
+            Card.deleted_at.is_(None),  # never mutate soft-deleted cards
+        )
         .all()
     )
 

@@ -35,6 +35,30 @@ export function parseDateStr(dateStr: string): Date {
   return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
+/** Format a local Date as a "YYYY-MM-DD" string (inverse of parseDateStr).
+ * Uses local getters so it never round-trips through UTC (which would shift the
+ * day for users west of UTC). */
+export function toDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Add whole months to a date, clamping day-overflow to the last day of the
+ * intended month (e.g. Jan 31 + 1mo -> Feb 28/29), matching the backend's
+ * dateutil.relativedelta semantics. */
+export function addMonthsClamped(d: Date, months: number): Date {
+  const targetMonth = d.getMonth() + months;
+  const result = new Date(d.getFullYear(), targetMonth, d.getDate());
+  const intendedMonth = ((targetMonth % 12) + 12) % 12;
+  if (result.getMonth() !== intendedMonth) {
+    // Day overflowed into the next month — snap to the last day of the target.
+    return new Date(result.getFullYear(), result.getMonth(), 0);
+  }
+  return result;
+}
+
 export function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
   const d = new Date(dateStr + "T00:00:00Z");

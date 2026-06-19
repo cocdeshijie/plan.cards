@@ -60,16 +60,17 @@ class ExportCard(BaseModel):
     status: Literal["active", "closed"] = "active"
     open_date: date | None = None
     close_date: date | None = None
-    annual_fee: int | None = None
+    annual_fee: int | None = Field(default=None, ge=0, le=99_999_999)
     annual_fee_date: date | None = None
-    credit_limit: int | None = None
+    annual_fee_user_modified: bool = False
+    credit_limit: int | None = Field(default=None, ge=0, le=99_999_999)
     custom_notes: str | None = Field(default=None, max_length=5000)
     custom_tags: list[str] | None = None
     spend_reminder_enabled: bool = False
-    spend_requirement: int | None = None
+    spend_requirement: int | None = Field(default=None, ge=0, le=99_999_999)
     spend_deadline: date | None = None
     spend_reminder_notes: str | None = Field(default=None, max_length=1000)
-    signup_bonus_amount: int | None = None
+    signup_bonus_amount: int | None = Field(default=None, ge=0, le=99_999_999)
     signup_bonus_type: str | None = None
     signup_bonus_earned: bool = False
     events: list[ExportEvent] = []

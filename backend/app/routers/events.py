@@ -22,8 +22,14 @@ router = APIRouter(prefix="/api", tags=["events"])
 SYSTEM_EVENT_TYPES = {"opened", "closed", "product_change", "reopened"}
 
 
-def _maybe_anchor_af_date(db: Session, event: CardEvent) -> None:
-    """If this is the most recent exact AF event, update card.annual_fee_date to event_date + 12mo."""
+def _maybe_anchor_af_date(db: Session, event: CardEvent, user_id: int | None = None) -> None:
+    """If this is the most recent exact AF event, anchor card.annual_fee_date to
+    the first event_date + 12mo anniversary that is still in the future.
+
+    Using the user's timezone-aware "today" (and advancing past elapsed
+    anniversaries) keeps this consistent with the delete/product-change paths and
+    avoids setting annual_fee_date in the past when a back-dated AF event is added.
+    """
     if event.event_type != "annual_fee_posted":
         return
     meta = event.metadata_json if isinstance(event.metadata_json, dict) else {}
@@ -38,7 +44,11 @@ def _maybe_anchor_af_date(db: Session, event: CardEvent) -> None:
     if latest_af and latest_af.id == event.id:
         card = db.query(Card).filter(Card.id == event.card_id).first()
         if card:
-            card.annual_fee_date = event.event_date + relativedelta(months=12)
+            today = get_today(db, user_id)
+            next_date = event.event_date + relativedelta(months=12)
+            while next_date <= today:
+                next_date += relativedelta(years=1)
+            card.annual_fee_date = next_date
 
 
 def _recalculate_af_date_after_delete(db: Session, card: Card, user_id: int | None) -> None:
@@ -122,10 +132,10 @@ def create_event(card_id: int, data: CardEventCreate, user: User = Depends(requi
         metadata_json=data.metadata_json,
     )
     db.add(event)
+    db.flush()
+    _maybe_anchor_af_date(db, event, user.id)
     db.commit()
     db.refresh(event)
-    _maybe_anchor_af_date(db, event)
-    db.commit()
     return event
 
 
@@ -209,7 +219,7 @@ def update_event(event_id: int, data: CardEventUpdate, user: User = Depends(requ
             for b in linked:
                 db.delete(b)
 
-    _maybe_anchor_af_date(db, event)
+    _maybe_anchor_af_date(db, event, user.id)
 
     db.commit()
     db.refresh(event)

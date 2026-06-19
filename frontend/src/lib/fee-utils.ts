@@ -1,4 +1,4 @@
-import { parseDateStr } from "@/lib/utils";
+import { addMonthsClamped, parseDateStr } from "@/lib/utils";
 
 export type Proximity = "far" | "soon" | "imminent";
 
@@ -36,13 +36,12 @@ export function getNextFeeInfo(
     // Prefer backend-computed annual_fee_date
     next = parseDateStr(annualFeeDate);
   } else if (openDate) {
-    // Fallback: first renewal is open + 13 months, subsequent +12 months
+    // Fallback: first renewal is open + 13 months, subsequent +12 months.
+    // Use clamped month math so end-of-month dates match the backend.
     const open = parseDateStr(openDate);
-    const firstRenewal = new Date(open);
-    firstRenewal.setMonth(firstRenewal.getMonth() + 13);
-    next = new Date(firstRenewal);
+    next = addMonthsClamped(open, 13);
     while (next < today) {
-      next.setFullYear(next.getFullYear() + 1);
+      next = addMonthsClamped(next, 12);
     }
   } else {
     return null;

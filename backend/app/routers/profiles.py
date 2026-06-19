@@ -84,7 +84,13 @@ async def import_profiles_endpoint(
         sync_cards_to_templates(db)
         return result
     except ValueError as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        # Never leave a partially-applied import committed (esp. override mode,
+        # which deletes existing cards before recreating them).
+        db.rollback()
+        raise
 
 
 @router.get("/{profile_id}", response_model=ProfileOut)

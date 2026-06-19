@@ -7,7 +7,6 @@ from app.schemas.template import CardTemplateOut, TemplateVersionDetail, Templat
 from app.services.template_loader import (
     get_all_templates,
     get_old_version,
-    get_old_version_image_path,
     get_placeholder_image_path,
     get_template,
     get_template_image_path,

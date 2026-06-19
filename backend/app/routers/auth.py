@@ -2,14 +2,13 @@ import logging
 from datetime import datetime, timezone
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
-from app.models.system_config import SystemConfig
 from app.schemas.user import (
     AuthModeResponse,
     LoginRequest,
@@ -19,9 +18,12 @@ from app.schemas.user import (
     UserOut,
 )
 from app.services.auth_service import (
+    AUTH_COOKIE_NAME,
+    clear_auth_cookie,
     create_access_token,
     decode_token,
     hash_password,
+    set_auth_cookie,
     verify_password,
 )
 from app.rate_limit import limiter
@@ -38,6 +40,7 @@ def _get_auth_mode(db: Session) -> str:
 
 
 def require_auth(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
@@ -54,8 +57,10 @@ def require_auth(
             raise HTTPException(status_code=500, detail="No users exist")
         return user
 
-    # All other modes require a token
-    if not credentials:
+    # Accept the token from the Authorization header (cross-origin clients) or
+    # the HttpOnly auth cookie (same-origin browser clients).
+    token = credentials.credentials if credentials else request.cookies.get(AUTH_COOKIE_NAME)
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
@@ -63,7 +68,7 @@ def require_auth(
         )
 
     try:
-        payload = decode_token(credentials.credentials)
+        payload = decode_token(token)
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
@@ -135,7 +140,7 @@ def get_auth_mode(db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit("10/minute")
-def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
+def login(request: Request, response: Response, data: LoginRequest, db: Session = Depends(get_db)):
     """Mode-aware login endpoint."""
     auth_mode = _get_auth_mode(db)
 
@@ -198,6 +203,7 @@ def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
     db.commit()
 
     token = create_access_token(user.id, user.role, user.password_changed_at)
+    set_auth_cookie(response, token, request)
     return TokenResponse(
         access_token=token,
         user=UserBrief(
@@ -211,7 +217,7 @@ def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/register", response_model=TokenResponse)
 @limiter.limit("5/minute")
-def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
+def register(request: Request, response: Response, data: RegisterRequest, db: Session = Depends(get_db)):
     """Register a new user (multi_user modes only, when registration is enabled)."""
     auth_mode = _get_auth_mode(db)
     if auth_mode != "multi_user":
@@ -248,6 +254,7 @@ def register(request: Request, data: RegisterRequest, db: Session = Depends(get_
     db.refresh(user)
 
     token = create_access_token(user.id, user.role, user.password_changed_at)
+    set_auth_cookie(response, token, request)
     return TokenResponse(
         access_token=token,
         user=UserBrief(
@@ -257,6 +264,13 @@ def register(request: Request, data: RegisterRequest, db: Session = Depends(get_
             role=user.role,
         ),
     )
+
+
+@router.post("/logout")
+def logout(response: Response):
+    """Clear the auth cookie. (Header/Bearer clients just discard their token.)"""
+    clear_auth_cookie(response)
+    return {"status": "ok"}
 
 
 @router.get("/verify")

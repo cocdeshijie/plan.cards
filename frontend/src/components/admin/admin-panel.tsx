@@ -604,7 +604,7 @@ function SettingsTab({
       const token = localStorage.getItem("token");
       const res = await fetch(
         `${API_BASE}/api/auth/oauth/${providerName}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed to start OAuth");

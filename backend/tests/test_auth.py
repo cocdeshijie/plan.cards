@@ -197,6 +197,7 @@ def test_verify_returns_user_info(client, auth_headers):
 
 
 def test_verify_no_token(client, setup_complete):
+    client.cookies.clear()  # setup sets an auth cookie; simulate no credentials
     r = client.get("/api/auth/verify")
     assert r.status_code == 401
 
@@ -243,23 +244,6 @@ def test_change_password_wrong_current(client, auth_headers):
         "new_password": "newpass123",
     }, headers=auth_headers)
     assert r.status_code == 401
-
-
-def test_user_settings_crud(client, auth_headers):
-    # Initially empty
-    r = client.get("/api/users/me/settings", headers=auth_headers)
-    assert r.status_code == 200
-    assert r.json() == {}
-
-    # Set a value
-    r2 = client.put("/api/users/me/settings", json={"timezone": "US/Pacific"}, headers=auth_headers)
-    assert r2.status_code == 200
-    assert r2.json()["timezone"] == "US/Pacific"
-
-    # Delete a value
-    r3 = client.put("/api/users/me/settings", json={"timezone": None}, headers=auth_headers)
-    assert r3.status_code == 200
-    assert "timezone" not in r3.json()
 
 
 # ── Admin User Management ─────────────────────────────────────────────
@@ -1027,13 +1011,6 @@ def test_bonus_update_both_earned_missed_rejected(client, auth_headers):
 
 # ── User Settings Allowlist ──────────────────────────────────────────
 
-def test_user_settings_rejects_unknown_keys(client, auth_headers):
-    """Unknown setting keys are rejected."""
-    r = client.put("/api/users/me/settings", json={"unknown_key": "value"}, headers=auth_headers)
-    assert r.status_code == 400
-    assert "unknown" in r.json()["detail"].lower()
-
-
 # ── Import Mode Validation ───────────────────────────────────────────
 
 def test_import_mode_literal_validation(client, auth_headers):
@@ -1377,28 +1354,6 @@ def test_benefit_name_empty_update_rejected(client, auth_headers):
 
 
 # ── Edge case fix tests ──────────────────────────────────────────
-
-
-def test_user_settings_rejects_invalid_timezone(client, auth_headers):
-    """PUT /api/users/me/settings should reject invalid timezone values."""
-    resp = client.put("/api/users/me/settings", json={"timezone": "Invalid/FakeZone"}, headers=auth_headers)
-    assert resp.status_code == 400
-    assert "Invalid timezone" in resp.json()["detail"]
-
-
-def test_user_settings_accepts_valid_timezone(client, auth_headers):
-    """PUT /api/users/me/settings should accept valid timezone values."""
-    resp = client.put("/api/users/me/settings", json={"timezone": "America/New_York"}, headers=auth_headers)
-    assert resp.status_code == 200
-    assert resp.json()["timezone"] == "America/New_York"
-
-
-def test_user_settings_clears_timezone_with_none(client, auth_headers):
-    """PUT /api/users/me/settings should clear timezone when set to None."""
-    client.put("/api/users/me/settings", json={"timezone": "America/Chicago"}, headers=auth_headers)
-    resp = client.put("/api/users/me/settings", json={"timezone": None}, headers=auth_headers)
-    assert resp.status_code == 200
-    assert "timezone" not in resp.json()
 
 
 def test_card_update_spend_deadline_requires_requirement(client, auth_headers):
@@ -2008,3 +1963,47 @@ def test_custom_tags_deduplication_on_update(client, auth_headers):
     }, headers=auth_headers).json()
 
     assert updated["custom_tags"] == ["Hotels", "flights"]
+
+
+def test_extract_user_info_drops_unverified_email():
+    """SECURITY: an unverified OIDC/Discord email must not be trusted, so it
+    cannot drive account auto-linking or the email-conflict check."""
+    from app.services.oauth_service import extract_user_info
+
+    # OIDC without email_verified → email dropped
+    info = extract_user_info("google", {"sub": "1", "email": "victim@example.com", "name": "X"})
+    assert info["email"] is None
+    assert info["provider_user_id"] == "1"
+
+    # OIDC with email_verified true (bool and string forms) → email trusted
+    assert extract_user_info("google", {"sub": "1", "email": "a@b.com", "email_verified": True})["email"] == "a@b.com"
+    assert extract_user_info("google", {"sub": "1", "email": "a@b.com", "email_verified": "true"})["email"] == "a@b.com"
+
+    # Discord unverified → dropped; verified → trusted
+    assert extract_user_info("discord", {"id": "9", "email": "u@d.com", "verified": False})["email"] is None
+    assert extract_user_info("discord", {"id": "9", "email": "u@d.com", "verified": True})["email"] == "u@d.com"
+
+    # GitHub: only the resolved verified primary (_verified_email) is trusted
+    assert extract_user_info("github", {"id": 5, "email": "public@gh.com", "login": "u"})["email"] is None
+    assert extract_user_info("github", {"id": 5, "_verified_email": "v@gh.com", "login": "u"})["email"] == "v@gh.com"
+
+
+def test_login_sets_auth_cookie_and_authenticates(client, setup_complete):
+    """Login sets an HttpOnly auth cookie that authenticates subsequent requests
+    without an Authorization header."""
+    from app.services.auth_service import AUTH_COOKIE_NAME
+
+    client.cookies.clear()
+    r = client.post("/api/auth/login", json={"password": TEST_PASSWORD})
+    assert r.status_code == 200
+    assert AUTH_COOKIE_NAME in r.cookies
+
+    # No Authorization header — the persisted cookie must authenticate.
+    verify = client.get("/api/auth/verify")
+    assert verify.status_code == 200
+
+    # Logout clears the cookie and de-authenticates.
+    out = client.post("/api/auth/logout")
+    assert out.status_code == 200
+    client.cookies.clear()
+    assert client.get("/api/auth/verify").status_code == 401
