@@ -1,0 +1,51 @@
+name: Wyndham Rewards Earner Premier Card
+issuer: Barclays
+network: Visa
+annual_fee: 395
+currency: USD
+version_id: barclays_wyndham_premier_2026_1
+
+benefits:
+  credits:
+    - name: Wyndham Hotel Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+    - name: Streaming Services Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+    - name: Wholesale Club Membership Credit
+      amount: 65
+      frequency: annual
+      reset_type: calendar
+    - name: Meal Delivery Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Hotels by Wyndham & Wyndham Travel Bundles
+      multiplier: 8x
+    - category: Dining
+      multiplier: 4x
+    - category: Groceries
+      multiplier: 4x
+    - category: Travel
+      multiplier: 4x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Launched June 17, 2026 — Wyndham's first premium credit card.
+  $395 annual fee (not waived the first year).
+  Automatic Wyndham Rewards Diamond status; National Emerald Club Executive status.
+  30,000 anniversary bonus points each year after paying the annual fee.
+  Global Entry/TSA PreCheck credit (once every 4 years).
+  Groceries exclude Walmart and Target.
+  No foreign transaction fees.
+
+tags:
+  - hotel
+  - premium
+  - travel
+  - dining

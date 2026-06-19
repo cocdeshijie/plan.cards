@@ -1,23 +1,31 @@
 name: Wyndham Rewards Earner Card
 issuer: Barclays
-network: Mastercard
+network: Visa
 annual_fee: 0
 currency: USD
-version_id: barclays_wyndham_2021_1
+version_id: barclays_wyndham_2026_1
 
 benefits:
+  spend_thresholds:
+    - name: Anniversary Bonus Points
+      spend_required: 15000
+      frequency: annual
+      reset_type: cardiversary
+      description: "7,500 bonus points after spending $15,000 on eligible purchases in a cardmember year."
   bonus_categories:
     - category: Wyndham Hotels
       multiplier: 5x
-    - category: Gas, Dining & Groceries
-      multiplier: 2x
+    - category: Vacation Club, Dining, Groceries, Gas & EV Charging
+      multiplier: 3x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  Wyndham Rewards Platinum status.
-  7,500 bonus points each anniversary (up to 1 free night).
-  Redeem 10% fewer points on free night awards.
+  June 17, 2026 refresh (new-applicant terms). Existing cardholders keep their
+  prior earning/benefits — see old/card_barclays_wyndham_2021_1.yaml.
+  Automatic Wyndham Rewards Gold status (was Platinum pre-refresh).
+  10% discount on award stays.
+  Groceries exclude Walmart and Target.
   No foreign transaction fees.
 
 tags:

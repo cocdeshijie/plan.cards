@@ -1,23 +1,36 @@
 name: Wyndham Rewards Earner Plus Card
 issuer: Barclays
-network: Mastercard
-annual_fee: 75
+network: Visa
+annual_fee: 95
 currency: USD
-version_id: barclays_wyndham_plus_2021_1
+version_id: barclays_wyndham_plus_2026_1
 
 benefits:
+  credits:
+    - name: Meal Delivery Credit
+      amount: 25
+      frequency: semi_annual
+      reset_type: calendar
   bonus_categories:
     - category: Wyndham Hotels
       multiplier: 6x
-    - category: Gas, Dining & Groceries
-      multiplier: 3x
+    - category: Vacation Club, Travel, Dining & Groceries
+      multiplier: 4x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  Wyndham Rewards Diamond status.
-  15,000 bonus points each anniversary.
-  Redeem 10% fewer points on free night awards.
+  June 17, 2026 refresh (new-applicant terms). Annual fee increased $75 -> $95.
+  Existing cardholders keep their prior earning/benefits — see
+  old/card_barclays_wyndham_plus_2021_1.yaml.
+  Automatic Wyndham Rewards Platinum status; Diamond status the first year.
+  15,000 anniversary bonus points after paying the annual fee.
+  One free night each year (up to 15,000 points) after staying 5+ nights in a
+  calendar year.
+  Points Payback: redeem points for a statement credit (1/3 cent per point).
+  National Emerald Club Executive status.
+  $50 meal delivery credit per calendar year (up to $25 back every 6 months).
+  Groceries exclude Walmart and Target.
   No foreign transaction fees.
 
 tags:

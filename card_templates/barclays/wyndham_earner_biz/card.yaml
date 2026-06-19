@@ -1,25 +1,37 @@
 name: Wyndham Rewards Earner Business Card
 issuer: Barclays
-network: Mastercard
-annual_fee: 75
+network: Visa
+annual_fee: 149
 currency: USD
-version_id: barclays_wyndham_biz_2021_1
+version_id: barclays_wyndham_biz_2026_1
 
 benefits:
+  credits:
+    - name: Accounting Software Credit
+      amount: 50
+      frequency: annual
+      reset_type: calendar
+    - name: Wholesale Membership Club Credit
+      amount: 65
+      frequency: annual
+      reset_type: calendar
   bonus_categories:
     - category: Wyndham Hotels
       multiplier: 8x
-    - category: Gas & Office Supplies
+    - category: Vacation Club, Gas, EV Charging, Marketing, Advertising, Office Supplies & Shipping
       multiplier: 5x
-    - category: Marketing & Advertising
-      multiplier: 3x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  Wyndham Rewards Diamond status.
-  15,000 bonus points each anniversary.
-  Redeem 10% fewer points on free night awards.
+  June 17, 2026 refresh (new-applicant terms). Annual fee increased $75 -> $149.
+  Existing cardholders keep their prior earning/benefits — see
+  old/card_barclays_wyndham_biz_2021_1.yaml.
+  Automatic Wyndham Rewards Diamond status.
+  20% discount on award stays.
+  15,000 anniversary bonus points.
+  Points Payback: redeem points for a statement credit (1/3 cent per point).
+  National Emerald Club Executive status.
   No foreign transaction fees.
 
 tags:
