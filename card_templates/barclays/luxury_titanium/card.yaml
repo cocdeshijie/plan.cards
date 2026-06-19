@@ -1,0 +1,28 @@
+name: Mastercard Titanium Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 299
+currency: USD
+version_id: barclays_luxury_titanium_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Airfare Redemptions (point value)
+      multiplier: 2%
+    - category: Cash Back Redemptions (point value)
+      multiplier: 1.5%
+    - category: All Purchases (earn)
+      multiplier: 1x
+
+notes: |
+  Part of the reimagined Barclays-issued Mastercard Luxury Card suite
+  (announced September 30, 2025). Entry tier.
+  Simplified rewards: 1 point per $1; points redeem at up to 2% toward airfare
+  or 1.5% as cash back. 24/7 luxury concierge. Metal card.
+  Verify current earn/redemption rates against Barclays' published terms.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - premium
+  - metal

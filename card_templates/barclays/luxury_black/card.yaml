@@ -1,0 +1,36 @@
+name: Mastercard Black Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 699
+currency: USD
+version_id: barclays_luxury_black_2026_1
+
+benefits:
+  credits:
+    - name: Annual Airline Credit
+      amount: 100
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Airfare Redemptions (point value)
+      multiplier: 2%
+    - category: Cash Back Redemptions (point value)
+      multiplier: 1.5%
+    - category: All Purchases (earn)
+      multiplier: 1x
+
+notes: |
+  Part of the reimagined Barclays-issued Mastercard Luxury Card suite
+  (announced September 30, 2025). Mid tier.
+  1 point per $1; points redeem at up to 2% toward airfare or 1.5% cash back.
+  $100 annual airline credit, Priority Pass Select lounge access, Global
+  Entry/TSA PreCheck credit (every ~4-5 years), 24/7 luxury concierge,
+  cell phone protection. Metal card.
+  Verify current benefits against Barclays' published terms.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - premium
+  - lounge-access
+  - metal

@@ -1,0 +1,26 @@
+name: SoFi Smart Card
+issuer: SoFi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: sofi_smart_card_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Groceries
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Announced December 10, 2025. A charge card (no revolving balance) secured by
+  SoFi checking/savings balances, with a dynamic credit limit tied to deposits.
+  Requires SoFi Plus membership ($10/mo, or unlocked via direct deposit).
+  Reports to credit bureaus. No annual fee on the card itself.
+  No foreign transaction fees.
+
+tags:
+  - cashback
+  - groceries
+  - no-annual-fee
+  - charge-card

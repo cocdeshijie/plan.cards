@@ -1,0 +1,27 @@
+name: Lumina Visa Signature Card
+issuer: Taekus
+network: Visa
+annual_fee: 149
+currency: USD
+version_id: taekus_lumina_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Travel & Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Taekus credit card, issued by DR Bank (Member FDIC). Visa Signature.
+  $149 annual fee, waived the first year.
+  Earns Taekus points (marketed for high-value airline/travel redemptions).
+  Pre-approval uses a soft pull (no credit score impact); a hard inquiry only
+  occurs if you open an account.
+  Limited credit bureau reporting: routine activity is not reported, but
+  delinquency or charge-off may be reported.
+
+tags:
+  - travel
+  - dining
+  - transferable-points

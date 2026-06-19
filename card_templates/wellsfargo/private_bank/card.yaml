@@ -1,0 +1,30 @@
+name: The Private Bank By Invitation Visa Signature Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 350
+currency: USD
+version_id: wf_private_bank_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Hotels
+      multiplier: 5x
+    - category: Airlines
+      multiplier: 4x
+    - category: Other Travel & Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Refreshed ~February 2026 onto the Autograph Journey earning/benefit structure.
+  By invitation only (Wells Fargo Private Bank clients).
+  $350 annual fee; waived the first year and waivable with a qualifying Private
+  Bank relationship. Earns transferable Wells Fargo Rewards points.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - dining
+  - transferable-points
+  - premium

@@ -1,0 +1,36 @@
+name: Mastercard Gold Card
+issuer: Barclays
+network: Mastercard
+annual_fee: 1199
+currency: USD
+version_id: barclays_luxury_gold_2026_1
+
+benefits:
+  credits:
+    - name: Annual Airline Credit
+      amount: 200
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Airfare Redemptions (point value)
+      multiplier: 2%
+    - category: Cash Back Redemptions (point value)
+      multiplier: 1.5%
+    - category: All Purchases (earn)
+      multiplier: 1x
+
+notes: |
+  Part of the reimagined Barclays-issued Mastercard Luxury Card suite
+  (announced September 30, 2025). Top tier; annual fee raised from $995 to $1,199.
+  24-karat-gold-plated metal card. 1 point per $1; points redeem at up to 2%
+  toward airfare or 1.5% cash back.
+  Annual airline credit, Priority Pass Select lounge access, Global Entry/TSA
+  PreCheck credit, 24/7 luxury concierge, cell phone protection.
+  Verify current credit amounts/benefits against Barclays' published terms.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - premium
+  - lounge-access
+  - metal

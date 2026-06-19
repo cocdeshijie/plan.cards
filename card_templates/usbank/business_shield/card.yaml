@@ -1,0 +1,31 @@
+name: U.S. Bank Business Shield Visa Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_business_shield_2026_1
+
+benefits:
+  credits:
+    - name: Annual Statement Credit (with $5,000 spend)
+      amount: 50
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Prepaid Hotels & Car Rentals (U.S. Bank Travel Center)
+      multiplier: 5%
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Launched February 2, 2026. No annual fee.
+  Intro 0% APR for up to 18 billing cycles on purchases and balance transfers.
+  $50 annual statement credit after spending $5,000 in a year.
+  Cell phone protection benefit. No foreign transaction fees.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee
+  - intro-apr

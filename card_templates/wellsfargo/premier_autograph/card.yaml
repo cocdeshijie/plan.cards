@@ -1,0 +1,36 @@
+name: Wells Fargo Premier Autograph Visa Infinite Card
+issuer: Wells Fargo
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: wf_premier_autograph_2026_1
+
+benefits:
+  credits:
+    - name: Airline Incidental Credit
+      amount: 50
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Hotels
+      multiplier: 5x
+    - category: Airlines
+      multiplier: 4x
+    - category: Other Travel & Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Launched ~February 2026. Relationship-gated premium card built on the
+  Autograph Journey chassis; requires Wells Fargo Premier status (~$250k+ in
+  balances). Targeted — no public application page.
+  $50 annual airline credit; up to $120 Global Entry/TSA PreCheck credit
+  (every 4 years). Primary auto rental coverage, cell phone protection.
+  Earns transferable Wells Fargo Rewards points. No foreign transaction fees.
+
+tags:
+  - travel
+  - dining
+  - transferable-points
+  - premium

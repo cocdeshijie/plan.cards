@@ -1,0 +1,28 @@
+name: American Express Graphite Business Cash Unlimited Card
+issuer: Amex
+network: Amex
+annual_fee: 295
+currency: USD
+version_id: amex_graphite_biz_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Flights & Prepaid Hotels (Amex Travel)
+      multiplier: 5%
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 2%
+
+notes: |
+  Launched March 25, 2026 — Amex's first new U.S. business card in ~7 years.
+  Unlimited 2% cash back on all purchases, 5% on flights and prepaid hotels
+  booked through Amex Travel.
+  No preset spending limit; Pay Over Time available.
+  Cash back posts as statement credits (Membership Rewards-style redemption).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - cashback
+  - flat-rate
+  - travel

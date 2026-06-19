@@ -1,0 +1,32 @@
+name: Royal One Plus Visa Signature Card
+issuer: Bank of America
+network: Visa
+annual_fee: 99
+currency: USD
+version_id: boa_royal_one_plus_2026_1
+
+benefits:
+  credits:
+    - name: Anniversary Reward
+      amount: 200
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Royal Caribbean Group (Royal Caribbean, Celebrity, Silversea)
+      multiplier: 4x
+    - category: Grocery, Gas, EV Charging, Travel & Dining
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Announced March 31, 2026; applications opened May 2026. Premium tier of the
+  Royal Caribbean Group co-brand.
+  $200 anniversary reward. Up to $120 Global Entry/TSA PreCheck statement
+  credit (once every 4 years). No foreign transaction fees.
+
+tags:
+  - co-brand
+  - travel
+  - cruise
+  - premium

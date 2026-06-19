@@ -1,0 +1,26 @@
+name: Capital One VentureOne Business Card
+issuer: Capital One
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: capitalone_ventureone_biz_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Travel (Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 1.5x
+
+notes: |
+  Launched April 2026 — rebrands/replaces the Capital One Spark Miles Select
+  for Business. Earns Capital One miles (transferable).
+  5x on travel booked via Capital One Travel; 1.5x everywhere else.
+  No annual fee. No foreign transaction fees.
+
+tags:
+  - business
+  - travel
+  - transferable-points
+  - no-annual-fee

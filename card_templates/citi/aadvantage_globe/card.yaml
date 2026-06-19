@@ -3,9 +3,18 @@ issuer: Citi
 network: Mastercard
 annual_fee: 350
 currency: USD
-version_id: citi_aadvantage_globe_2024_1
+version_id: citi_aadvantage_globe_2025_1
 
 benefits:
+  credits:
+    - name: Inflight Wi-Fi / Purchase Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
+    - name: Splurge Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
   bonus_categories:
     - category: AAdvantage Hotels
       multiplier: 6x
@@ -18,13 +27,19 @@ benefits:
       multiplier: 1x
 
 notes: |
-  First checked bag free for cardholder + 1 companion on same ticket.
-  Preferred boarding.
-  Seat upgrades.
-  Launched ~2024.
+  Launched October 2025. Became the destination card for transitioned Barclays
+  AAdvantage Aviator Silver holders on April 24, 2026.
+  4 Admirals Club Globe day passes per year.
+  $99 American Airlines companion certificate (anniversary).
+  Up to $240 Turo credit per year.
+  Global Entry/TSA PreCheck credit ($120, once every ~4 years).
+  First checked bag free for cardholder + up to 8 companions on same ticket.
+  Preferred boarding and seat upgrades.
+  Earns AAdvantage Loyalty Points toward elite status.
   No foreign transaction fee.
 
 tags:
   - airline
   - american-airlines
   - premium
+  - lounge-access

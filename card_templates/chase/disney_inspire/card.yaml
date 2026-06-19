@@ -1,0 +1,40 @@
+name: Disney Inspire Visa Card
+issuer: Chase
+network: Visa
+annual_fee: 149
+currency: USD
+version_id: chase_disney_inspire_2026_1
+
+benefits:
+  credits:
+    - name: Theme Park Ticket Credit
+      amount: 100
+      frequency: annual
+      reset_type: cardiversary
+    - name: Streaming Credit (Disney+/Hulu/ESPN+)
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Disney+/Hulu/ESPN+ (direct subscriptions)
+      multiplier: 10%
+    - category: Most U.S. Disney Locations & Gas
+      multiplier: 3%
+    - category: Grocery & Restaurants
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Launched February 3, 2026 — premium tier above the Disney Visa and
+  Disney Premier Visa cards. Earns Disney Rewards Dollars.
+  ~$420 in annual benefits: $100 theme-park-ticket credit, 200 Disney
+  Rewards Dollars on Disney resort/cruise spend, up to $120/yr streaming credit.
+  No foreign transaction fees.
+
+tags:
+  - co-brand
+  - disney
+  - travel
+  - dining
+  - groceries
