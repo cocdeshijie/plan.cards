@@ -1,9 +1,9 @@
 name: Korean Air SKYPASS Business Visa Card
 issuer: US Bank
 network: Visa
-annual_fee: 0
+annual_fee: 99
 currency: USD
-version_id: usbank_skypass_biz_2020_1
+version_id: usbank_skypass_biz_2026_1
 
 benefits:
   bonus_categories:
