@@ -1,9 +1,9 @@
 name: Cathay Pacific Credit Card
 issuer: Synchrony
-network: Visa
-annual_fee: 0
+network: Mastercard
+annual_fee: 99
 currency: USD
-version_id: synchrony_cathay_pacific_2020_1
+version_id: synchrony_cathay_pacific_2026_1
 
 benefits:
   bonus_categories:

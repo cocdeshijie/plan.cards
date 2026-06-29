@@ -1,9 +1,9 @@
 name: US Bank Business Leverage
 issuer: US Bank
 network: Visa
-annual_fee: 0
+annual_fee: 95
 currency: USD
-version_id: usbank_biz_leverage_2020_1
+version_id: usbank_biz_leverage_2026_1
 
 benefits:
   bonus_categories:
