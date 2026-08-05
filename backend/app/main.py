@@ -330,13 +330,19 @@ def _cors_kwargs() -> dict:
     return {"allow_origins": origins}
 
 
-app.add_middleware(
-    CORSMiddleware,
-    **_cors_kwargs(),
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
-)
+_cors = _cors_kwargs()
+# Skip the middleware entirely when no origins are allowed. With
+# allow_origins=[] Starlette still emits a bare `Access-Control-Allow-Credentials`
+# on every response — inert without an `Access-Control-Allow-Origin`, but a
+# confusing signal to anyone inspecting headers or auditing the deployment.
+if _cors.get("allow_origins") != []:
+    app.add_middleware(
+        CORSMiddleware,
+        **_cors,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+    )
 
 app.include_router(setup.router)
 app.include_router(auth.router)

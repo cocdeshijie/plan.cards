@@ -48,6 +48,28 @@ export const PLACEHOLDER_IMAGE_URL = `${API_BASE}/api/templates/placeholder-imag
  */
 export const USE_COOKIE_AUTH = API_BASE === "";
 
+/**
+ * Bootstrap token for privileged operations while auth_mode is "open".
+ *
+ * In open mode the backend hands out an admin session to anyone, so
+ * require_admin gates nothing — the irreversible auth-mode upgrade and OAuth
+ * provider config additionally require a token printed to the container logs.
+ * Held in sessionStorage: it proves host access, and it should not outlive the
+ * tab or be readable after the operator closes it.
+ */
+const ADMIN_TOKEN_KEY = "admin_bootstrap_token";
+
+export function setAdminToken(token: string): void {
+  if (typeof window === "undefined") return;
+  if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+  else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+}
+
+export function getAdminToken(): string {
+  if (typeof window === "undefined") return "";
+  return sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+}
+
 function getToken(): string | null {
   if (typeof window === "undefined" || USE_COOKIE_AUTH) return null;
   return localStorage.getItem("token");
@@ -90,6 +112,10 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   };
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
+  }
+  const adminToken = getAdminToken();
+  if (adminToken) {
+    headers["X-Admin-Token"] = adminToken;
   }
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: "include" });
   if (res.status === 401) {

@@ -338,3 +338,29 @@ def test_newer_database_reports_actionable_error(db_path):
     assert "newer version" in out.lower(), (
         "expected an actionable 'database was created by a newer version' message, got:\n" + out
     )
+
+
+def test_migrations_do_not_silence_application_logging(db_path):
+    """Regression: alembic's env.py called `fileConfig(...)` without
+    `disable_existing_loggers=False`, whose default is True. Migrations run
+    inside application startup, so every already-created `app.*` logger was
+    switched OFF for the life of the process — silencing template load errors,
+    OAuth failures, and the open-mode bootstrap token an operator has to read
+    out of the container logs to use the app at all.
+    """
+    out = _run(
+        """
+        import logging
+        logging.basicConfig(level=logging.INFO)
+        probe = logging.getLogger("app.services.bootstrap_token")
+        assert not probe.disabled, "probe logger already disabled before migrating"
+        """,
+        MIGRATE,
+        """
+        print("disabled_after_migrate=%s" % probe.disabled)
+        """,
+        db_path=db_path,
+    )
+    assert "disabled_after_migrate=False" in out, (
+        "application loggers were disabled by the migration run:\n" + out
+    )

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.card import Card
 from app.models.card_benefit import CardBenefit
 from app.models.profile import Profile
+from app.services.template_loader import get_template
 from app.services.template_sync import sync_cards_to_templates
 
 
@@ -331,10 +332,7 @@ def test_template_rename_preserves_usage_via_stable_key(db_session):
 
     summary = {"benefits_added": 0, "benefits_updated": 0,
                "benefits_retired": 0, "benefits_preserved": 0}
-    _sync_benefit_group(
-        db_session, card, summary, [_Credit()],
-        {"key:uber_cash": benefit}, "credit",
-    )
+    _sync_benefit_group(db_session, card, summary, [_Credit()], [benefit], "credit")
     db_session.commit()
     db_session.refresh(benefit)
 
@@ -378,3 +376,93 @@ def test_pinned_card_is_not_force_upgraded(db_session):
 
     db_session.refresh(card)
     assert card.template_version_id == "amex_plat_2020_1"
+
+
+def test_adding_a_key_to_an_existing_template_credit_preserves_usage(db_session):
+    """Regression: matching was key-only when the template declared a key, with
+    no fallback. Every benefit written before template_key existed has it NULL,
+    so the first contributor to follow the new docs and add `key:` to a
+    published credit would retire every user's row and start a fresh $0 one —
+    exactly the loss the key exists to prevent."""
+    from app.services.template_sync import _sync_benefit_group
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    benefit = _make_benefit(db_session, card.id, "Uber Cash", amount=15, from_template=True)
+    benefit.template_key = None          # pre-dates the column
+    benefit.frequency = "monthly"
+    benefit.reset_type = "calendar"
+    benefit.amount_used = 45
+    db_session.commit()
+
+    class Credit:
+        key = "uber_cash"                # contributor adds a key
+        name = "Uber Cash"               # name unchanged
+        amount = 15
+        frequency = "monthly"
+        reset_type = "calendar"
+
+    summary = {"benefits_added": 0, "benefits_updated": 0,
+               "benefits_retired": 0, "benefits_preserved": 0}
+    existing = [
+        b for b in db_session.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
+        if b.from_template
+    ]
+    _sync_benefit_group(db_session, card, summary, [Credit()], existing, "credit")
+    db_session.commit()
+
+    rows = db_session.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
+    assert len(rows) == 1, f"duplicate created: {[(r.benefit_name, r.template_key) for r in rows]}"
+    assert rows[0].amount_used == 45, "usage lost when the key was adopted"
+    assert rows[0].template_key == "uber_cash", "key not backfilled"
+    assert not rows[0].retired
+    assert summary["benefits_added"] == 0 and summary["benefits_retired"] == 0
+
+
+def test_editing_a_template_bonus_category_does_not_duplicate_it(db_session):
+    """Regression: clearing from_template on edit hid the row from sync's
+    from_template query, so sync re-added the template's version as a SECOND
+    row (there is no unique constraint on card_bonus_categories)."""
+    from app.models.card_bonus_category import CardBonusCategory
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    tmpl = get_template("amex/platinum")
+    assert tmpl and tmpl.benefits and tmpl.benefits.bonus_categories
+    first = tmpl.benefits.bonus_categories[0]
+
+    cat = CardBonusCategory(
+        card_id=card.id, category=first.category, multiplier="99x",
+        from_template=True, user_modified=True,   # what the API sets on edit
+    )
+    db_session.add(cat)
+    db_session.commit()
+
+    sync_cards_to_templates(db_session)
+
+    rows = db_session.query(CardBonusCategory).filter(
+        CardBonusCategory.card_id == card.id,
+        CardBonusCategory.category == first.category,
+    ).all()
+    assert len(rows) == 1, f"duplicate rows for {first.category!r}: {[r.multiplier for r in rows]}"
+    assert rows[0].multiplier == "99x", "user's edit was reverted"
+
+
+def test_user_renamed_bonus_category_is_not_deleted(db_session):
+    """A renamed category matches no template name by definition, so the
+    'absent from template' delete loop would destroy it."""
+    from app.models.card_bonus_category import CardBonusCategory
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    cat = CardBonusCategory(
+        card_id=card.id, category="Dining (weekends only)", multiplier="4x",
+        from_template=True, user_modified=True,
+    )
+    db_session.add(cat)
+    db_session.commit()
+    cat_id = cat.id
+
+    sync_cards_to_templates(db_session)
+
+    assert db_session.get(CardBonusCategory, cat_id) is not None, "user-renamed category deleted"

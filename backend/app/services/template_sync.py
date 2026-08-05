@@ -113,18 +113,23 @@ def _initialize_card(db, card, template, summary):
     summary["cards_initialized"] += 1
 
 
-def _match_key(entry) -> str:
-    """Identity used to pair a template entry with an existing CardBenefit.
+def _find_existing(entry, by_key: dict, by_name: dict):
+    """Pair a template entry with an existing CardBenefit.
 
-    Prefers the template's explicit `key`; falls back to the display name for
-    templates that don't declare one. `name:` is prefixed so a key and a name
-    can never collide.
+    Tries the stable key first, then falls back to the display name. The
+    fallback is essential, not a nicety: every benefit written before
+    `template_key` existed has it NULL, so it is only reachable by name. Without
+    the fallback, the first contributor to add `key:` to an already-published
+    credit would retire every user's row and start a fresh one at $0 — exactly
+    the data loss the key was introduced to prevent, triggered by following the
+    documentation.
     """
-    return f"key:{entry.key}" if getattr(entry, "key", None) else f"name:{entry.name}"
-
-
-def _benefit_match_key(benefit) -> str:
-    return f"key:{benefit.template_key}" if benefit.template_key else f"name:{benefit.benefit_name}"
+    key = getattr(entry, "key", None)
+    if key:
+        found = by_key.get(key)
+        if found is not None:
+            return found
+    return by_name.get(entry.name)
 
 
 def _apply_template_entry(benefit, *, name, amount, frequency, reset_type, key) -> bool:
@@ -156,16 +161,20 @@ def _apply_template_entry(benefit, *, name, amount, frequency, reset_type, key) 
 
 
 def _sync_benefit_group(db, card, summary, template_entries, existing, benefit_type):
-    """Merge one group (credits or spend thresholds) into the card's benefits."""
-    matched: set[str] = set()
+    """Merge one group (credits or spend thresholds) into the card's benefits.
+
+    `existing` is the list of from_template benefits of this type.
+    """
+    by_key = {b.template_key: b for b in existing if b.template_key}
+    by_name = {b.benefit_name: b for b in existing}
+    matched: set[int] = set()
 
     for entry in template_entries:
-        match_key = _match_key(entry)
-        matched.add(match_key)
         amount = entry.amount if benefit_type == "credit" else entry.spend_required
-        benefit = existing.get(match_key)
+        benefit = _find_existing(entry, by_key, by_name)
 
         if benefit is not None:
+            matched.add(id(benefit))
             if benefit.user_modified:
                 # The user edited this benefit; the template no longer owns it.
                 summary["benefits_preserved"] += 1
@@ -197,8 +206,8 @@ def _sync_benefit_group(db, card, summary, template_entries, existing, benefit_t
         ))
         summary["benefits_added"] += 1
 
-    for match_key, benefit in existing.items():
-        if match_key not in matched and not benefit.retired:
+    for benefit in existing:
+        if id(benefit) not in matched and not benefit.retired:
             benefit.retired = True
             summary["benefits_retired"] += 1
 
@@ -210,14 +219,12 @@ def _sync_card(db, card, template, summary):
         card.annual_fee = template.annual_fee
 
     benefits = db.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
-    credit_benefits = {
-        _benefit_match_key(b): b
-        for b in benefits if b.from_template and b.benefit_type == "credit"
-    }
-    threshold_benefits = {
-        _benefit_match_key(b): b
-        for b in benefits if b.from_template and b.benefit_type == "spend_threshold"
-    }
+    credit_benefits = [
+        b for b in benefits if b.from_template and b.benefit_type == "credit"
+    ]
+    threshold_benefits = [
+        b for b in benefits if b.from_template and b.benefit_type == "spend_threshold"
+    ]
 
     tb = template.benefits
     _sync_benefit_group(
@@ -245,6 +252,8 @@ def _sync_card(db, card, template, summary):
     for name, tbc in template_cats.items():
         if name in existing_cat_map:
             cat = existing_cat_map[name]
+            if cat.user_modified:
+                continue
             if cat.multiplier != tbc.multiplier or cat.portal_only != tbc.portal_only or cat.cap != tbc.cap:
                 cat.multiplier = tbc.multiplier
                 cat.portal_only = tbc.portal_only
@@ -261,9 +270,14 @@ def _sync_card(db, card, template, summary):
             summary["bonus_categories_added"] += 1
 
     for name, cat in existing_cat_map.items():
-        if name not in template_cats:
-            db.delete(cat)
-            summary["bonus_categories_removed"] += 1
+        if name in template_cats:
+            continue
+        if cat.user_modified:
+            # A user-renamed category matches no template name by definition;
+            # deleting it here would be exactly the loss user_modified prevents.
+            continue
+        db.delete(cat)
+        summary["bonus_categories_removed"] += 1
 
     card.template_version_id = template.version_id
     summary["cards_synced"] += 1

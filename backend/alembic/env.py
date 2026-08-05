@@ -13,7 +13,12 @@ import app.models  # noqa: F401
 config = context.config
 
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers defaults to True, which would switch OFF every
+    # `app.*` logger that already exists. Migrations run inside the application's
+    # own startup, so that silenced ALL application logging for the life of the
+    # process — template load errors, OAuth failures, the open-mode bootstrap
+    # token, everything after the first few lines of boot.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 

@@ -102,13 +102,16 @@ def decrypt_value(ciphertext: str) -> str:
     Raises DecryptionError (not InvalidToken) when nothing works, so callers can
     surface an actionable "re-enter this secret" message instead of a 500.
     """
-    for fernet, label in (
-        (_get_fernet_new(), "current"),
-        (_get_fernet_pbkdf2(), "SECRET_KEY-derived (PBKDF2)"),
-        (_get_fernet_old(), "SECRET_KEY-derived (legacy SHA-256)"),
+    # Built lazily: the two fallbacks each run PBKDF2 at 100k iterations, and
+    # this is on the OAuth token-exchange path. The current key almost always
+    # wins on the first attempt.
+    for build, label in (
+        (_get_fernet_new, "current"),
+        (_get_fernet_pbkdf2, "SECRET_KEY-derived (PBKDF2)"),
+        (_get_fernet_old, "SECRET_KEY-derived (legacy SHA-256)"),
     ):
         try:
-            plaintext = fernet.decrypt(ciphertext.encode()).decode()
+            plaintext = build().decrypt(ciphertext.encode()).decode()
         except InvalidToken:
             continue
         if label != "current":

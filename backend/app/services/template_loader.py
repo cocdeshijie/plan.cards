@@ -210,6 +210,10 @@ def load_templates() -> None:
             "Card templates directory %s does not exist; keeping %d already-loaded templates",
             templates_dir, len(_templates),
         )
+        # Record the (empty) fingerprint so reload_if_changed() doesn't report a
+        # change on every tick and re-run the full sync every interval while the
+        # mount is away.
+        _last_fingerprint = _compute_fingerprint()
         return
 
     for issuer_dir in sorted(templates_dir.iterdir()):

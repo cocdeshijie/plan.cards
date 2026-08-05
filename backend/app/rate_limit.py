@@ -78,11 +78,14 @@ class AccountThrottle:
             attempts = self._prune(key, now)
             attempts.append(now)
             self._failures[key] = attempts
-            # Bound total memory: an attacker cycling usernames must not be able
-            # to grow this map without limit.
+            # Bound total memory against an attacker cycling usernames. _prune
+            # only touches the key being looked at, so stale entries for other
+            # keys are swept here.
             if len(self._failures) > 10_000:
-                for stale in [k for k, v in self._failures.items() if not v]:
-                    self._failures.pop(stale, None)
+                cutoff = now - self.window_seconds
+                self._failures = {
+                    k: v for k, v in self._failures.items() if v and v[-1] > cutoff
+                }
 
     def reset(self, identity: str) -> None:
         """Clear on a successful login."""

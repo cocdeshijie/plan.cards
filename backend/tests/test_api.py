@@ -3816,3 +3816,134 @@ def test_database_backup_requires_admin(client, multi_user_headers):
     r = client.post("/api/auth/register", json={"username": "plain", "password": "password123"})
     user_headers = {"Authorization": f"Bearer {r.json()['access_token']}"}
     assert client.get("/api/admin/backup", headers=user_headers).status_code == 403
+
+
+# ── Regressions caught in post-implementation verification ─────────────────
+
+
+def test_af_anniversary_not_skipped_before_first_renewal(client, setup_complete, auth_headers):
+    """Regression: _af_anniversary_index floored at 1, so a card whose first
+    renewal (open+13mo) hasn't happened yet was treated as already past it and
+    the next fee jumped a whole year forward."""
+    from app.services.card_service import _af_anniversary, _af_anniversary_index, _next_af_anniversary
+
+    origin = date(2025, 9, 1)
+    assert _af_anniversary(origin, 1) == date(2026, 10, 1)
+    # Anything before the first renewal is index 0 -> next is renewal #1.
+    for current in (origin, date(2025, 10, 1), date(2026, 1, 1), date(2026, 9, 30)):
+        assert _af_anniversary_index(origin, current) == 0, current
+        assert _next_af_anniversary(origin, current) == date(2026, 10, 1), current
+    # On/after it, index advances.
+    assert _af_anniversary_index(origin, date(2026, 10, 1)) == 1
+    assert _next_af_anniversary(origin, date(2026, 10, 1)) == date(2027, 10, 1)
+
+
+def test_af_helpers_tolerate_missing_open_date(client, setup_complete, auth_headers):
+    """Regression: `current <= origin` raised TypeError when open_date is None,
+    500ing DELETE /api/events/{id} for any card without an open date."""
+    from app.services.card_service import _af_anniversary_index, _next_af_anniversary
+
+    assert _af_anniversary_index(None, date(2026, 1, 1)) == 0
+    assert _next_af_anniversary(None, date(2026, 1, 1)) == date(2027, 1, 1)
+
+
+def test_deleting_af_event_on_card_without_open_date(client, setup_complete, auth_headers):
+    """End-to-end version of the above."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "No Open Date", "issuer": "Amex",
+        "open_date": (date.today() - relativedelta(years=2)).isoformat(), "annual_fee": 95,
+    }, headers=auth_headers).json()
+
+    events = client.get(f"/api/cards/{card['id']}/events", headers=auth_headers).json()
+    af = [e for e in events if e["event_type"] == "annual_fee_posted"]
+    assert af
+
+    r = client.put(f"/api/cards/{card['id']}", json={"open_date": None}, headers=auth_headers)
+    assert r.status_code == 200
+
+    r = client.delete(f"/api/events/{af[0]['id']}", headers=auth_headers)
+    assert r.status_code == 204, r.text
+
+
+def test_card_with_inconsistent_dates_stays_editable(client, setup_complete, auth_headers):
+    """Regression: validating merged dates on EVERY update made a card with a
+    pre-existing bad date pair (importable, since ExportCard doesn't check
+    ordering) permanently uneditable, including for unrelated fields."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "C", "issuer": "Amex",
+        "open_date": "2024-01-01",
+    }, headers=auth_headers).json()
+
+    # Force an inconsistent pair the way an import can.
+    from app.models.card import Card as CardModel
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
+    db.query(CardModel).filter(CardModel.id == card["id"]).update({"close_date": date(2010, 1, 1)})
+    db.commit()
+    db.close()
+
+    # An unrelated edit must still succeed...
+    r = client.put(f"/api/cards/{card['id']}", json={"custom_notes": "still editable"}, headers=auth_headers)
+    assert r.status_code == 200, r.text
+    # ...while touching a date still enforces ordering.
+    r = client.put(f"/api/cards/{card['id']}", json={"close_date": "2011-01-01"}, headers=auth_headers)
+    assert r.status_code == 400
+
+
+def test_product_change_clears_version_pin(client, setup_complete, auth_headers):
+    """Regression: the pin referred to a version of the PREVIOUS template, so
+    carrying it across a product change excluded the card from sync forever."""
+    profile = _profile(client, auth_headers)
+    versions = client.get("/api/templates/chase/sapphire_reserve/versions", headers=auth_headers).json()
+    old = [v for v in versions if not v["is_current"]]
+    if not old:
+        return  # no old version shipped for this template
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "CSR", "issuer": "Chase",
+        "template_id": "chase/sapphire_reserve",
+        "template_version_id": old[0]["version_id"],
+        "open_date": "2023-01-01",
+    }, headers=auth_headers).json()
+
+    from app.models.card import Card as CardModel
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
+    assert db.get(CardModel, card["id"]).template_version_pinned is True
+
+    r = client.post(f"/api/cards/{card['id']}/product-change", json={
+        "new_template_id": "chase/sapphire_preferred",
+        "new_card_name": "CSP",
+        "change_date": date.today().isoformat(),
+    }, headers=auth_headers)
+    assert r.status_code == 200, r.text
+
+    db.expire_all()
+    assert db.get(CardModel, card["id"]).template_version_pinned is False
+    db.close()
+
+
+def test_export_import_round_trips_sync_protections(client, setup_complete, auth_headers):
+    """Regression: template_key / user_modified / template_version_pinned were
+    not in the export schema, so a round trip silently stripped every protection
+    that keeps template sync from clobbering the user's data."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "Plat", "issuer": "Amex",
+        "template_id": "amex/platinum", "open_date": "2024-01-01",
+    }, headers=auth_headers).json()
+
+    bens = client.get(f"/api/cards/{card['id']}/benefits", headers=auth_headers).json()
+    assert bens
+    r = client.put(f"/api/cards/{card['id']}/benefits/{bens[0]['id']}",
+                   json={"benefit_amount": 999}, headers=auth_headers)
+    assert r.status_code == 200
+
+    export = client.get("/api/profiles/export", headers=auth_headers).json()
+    exported = export["profiles"][0]["cards"][0]["benefits"]
+    edited = [b for b in exported if b["benefit_amount"] == 999]
+    assert edited, "edited benefit missing from export"
+    assert edited[0]["user_modified"] is True, "user_modified not exported"
+    assert any(b.get("template_key") is not None or b["from_template"] for b in exported)
+    assert "template_version_pinned" in export["profiles"][0]["cards"][0]

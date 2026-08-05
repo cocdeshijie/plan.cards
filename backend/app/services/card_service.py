@@ -29,22 +29,31 @@ def _af_anniversary(origin: date, n: int) -> date:
     return origin + relativedelta(months=13 + 12 * (n - 1))
 
 
-def _af_anniversary_index(origin: date, current: date) -> int:
-    """Which anniversary `current` is; 0 means `current` is the origin itself."""
-    if current <= origin:
+def _af_anniversary_index(origin: date | None, current: date) -> int:
+    """The largest n with `_af_anniversary(origin, n) <= current`.
+
+    0 means the first anniversary hasn't happened yet, so the next one is #1.
+    The correction loop must be allowed to reach 0: a `current` between origin
+    and origin+13mo precedes anniversary #1 entirely, and flooring at 1 there
+    made `_next_af_anniversary` return #2 — silently skipping a whole fee year.
+    """
+    if origin is None or current <= origin:
         return 0
     months = (current.year - origin.year) * 12 + (current.month - origin.month)
-    n = max((months - 13) // 12 + 1, 1)
+    n = max((months - 13) // 12 + 1, 0)
     # Correct the estimate, which can be off by one where the day clamps.
-    while n > 1 and _af_anniversary(origin, n) > current:
+    while n > 0 and _af_anniversary(origin, n) > current:
         n -= 1
     while _af_anniversary(origin, n + 1) <= current:
         n += 1
     return n
 
 
-def _next_af_anniversary(origin: date, current: date) -> date:
+def _next_af_anniversary(origin: date | None, current: date) -> date:
     """First step from origin is +13 months; all subsequent are +12 months."""
+    if origin is None:
+        # No open date to anchor to; fall back to a plain yearly step.
+        return current + relativedelta(years=1)
     return _af_anniversary(origin, _af_anniversary_index(origin, current) + 1)
 
 
@@ -355,7 +364,14 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
     # the request didn't include — so a single-field PATCH never compared
     # against the stored value, and `PUT {"close_date": "2010-01-01"}` on a card
     # opened in 2024 succeeded.
-    if card.open_date and card.close_date and card.close_date < card.open_date:
+    #
+    # Only when a date was actually touched: a card that already holds an
+    # inconsistent pair (e.g. from an import, which does not validate ordering)
+    # must still accept edits to unrelated fields rather than becoming
+    # permanently uneditable.
+    if ("open_date" in update_data or "close_date" in update_data) and (
+        card.open_date and card.close_date and card.close_date < card.open_date
+    ):
         raise ValueError("close_date cannot be before open_date")
 
     # Backfill AF events whenever the card now has both an open date and a real
@@ -516,6 +532,9 @@ def product_change(
     old_card_name = card.card_name
 
     card.template_id = new_template_id
+    # The pin referred to a version of the PREVIOUS template. Carrying it over
+    # would exclude the card from sync forever, with no way to unpin.
+    card.template_version_pinned = False
     card.card_name = new_card_name
     card.annual_fee_user_modified = False  # new template = new fee baseline
     # Reset card_image (use new template's default or explicit value)

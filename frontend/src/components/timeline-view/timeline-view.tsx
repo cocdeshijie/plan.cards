@@ -404,11 +404,15 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
     const byProfile = !profileId
       ? filteredFutureItems
       : filteredFutureItems.filter((item) => item.card.profile_id === profileId);
-    // Synthetic items (anniversaries, upcoming fees, deadlines) have no event
-    // type, and none of them match an event-type filter. Selecting "Closed"
-    // used to still render every upcoming anniversary below the Today marker,
-    // and count them in the "N events" badge.
+    // Synthetic items (anniversaries, upcoming fees, deadlines) carry no event
+    // type, so an event-type filter should hide them — selecting "Closed" used
+    // to still render every upcoming anniversary below the Today marker and
+    // count them in the "N events" badge. The one exception is the annual-fee
+    // filter, which does semantically cover the upcoming-fee rows.
     if (filterType === "all") return byProfile;
+    if (filterType === "annual_fee") {
+      return byProfile.filter((item) => item.type === "annual_fee_upcoming");
+    }
     return [];
   }, [filteredFutureItems, profileId, filterType]);
 
