@@ -13,6 +13,10 @@ class Card(Base):
     profile_id: Mapped[int] = mapped_column(ForeignKey("profiles.id", ondelete="CASCADE"), index=True)
     template_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
     template_version_id: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    # Set when the user deliberately picked a non-current template version.
+    # Without it, sync treats "pinned to the 2020 version" as "behind" and
+    # force-upgrades the card on the next restart or hot-reload tick.
+    template_version_pinned: Mapped[bool] = mapped_column(Boolean, default=False)
     card_image: Mapped[str | None] = mapped_column(String(200), nullable=True)
     card_name: Mapped[str] = mapped_column(String(200))
     last_digits: Mapped[str | None] = mapped_column(String(5), nullable=True)

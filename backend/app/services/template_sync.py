@@ -5,14 +5,19 @@ from sqlalchemy.orm import Session
 from app.models.card import Card
 from app.models.card_benefit import CardBenefit
 from app.models.card_bonus_category import CardBonusCategory
+from app.models.profile import Profile
 from app.services.template_loader import get_template
-from app.utils.period_utils import get_current_period
 
 logger = logging.getLogger(__name__)
 
 
-def sync_cards_to_templates(db: Session) -> dict:
+def sync_cards_to_templates(db: Session, user_id: int | None = None) -> dict:
     """Sync active cards to their current template versions.
+
+    `user_id` scopes the sync to one account. Startup and the hot-reload loop
+    pass None (sync everything); per-user actions such as import must pass a
+    user_id, or one person's import silently rewrites every other account's
+    cards on the instance.
 
     Returns a summary dict with counts of actions taken.
     """
@@ -20,22 +25,25 @@ def sync_cards_to_templates(db: Session) -> dict:
         "cards_synced": 0,
         "cards_initialized": 0,
         "cards_skipped": 0,
+        "cards_pinned": 0,
         "benefits_added": 0,
         "benefits_updated": 0,
         "benefits_retired": 0,
+        "benefits_preserved": 0,
         "bonus_categories_added": 0,
         "bonus_categories_removed": 0,
     }
 
-    cards = (
-        db.query(Card)
-        .filter(
-            Card.template_id.isnot(None),
-            Card.status == "active",
-            Card.deleted_at.is_(None),  # never mutate soft-deleted cards
-        )
-        .all()
+    query = db.query(Card).filter(
+        Card.template_id.isnot(None),
+        Card.status == "active",
+        Card.deleted_at.is_(None),  # never mutate soft-deleted cards
     )
+    if user_id is not None:
+        query = query.join(Profile, Card.profile_id == Profile.id).filter(
+            Profile.user_id == user_id
+        )
+    cards = query.all()
 
     for card in cards:
         template = get_template(card.template_id)
@@ -45,11 +53,20 @@ def sync_cards_to_templates(db: Session) -> dict:
         if not template.version_id:
             summary["cards_skipped"] += 1
             continue
+        if card.template_version_pinned:
+            # The user deliberately chose an older version of this template.
+            summary["cards_pinned"] += 1
+            continue
 
         if not card.template_version_id:
-            # First run / migration: initialize version, tag existing benefits
+            # First run / migration: tag existing benefits as template-sourced,
+            # then sync so the card actually receives the template's benefits.
+            # Only tagging would mark the card as reconciled with a state it was
+            # never reconciled to, and it would never receive them until
+            # maintainers happened to bump the template's version_id.
             _initialize_card(db, card, template, summary)
-        elif card.template_version_id == template.version_id:
+
+        if card.template_version_id == template.version_id:
             summary["cards_skipped"] += 1
         else:
             _sync_card(db, card, template, summary)
@@ -59,25 +76,29 @@ def sync_cards_to_templates(db: Session) -> dict:
 
 
 def _initialize_card(db, card, template, summary):
-    """Set version_id and mark matching benefits as from_template."""
-    card.template_version_id = template.version_id
+    """Tag pre-existing benefits/categories as template-sourced.
 
-    # Build set of template credit and threshold names
-    template_credit_names = set()
+    Deliberately does NOT set template_version_id: the caller runs _sync_card
+    immediately afterwards, which both adds any benefits the card is missing and
+    records the version. Marking the version here would declare the card
+    reconciled with a template state it never actually received.
+    """
+    # Map template display names to their stable keys (if declared).
+    template_keys: dict[str, str | None] = {}
     if template.benefits and template.benefits.credits:
         for credit in template.benefits.credits:
-            template_credit_names.add(credit.name)
-
-    template_threshold_names = set()
+            template_keys[credit.name] = credit.key
     if template.benefits and template.benefits.spend_thresholds:
         for threshold in template.benefits.spend_thresholds:
-            template_threshold_names.add(threshold.name)
+            template_keys[threshold.name] = threshold.key
 
     # Tag existing benefits that match template credits or thresholds
     benefits = db.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
     for benefit in benefits:
-        if benefit.benefit_name in template_credit_names or benefit.benefit_name in template_threshold_names:
+        if benefit.benefit_name in template_keys:
             benefit.from_template = True
+            if benefit.template_key is None:
+                benefit.template_key = template_keys[benefit.benefit_name]
 
     # Tag existing bonus categories that match template categories
     template_cat_names = set()
@@ -92,117 +113,123 @@ def _initialize_card(db, card, template, summary):
     summary["cards_initialized"] += 1
 
 
+def _match_key(entry) -> str:
+    """Identity used to pair a template entry with an existing CardBenefit.
+
+    Prefers the template's explicit `key`; falls back to the display name for
+    templates that don't declare one. `name:` is prefixed so a key and a name
+    can never collide.
+    """
+    return f"key:{entry.key}" if getattr(entry, "key", None) else f"name:{entry.name}"
+
+
+def _benefit_match_key(benefit) -> str:
+    return f"key:{benefit.template_key}" if benefit.template_key else f"name:{benefit.benefit_name}"
+
+
+def _apply_template_entry(benefit, *, name, amount, frequency, reset_type, key) -> bool:
+    """Update a from_template benefit in place. Returns True if anything changed."""
+    changed = False
+    if benefit.template_key != key:
+        benefit.template_key = key
+        # Backfilling identity is bookkeeping, not a user-visible change.
+    if benefit.benefit_name != name:
+        benefit.benefit_name = name
+        changed = True
+    if benefit.benefit_amount != amount:
+        benefit.benefit_amount = amount
+        changed = True
+    if benefit.frequency != frequency or benefit.reset_type != reset_type:
+        benefit.frequency = frequency
+        benefit.reset_type = reset_type
+        # period_start is only meaningful relative to the frequency/reset_type
+        # that produced it, so re-anchor rather than carrying a stale monthly
+        # period into an annual bucket. update_benefit() does the same thing
+        # for the identical edit made through the API.
+        benefit.period_start = None
+        benefit.amount_used = 0
+        changed = True
+    if benefit.retired:
+        benefit.retired = False
+        changed = True
+    return changed
+
+
+def _sync_benefit_group(db, card, summary, template_entries, existing, benefit_type):
+    """Merge one group (credits or spend thresholds) into the card's benefits."""
+    matched: set[str] = set()
+
+    for entry in template_entries:
+        match_key = _match_key(entry)
+        matched.add(match_key)
+        amount = entry.amount if benefit_type == "credit" else entry.spend_required
+        benefit = existing.get(match_key)
+
+        if benefit is not None:
+            if benefit.user_modified:
+                # The user edited this benefit; the template no longer owns it.
+                summary["benefits_preserved"] += 1
+                continue
+            if _apply_template_entry(
+                benefit,
+                name=entry.name,
+                amount=amount,
+                frequency=entry.frequency,
+                reset_type=entry.reset_type,
+                key=entry.key,
+            ):
+                summary["benefits_updated"] += 1
+            continue
+
+        db.add(CardBenefit(
+            card_id=card.id,
+            benefit_name=entry.name,
+            benefit_amount=amount,
+            frequency=entry.frequency,
+            reset_type=entry.reset_type,
+            benefit_type=benefit_type,
+            template_key=entry.key,
+            from_template=True,
+            amount_used=0,
+            notes=getattr(entry, "description", None),
+            # Left unset so the first read anchors it in the user's timezone.
+            period_start=None,
+        ))
+        summary["benefits_added"] += 1
+
+    for match_key, benefit in existing.items():
+        if match_key not in matched and not benefit.retired:
+            benefit.retired = True
+            summary["benefits_retired"] += 1
+
+
 def _sync_card(db, card, template, summary):
     """Apply template changes to a card: update AF and merge benefits."""
     # Update annual fee (skip if user manually modified it)
     if template.annual_fee is not None and not card.annual_fee_user_modified:
         card.annual_fee = template.annual_fee
 
-    # Get template credits
-    template_credits = {}
-    if template.benefits and template.benefits.credits:
-        for credit in template.benefits.credits:
-            template_credits[credit.name] = credit
-
-    # Get existing from_template benefits, separated by type
     benefits = db.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
-    credit_benefits = {b.benefit_name: b for b in benefits if b.from_template and b.benefit_type == "credit"}
-    threshold_benefits = {b.benefit_name: b for b in benefits if b.from_template and b.benefit_type == "spend_threshold"}
+    credit_benefits = {
+        _benefit_match_key(b): b
+        for b in benefits if b.from_template and b.benefit_type == "credit"
+    }
+    threshold_benefits = {
+        _benefit_match_key(b): b
+        for b in benefits if b.from_template and b.benefit_type == "spend_threshold"
+    }
 
-    # Sync credits: update existing, add new, retire removed
-    matched_credit_names = set()
-
-    for name, credit in template_credits.items():
-        matched_credit_names.add(name)
-        if name in credit_benefits:
-            benefit = credit_benefits[name]
-            changed = False
-            if benefit.benefit_amount != credit.amount:
-                benefit.benefit_amount = credit.amount
-                changed = True
-            if benefit.frequency != credit.frequency:
-                benefit.frequency = credit.frequency
-                changed = True
-            if benefit.reset_type != credit.reset_type:
-                benefit.reset_type = credit.reset_type
-                changed = True
-            if benefit.retired:
-                benefit.retired = False
-                changed = True
-            if changed:
-                summary["benefits_updated"] += 1
-        else:
-            period_start, _ = get_current_period(
-                credit.frequency, credit.reset_type, card.open_date
-            )
-            new_benefit = CardBenefit(
-                card_id=card.id,
-                benefit_name=credit.name,
-                benefit_amount=credit.amount,
-                frequency=credit.frequency,
-                reset_type=credit.reset_type,
-                from_template=True,
-                amount_used=0,
-                period_start=period_start,
-            )
-            db.add(new_benefit)
-            summary["benefits_added"] += 1
-
-    for name, benefit in credit_benefits.items():
-        if name not in matched_credit_names and not benefit.retired:
-            benefit.retired = True
-            summary["benefits_retired"] += 1
-
-    # Sync spend thresholds
-    template_thresholds = {}
-    if template.benefits and template.benefits.spend_thresholds:
-        for threshold in template.benefits.spend_thresholds:
-            template_thresholds[threshold.name] = threshold
-
-    matched_threshold_names = set()
-
-    for name, threshold in template_thresholds.items():
-        matched_threshold_names.add(name)
-        if name in threshold_benefits:
-            benefit = threshold_benefits[name]
-            changed = False
-            if benefit.benefit_amount != threshold.spend_required:
-                benefit.benefit_amount = threshold.spend_required
-                changed = True
-            if benefit.frequency != threshold.frequency:
-                benefit.frequency = threshold.frequency
-                changed = True
-            if benefit.reset_type != threshold.reset_type:
-                benefit.reset_type = threshold.reset_type
-                changed = True
-            if benefit.retired:
-                benefit.retired = False
-                changed = True
-            if changed:
-                summary["benefits_updated"] += 1
-        else:
-            period_start, _ = get_current_period(
-                threshold.frequency, threshold.reset_type, card.open_date
-            )
-            new_benefit = CardBenefit(
-                card_id=card.id,
-                benefit_name=threshold.name,
-                benefit_amount=threshold.spend_required,
-                frequency=threshold.frequency,
-                reset_type=threshold.reset_type,
-                benefit_type="spend_threshold",
-                from_template=True,
-                amount_used=0,
-                notes=threshold.description,
-                period_start=period_start,
-            )
-            db.add(new_benefit)
-            summary["benefits_added"] += 1
-
-    for name, benefit in threshold_benefits.items():
-        if name not in matched_threshold_names and not benefit.retired:
-            benefit.retired = True
-            summary["benefits_retired"] += 1
+    tb = template.benefits
+    _sync_benefit_group(
+        db, card, summary,
+        (tb.credits if tb and tb.credits else []),
+        credit_benefits, "credit",
+    )
+    _sync_benefit_group(
+        db, card, summary,
+        (tb.spend_thresholds if tb and tb.spend_thresholds else []),
+        threshold_benefits, "spend_threshold",
+    )
 
     # Sync bonus categories: add new, remove deleted from_template ones
     template_cats = {}

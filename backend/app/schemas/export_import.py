@@ -73,10 +73,13 @@ class ExportCard(BaseModel):
     signup_bonus_amount: int | None = Field(default=None, ge=0, le=99_999_999)
     signup_bonus_type: str | None = None
     signup_bonus_earned: bool = False
-    events: list[ExportEvent] = []
-    benefits: list[ExportBenefit] = []
-    bonuses: list[ExportBonus] = []
-    bonus_categories: list[ExportBonusCategory] = []
+    # Bounded like `profiles` and `cards` are: without a cap, one card can carry
+    # an unbounded number of rows through validation and into a flush-per-row
+    # insert loop.
+    events: list[ExportEvent] = Field(default=[], max_length=2000)
+    benefits: list[ExportBenefit] = Field(default=[], max_length=200)
+    bonuses: list[ExportBonus] = Field(default=[], max_length=200)
+    bonus_categories: list[ExportBonusCategory] = Field(default=[], max_length=200)
 
 
 class ExportProfile(BaseModel):

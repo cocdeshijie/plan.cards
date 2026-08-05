@@ -12,6 +12,10 @@ TemplateResetType = Literal["calendar", "cardiversary"]
 
 
 class TemplateCreditOut(BaseModel):
+    # Optional stable identifier. When present, template sync matches user
+    # benefits on this instead of the display name, so renaming a credit
+    # upstream preserves every user's tracked usage.
+    key: str | None = None
     name: str
     amount: int
     frequency: TemplateFrequency
@@ -26,6 +30,7 @@ class TemplateBonusCategoryOut(BaseModel):
 
 
 class TemplateSpendThresholdOut(BaseModel):
+    key: str | None = None
     name: str
     spend_required: int
     frequency: TemplateFrequency

@@ -297,8 +297,15 @@ def import_profiles(
         if not profile:
             raise ValueError("Target profile not found")
 
-        # Delete existing cards (cascade deletes events and benefits)
+        # Delete existing cards (cascade deletes events and benefits).
+        # Soft-deleted cards are excluded: export_profiles skips them, so they
+        # were never in the file the user is restoring, and they are still
+        # recoverable via POST /api/cards/{id}/restore. Destroying them here
+        # made "export then re-import" silently lossy. Merge mode already
+        # treats them this way.
         for card in list(profile.cards):
+            if card.deleted_at is not None:
+                continue
             db.delete(card)
         db.flush()
 

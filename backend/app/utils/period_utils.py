@@ -3,12 +3,39 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 
-_FREQUENCY_DELTA = {
-    "monthly": relativedelta(months=1),
-    "quarterly": relativedelta(months=3),
-    "semi_annual": relativedelta(months=6),
-    "annual": relativedelta(years=1),
+_FREQUENCY_MONTHS = {
+    "monthly": 1,
+    "quarterly": 3,
+    "semi_annual": 6,
+    "annual": 12,
 }
+
+
+def nth_anniversary(origin: date, months: int, n: int) -> date:
+    """The nth anniversary of `origin`, `months` apart, computed FROM ORIGIN.
+
+    Always `origin + relativedelta(months=months * n)` — never repeated addition
+    onto the previous result. relativedelta clamps a day that doesn't exist in
+    the target month (Jan 31 + 1 month -> Feb 28/29), and if you then add the
+    next month to that *clamped* value the clamp becomes permanent and
+    cumulative: a card opened 2024-01-31 with a monthly credit walks
+    01-31 -> 02-29 -> 03-29 -> ... -> 02-28 and stays on the 28th forever, and a
+    card opened 2024-02-29 never sees Feb 29 again even in a leap year.
+
+    Recomputing from the origin self-corrects after every short month:
+    01-31 -> 02-29 -> 03-31 -> 04-30 -> 05-31.
+    """
+    return origin + relativedelta(months=months * n)
+
+
+def period_length_months(frequency: str) -> int:
+    """How many months one period of `frequency` spans."""
+    return _FREQUENCY_MONTHS.get(frequency, 12)
+
+
+def period_end_for_start(frequency: str, start: date) -> date:
+    """The last day of the period beginning at `start`."""
+    return start + relativedelta(months=period_length_months(frequency)) - relativedelta(days=1)
 
 
 def get_current_period(
@@ -48,17 +75,22 @@ def _calendar_period(frequency: str, ref: date) -> tuple[date, date]:
 
 
 def _cardiversary_period(frequency: str, open_date: date, ref: date) -> tuple[date, date]:
-    delta = _FREQUENCY_DELTA.get(frequency, relativedelta(years=1))
+    months = _FREQUENCY_MONTHS.get(frequency, 12)
 
     # Guard: if open_date is in the future, return the first period immediately
     if open_date > ref:
-        return open_date, open_date + delta - relativedelta(days=1)
+        return open_date, nth_anniversary(open_date, months, 1) - relativedelta(days=1)
 
-    # Walk forward from open_date to find the period containing ref
-    cursor = open_date
-    while True:
-        next_cursor = cursor + delta
-        if next_cursor > ref:
-            # ref is in the period [cursor, next_cursor - 1 day]
-            return cursor, next_cursor - relativedelta(days=1)
-        cursor = next_cursor
+    # Find n such that ref falls in [origin + n*months, origin + (n+1)*months).
+    # Estimate from the month difference, then correct — the estimate can be off
+    # by one when the day-of-month clamps.
+    n = ((ref.year - open_date.year) * 12 + (ref.month - open_date.month)) // months
+    while nth_anniversary(open_date, months, n) > ref:
+        n -= 1
+    while nth_anniversary(open_date, months, n + 1) <= ref:
+        n += 1
+
+    return (
+        nth_anniversary(open_date, months, n),
+        nth_anniversary(open_date, months, n + 1) - relativedelta(days=1),
+    )

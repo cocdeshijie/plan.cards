@@ -12,29 +12,55 @@ from app.schemas.card_benefit import (
     CardBenefitOut,
     BenefitSummaryItem,
 )
-from app.utils.period_utils import get_current_period
+from app.utils.period_utils import get_current_period, period_end_for_start
 from app.utils.timezone import get_today
 
 
-def _refresh_period(benefit: CardBenefit, card_open_date: date | None) -> None:
-    """If stored period_start is from a previous period, reset amount_used and update period_start."""
+def _refresh_period(benefit: CardBenefit, card_open_date: date | None, today: date) -> None:
+    """Re-anchor the benefit to the current period, resetting usage if it lapsed.
+
+    `today` MUST be the user's timezone-local date. Using the server's date
+    rolls the period over at UTC midnight, which for a Los Angeles user wipes
+    March's amount_used at 17:00 on March 31.
+
+    The comparison is `!=`, not `<`. A one-sided check only handles time moving
+    forward; it silently does nothing when the *anchor* moves — editing a card's
+    open_date backwards left period_start stranded in a period that no longer
+    exists, so the API returned a period_start later than its own period_end and
+    a monthly credit stopped resetting entirely.
+
+    When re-anchoring, usage carries over if the old period overlaps the new one
+    (the anchor shifted within the same window) and resets if it does not (a
+    genuine rollover, or a move to an unrelated period).
+    """
     if benefit.retired:
         return
     period_start, _ = get_current_period(
-        benefit.frequency, benefit.reset_type, card_open_date
+        benefit.frequency, benefit.reset_type, card_open_date, today
     )
-    if benefit.period_start is None or benefit.period_start < period_start:
-        benefit.amount_used = 0
-        benefit.period_start = period_start
+    if benefit.period_start == period_start:
+        return
+
+    if benefit.period_start is not None:
+        old_end = period_end_for_start(benefit.frequency, benefit.period_start)
+        if old_end >= period_start:
+            # Overlapping window — keep what the user recorded.
+            benefit.period_start = period_start
+            return
+
+    benefit.amount_used = 0
+    benefit.period_start = period_start
 
 
 def _benefit_to_out(benefit: CardBenefit, card_open_date: date | None, today: date | None = None) -> CardBenefitOut:
     """Convert model to response with computed fields."""
-    period_start, period_end = get_current_period(
-        benefit.frequency, benefit.reset_type, card_open_date
-    )
     if today is None:
         today = date.today()
+    # Same `today` drives the period and the countdown; mixing a server-date
+    # period with a user-date "today" produced "Resets Mar 31 · 0d left" on Apr 1.
+    period_start, period_end = get_current_period(
+        benefit.frequency, benefit.reset_type, card_open_date, today
+    )
     days_until_reset = (period_end - today).days + 1 if period_end >= today else 0
 
     reset_label = _make_reset_label(period_end, benefit.reset_type)
@@ -51,7 +77,9 @@ def _benefit_to_out(benefit: CardBenefit, card_open_date: date | None, today: da
         retired=benefit.retired,
         notes=benefit.notes,
         amount_used=benefit.amount_used,
-        period_start=benefit.period_start,
+        # Report the computed start, not the stored one: they agree after
+        # _refresh_period, and this can never emit start > end.
+        period_start=period_start,
         period_end=period_end,
         days_until_reset=days_until_reset,
         reset_label=reset_label,
@@ -68,16 +96,17 @@ def _make_reset_label(period_end: date, reset_type: str) -> str:
 
 def list_benefits(db: Session, card: Card, user_id: int | None = None) -> list[CardBenefitOut]:
     benefits = db.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
-    for b in benefits:
-        _refresh_period(b, card.open_date)
-    db.commit()
     today = get_today(db, user_id)
+    for b in benefits:
+        _refresh_period(b, card.open_date, today)
+    db.commit()
     return [_benefit_to_out(b, card.open_date, today) for b in benefits]
 
 
 def create_benefit(db: Session, card: Card, data: CardBenefitCreate, user_id: int | None = None) -> CardBenefitOut:
+    today = get_today(db, user_id)
     period_start, _ = get_current_period(
-        data.frequency, data.reset_type, card.open_date
+        data.frequency, data.reset_type, card.open_date, today
     )
     benefit = CardBenefit(
         card_id=card.id,
@@ -93,29 +122,36 @@ def create_benefit(db: Session, card: Card, data: CardBenefitCreate, user_id: in
     db.add(benefit)
     db.commit()
     db.refresh(benefit)
-    return _benefit_to_out(benefit, card.open_date, get_today(db, user_id))
+    return _benefit_to_out(benefit, card.open_date, today)
 
 
 def update_benefit(
     db: Session, benefit: CardBenefit, card: Card, data: CardBenefitUpdate, user_id: int | None = None
 ) -> CardBenefitOut:
+    today = get_today(db, user_id)
     update_data = data.model_dump(exclude_unset=True)
     old_frequency = benefit.frequency
     old_reset_type = benefit.reset_type
     for field, value in update_data.items():
         setattr(benefit, field, value)
 
+    # The user has taken ownership: template sync must stop overwriting this.
+    # Without it, every edit to a template-sourced credit was silently reverted
+    # on the next version bump.
+    if update_data:
+        benefit.user_modified = True
+
     # Only reset tracking if frequency or reset_type actually changed
     if benefit.frequency != old_frequency or benefit.reset_type != old_reset_type:
         period_start, _ = get_current_period(
-            benefit.frequency, benefit.reset_type, card.open_date
+            benefit.frequency, benefit.reset_type, card.open_date, today
         )
         benefit.period_start = period_start
         benefit.amount_used = 0
 
     db.commit()
     db.refresh(benefit)
-    return _benefit_to_out(benefit, card.open_date, get_today(db, user_id))
+    return _benefit_to_out(benefit, card.open_date, today)
 
 
 def delete_benefit(db: Session, benefit: CardBenefit) -> None:
@@ -126,11 +162,12 @@ def delete_benefit(db: Session, benefit: CardBenefit) -> None:
 def update_usage(
     db: Session, benefit: CardBenefit, card: Card, data: BenefitUsageUpdate, user_id: int | None = None
 ) -> CardBenefitOut:
-    _refresh_period(benefit, card.open_date)
+    today = get_today(db, user_id)
+    _refresh_period(benefit, card.open_date, today)
     benefit.amount_used = data.amount_used
     db.commit()
     db.refresh(benefit)
-    return _benefit_to_out(benefit, card.open_date, get_today(db, user_id))
+    return _benefit_to_out(benefit, card.open_date, today)
 
 
 def populate_from_template(
@@ -141,6 +178,7 @@ def populate_from_template(
         b.benefit_name
         for b in db.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
     }
+    today = get_today(db, user_id)
     results = []
     for credit in credits:
         if credit["name"] in existing_names:
@@ -149,6 +187,7 @@ def populate_from_template(
             credit["frequency"],
             credit.get("reset_type", "calendar"),
             card.open_date,
+            today,
         )
         benefit = CardBenefit(
             card_id=card.id,
@@ -167,7 +206,6 @@ def populate_from_template(
     db.commit()
     for b in results:
         db.refresh(b)
-    today = get_today(db, user_id)
     return [_benefit_to_out(b, card.open_date, today) for b in results]
 
 
@@ -193,7 +231,7 @@ def list_all_benefits(
 
     results = []
     for benefit, card, profile in rows:
-        _refresh_period(benefit, card.open_date)
+        _refresh_period(benefit, card.open_date, today)
         out = _benefit_to_out(benefit, card.open_date, today)
         results.append(BenefitSummaryItem(
             **out.model_dump(),

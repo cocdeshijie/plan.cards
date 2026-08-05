@@ -17,11 +17,35 @@ from app.utils.timezone import get_today
 MAX_AF_BACKFILL_YEARS = 20
 
 
+def _af_anniversary(origin: date, n: int) -> date:
+    """The nth annual-fee anniversary of `origin` (n >= 1).
+
+    The first fee posts 13 months after opening; every later one is 12 months
+    after that. Always computed FROM ORIGIN rather than by adding a year to the
+    previous result: relativedelta clamps a nonexistent day (Jan 30 + 13 months
+    -> Feb 29/28), and stepping from the clamped value makes the clamp permanent
+    — a card opened 2023-01-30 would never see Feb 29 again, not even in 2028.
+    """
+    return origin + relativedelta(months=13 + 12 * (n - 1))
+
+
+def _af_anniversary_index(origin: date, current: date) -> int:
+    """Which anniversary `current` is; 0 means `current` is the origin itself."""
+    if current <= origin:
+        return 0
+    months = (current.year - origin.year) * 12 + (current.month - origin.month)
+    n = max((months - 13) // 12 + 1, 1)
+    # Correct the estimate, which can be off by one where the day clamps.
+    while n > 1 and _af_anniversary(origin, n) > current:
+        n -= 1
+    while _af_anniversary(origin, n + 1) <= current:
+        n += 1
+    return n
+
+
 def _next_af_anniversary(origin: date, current: date) -> date:
     """First step from origin is +13 months; all subsequent are +12 months."""
-    if current == origin:
-        return origin + relativedelta(months=13)
-    return current + relativedelta(years=1)
+    return _af_anniversary(origin, _af_anniversary_index(origin, current) + 1)
 
 
 def _cap_anniversary_start(origin: date, anniversary: date, today: date) -> date:
@@ -75,6 +99,7 @@ def _populate_benefits_from_template(
     template_id: str,
     open_date: date | None,
     version_id: str | None = None,
+    today: date | None = None,
 ) -> None:
     """Populate benefits and bonus categories from a template (or a specific old version)."""
     credits = None
@@ -108,6 +133,7 @@ def _populate_benefits_from_template(
                 credit.frequency,
                 credit.reset_type,
                 open_date,
+                today,
             )
             benefit = CardBenefit(
                 card_id=card_id,
@@ -115,6 +141,7 @@ def _populate_benefits_from_template(
                 benefit_amount=credit.amount,
                 frequency=credit.frequency,
                 reset_type=credit.reset_type,
+                template_key=credit.key,
                 from_template=True,
                 amount_used=0,
                 period_start=period_start,
@@ -127,6 +154,7 @@ def _populate_benefits_from_template(
                 threshold.frequency,
                 threshold.reset_type,
                 open_date,
+                today,
             )
             benefit = CardBenefit(
                 card_id=card_id,
@@ -135,6 +163,7 @@ def _populate_benefits_from_template(
                 frequency=threshold.frequency,
                 reset_type=threshold.reset_type,
                 benefit_type="spend_threshold",
+                template_key=threshold.key,
                 from_template=True,
                 amount_used=0,
                 notes=threshold.description,
@@ -175,6 +204,9 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
         profile_id=data.profile_id,
         template_id=data.template_id,
         template_version_id=template_version_id,
+        # A deliberately-chosen older version stays put: sync would otherwise
+        # read the mismatch as "behind" and force-upgrade it on the next boot.
+        template_version_pinned=use_old_version,
         card_image=data.card_image,
         card_name=data.card_name,
         last_digits=data.last_digits,
@@ -222,6 +254,7 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
             data.template_id,
             data.open_date,
             version_id=data.template_version_id if use_old_version else None,
+            today=get_today(db, user_id),
         )
 
     # Auto-generate past annual fee events (including first year at open_date)
@@ -471,7 +504,7 @@ def product_change(
 
     # Sync benefits from new template if requested
     if sync_benefits:
-        _sync_benefits_for_product_change(db, card)
+        _sync_benefits_for_product_change(db, card, user_id)
 
     if reset_af_anniversary:
         # Create AF event at the product change date for the new card's fee
@@ -509,7 +542,9 @@ def product_change(
     return card
 
 
-def _sync_benefits_for_product_change(db: Session, card: Card) -> None:
+def _sync_benefits_for_product_change(
+    db: Session, card: Card, user_id: int | None = None
+) -> None:
     """Retire old template benefits, replace bonus categories, and populate new ones."""
     # Retire all from_template benefits
     old_benefits = (
@@ -532,7 +567,7 @@ def _sync_benefits_for_product_change(db: Session, card: Card) -> None:
     # Populate new template benefits + bonus categories
     if card.template_id:
         _populate_benefits_from_template(
-            db, card.id, card.template_id, card.open_date
+            db, card.id, card.template_id, card.open_date, today=get_today(db, user_id)
         )
 
 

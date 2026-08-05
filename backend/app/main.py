@@ -19,7 +19,7 @@ from app.config import settings
 from app.rate_limit import limiter
 from app.database import engine, SessionLocal
 from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
-from app.services.template_loader import load_templates, reload_if_changed
+from app.services.template_loader import invalidate_fingerprint, load_templates, reload_if_changed
 from app.services.template_sync import sync_cards_to_templates
 
 logger = logging.getLogger(__name__)
@@ -184,6 +184,11 @@ async def _template_reload_loop(interval: int) -> None:
                     summary = sync_cards_to_templates(db)
                     if summary["cards_synced"] or summary["cards_initialized"]:
                         logger.info(f"Template hot-reload sync: {summary}")
+                except Exception:
+                    # The fingerprint was already advanced by load_templates, so
+                    # without this the sync would never be retried.
+                    invalidate_fingerprint()
+                    raise
                 finally:
                     db.close()
         except Exception:

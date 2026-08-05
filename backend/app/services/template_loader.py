@@ -293,6 +293,20 @@ def load_templates() -> None:
         logger.warning("Template error: %s", err)
 
 
+def invalidate_fingerprint() -> None:
+    """Force the next reload_if_changed() to reload and re-sync.
+
+    load_templates() records the fingerprint before the caller gets a chance to
+    run sync_cards_to_templates. If that sync then fails, the fingerprint is
+    already current, so the reload loop sees "no change" forever: the in-memory
+    templates sit on the new version while every card stays on the old one until
+    the container is restarted. Callers invalidate here when the follow-up work
+    fails, so the next tick retries.
+    """
+    global _last_fingerprint
+    _last_fingerprint = ""
+
+
 def reload_if_changed() -> bool:
     """Reload templates if the directory contents have changed.
 
