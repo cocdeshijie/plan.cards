@@ -3,6 +3,7 @@ import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -15,6 +16,7 @@ from app.rate_limit import limiter
 from app.services.auth_service import hash_password, verify_password
 from app.services.crypto import encrypt_value
 from app.services.oauth_service import exchange_code, extract_user_info, MissingSubjectError
+from app.services.crypto import DecryptionError
 from app.services.setup_service import get_system_config
 
 logger = logging.getLogger(__name__)
@@ -47,7 +49,7 @@ def update_current_user(
         user.display_name = data.display_name
     if data.email is not None:
         if data.email:
-            existing = db.query(User).filter(User.email == data.email, User.id != user.id).first()
+            existing = db.query(User).filter(func.lower(User.email) == data.email.strip().lower(), User.id != user.id).first()
             if existing:
                 raise HTTPException(status_code=409, detail="Email already registered")
         user.email = data.email or None
@@ -68,11 +70,27 @@ def change_password(
     from datetime import datetime, timezone
     from app.services.auth_service import create_access_token, set_auth_cookie
 
-    if not user.password_hash:
-        raise HTTPException(status_code=400, detail="No password set (OAuth-only account)")
-    if not verify_password(data.current_password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Current password is incorrect")
-    user.password_hash = hash_password(data.new_password)
+    from app.services.setup_service import get_system_config, set_system_config
+
+    auth_mode = get_system_config(db, "auth_mode", "open")
+
+    if auth_mode == "single_password":
+        # In this mode the login credential lives in system_config, NOT on the
+        # user row -- POST /api/auth/login never reads user.password_hash. Only
+        # updating the user row reported success while leaving the old (possibly
+        # leaked) password as the sole working credential.
+        stored_hash = get_system_config(db, "single_password_hash", "")
+        if not stored_hash or not verify_password(data.current_password, stored_hash):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        set_system_config(db, "single_password_hash", hash_password(data.new_password))
+        user.password_hash = hash_password(data.new_password)
+    else:
+        if not user.password_hash:
+            raise HTTPException(status_code=400, detail="No password set (OAuth-only account)")
+        if not verify_password(data.current_password, user.password_hash):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        user.password_hash = hash_password(data.new_password)
+
     user.password_changed_at = datetime.now(timezone.utc)
     db.commit()
     # Issue a fresh token (old ones are invalidated via pwd_ts) and refresh the cookie.
@@ -103,22 +121,23 @@ def list_oauth_accounts(user: User = Depends(require_auth), db: Session = Depend
 
 @router.post("/me/oauth/link")
 async def user_link_oauth(
+    request: Request,
+    response: Response,
     data: OAuthLinkRequest,
     user: User = Depends(require_auth),
     db: Session = Depends(get_db),
 ):
     """Link the current user's account to an OAuth provider."""
-    from app.models.oauth_state import OAuthState
+    from app.routers.oauth import _validate_redirect_uri, consume_state
 
-    # Validate state
-    oauth_state = db.query(OAuthState).filter(OAuthState.state == data.state).first()
-    if not oauth_state or (time.time() - oauth_state.created_at) > 600:
-        if oauth_state:
-            db.delete(oauth_state)
-            db.commit()
-        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
-    db.delete(oauth_state)
-    db.commit()
+    # This endpoint previously had none of the three defences its two sibling
+    # flows carry: it skipped redirect_uri validation entirely, hardcoded the
+    # TTL instead of importing the constant, and consumed state with a
+    # SELECT-then-DELETE across two transactions, so concurrent requests with
+    # the same state could both pass. It is also the endpoint that mutates
+    # account identity bindings, i.e. the one that most needs them.
+    _validate_redirect_uri(data.redirect_uri)
+    consume_state(db, request, response, data.state, data.provider_name)
 
     provider = (
         db.query(OAuthProvider)
@@ -130,6 +149,11 @@ async def user_link_oauth(
 
     try:
         tokens = await exchange_code(provider, data.code, data.redirect_uri)
+    except DecryptionError as e:
+        # The stored client secret can't be read — almost always a rotated
+        # SECRET_KEY. Say so, instead of blaming "provider configuration".
+        logger.error(f"User OAuth link client secret unreadable: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"User OAuth link token exchange failed: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")

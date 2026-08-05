@@ -10,6 +10,7 @@ from app.models.card_event import CardEvent
 from app.models.profile import Profile
 from app.models.setting import Setting
 from app.models.user_setting import UserSetting
+from app.utils.timezone import resolve_timezone
 from app.schemas.export_import import (
     ExportBenefit,
     ExportBonus,
@@ -357,9 +358,16 @@ def import_profiles(
     else:
         raise ValueError(f"Invalid import mode: {mode}")
 
-    # Import settings if present (only known keys)
+    # Import settings if present (only known keys, and only valid values).
+    # An unvalidated timezone here used to poison every date-aware endpoint with
+    # a permanent 500 -- the import path applied none of the validation that
+    # PUT /api/settings does.
     _IMPORTABLE_SETTINGS = {"timezone"}
     if data.settings:
+        data.settings = {
+            k: v for k, v in data.settings.items()
+            if k != "timezone" or resolve_timezone(v) is not None
+        }
         if user_id is not None:
             for key, value in data.settings.items():
                 if key not in _IMPORTABLE_SETTINGS:

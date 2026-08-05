@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -26,8 +27,13 @@ from app.services.auth_service import (
     set_auth_cookie,
     verify_password,
 )
-from app.rate_limit import limiter
+from app.rate_limit import limiter, login_throttle
+from app.services.bootstrap_token import BOOTSTRAP_TOKEN_HEADER, token_matches
 from app.services.setup_service import get_system_config
+
+# A real bcrypt hash used only to burn the same CPU time on a username miss as
+# on a hit, so response latency stops leaking which accounts exist.
+_DUMMY_PASSWORD_HASH = hash_password("plan.cards-timing-equalizer")
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +119,36 @@ def require_admin(user: User = Depends(require_auth)) -> User:
     return user
 
 
+def require_privileged(
+    request: Request,
+    user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> User:
+    """Admin, plus a bootstrap token when `open` mode makes "admin" meaningless.
+
+    In `open` mode require_auth returns the first admin without checking any
+    credential, so require_admin alone gates nothing. That is acceptable for the
+    user's own card data; it is not acceptable for operations that cannot be
+    undone from inside the app — changing the auth mode (downgrades are
+    forbidden, so a hijack is permanent) or configuring OAuth providers.
+
+    The token is printed to the container logs on boot, so it proves host
+    access. In every other mode this is exactly require_admin.
+    """
+    if _get_auth_mode(db) != "open":
+        return user
+    if not token_matches(request.headers.get(BOOTSTRAP_TOKEN_HEADER)):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                f"This operation requires the {BOOTSTRAP_TOKEN_HEADER} header while "
+                "auth mode is 'open'. The token is printed in the backend container "
+                "logs on startup."
+            ),
+        )
+    return user
+
+
 @router.get("/mode", response_model=AuthModeResponse)
 def get_auth_mode(db: Session = Depends(get_db)):
     """Public endpoint — returns current auth mode and configuration."""
@@ -180,13 +216,31 @@ def login(request: Request, response: Response, data: LoginRequest, db: Session 
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Username and password required",
             )
-        user = db.query(User).filter(User.username == data.username).first()
+        # Per-account throttle. The IP-based limiter cannot protect an account
+        # on its own: behind the frontend proxy every request shares one key, so
+        # it is a global bucket rather than a per-attacker brake.
+        if login_throttle.is_blocked(data.username):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many failed attempts for this account. Try again later.",
+            )
+        user = (
+            db.query(User)
+            .filter(func.lower(User.username) == data.username.strip().lower())
+            .first()
+        )
         if not user or not user.password_hash:
+            # Spend the same time as a real verify. Returning immediately made
+            # the ~100ms bcrypt cost a reliable username oracle, defeating the
+            # identical "Invalid credentials" message.
+            verify_password(data.password, _DUMMY_PASSWORD_HASH)
+            login_throttle.record_failure(data.username)
             logger.warning("Failed login attempt for user: %s", data.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
             )
         if not verify_password(data.password, user.password_hash):
+            login_throttle.record_failure(data.username)
             logger.warning("Failed login attempt for user: %s", data.username)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -195,6 +249,7 @@ def login(request: Request, response: Response, data: LoginRequest, db: Session 
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled"
             )
+        login_throttle.reset(data.username)
     else:
         raise HTTPException(status_code=500, detail=f"Unknown auth mode: {auth_mode}")
 
@@ -228,13 +283,13 @@ def register(request: Request, response: Response, data: RegisterRequest, db: Se
         raise HTTPException(status_code=403, detail="Registration is disabled")
 
     # Check for existing username
-    existing = db.query(User).filter(User.username == data.username).first()
+    existing = db.query(User).filter(func.lower(User.username) == data.username.strip().lower()).first()
     if existing:
         raise HTTPException(status_code=409, detail="Username already taken")
 
     # Check for existing email
     if data.email:
-        existing_email = db.query(User).filter(User.email == data.email).first()
+        existing_email = db.query(User).filter(func.lower(User.email) == data.email.strip().lower()).first()
         if existing_email:
             raise HTTPException(status_code=409, detail="Email already registered")
 

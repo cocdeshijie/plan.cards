@@ -19,6 +19,8 @@ from app.config import settings
 from app.rate_limit import limiter
 from app.database import engine, SessionLocal
 from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
+from app.services.bootstrap_token import log_bootstrap_token
+from app.services.setup_service import get_system_config
 from app.services.template_loader import invalidate_fingerprint, load_templates, reload_if_changed
 from app.services.template_sync import sync_cards_to_templates
 
@@ -265,6 +267,11 @@ async def lifespan(app: FastAPI):
         summary = sync_cards_to_templates(db)
         if summary["cards_synced"] or summary["cards_initialized"]:
             logger.info(f"Template sync: {summary}")
+
+        # In `open` mode "admin" is not a credential, so privileged operations
+        # fall back to a token the operator can only read from these logs.
+        if get_system_config(db, "auth_mode", "open") == "open":
+            log_bootstrap_token()
     finally:
         db.close()
 
@@ -299,9 +306,17 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 
 def _cors_kwargs() -> dict:
-    """Build CORSMiddleware origin kwargs based on ALLOWED_ORIGINS setting."""
+    """Build CORSMiddleware origin kwargs based on ALLOWED_ORIGINS setting.
+
+    Unset means no cross-origin access, which is correct for the shipped
+    topology (the frontend proxies /api/* same-origin). "*" still reflects the
+    request origin for anyone who explicitly opts in, but it is no longer the
+    default — combined with allow_credentials=True it is never safe.
+    """
     raw = settings.allowed_origins.strip()
-    if raw == "*" or not raw:
+    if not raw:
+        return {"allow_origins": []}
+    if raw == "*":
         # Reflect actual request origin (required when allow_credentials=True)
         return {"allow_origin_regex": ".*"}
     origins = []

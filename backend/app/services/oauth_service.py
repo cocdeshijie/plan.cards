@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 import httpx
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.oauth_account import OAuthAccount
@@ -182,6 +183,27 @@ def _extract_user_info(provider_name: str, userinfo: dict) -> dict:
         }
 
 
+def _link_oauth_account(
+    db: Session,
+    user: User,
+    provider_name: str,
+    provider_user_id: str,
+    email: str | None,
+    oauth_tokens: dict,
+) -> OAuthAccount:
+    """Bind a provider identity to a user, encrypting the tokens at rest."""
+    account = OAuthAccount(
+        user_id=user.id,
+        provider=provider_name,
+        provider_user_id=provider_user_id,
+        provider_email=email,
+        access_token=encrypt_value(oauth_tokens["access_token"]) if oauth_tokens.get("access_token") else None,
+        refresh_token=encrypt_value(oauth_tokens["refresh_token"]) if oauth_tokens.get("refresh_token") else None,
+    )
+    db.add(account)
+    return account
+
+
 def find_or_create_user(
     db: Session,
     provider_name: str,
@@ -223,27 +245,43 @@ def find_or_create_user(
         db.commit()
         return user
 
-    # No existing OAuth link — check if registration is enabled
-    reg_enabled = get_system_config(db, "registration_enabled", "true") == "true"
-    if not reg_enabled:
-        return None
+    # Bootstrap check comes BEFORE the registration gate. Completing OAuth setup
+    # creates no user, so the database is guaranteed empty at this point; gating
+    # the very first login on "registration_enabled" left the instance with zero
+    # users, no way to create one, and setup_complete already set -- recoverable
+    # only by hand-editing cards.db.
+    is_first_user = db.query(User).first() is None
+
+    if not is_first_user:
+        reg_enabled = get_system_config(db, "registration_enabled", "true") == "true"
+        if not reg_enabled:
+            return None
 
     # Check email uniqueness before creating
     if email:
-        existing_email_user = db.query(User).filter(User.email == email).first()
+        existing_email_user = db.query(User).filter(func.lower(User.email) == email.strip().lower()).first()
         if existing_email_user:
-            raise EmailConflictError(
-                "An account with this email already exists. Contact an administrator to link your accounts."
+            # A provider-asserted VERIFIED email is a safe basis for linking:
+            # extract_user_info only populates `email` when the provider marks
+            # it verified, so it cannot be self-asserted. Without this, such
+            # users hit a permanent 409 telling them to "contact an
+            # administrator to link your accounts" -- a capability the product
+            # does not have -- and in OAuth mode password login is rejected, so
+            # they are locked out the moment their session expires.
+            if not existing_email_user.is_active:
+                raise AccountDeactivatedError("Your account has been deactivated")
+            _link_oauth_account(
+                db, existing_email_user, provider_name, provider_user_id, email, oauth_tokens
             )
-
-    # Create new user — first user becomes admin
-    is_first_user = db.query(User).first() is None
+            existing_email_user.last_login = datetime.now(timezone.utc)
+            db.commit()
+            return existing_email_user
 
     username = user_info.get("username") or f"{provider_name}_{provider_user_id}"
     # Ensure unique username
     base_username = username
     suffix = 1
-    while db.query(User).filter(User.username == username).first():
+    while db.query(User).filter(func.lower(User.username) == username.lower()).first():
         username = f"{base_username}_{suffix}"
         suffix += 1
 
@@ -268,15 +306,7 @@ def find_or_create_user(
         for s in db.query(Setting).all():
             db.add(UserSetting(user_id=user.id, key=s.key, value=s.value))
 
-    oauth_account = OAuthAccount(
-        user_id=user.id,
-        provider=provider_name,
-        provider_user_id=provider_user_id,
-        provider_email=email,
-        access_token=encrypt_value(oauth_tokens["access_token"]) if oauth_tokens.get("access_token") else None,
-        refresh_token=encrypt_value(oauth_tokens["refresh_token"]) if oauth_tokens.get("refresh_token") else None,
-    )
-    db.add(oauth_account)
+    _link_oauth_account(db, user, provider_name, provider_user_id, email, oauth_tokens)
     user.last_login = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)

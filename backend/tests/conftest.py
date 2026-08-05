@@ -89,6 +89,19 @@ def multi_user_headers(client):
 
 
 @pytest.fixture
+def bootstrap_headers():
+    """Header proving host access, required for privileged ops in `open` mode.
+
+    In `open` mode require_auth hands back the first admin without checking any
+    credential, so require_admin gates nothing — including the irreversible auth
+    mode upgrade. See app/services/bootstrap_token.py.
+    """
+    from app.services.bootstrap_token import BOOTSTRAP_TOKEN_HEADER, get_bootstrap_token
+
+    return {BOOTSTRAP_TOKEN_HEADER: get_bootstrap_token()}
+
+
+@pytest.fixture
 def db_session():
     """Provide a database session for direct DB tests (e.g. template sync)."""
     db = TestingSessionLocal()

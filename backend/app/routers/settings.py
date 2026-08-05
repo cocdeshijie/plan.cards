@@ -1,4 +1,3 @@
-import zoneinfo
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +7,7 @@ from app.database import get_db
 from app.models.setting import Setting
 from app.models.user import User
 from app.models.user_setting import UserSetting
+from app.utils.timezone import resolve_timezone
 from app.routers.auth import require_auth
 from app.schemas.settings import SettingsUpdate
 
@@ -63,9 +63,7 @@ def update_settings(data: SettingsUpdate, user: User = Depends(require_auth), db
         if data.timezone == "":
             _delete_setting(db, user.id, "timezone")
         else:
-            try:
-                zoneinfo.ZoneInfo(data.timezone)
-            except (KeyError, zoneinfo.ZoneInfoNotFoundError):
+            if resolve_timezone(data.timezone) is None:
                 raise HTTPException(status_code=400, detail="Invalid timezone")
             _upsert_setting(db, user.id, "timezone", data.timezone)
     db.commit()
