@@ -9,7 +9,7 @@ benefits:
   credits:
     - name: Southwest Travel Credit
       amount: 75
-      frequency: yearly
+      frequency: annual
   bonus_categories:
     - category: Southwest Purchases
       multiplier: 3x

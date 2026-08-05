@@ -149,7 +149,7 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
       </div>
 
       {alerts.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No upcoming alerts. You're all clear!</p>
+        <p className="text-sm text-muted-foreground">No upcoming alerts. You&apos;re all clear!</p>
       ) : (
         <div className="space-y-2">
           {alerts.map((alert, i) => (

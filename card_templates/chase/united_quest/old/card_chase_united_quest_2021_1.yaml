@@ -9,7 +9,7 @@ benefits:
   credits:
     - name: United Travel Credit
       amount: 125
-      frequency: yearly
+      frequency: annual
   bonus_categories:
     - category: United Purchases
       multiplier: 3x

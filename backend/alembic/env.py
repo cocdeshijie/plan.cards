@@ -1,11 +1,11 @@
 from logging.config import fileConfig
 
-from sqlalchemy import pool
+from sqlalchemy import create_engine, event, pool
 
 from alembic import context
 
 from app.config import settings
-from app.database import Base, engine
+from app.database import Base
 
 # Import all models so Base.metadata is populated
 import app.models  # noqa: F401
@@ -33,18 +33,47 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode using the app's engine."""
-    connectable = engine
+    """Run migrations in 'online' mode on a dedicated, disposable engine.
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            render_as_batch=True,  # Required for SQLite ALTER TABLE
-        )
+    Deliberately NOT the application engine. Migrations mutate connection-level
+    state — the SQLite batch rebuilds need `PRAGMA foreign_keys=OFF` — and a
+    connection borrowed from the app's pool carries that state back into the
+    pool when the migration finishes. SQLAlchemy's "connect" listener only fires
+    on a real DBAPI connect, never on pool checkout, so nothing would restore
+    it: the app would then serve requests with foreign key enforcement silently
+    disabled for the rest of the process. A throwaway engine keeps that blast
+    radius inside the migration.
+    """
+    connectable = create_engine(
+        settings.database_url,
+        connect_args={"check_same_thread": False},
+        poolclass=pool.NullPool,
+    )
 
-        with context.begin_transaction():
-            context.run_migrations()
+    # Set via a connect listener rather than on the live connection: issuing any
+    # statement on the connection first would implicitly open a transaction, and
+    # context.begin_transaction() would then become a no-op — which breaks the
+    # autocommit_block() that the SQLite batch migrations rely on.
+    @event.listens_for(connectable, "connect")
+    def _set_busy_timeout(dbapi_connection, connection_record):
+        if connectable.dialect.name != "sqlite":
+            return
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA busy_timeout=5000")
+        cursor.close()
+
+    try:
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                render_as_batch=True,  # Required for SQLite ALTER TABLE
+            )
+
+            with context.begin_transaction():
+                context.run_migrations()
+    finally:
+        connectable.dispose()
 
 
 if context.is_offline_mode():

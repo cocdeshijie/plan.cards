@@ -3015,12 +3015,13 @@ def test_old_card_gets_historical_annual_fee_events(client, setup_complete, auth
 
 def test_edit_af_event_to_exact_date_updates_annual_fee_date(client, setup_complete, auth_headers):
     """Editing the most recent AF event to an exact date should update annual_fee_date to +12 months."""
+    open_date = date.today() - relativedelta(years=2)
     profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
     card = client.post("/api/cards", json={
         "profile_id": profile["id"],
         "card_name": "Test Card",
         "issuer": "Test",
-        "open_date": "2024-06-15",
+        "open_date": open_date.isoformat(),
         "annual_fee": 95,
     }, headers=auth_headers).json()
 
@@ -3033,16 +3034,18 @@ def test_edit_af_event_to_exact_date_updates_annual_fee_date(client, setup_compl
     latest_af = af_events[-1]
     assert latest_af["metadata_json"].get("approximate_date") is True
 
-    # Edit it to an exact date (strips approximate_date)
+    # Edit it to an exact date (strips approximate_date). Still the latest AF
+    # event, so it becomes the anchor.
+    exact_date = date.today() - relativedelta(months=1)
     r = client.put(f"/api/events/{latest_af['id']}", json={
-        "event_date": "2025-07-22",
+        "event_date": exact_date.isoformat(),
         "metadata_json": {"annual_fee": 95},
     }, headers=auth_headers)
     assert r.status_code == 200
 
     # annual_fee_date should now be exact date + 12 months
     updated_card = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
-    assert updated_card["annual_fee_date"] == "2026-07-22"
+    assert updated_card["annual_fee_date"] == _next_anniversary_after_today(exact_date)
 
 
 def test_add_af_event_updates_annual_fee_date(client, setup_complete, auth_headers):
@@ -3077,12 +3080,13 @@ def test_add_af_event_updates_annual_fee_date(client, setup_complete, auth_heade
 
 def test_delete_exact_af_event_falls_back_to_schedule(client, setup_complete, auth_headers):
     """Deleting an exact (user-anchored) AF event should fall back to the approximate schedule."""
+    open_date = date.today() - relativedelta(years=2)
     profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
     card = client.post("/api/cards", json={
         "profile_id": profile["id"],
         "card_name": "Test Card",
         "issuer": "Test",
-        "open_date": "2024-06-15",
+        "open_date": open_date.isoformat(),
         "annual_fee": 95,
     }, headers=auth_headers).json()
 
@@ -3095,11 +3099,13 @@ def test_delete_exact_af_event_falls_back_to_schedule(client, setup_complete, au
         key=lambda e: e["event_date"],
     )
     latest_approx = af_events[-1]
+    exact_date = date.today() - timedelta(days=1)
+    assert date.fromisoformat(latest_approx["event_date"]) < exact_date
 
     # Add exact event after the latest approximate one
     r = client.post(f"/api/cards/{card['id']}/events", json={
         "event_type": "annual_fee_posted",
-        "event_date": "2026-02-10",
+        "event_date": exact_date.isoformat(),
         "metadata_json": {"annual_fee": 95},
     }, headers=auth_headers)
     assert r.status_code == 201
@@ -3107,7 +3113,7 @@ def test_delete_exact_af_event_falls_back_to_schedule(client, setup_complete, au
 
     # annual_fee_date should be anchored to exact event + 12mo
     anchored = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
-    assert anchored["annual_fee_date"] == "2027-02-10"
+    assert anchored["annual_fee_date"] == _next_anniversary_after_today(exact_date)
 
     # Delete the exact event
     r = client.delete(f"/api/events/{exact_event_id}", headers=auth_headers)
@@ -3120,12 +3126,13 @@ def test_delete_exact_af_event_falls_back_to_schedule(client, setup_complete, au
 
 def test_delete_all_af_events_recalculates_from_open_date(client, setup_complete, auth_headers):
     """Deleting all AF events should recalculate annual_fee_date from open_date schedule."""
+    open_date = date.today() - relativedelta(months=2)
     profile = client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
     card = client.post("/api/cards", json={
         "profile_id": profile["id"],
         "card_name": "Test Card",
         "issuer": "Test",
-        "open_date": "2025-06-01",
+        "open_date": open_date.isoformat(),
         "annual_fee": 95,
     }, headers=auth_headers).json()
 
@@ -3139,9 +3146,9 @@ def test_delete_all_af_events_recalculates_from_open_date(client, setup_complete
         r = client.delete(f"/api/events/{af['id']}", headers=auth_headers)
         assert r.status_code == 204
 
-    # annual_fee_date should recalculate from open_date (+13mo = 2026-07-01)
+    # annual_fee_date should recalculate from the open_date schedule (+13mo)
     updated = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
-    assert updated["annual_fee_date"] == "2026-07-01"
+    assert updated["annual_fee_date"] == _pre_pc_af_date(open_date)
 
 
 def test_delete_non_latest_af_event_keeps_date(client, setup_complete, auth_headers):

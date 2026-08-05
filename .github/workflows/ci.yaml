@@ -22,6 +22,9 @@ jobs:
         env:
           DATABASE_URL: "sqlite:///test.db"
           CARD_TEMPLATES_DIR: "../card_templates"
+          # Without this, slowapi throttles the setup/login fixtures and the
+          # suite drowns in 429s. Documented in README.md and CLAUDE.md.
+          RATE_LIMIT_ENABLED: "false"
 
   frontend:
     runs-on: ubuntu-latest
@@ -31,6 +34,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
-      - run: bun run build
+        with:
+          # Track the same major the Dockerfile uses (oven/bun:1-alpine) so CI
+          # validates the dependency tree the image actually builds.
+          bun-version: "1"
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
       - run: bun run lint
+      - run: bun run build

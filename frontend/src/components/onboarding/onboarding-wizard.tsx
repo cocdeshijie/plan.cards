@@ -459,7 +459,7 @@ function ConfigStep({
           </div>
 
           <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
-            After setup, you'll sign in with {state.oauthPreset ? oauthPresets.find(p => p.name === state.oauthPreset)?.display_name || state.oauthPreset : "your provider"} to create your admin account.
+            After setup, you&apos;ll sign in with {state.oauthPreset ? oauthPresets.find(p => p.name === state.oauthPreset)?.display_name || state.oauthPreset : "your provider"} to create your admin account.
           </p>
         </div>
 

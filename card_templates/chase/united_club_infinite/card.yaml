@@ -9,16 +9,16 @@ benefits:
   credits:
     - name: Renowned Hotels Credit
       amount: 200
-      frequency: yearly
+      frequency: annual
     - name: Rideshare Credit
       amount: 150
-      frequency: yearly
+      frequency: annual
     - name: Avis/Budget Credit
       amount: 100
-      frequency: yearly
+      frequency: annual
     - name: JSX Credit
       amount: 200
-      frequency: yearly
+      frequency: annual
   bonus_categories:
     - category: United Purchases
       multiplier: 4x

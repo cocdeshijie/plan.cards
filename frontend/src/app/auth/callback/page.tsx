@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { API_BASE, adminLinkOAuth, userLinkOAuth, storeToken } from "@/lib/api";
 import { CreditCard, Loader2 } from "lucide-react";
 
@@ -99,7 +100,7 @@ function OAuthCallbackContent() {
         {error ? (
           <div className="space-y-2">
             <p className="text-sm text-destructive max-w-xs mx-auto">{error}</p>
-            <a href="/" className="text-sm text-primary hover:underline">Back to login</a>
+            <Link href="/" className="text-sm text-primary hover:underline">Back to login</Link>
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-center">
