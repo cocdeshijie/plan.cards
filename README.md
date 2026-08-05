@@ -30,6 +30,25 @@ Both containers then stay on the internal network with nothing bound to the host
 
 > **Note for Coolify:** point the app at `docker-compose.yaml`. Coolify deploys with an explicit `-f`, so `docker-compose.override.yml` is ignored and no host port is bound.
 
+## Backup
+
+**Admin → Settings → Backup → Download backup.** This produces a complete, consistent snapshot of the database — every profile, plus users, auth mode, and OAuth configuration. It is safe to run while the app is in use.
+
+To restore:
+
+```bash
+docker compose stop
+docker run --rm -v plan-cards_db-data:/data -v "$PWD":/restore alpine \
+  cp /restore/plan-cards-YYYYMMDD-HHMMSS.db /data/cards.db
+docker compose start
+```
+
+> **Don't copy `cards.db` by hand while the stack is running.** The database uses WAL mode, so recent commits live in `cards.db-wal` until a checkpoint — `docker cp` of `cards.db` alone silently produces a backup that is missing your latest changes, and it looks fine until you restore it. Use the download button, or stop the stack first and copy `cards.db`, `cards.db-wal` and `cards.db-shm` together.
+
+Note that `docker compose down -v` destroys the volume, which includes the database, the signing key, and the OAuth encryption key.
+
+The JSON import/export in the profile menu is a separate, portable per-profile format — useful for moving cards between profiles or instances, but it is not a full backup.
+
 ## Features
 
 - **Card lifecycle tracking** — open dates, close dates, product changes, annual fee dates

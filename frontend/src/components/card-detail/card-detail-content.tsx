@@ -391,13 +391,25 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       const newOpenDate = ef.open_date ? format(ef.open_date, "yyyy-MM-dd") : null;
       if (newOpenDate !== card.open_date) updates.open_date = newOpenDate;
 
-      const newAF = ef.annual_fee ? parseIntStrict(ef.annual_fee) : null;
+      // parseIntStrict returns null for a non-integer like "550.5", and "550.5"
+      // is truthy — so treating that null as "the user cleared the field"
+      // silently wiped the annual fee (and with it annual_fee_date) while
+      // toasting "Card updated". Money is tracked in whole dollars; a parse
+      // failure is a validation error, never a clear.
+      const parseMoneyField = (raw: string, label: string): number | null => {
+        if (!raw.trim()) return null; // explicitly cleared
+        const parsed = parseIntStrict(raw);
+        if (parsed === null) throw new Error(`${label} must be a whole dollar amount`);
+        return parsed;
+      };
+
+      const newAF = parseMoneyField(ef.annual_fee, "Annual fee");
       if (newAF !== card.annual_fee) updates.annual_fee = newAF;
 
       const newAFDate = ef.annual_fee_date ? format(ef.annual_fee_date, "yyyy-MM-dd") : null;
       if (newAFDate !== card.annual_fee_date) updates.annual_fee_date = newAFDate;
 
-      const newCL = ef.credit_limit ? parseIntStrict(ef.credit_limit) : null;
+      const newCL = parseMoneyField(ef.credit_limit, "Credit limit");
       if (newCL !== card.credit_limit) updates.credit_limit = newCL;
 
       const newTags = ef.custom_tags.split(",").map((t) => t.trim()).filter(Boolean);
@@ -405,12 +417,12 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       if (JSON.stringify(newTags) !== JSON.stringify(oldTags))
         updates.custom_tags = newTags.length > 0 ? newTags : null;
 
-      const newSBA = ef.signup_bonus_amount ? parseIntStrict(ef.signup_bonus_amount) : null;
+      const newSBA = parseMoneyField(ef.signup_bonus_amount, "Signup bonus amount");
       if (newSBA !== card.signup_bonus_amount) updates.signup_bonus_amount = newSBA;
       const newSBT = ef.signup_bonus_type || null;
       if (newSBT !== card.signup_bonus_type) updates.signup_bonus_type = newSBT;
 
-      const newSR = ef.spend_requirement ? parseIntStrict(ef.spend_requirement) : null;
+      const newSR = parseMoneyField(ef.spend_requirement, "Spend requirement");
       if (newSR !== card.spend_requirement) updates.spend_requirement = newSR;
       const newSD = ef.spend_deadline ? format(ef.spend_deadline, "yyyy-MM-dd") : null;
       if (newSD !== card.spend_deadline) updates.spend_deadline = newSD;
@@ -557,7 +569,9 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {(() => {
           const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today);
-          const feeValueClass = nextFeeInfo?.proximity === "imminent"
+          const feeValueClass = nextFeeInfo?.proximity === "overdue"
+            ? "text-red-600 dark:text-red-400"
+            : nextFeeInfo?.proximity === "imminent"
             ? "text-orange-600 dark:text-orange-400"
             : nextFeeInfo?.proximity === "soon"
             ? "text-yellow-600 dark:text-yellow-400"

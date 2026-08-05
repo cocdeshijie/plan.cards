@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, timedelta
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy.orm import Session
@@ -183,6 +183,53 @@ def _populate_benefits_from_template(
             ))
 
 
+def _backfill_af_events(
+    db: Session,
+    card: Card,
+    today: date,
+    stop_date: date | None = None,
+) -> date | None:
+    """Create approximate annual_fee_posted events up to `today`.
+
+    Returns the next anniversary after the backfilled range, or None if the card
+    has no open date or no fee. `stop_date` bounds the loop for a card that is
+    already closed — without it, creating a card with status="closed" produced
+    fee events for every year after the closure.
+    """
+    if not card.open_date or not card.annual_fee or card.annual_fee <= 0:
+        return None
+
+    limit = today
+    if stop_date is not None and stop_date < limit:
+        limit = stop_date
+
+    fee_timeline: dict[int, int] = {}
+    if card.template_id:
+        fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
+
+    anniversary = _cap_anniversary_start(card.open_date, card.open_date, today)
+    while anniversary <= limit:
+        fee = (
+            _get_fee_for_year(fee_timeline, anniversary.year)
+            if fee_timeline
+            else card.annual_fee
+        )
+        if fee is None:
+            fee = card.annual_fee
+        db.add(CardEvent(
+            card_id=card.id,
+            event_type="annual_fee_posted",
+            event_date=anniversary,
+            metadata_json={"annual_fee": fee, "approximate_date": True},
+        ))
+        anniversary = _next_af_anniversary(card.open_date, anniversary)
+
+    # Keep stepping past today so the returned date is genuinely upcoming.
+    while anniversary <= today:
+        anniversary = _next_af_anniversary(card.open_date, anniversary)
+    return anniversary
+
+
 def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Card:
     # Resolve template version_id if creating from template
     template_version_id = None
@@ -258,33 +305,26 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
         )
 
     # Auto-generate past annual fee events (including first year at open_date)
-    if data.open_date and data.annual_fee and data.annual_fee > 0:
-        today = get_today(db, user_id)
-        fee_timeline: dict[int, int] = {}
-        if data.template_id:
-            fee_timeline = _build_fee_timeline(data.template_id, data.annual_fee)
+    today = get_today(db, user_id)
+    next_anniversary = _backfill_af_events(db, card, today, stop_date=card.close_date)
+    if next_anniversary and not data.annual_fee_date:
+        card.annual_fee_date = next_anniversary
 
-        # Start from open_date (first year fee), capped to avoid excessive backfill
-        anniversary = _cap_anniversary_start(data.open_date, data.open_date, today)
-        while anniversary <= today:
-            fee = (
-                _get_fee_for_year(fee_timeline, anniversary.year)
-                if fee_timeline
-                else data.annual_fee
-            )
-            if fee is None:
-                fee = data.annual_fee
-            af_event = CardEvent(
+    # A card created as already-closed must be coherent: emit the closed event
+    # and clear forward-looking fields, exactly as close_card does. Otherwise
+    # the card has no `closed` event in its timeline and POST /{id}/close
+    # rejects it forever with "Card is already closed".
+    if card.status == "closed":
+        card.annual_fee_date = None
+        card.spend_reminder_enabled = False
+        card.spend_deadline = None
+        if card.close_date:
+            db.add(CardEvent(
                 card_id=card.id,
-                event_type="annual_fee_posted",
-                event_date=anniversary,
-                metadata_json={"annual_fee": fee, "approximate_date": True},
-            )
-            db.add(af_event)
-            anniversary = _next_af_anniversary(data.open_date, anniversary)
-        # Set annual_fee_date to the next upcoming anniversary if not already set
-        if not data.annual_fee_date:
-            card.annual_fee_date = anniversary
+                event_type="closed",
+                event_date=card.close_date,
+                description=f"Closed {card.card_name}",
+            ))
 
     db.commit()
     db.refresh(card)
@@ -293,6 +333,7 @@ def create_card(db: Session, data: CardCreate, user_id: int | None = None) -> Ca
 
 def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None = None) -> Card:
     old_open_date = card.open_date
+    old_annual_fee = card.annual_fee
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(card, field, value)
@@ -309,8 +350,24 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
     if card.spend_reminder_enabled and not (card.spend_requirement and card.spend_deadline):
         raise ValueError("spend_reminder_enabled requires both spend_requirement and spend_deadline")
 
-    # Backfill AF events if open_date was just set and card has annual_fee
-    if old_open_date is None and card.open_date and card.annual_fee and card.annual_fee > 0:
+    # Validate dates against the MERGED card, not just the payload. The schema
+    # validator reads self.open_date/self.close_date, which are None for fields
+    # the request didn't include — so a single-field PATCH never compared
+    # against the stored value, and `PUT {"close_date": "2010-01-01"}` on a card
+    # opened in 2024 succeeded.
+    if card.open_date and card.close_date and card.close_date < card.open_date:
+        raise ValueError("close_date cannot be before open_date")
+
+    # Backfill AF events whenever the card now has both an open date and a real
+    # fee but no fee history. Previously gated on `old_open_date is None`, so it
+    # only ever fired on the open-date transition: raising annual_fee from 0 to
+    # 695 left the card with no next-fee date and no history at all -- and
+    # because this same call sets annual_fee_user_modified, template sync would
+    # never repair it either. That is the ordinary "$0 first year, then the fee
+    # kicks in" and "I mistyped the fee" path.
+    gained_open_date = "open_date" in update_data and old_open_date is None
+    gained_fee = "annual_fee" in update_data and old_annual_fee in (None, 0)
+    if (gained_open_date or gained_fee) and card.status == "active":
         existing_af = (
             db.query(CardEvent)
             .filter(
@@ -321,29 +378,9 @@ def update_card(db: Session, card: Card, data: CardUpdate, user_id: int | None =
         )
         if not existing_af:
             today = get_today(db, user_id)
-            fee_timeline: dict[int, int] = {}
-            if card.template_id:
-                fee_timeline = _build_fee_timeline(card.template_id, card.annual_fee)
-
-            anniversary = _cap_anniversary_start(card.open_date, card.open_date, today)
-            while anniversary <= today:
-                fee = (
-                    _get_fee_for_year(fee_timeline, anniversary.year)
-                    if fee_timeline
-                    else card.annual_fee
-                )
-                if fee is None:
-                    fee = card.annual_fee
-                af_event = CardEvent(
-                    card_id=card.id,
-                    event_type="annual_fee_posted",
-                    event_date=anniversary,
-                    metadata_json={"annual_fee": fee, "approximate_date": True},
-                )
-                db.add(af_event)
-                anniversary = _next_af_anniversary(card.open_date, anniversary)
-            if not card.annual_fee_date:
-                card.annual_fee_date = anniversary
+            next_anniversary = _backfill_af_events(db, card, today)
+            if next_anniversary and not card.annual_fee_date:
+                card.annual_fee_date = next_anniversary
 
     db.commit()
     db.refresh(card)
@@ -360,6 +397,11 @@ def close_card(db: Session, card: Card, close_date: date) -> Card:
     card.annual_fee_date = None
     card.spend_reminder_enabled = False
     card.spend_deadline = None
+    # Disarm linked bonus reminders too. Closing only cleared the card-level
+    # reminder, so a retention or upgrade bonus kept a live spend deadline for a
+    # bonus that can no longer be earned.
+    for bonus in card.bonuses:
+        bonus.spend_reminder_enabled = False
     # Delete approximate AF events after close_date
     future_af = (
         db.query(CardEvent)
@@ -464,6 +506,10 @@ def product_change(
         raise ValueError("Cannot product-change a closed card")
     if new_template_id is not None and new_template_id == card.template_id:
         raise ValueError("Card already has this template")
+    if change_date > date.today() + timedelta(days=366):
+        # A typo'd year (2099) otherwise wipes the real fee schedule and pushes
+        # the next fee decades out, with no error and nothing to notice.
+        raise ValueError("change_date cannot be more than a year in the future")
     if card.open_date and change_date < card.open_date:
         raise ValueError("change_date cannot be before open_date")
     old_template_id = card.template_id

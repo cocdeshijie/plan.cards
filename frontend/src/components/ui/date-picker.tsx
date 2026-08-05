@@ -80,9 +80,10 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", class
               <Select
                 value={String(viewMonth.getMonth())}
                 onValueChange={(val) => {
-                  const newMonth = new Date(viewMonth);
-                  newMonth.setMonth(parseInt(val));
-                  setViewMonth(newMonth);
+                  // Anchor on the 1st: setMonth() preserves the day-of-month, so
+                  // from Jan 31 picking February produced Feb 31 -> March 2,
+                  // making February unreachable from the dropdown entirely.
+                  setViewMonth(new Date(viewMonth.getFullYear(), parseInt(val), 1));
                 }}
               >
                 <SelectTrigger className="h-7 w-auto border-none shadow-none px-2 py-0 text-sm font-medium focus:ring-0">
@@ -99,9 +100,9 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date", class
               <Select
                 value={String(viewMonth.getFullYear())}
                 onValueChange={(val) => {
-                  const newMonth = new Date(viewMonth);
-                  newMonth.setFullYear(parseInt(val));
-                  setViewMonth(newMonth);
+                  // Anchor on the 1st — from Feb 29 2024, setFullYear(2025)
+                  // produced March 1 2025.
+                  setViewMonth(new Date(parseInt(val), viewMonth.getMonth(), 1));
                 }}
               >
                 <SelectTrigger className="h-7 w-auto border-none shadow-none px-2 py-0 text-sm font-medium focus:ring-0">

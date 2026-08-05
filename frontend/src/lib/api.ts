@@ -58,6 +58,30 @@ export function storeToken(token: string): void {
   if (!USE_COOKIE_AUTH) localStorage.setItem("token", token);
 }
 
+type ValidationErrorItem = { loc?: (string | number)[]; msg?: string };
+
+/**
+ * FastAPI sends `detail` as a string for HTTPException but as an ARRAY of
+ * {loc, msg, type} objects for request-validation (422) failures. Passing that
+ * array straight to `new Error()` rendered the literal text "[object Object]"
+ * for a whole class of user-fixable input errors.
+ */
+function errorMessage(body: unknown, fallback: string): string {
+  const detail = (body as { detail?: unknown })?.detail;
+  if (typeof detail === "string" && detail) return detail;
+  if (Array.isArray(detail)) {
+    const messages = (detail as ValidationErrorItem[])
+      .map((item) => {
+        const field = item.loc?.filter((p) => p !== "body").join(".");
+        const msg = item.msg ?? "is invalid";
+        return field ? `${field}: ${msg}` : msg;
+      })
+      .filter(Boolean);
+    if (messages.length) return messages.join("; ");
+  }
+  return fallback;
+}
+
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -77,12 +101,12 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   }
   if (res.status === 403) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || "Forbidden");
+    throw new Error(errorMessage(body, "Forbidden"));
   }
   if (res.status === 204) return undefined as T;
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || `API error: ${res.status}`);
+    throw new Error(errorMessage(body, `API error: ${res.status}`));
   }
   return res.json().catch(() => undefined as T);
 }
@@ -350,6 +374,40 @@ export const updateAdminUser = (id: number, data: { display_name?: string; email
 export const deactivateAdminUser = (id: number) =>
   apiFetch<void>(`/api/admin/users/${id}`, { method: "DELETE" });
 export const getAdminConfig = () => apiFetch<AdminConfig>("/api/admin/config");
+
+/**
+ * Download a consistent snapshot of the database.
+ *
+ * Not apiFetch: the response is a binary file, not JSON. Uses VACUUM INTO
+ * server-side so the copy is valid even though the DB runs in WAL mode — a
+ * plain file copy of cards.db silently omits commits still in cards.db-wal.
+ */
+export async function downloadDatabaseBackup(): Promise<void> {
+  const token = typeof window !== "undefined" && !USE_COOKIE_AUTH
+    ? localStorage.getItem("token")
+    : null;
+  const res = await fetch(`${API_BASE}/api/admin/backup`, {
+    credentials: "include",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(errorMessage(body, `Backup failed: ${res.status}`));
+  }
+  const disposition = res.headers.get("content-disposition") || "";
+  const match = disposition.match(/filename="?([^"';]+)"?/);
+  const filename = match ? match[1] : "plan-cards-backup.db";
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 export const updateAdminConfig = (data: { registration_enabled?: boolean }) =>
   apiFetch<AdminConfig>("/api/admin/config", { method: "PUT", body: JSON.stringify(data) });
 export const upgradeAuthMode = (data: { target_mode: string; admin_password?: string; single_password?: string }) =>

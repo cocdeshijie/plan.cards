@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Profile, ExportData } from "@/types";
 import { exportProfiles, importProfiles } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,14 @@ export function ImportExportDialog({
   const [targetProfileId, setTargetProfileId] = useState<string>(
     selectedProfileId !== "all" ? selectedProfileId : (profiles[0]?.id.toString() ?? "")
   );
+  // The dialog is mounted by TopNav on the very first render, when profiles is
+  // still []. Without this the initial "" sticks for the whole session, so
+  // "Merge into existing" posted target_profile_id=NaN.
+  useEffect(() => {
+    if (!targetProfileId && profiles.length > 0) {
+      setTargetProfileId(profiles[0].id.toString());
+    }
+  }, [profiles, targetProfileId]);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useAppStore } from "@/hooks/use-app-store";
 import {
   Select,
@@ -52,7 +53,12 @@ export function TimezoneSelector() {
     : "Server Default";
 
   const handleChange = (value: string) => {
-    setTimezone(value === "default" ? "" : value);
+    // setTimezone rolls back optimistically and re-throws so the caller can
+    // report it. Fire-and-forget produced an uncaught rejection, the dropdown
+    // silently snapping back, and no message at all.
+    setTimezone(value === "default" ? "" : value).catch((e) => {
+      toast.error(e instanceof Error ? e.message : "Failed to update timezone");
+    });
   };
 
   return (

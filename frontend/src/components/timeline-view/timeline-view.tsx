@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getAllEvents } from "@/lib/api";
 import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
+import { getAnniversaryForYear } from "@/lib/fee-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getEventMeta } from "@/lib/event-icons";
 import { CardThumbnail } from "@/components/shared/card-thumbnail";
@@ -105,8 +106,10 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
     if (card.open_date) {
       const openDate = parseDateStr(card.open_date);
       const thisYear = today.getFullYear();
-      let anniv = new Date(thisYear, openDate.getMonth(), openDate.getDate());
-      if (anniv < today) anniv = new Date(thisYear + 1, openDate.getMonth(), openDate.getDate());
+      // getAnniversaryForYear clamps Feb 29 to Feb 28 in non-leap years; the
+      // raw Date constructor rolled it over to March 1.
+      let anniv = getAnniversaryForYear(openDate, thisYear);
+      if (anniv < today) anniv = getAnniversaryForYear(openDate, thisYear + 1);
       const years = anniv.getFullYear() - openDate.getFullYear();
       items.push({
         id: `anniv-${card.id}`,
@@ -319,21 +322,27 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
     }
 
     try {
-      let data = await getAllEvents(params);
+      const page = await getAllEvents(params);
       if (requestId !== requestIdRef.current) return;
+      // "annual_fee" covers two event types, so the API can't express it and we
+      // filter client-side. hasMore/offset MUST still come from the raw page
+      // length: deriving them from the filtered array made "4 of 100 matched"
+      // look like the end of the list, hiding the Load-earlier button, and
+      // advanced the offset by 4 so the next page would overlap.
+      let data = page;
       if (filterType === "annual_fee") {
-        data = data.filter((e: CardEvent) =>
+        data = page.filter((e: CardEvent) =>
           e.event_type === "annual_fee_posted" || e.event_type === "annual_fee_refund"
         );
       }
-      setHasMore(data.length === PAGE_SIZE);
+      setHasMore(page.length === PAGE_SIZE);
       if (append) {
         setPastEvents((prev) => [...prev, ...data]);
       } else {
         setPastEvents(data);
         hasLoadedRef.current = true;
       }
-      setOffset(newOffset + data.length);
+      setOffset(newOffset + page.length);
     } catch {
       if (requestId === requestIdRef.current) setFetchError(true);
     } finally {
@@ -392,15 +401,33 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
 
   // Filter future items by profile if active
   const profileFilteredFutureItems = useMemo(() => {
-    if (!profileId) return filteredFutureItems;
-    return filteredFutureItems.filter((item) => item.card.profile_id === profileId);
-  }, [filteredFutureItems, profileId]);
+    const byProfile = !profileId
+      ? filteredFutureItems
+      : filteredFutureItems.filter((item) => item.card.profile_id === profileId);
+    // Synthetic items (anniversaries, upcoming fees, deadlines) have no event
+    // type, and none of them match an event-type filter. Selecting "Closed"
+    // used to still render every upcoming anniversary below the Today marker,
+    // and count them in the "N events" badge.
+    if (filterType === "all") return byProfile;
+    return [];
+  }, [filteredFutureItems, profileId, filterType]);
 
-  // Merge past + future
-  const allItems = useMemo(() => [...pastItems, ...profileFilteredFutureItems], [pastItems, profileFilteredFutureItems]);
-
-  // Find today boundary index (first future item)
-  const todayIndex = pastItems.length;
+  // Merge past + future. Past events are sorted server-side by date desc and
+  // reversed into ascending order; a future-dated real event would otherwise
+  // land at the end of pastItems and render ABOVE the Today marker, reversing
+  // the month dividers around it.
+  const { allItems, todayIndex } = useMemo(() => {
+    const past: typeof pastItems = [];
+    const future: typeof pastItems = [];
+    for (const item of pastItems) {
+      (item.date > today ? future : past).push(item);
+    }
+    future.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return {
+      allItems: [...past, ...future, ...profileFilteredFutureItems],
+      todayIndex: past.length,
+    };
+  }, [pastItems, profileFilteredFutureItems, today]);
 
   const handleLoadMore = () => {
     if (loadingMore || !hasMore) return;

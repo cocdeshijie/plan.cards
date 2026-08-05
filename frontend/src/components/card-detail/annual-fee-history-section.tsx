@@ -9,6 +9,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { updateEvent, deleteEvent, createCardEvent } from "@/lib/api";
 import { parseIntStrict, parseDateStr } from "@/lib/utils";
 import { getNextFeeInfo } from "@/lib/fee-utils";
+import { useToday } from "@/hooks/use-timezone";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { DollarSign, Pencil, Check, X, Trash2, Plus, ChevronDown } from "lucide-react";
@@ -25,15 +26,20 @@ interface AnnualFeeHistorySectionProps {
 function extractFee(event: CardEvent, cardAnnualFee: number | null): number {
   // Tier 1: metadata_json.annual_fee
   const meta = event.metadata_json as Record<string, unknown> | null;
-  let amount = 0;
+  let amount: number | null = null;
   if (meta?.annual_fee != null) {
     amount = Number(meta.annual_fee);
-  } else if (event.description) {
+  }
+  if (amount === null && event.description) {
     // Tier 2: parse "$NNN" from description
     const match = event.description.match(/\$(\d+(?:,\d{3})*)/);
     if (match) amount = Number(match[1].replace(/,/g, ""));
-  } else {
-    // Tier 3: card's current annual fee
+  }
+  if (amount === null) {
+    // Tier 3: card's current annual fee. Previously an `else` on the
+    // description branch, so any event WITH a description but no "$NNN" in it
+    // never reached this fallback and rendered as $0 — e.g. adding an
+    // "Annual Fee Posted" event with a note but a blank amount field.
     amount = cardAnnualFee ?? 0;
   }
   // Refund events store positive amounts but are treated as negative
@@ -60,6 +66,7 @@ function formatFeeAmount(amount: number): string {
 }
 
 export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded, onToggleExpand, onExpand }: AnnualFeeHistorySectionProps) {
+  const today = useToday();
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [editFeeValue, setEditFeeValue] = useState("");
   const [editDateValue, setEditDateValue] = useState<Date | undefined>();
@@ -78,7 +85,11 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
     .filter((e) => e.event_type === "annual_fee_posted" || e.event_type === "annual_fee_refund")
     .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
 
-  const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date);
+  // Every other caller passes useToday() (local midnight in the configured
+  // timezone). Omitting it here used wall-clock "now", so on the anniversary
+  // itself the fallback loop advanced past a fee due today and this row showed
+  // a year later than the tile and dashboard did.
+  const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today);
 
   const openYear = card.open_date
     ? parseDateStr(card.open_date).getFullYear()
@@ -147,7 +158,16 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
   };
 
   const handleAdd = async () => {
+    // `saving` must be checked HERE, not only in the button's disabled prop:
+    // pressing Enter twice quickly in the amount field fired this twice and
+    // created two identical annual_fee_posted events, which then double-counted
+    // in the Total and in the dashboard's lifetime-fee sum.
+    if (saving) return;
     const fee = parseIntStrict(addFeeValue);
+    if (addFeeValue.trim() && fee === null) {
+      toast.error("Fee amount must be a whole dollar amount");
+      return;
+    }
     if (fee === null || !addDateValue) return;
     setSaving(true);
 

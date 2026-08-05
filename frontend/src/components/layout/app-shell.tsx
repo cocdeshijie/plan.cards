@@ -104,8 +104,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (isPublicPage) {
       return <>{children}</>;
     }
-    // Redirect protected pages to landing
-    router.replace("/");
+    // Redirect handled in the effect above: calling router.replace() during
+    // render warns ("Cannot update a component while rendering a different
+    // component") and re-fires on every re-render until the navigation commits.
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

@@ -19,6 +19,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToday } from "@/hooks/use-timezone";
 import { parseDateStr } from "@/lib/utils";
+import { getAnniversaryForYear } from "@/lib/fee-utils";
 
 interface CalendarViewProps {
   cards: Card[];
@@ -54,9 +55,12 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
       if (card.open_date && card.status === "active") {
         const openDate = parseDateStr(card.open_date);
         const hasFee = card.annual_fee && card.annual_fee > 0;
-        // Generate for both viewYear and viewYear+1 to handle month boundary views
-        for (const yr of [year, year + 1]) {
-          const anniversary = new Date(yr, openDate.getMonth(), openDate.getDate());
+        // The grid always renders leading days of the previous month and
+        // trailing days of the next, so viewing January 2026 shows cells from
+        // late December 2025. Covering only [year, year+1] silently dropped
+        // anniversaries falling in those leading cells.
+        for (const yr of [year - 1, year, year + 1]) {
+          const anniversary = getAnniversaryForYear(openDate, yr);
           events.push({
             date: anniversary,
             type: "anniversary",
@@ -136,16 +140,21 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
 
   const yearRange = useMemo(() => {
     const currentYear = today.getFullYear();
-    let minYear = currentYear - 5;
+    const viewedYear = currentMonth.getFullYear();
+    // Include the viewed year. The chevrons advance currentMonth without bound,
+    // so navigating past currentYear + 2 left the Select with no matching item
+    // and Radix rendered an empty trigger — the year label vanished while the
+    // grid still showed that year.
+    let minYear = Math.min(currentYear - 5, viewedYear);
     for (const card of cards) {
       if (card.open_date) {
         const yr = parseDateStr(card.open_date).getFullYear();
         if (yr < minYear) minYear = yr;
       }
     }
-    const maxYear = currentYear + 2;
+    const maxYear = Math.max(currentYear + 2, viewedYear);
     return Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i);
-  }, [cards, today]);
+  }, [cards, today, currentMonth]);
 
   return (
     <div className="space-y-4">
@@ -158,9 +167,9 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
             <Select
               value={String(currentMonth.getMonth())}
               onValueChange={(val) => {
-                const newMonth = new Date(currentMonth);
-                newMonth.setMonth(parseInt(val));
-                setCurrentMonth(newMonth);
+                // Anchor on the 1st: setMonth() preserves the day, so from the
+                // 31st picking a 30-day month overflowed into the next one.
+                setCurrentMonth(new Date(currentMonth.getFullYear(), parseInt(val), 1));
               }}
             >
               <SelectTrigger className="h-8 w-auto border-none shadow-none px-2 py-0 text-lg font-semibold focus:ring-0">
@@ -177,9 +186,7 @@ export function CalendarView({ cards, profiles, onCardClick }: CalendarViewProps
             <Select
               value={String(currentMonth.getFullYear())}
               onValueChange={(val) => {
-                const newMonth = new Date(currentMonth);
-                newMonth.setFullYear(parseInt(val));
-                setCurrentMonth(newMonth);
+                setCurrentMonth(new Date(parseInt(val), currentMonth.getMonth(), 1));
               }}
             >
               <SelectTrigger className="h-8 w-auto border-none shadow-none px-2 py-0 text-lg font-semibold focus:ring-0">

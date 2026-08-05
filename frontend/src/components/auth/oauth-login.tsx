@@ -17,6 +17,11 @@ export function OAuthLogin() {
     setError("");
     const redirectUri = `${window.location.origin}/auth/callback?provider=${providerName}`;
     localStorage.setItem("oauth_provider", providerName);
+    // Clear any abandoned "link my account" flow. oauth_flow_type is only
+    // cleared when the callback page actually runs, so a link started and
+    // abandoned earlier would route this *login* through the authenticated
+    // link endpoint and fail with a bare "Unauthorized".
+    localStorage.removeItem("oauth_flow_type");
     try {
       const res = await fetch(
         `${API_BASE}/api/auth/oauth/${providerName}/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`

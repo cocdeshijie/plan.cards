@@ -27,6 +27,7 @@ import {
   type AdminConfig,
   type OAuthProviderConfig,
   type OAuthPreset,
+  downloadDatabaseBackup,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -532,6 +533,19 @@ function SettingsTab({
   const [upgradeTarget, setUpgradeTarget] = useState("");
   const [upgradePassword, setUpgradePassword] = useState("");
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
+
+  const handleDownloadBackup = async () => {
+    setBackingUp(true);
+    try {
+      await downloadDatabaseBackup();
+      toast.success("Backup downloaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Backup failed");
+    } finally {
+      setBackingUp(false);
+    }
+  };
 
   // OAuth wizard state
   const [wizardPresets, setWizardPresets] = useState<OAuthPreset[]>(oauthPresets);
@@ -804,6 +818,22 @@ function SettingsTab({
           </button>
         </div>
       )}
+
+      {/* Backup */}
+      <div className="space-y-2 pt-2 border-t">
+        <h3 className="font-medium">Backup</h3>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            Downloads a complete snapshot of the database — every profile, plus
+            users, auth mode and OAuth configuration. Safe to run while the app
+            is in use. To restore: stop the stack, replace{" "}
+            <code className="text-[11px]">/data/cards.db</code> with this file, start it again.
+          </p>
+          <Button size="sm" variant="outline" onClick={handleDownloadBackup} disabled={backingUp}>
+            {backingUp ? "Preparing…" : "Download backup"}
+          </Button>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={showUpgradeConfirm}

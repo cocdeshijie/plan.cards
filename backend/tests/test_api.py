@@ -3578,3 +3578,241 @@ def test_db_cascade_delete_removes_children():
     assert s.query(CardEvent).count() == 0
     assert s.query(CardBenefit).count() == 0
     s.close()
+
+
+# ── Card lifecycle coherence ───────────────────────────────────────────────
+
+
+def _profile(client, auth_headers):
+    return client.post("/api/profiles", json={"name": "P"}, headers=auth_headers).json()
+
+
+def test_raising_annual_fee_from_zero_creates_fee_tracking(client, setup_complete, auth_headers):
+    """Regression: the backfill was gated on `old_open_date is None`, so it only
+    fired on the open-date transition. Raising annual_fee from 0 left the card
+    with no annual_fee_date and no fee history forever -- and the same call sets
+    annual_fee_user_modified, so template sync would never repair it either."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Free First Year",
+        "issuer": "Amex",
+        "open_date": (date.today() - relativedelta(years=2)).isoformat(),
+        "annual_fee": 0,
+    }, headers=auth_headers).json()
+    assert card["annual_fee_date"] is None
+
+    updated = client.put(f"/api/cards/{card['id']}", json={"annual_fee": 695}, headers=auth_headers).json()
+    assert updated["annual_fee"] == 695
+    assert updated["annual_fee_date"] is not None, "no next-fee date after the fee was set"
+
+    events = client.get(f"/api/cards/{card['id']}/events", headers=auth_headers).json()
+    assert [e for e in events if e["event_type"] == "annual_fee_posted"], "no fee history created"
+
+
+def test_af_event_on_closed_card_does_not_resurrect_fee_date(client, setup_complete, auth_headers):
+    """Regression: _maybe_anchor_af_date had no closed-card guard, unlike its
+    sibling _recalculate_af_date_after_delete, so recording the final fee before
+    closure set a fee date years into the future on a closed card."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Closing Soon",
+        "issuer": "Chase",
+        "open_date": (date.today() - relativedelta(years=2)).isoformat(),
+        "annual_fee": 550,
+    }, headers=auth_headers).json()
+
+    close_date = (date.today() - timedelta(days=30)).isoformat()
+    r = client.post(f"/api/cards/{card['id']}/close", json={"close_date": close_date}, headers=auth_headers)
+    assert r.status_code == 200
+    assert r.json()["annual_fee_date"] is None
+
+    client.post(f"/api/cards/{card['id']}/events", json={
+        "event_type": "annual_fee_posted",
+        "event_date": (date.today() - timedelta(days=60)).isoformat(),
+        "metadata_json": {"annual_fee": 550},
+    }, headers=auth_headers)
+
+    after = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert after["status"] == "closed"
+    assert after["annual_fee_date"] is None, "closed card got a future fee date"
+
+
+def test_future_af_event_is_the_next_fee(client, setup_complete, auth_headers):
+    """Regression: anchoring stepped +12mo from the anchor unconditionally, so a
+    future-dated fee event skipped the very fee the user just recorded."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Future Fee",
+        "issuer": "Chase",
+        "open_date": (date.today() - relativedelta(years=1)).isoformat(),
+        "annual_fee": 95,
+    }, headers=auth_headers).json()
+
+    future = date.today() + timedelta(days=45)
+    client.post(f"/api/cards/{card['id']}/events", json={
+        "event_type": "annual_fee_posted",
+        "event_date": future.isoformat(),
+        "metadata_json": {"annual_fee": 95},
+    }, headers=auth_headers)
+
+    after = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert after["annual_fee_date"] == future.isoformat()
+
+
+def test_system_event_types_cannot_be_created_by_hand(client, setup_complete, auth_headers):
+    """Regression: update_event and delete_event both refuse system types but
+    create_event did not, so a caller could mint a `closed` event dated 2001 on
+    an active card and then never delete it or change its type."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "C", "issuer": "Amex",
+        "open_date": "2024-01-01",
+    }, headers=auth_headers).json()
+
+    for event_type in ("opened", "closed", "product_change", "reopened"):
+        r = client.post(f"/api/cards/{card['id']}/events", json={
+            "event_type": event_type,
+            "event_date": "2001-01-01",
+        }, headers=auth_headers)
+        assert r.status_code == 400, f"{event_type} was accepted"
+
+    after = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert after["status"] == "active"
+
+
+def test_creating_a_closed_card_is_coherent(client, setup_complete, auth_headers):
+    """Regression: create with status=closed produced fee events for every year
+    AFTER the close date, no `closed` event at all, and POST /close then 400'd
+    with "Card is already closed" -- so the event could never be added."""
+    profile = _profile(client, auth_headers)
+    open_date = date.today() - relativedelta(years=5)
+    close_date = date.today() - relativedelta(years=3)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"],
+        "card_name": "Historical",
+        "issuer": "Amex",
+        "status": "closed",
+        "open_date": open_date.isoformat(),
+        "close_date": close_date.isoformat(),
+        "annual_fee": 550,
+    }, headers=auth_headers).json()
+
+    assert card["annual_fee_date"] is None
+    events = client.get(f"/api/cards/{card['id']}/events", headers=auth_headers).json()
+    assert any(e["event_type"] == "closed" for e in events), "no closed event"
+
+    af_dates = [
+        date.fromisoformat(e["event_date"])
+        for e in events if e["event_type"] == "annual_fee_posted"
+    ]
+    assert af_dates, "no fee history"
+    assert max(af_dates) <= close_date, "fees posted after the card was closed"
+
+
+def test_template_id_cannot_be_changed_through_plain_update(client, setup_complete, auth_headers):
+    """Regression: PUT /cards/{id} accepted template_id, bypassing every
+    product-change invariant and leaving template_version_id pointing at a
+    version belonging to a different template."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "Gold", "issuer": "Amex",
+        "template_id": "amex/gold", "open_date": "2024-01-01",
+    }, headers=auth_headers).json()
+
+    client.put(f"/api/cards/{card['id']}", json={"template_id": "amex/platinum"}, headers=auth_headers)
+    after = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert after["template_id"] == "amex/gold", "template_id was changed outside product-change"
+
+
+def test_single_field_update_validates_against_stored_dates(client, setup_complete, auth_headers):
+    """Regression: validate_dates read the PAYLOAD, where unset fields are None,
+    so a single-field PATCH never compared against the stored value."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "C", "issuer": "Amex",
+        "open_date": "2024-01-01",
+    }, headers=auth_headers).json()
+
+    r = client.put(f"/api/cards/{card['id']}", json={"close_date": "2010-01-01"}, headers=auth_headers)
+    assert r.status_code == 400
+    assert "before open_date" in r.json()["detail"]
+
+
+def test_absurd_dates_are_rejected(client, setup_complete, auth_headers):
+    """A mistyped year inflates the 5/24 count and pushes the fee schedule
+    decades out, silently."""
+    profile = _profile(client, auth_headers)
+    for bad in ("1200-01-01", "3000-01-01"):
+        r = client.post("/api/cards", json={
+            "profile_id": profile["id"], "card_name": "C", "issuer": "Amex",
+            "open_date": bad,
+        }, headers=auth_headers)
+        assert r.status_code == 422, f"{bad} was accepted"
+
+
+def test_closing_a_card_disarms_linked_bonus_reminders(client, setup_complete, auth_headers):
+    """Regression: close_card cleared only the card-level reminder, so a
+    retention bonus kept a live spend deadline for a bonus that can no longer
+    be earned."""
+    profile = _profile(client, auth_headers)
+    card = client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "C", "issuer": "Amex",
+        "open_date": (date.today() - relativedelta(years=1)).isoformat(),
+    }, headers=auth_headers).json()
+
+    r = client.post(f"/api/cards/{card['id']}/retention-offer", json={
+        "event_date": date.today().isoformat(),
+        "offer_points": 10000,
+        "accepted": True,
+        "spend_requirement": 3000,
+        "spend_deadline": (date.today() + timedelta(days=90)).isoformat(),
+    }, headers=auth_headers)
+    assert r.status_code == 201
+
+    client.post(f"/api/cards/{card['id']}/close",
+                json={"close_date": date.today().isoformat()}, headers=auth_headers)
+
+    after = client.get(f"/api/cards/{card['id']}", headers=auth_headers).json()
+    assert all(not b["spend_reminder_enabled"] for b in after["bonuses"]), \
+        "closed card still has an armed bonus spend reminder"
+
+
+def test_database_backup_produces_a_valid_snapshot(client, setup_complete, auth_headers, tmp_path):
+    """The backup must be a real, openable SQLite database containing the data.
+
+    A plain file copy is NOT equivalent: WAL mode leaves recent commits in
+    cards.db-wal, so `docker cp` of cards.db alone silently loses them.
+    """
+    import sqlite3
+
+    profile = _profile(client, auth_headers)
+    client.post("/api/cards", json={
+        "profile_id": profile["id"], "card_name": "Backup Me", "issuer": "Amex",
+        "open_date": "2024-01-01",
+    }, headers=auth_headers)
+
+    r = client.get("/api/admin/backup", headers=auth_headers)
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/octet-stream"
+    assert ".db" in r.headers.get("content-disposition", "")
+
+    out = tmp_path / "restored.db"
+    out.write_bytes(r.content)
+
+    conn = sqlite3.connect(out)
+    names = {row[0] for row in conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    )}
+    assert {"cards", "profiles", "users"} <= names
+    card_names = [row[0] for row in conn.execute("SELECT card_name FROM cards")]
+    conn.close()
+    assert "Backup Me" in card_names
+
+
+def test_database_backup_requires_admin(client, multi_user_headers):
+    r = client.post("/api/auth/register", json={"username": "plain", "password": "password123"})
+    user_headers = {"Authorization": f"Bearer {r.json()['access_token']}"}
+    assert client.get("/api/admin/backup", headers=user_headers).status_code == 403

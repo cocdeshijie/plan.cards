@@ -123,7 +123,9 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
           const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today);
           if (!nextFeeInfo) return null;
           const colorClass =
-            nextFeeInfo.proximity === "imminent"
+            nextFeeInfo.proximity === "overdue"
+              ? "text-red-600 dark:text-red-400"
+              : nextFeeInfo.proximity === "imminent"
               ? "text-orange-600 dark:text-orange-400"
               : nextFeeInfo.proximity === "soon"
               ? "text-yellow-600 dark:text-yellow-400"
@@ -131,7 +133,7 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
           return (
             <div className={`flex items-center gap-1.5 text-xs ${colorClass}`}>
               <CalendarClock className="h-3 w-3 shrink-0" />
-              <span>Next fee {nextFeeInfo.label}</span>
+              <span>{nextFeeInfo.overdue ? `Fee ${nextFeeInfo.label}` : `Next fee ${nextFeeInfo.label}`}</span>
             </div>
           );
         })()}

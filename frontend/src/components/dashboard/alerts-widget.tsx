@@ -20,12 +20,20 @@ interface Alert {
   bonusAmount?: number | null;
   bonusType?: string | null;
   spendRequirement?: number | null;
+  /** Distinguishes two bonuses on one card that share a spend deadline. */
+  bonusId?: number;
 }
 
 // Stable per-occurrence key so a dismissed annual fee reappears next year
 // (different date) but stays hidden for the current cycle.
+//
+// bonusId is part of the key because a card can carry two bonuses sharing one
+// spend_deadline; without it both rows had an identical key, so dismissing
+// either removed both — and the dismissal is persisted server-side, so it
+// survived a reload.
 function alertKey(alert: Alert): string {
-  return `${alert.type}-${alert.cardId}-${alert.date}`;
+  const suffix = alert.bonusId != null ? `-${alert.bonusId}` : "";
+  return `${alert.type}-${alert.cardId}-${alert.date}${suffix}`;
 }
 
 interface AlertsWidgetProps {
@@ -117,6 +125,7 @@ export function AlertsWidget({ onCardClick }: AlertsWidgetProps) {
               bonusAmount: bonus.bonus_amount,
               bonusType: bonus.bonus_type,
               spendRequirement: bonus.spend_requirement,
+              bonusId: bonus.id,
             });
           }
         }

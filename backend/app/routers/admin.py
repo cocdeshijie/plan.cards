@@ -1,14 +1,20 @@
 import logging
+import os
+import shutil
+import tempfile
 import time
 from datetime import datetime, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.models.oauth_account import OAuthAccount
 from app.models.oauth_provider import OAuthProvider
@@ -416,3 +422,57 @@ def reload_templates(
         "templates_loaded": templates_loaded,
         "sync": summary,
     }
+
+
+# ── Database backup ─────────────────────────────────────────────────
+
+
+@router.get("/backup")
+def download_backup(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Stream a consistent snapshot of the SQLite database.
+
+    Uses `VACUUM INTO`, which produces a valid single-file copy of a LIVE
+    database. That matters because the app runs in WAL mode: the obvious backup
+    a self-hoster reaches for --
+        docker cp backend:/data/cards.db ./backup.db
+    -- silently captures a file missing every commit still sitting in
+    cards.db-wal, and the copy looks fine until you restore it.
+
+    Unlike the JSON profile export this covers everything: users, auth mode,
+    OAuth provider config, and all profiles.
+    """
+    # Back up the database this session is actually bound to, not a
+    # module-level engine that may point somewhere else.
+    bind = db.get_bind()
+    if bind.dialect.name != "sqlite":
+        raise HTTPException(
+            status_code=400, detail="Database backup is only supported for SQLite"
+        )
+
+    tmp_dir = tempfile.mkdtemp(prefix="cct-backup-")
+    # Server-generated path; no user input reaches this statement (SQLite has no
+    # bind-parameter form for VACUUM INTO).
+    tmp_path = os.path.join(tmp_dir, "cards.db")
+    try:
+        # VACUUM cannot run inside a transaction.
+        with bind.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.exec_driver_sql(f"VACUUM INTO '{tmp_path}'")
+    except Exception as e:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        logger.exception("Database backup failed")
+        raise HTTPException(status_code=500, detail=f"Backup failed: {e}")
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+    def _cleanup() -> None:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    return FileResponse(
+        tmp_path,
+        media_type="application/octet-stream",
+        filename=f"plan-cards-{stamp}.db",
+        background=BackgroundTask(_cleanup),
+    )
