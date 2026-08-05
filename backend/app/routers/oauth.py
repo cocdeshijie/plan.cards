@@ -20,6 +20,7 @@ from app.services.oauth_presets import get_preset, list_presets
 from app.services.oauth_service import (
     AccountDeactivatedError,
     EmailConflictError,
+    MissingSubjectError,
     generate_state,
     get_authorization_url,
     exchange_code,
@@ -288,7 +289,11 @@ async def token_exchange(
         logger.error(f"OAuth token exchange failed for {provider_name}: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")
 
-    user_info = extract_user_info(provider_name, oauth_result["userinfo"])
+    try:
+        user_info = extract_user_info(provider_name, oauth_result["userinfo"])
+    except MissingSubjectError as e:
+        logger.error("OAuth identity missing for %s: %s", provider_name, e)
+        raise HTTPException(status_code=400, detail=str(e))
     try:
         user = find_or_create_user(db, provider_name, user_info, oauth_result)
     except AccountDeactivatedError:

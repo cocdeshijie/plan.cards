@@ -1,5 +1,7 @@
 """Tests for setup, auth modes, registration, user management, admin, and user isolation."""
 
+import pytest
+
 from app.models.user import User
 from tests.conftest import TEST_PASSWORD
 
@@ -2007,3 +2009,69 @@ def test_login_sets_auth_cookie_and_authenticates(client, setup_complete):
     assert out.status_code == 200
     client.cookies.clear()
     assert client.get("/api/auth/verify").status_code == 401
+
+
+# ── OAuth subject (provider_user_id) integrity ──────────────────────────────
+
+
+def test_extract_user_info_rejects_missing_subject():
+    """An empty provider_user_id is not an identity.
+
+    Every caller keys an OAuthAccount on this value, so an empty one makes the
+    lookup match (provider, "") — collapsing every user of that provider into
+    whichever account was created first, including its admin role.
+    """
+    from app.services.oauth_service import extract_user_info, MissingSubjectError
+
+    # Standard OIDC response with no `sub` at all.
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("google", {"email": "a@b.com", "email_verified": True})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("google", {"sub": ""})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("github", {"login": "u"})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("discord", {"username": "u"})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("facebook", {"name": "U"})
+
+
+def test_extract_user_info_facebook_uses_id_not_sub():
+    """The shipped Facebook preset points at graph.facebook.com/me, which
+    returns `id` and never OIDC's `sub`."""
+    from app.services.oauth_service import extract_user_info
+
+    info = extract_user_info("facebook", {"id": "10223344", "name": "Alice", "email": "a@b.com"})
+    assert info["provider_user_id"] == "10223344"
+    # Facebook asserts no email_verified claim, so email must not drive linking.
+    assert info["email"] is None
+
+
+def test_extract_user_info_generic_provider_falls_back_to_id():
+    """A hand-registered non-OIDC provider (Gitea etc.) exposes `id`."""
+    from app.services.oauth_service import extract_user_info
+
+    info = extract_user_info("gitea", {"id": 42, "name": "Bob"})
+    assert info["provider_user_id"] == "42"
+
+
+def test_two_facebook_users_get_distinct_accounts(db_session):
+    """Regression: with provider_user_id == "" for everyone, the second
+    Facebook user logged straight into the first user's (admin) account."""
+    from app.services.oauth_service import extract_user_info, find_or_create_user
+
+    tokens = {"access_token": "t"}
+    first = find_or_create_user(
+        db_session, "facebook",
+        extract_user_info("facebook", {"id": "111", "name": "First"}),
+        tokens,
+    )
+    second = find_or_create_user(
+        db_session, "facebook",
+        extract_user_info("facebook", {"id": "222", "name": "Second"}),
+        tokens,
+    )
+    assert first is not None and second is not None
+    assert first.id != second.id
+    assert first.role == "admin"
+    assert second.role == "user"

@@ -303,7 +303,7 @@ async def admin_link_oauth(
     """Link the admin's account to an OAuth provider (for OAuth mode setup)."""
     from app.models.oauth_state import OAuthState
     from app.routers.oauth import STATE_TTL, _validate_redirect_uri
-    from app.services.oauth_service import exchange_code, extract_user_info
+    from app.services.oauth_service import exchange_code, extract_user_info, MissingSubjectError
 
     # Validate redirect_uri against ALLOWED_ORIGINS
     _validate_redirect_uri(data.redirect_uri)
@@ -335,7 +335,11 @@ async def admin_link_oauth(
         logger.error(f"Admin OAuth link token exchange failed: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")
 
-    user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    try:
+        user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    except MissingSubjectError as e:
+        logger.error("OAuth identity missing for %s: %s", data.provider_name, e)
+        raise HTTPException(status_code=400, detail=str(e))
     provider_user_id = str(user_info["provider_user_id"])
 
     # Check if this OAuth account is already linked to another user

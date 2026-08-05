@@ -26,6 +26,11 @@ class EmailConflictError(Exception):
     pass
 
 
+class MissingSubjectError(Exception):
+    """The provider's userinfo response carried no usable identity claim."""
+    pass
+
+
 def generate_state() -> str:
     return secrets.token_urlsafe(32)
 
@@ -122,7 +127,21 @@ def extract_user_info(provider_name: str, userinfo: dict) -> dict:
     An unverified (hence spoofable) email must never drive account auto-linking or
     the email-conflict check in find_or_create_user, or it becomes an
     account-takeover primitive.
+
+    SECURITY: raises MissingSubjectError rather than returning an empty
+    `provider_user_id`. Every caller keys an OAuthAccount on that value, so an
+    empty one collapses all of a provider's users into a single account.
     """
+    info = _extract_user_info(provider_name, userinfo)
+    if not info.get("provider_user_id"):
+        raise MissingSubjectError(
+            f"Provider '{provider_name}' returned no user identifier. "
+            "Check the provider's userinfo URL and requested scopes."
+        )
+    return info
+
+
+def _extract_user_info(provider_name: str, userinfo: dict) -> dict:
     if provider_name == "github":
         # GitHub's profile `email` is the public email and may be unverified or
         # null; exchange_code() resolves the verified primary into _verified_email.
@@ -140,12 +159,23 @@ def extract_user_info(provider_name: str, userinfo: dict) -> dict:
             "name": userinfo.get("global_name") or userinfo.get("username", ""),
             "username": userinfo.get("username", ""),
         }
+    elif provider_name == "facebook":
+        # Facebook's Graph API returns `id`, never OIDC's `sub`, and asserts no
+        # email_verified claim — so email can never drive linking here.
+        return {
+            "provider_user_id": str(userinfo.get("id", "")),
+            "email": None,
+            "name": userinfo.get("name", ""),
+            "username": userinfo.get("name", ""),
+        }
     else:
-        # Standard OIDC (Google, Apple, generic)
+        # Standard OIDC (Google, Apple, generic). Fall back to `id` for
+        # non-OIDC providers an admin may have registered by hand; an empty
+        # subject is rejected below rather than being treated as an identity.
         raw_email = userinfo.get("email")
         email = raw_email if (raw_email and _is_verified(userinfo.get("email_verified"))) else None
         return {
-            "provider_user_id": userinfo.get("sub", ""),
+            "provider_user_id": str(userinfo.get("sub") or userinfo.get("id") or ""),
             "email": email,
             "name": userinfo.get("name", ""),
             "username": raw_email.split("@")[0] if raw_email else "",
@@ -161,6 +191,17 @@ def find_or_create_user(
     """Find existing user by OAuth account or create new one. Returns None if registration disabled."""
     provider_user_id = user_info["provider_user_id"]
     email = user_info.get("email")
+
+    # An empty subject is not an identity. Treating it as one collapses every
+    # account from that provider into whichever user was created first --
+    # including that user's admin role -- because the lookup below matches on
+    # (provider, ""). Fail loudly instead; it means the provider is misconfigured
+    # or returns its subject under a claim we don't read.
+    if not provider_user_id:
+        raise MissingSubjectError(
+            f"Provider '{provider_name}' returned no user identifier. "
+            "Check the provider's userinfo URL and scopes."
+        )
 
     # Check for existing OAuth link
     existing_account = (

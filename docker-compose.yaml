@@ -18,12 +18,20 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    # ports:
-    #   - "3000:3000"
+    # No `ports` here on purpose: platform deployments (Coolify et al.) route to
+    # the container through their own proxy, and binding a fixed host port
+    # collides across apps. Standalone hosting gets the published port from
+    # docker-compose.override.yml, which a bare `docker compose up -d` merges in
+    # automatically.
     expose:
       - "3000"
     depends_on:
-      - backend
+      backend:
+        # Wait for the API to pass its healthcheck, not merely to start. On a
+        # first boot the backend runs migrations and parses ~400 template
+        # directories before it accepts connections, and the setup wizard's
+        # calls would 502 through the Next.js rewrite during that window.
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

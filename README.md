@@ -10,7 +10,25 @@ cd plan.cards
 docker compose up -d
 ```
 
-Open **http://localhost:3000** (or your server's IP/hostname) and follow the setup wizard. Only port 3000 is exposed — the frontend proxies API requests to the backend internally.
+Open **http://localhost:3000** (or your server's IP/hostname) and follow the setup wizard. Only port 3000 is published — the frontend proxies API requests to the backend over the internal Docker network, and the backend is never reachable from outside.
+
+Set `HOST_PORT` to publish on a different port:
+
+```bash
+HOST_PORT=8080 docker compose up -d
+```
+
+### Behind a reverse proxy (Coolify, Caddy, nginx, Traefik)
+
+`docker-compose.yaml` deliberately declares no host ports; the published port lives in `docker-compose.override.yml`, which a bare `docker compose up -d` merges in automatically. Platform deployments pass an explicit compose file, which suppresses that merge:
+
+```bash
+docker compose -f docker-compose.yaml up -d
+```
+
+Both containers then stay on the internal network with nothing bound to the host, and your proxy routes to the `frontend` service on port 3000. This is the right shape for Coolify — a fixed published port collides when several apps share a host.
+
+> **Note for Coolify:** point the app at `docker-compose.yaml`. Coolify deploys with an explicit `-f`, so `docker-compose.override.yml` is ignored and no host port is bound.
 
 ## Features
 

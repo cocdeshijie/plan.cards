@@ -1,0 +1,18 @@
+# Standalone self-hosting.
+#
+# Docker Compose auto-merges this file into docker-compose.yaml for a bare
+# `docker compose up -d`, publishing the frontend on the host so the README's
+# http://localhost:3000 works out of the box.
+#
+# Platform deployments (Coolify, Dokploy, and anything else that fronts the
+# stack with its own reverse proxy) pass an explicit `-f docker-compose.yaml`,
+# which suppresses override auto-merge — so they keep the expose-only topology
+# and never bind a host port. That is deliberate: publishing a fixed host port
+# collides across apps on a shared host.
+#
+# To keep the port internal-only in a standalone deployment, delete this file
+# or run `docker compose -f docker-compose.yaml up -d`.
+services:
+  frontend:
+    ports:
+      - "${HOST_PORT:-3000}:3000"

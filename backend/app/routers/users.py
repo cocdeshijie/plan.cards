@@ -14,7 +14,7 @@ from app.schemas.user import UserOut
 from app.rate_limit import limiter
 from app.services.auth_service import hash_password, verify_password
 from app.services.crypto import encrypt_value
-from app.services.oauth_service import exchange_code, extract_user_info
+from app.services.oauth_service import exchange_code, extract_user_info, MissingSubjectError
 from app.services.setup_service import get_system_config
 
 logger = logging.getLogger(__name__)
@@ -134,7 +134,11 @@ async def user_link_oauth(
         logger.error(f"User OAuth link token exchange failed: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")
 
-    user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    try:
+        user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    except MissingSubjectError as e:
+        logger.error("OAuth identity missing for %s: %s", data.provider_name, e)
+        raise HTTPException(status_code=400, detail=str(e))
     provider_user_id = str(user_info["provider_user_id"])
 
     # Check if this OAuth identity is already linked to another user
