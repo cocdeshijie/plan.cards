@@ -110,8 +110,16 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   };
 
   const handleAddUsage = async (benefit: BenefitSummaryItem) => {
-    const addVal = parseIntStrict(addAmounts[benefit.id] || "0");
-    if (!addVal || addVal <= 0) return;
+    const raw = addAmounts[benefit.id] || "";
+    if (!raw.trim()) return;
+    const addVal = parseIntStrict(raw);
+    // Silent early-return on "12.50" made the Add button look dead. The sibling
+    // handleSetUsage already toasts on the same failure.
+    if (addVal === null) {
+      toast.error("Enter a whole dollar amount");
+      return;
+    }
+    if (addVal <= 0) return;
     const newTotal = benefit.amount_used + addVal;
     try {
       await updateBenefitUsage(benefit.card_id, benefit.id, { amount_used: newTotal });

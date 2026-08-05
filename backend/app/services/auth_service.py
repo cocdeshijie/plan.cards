@@ -42,12 +42,32 @@ def clear_auth_cookie(response: Response) -> None:
     response.delete_cookie(AUTH_COOKIE_NAME, path="/")
 
 
+# bcrypt operates on at most 72 bytes and, since 5.0, raises ValueError rather
+# than truncating. Password fields allow 128 characters, and a multibyte
+# passphrase reaches 72 BYTES well before that (40 emoji = 160 bytes), so an
+# unpatched call turns an in-range password into an uncaught 500 on an
+# unauthenticated endpoint. Truncate consistently on both sides instead.
+BCRYPT_MAX_BYTES = 72
+
+
+def _bcrypt_bytes(password: str) -> bytes:
+    encoded = password.encode()
+    if len(encoded) <= BCRYPT_MAX_BYTES:
+        return encoded
+    # Trim to a whole character so the truncation is deterministic.
+    return encoded[:BCRYPT_MAX_BYTES].decode(errors="ignore").encode()
+
+
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return bcrypt.hashpw(_bcrypt_bytes(password), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
+    try:
+        return bcrypt.checkpw(_bcrypt_bytes(plain), hashed.encode())
+    except ValueError:
+        # Malformed/corrupt stored hash — treat as a failed login, not a 500.
+        return False
 
 
 def create_access_token(user_id: int, role: str, password_changed_at: datetime | None = None) -> str:

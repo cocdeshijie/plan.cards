@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 from alembic import command as alembic_command
 from alembic.config import Config as AlembicConfig
+from alembic.util import exc as alembic_util_exc
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -18,7 +19,9 @@ from app.config import settings
 from app.rate_limit import limiter
 from app.database import engine, SessionLocal
 from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
-from app.services.template_loader import load_templates, reload_if_changed
+from app.services.bootstrap_token import log_bootstrap_token
+from app.services.setup_service import get_system_config
+from app.services.template_loader import invalidate_fingerprint, load_templates, reload_if_changed
 from app.services.template_sync import sync_cards_to_templates
 
 logger = logging.getLogger(__name__)
@@ -34,6 +37,28 @@ def _get_alembic_config() -> AlembicConfig:
     return cfg
 
 
+def _upgrade_to_head(cfg: AlembicConfig) -> None:
+    """Upgrade to head, translating the 'unknown revision' failure into an
+    actionable message.
+
+    That error means the database was stamped by a NEWER image than the one now
+    running (a rollback). With `restart: unless-stopped` the raw CommandError
+    produces an endless crash-loop whose log says only "Can't locate revision",
+    which points nobody at the actual cause.
+    """
+    try:
+        alembic_command.upgrade(cfg, "head")
+    except alembic_util_exc.CommandError as e:
+        if "can't locate revision" in str(e).lower():
+            raise RuntimeError(
+                "This database was created by a newer version of plan.cards than "
+                "the one you are running. Downgrades are not supported — restore "
+                "the matching image version, or restore a backup taken before the "
+                f"upgrade. (alembic: {e})"
+            ) from e
+        raise
+
+
 def _run_alembic_migrations():
     """Run Alembic migrations. For pre-Alembic databases, run legacy migrations first then stamp."""
     inspector = inspect(engine)
@@ -42,20 +67,20 @@ def _run_alembic_migrations():
     has_alembic = "alembic_version" in table_names
     has_tables = "cards" in table_names
 
+    cfg = _get_alembic_config()
+
     if has_tables and not has_alembic:
         # Legacy database: run manual migrations to bring it up to the initial schema,
         # then stamp so Alembic takes over from here.
         _run_legacy_migrations(inspector, table_names)
-        cfg = _get_alembic_config()
         # Stamp with the initial schema revision (skip the migration, schema is already there)
         alembic_command.stamp(cfg, "8abde7989620")
         logger.info("Stamped legacy database at initial Alembic revision")
         # Now run remaining migrations (e.g. add deleted_at)
-        alembic_command.upgrade(cfg, "head")
+        _upgrade_to_head(cfg)
     else:
         # Fresh or already-Alembic database
-        cfg = _get_alembic_config()
-        alembic_command.upgrade(cfg, "head")
+        _upgrade_to_head(cfg)
 
 
 def _run_legacy_migrations(inspector, table_names):
@@ -76,18 +101,25 @@ def _run_legacy_migrations(inspector, table_names):
             ("annual_fee_user_modified", "BOOLEAN NOT NULL DEFAULT 0"),
         ]
         with engine.begin() as conn:
+            # Rename BEFORE the add-column loop. `last_digits` is itself in
+            # card_migrations, so adding it first would make the rename target a
+            # column that already exists ("duplicate column name") — and because
+            # this runs at startup, that permanently bricks the container.
+            if "last_four" in existing and "last_digits" not in existing:
+                conn.execute(text(
+                    "ALTER TABLE cards RENAME COLUMN last_four TO last_digits"
+                ))
+                existing.discard("last_four")
+                existing.add("last_digits")
+                logger.info("Legacy migration: renamed cards.last_four → last_digits")
+
             for col_name, col_type in card_migrations:
                 if col_name not in existing:
                     conn.execute(text(
                         f"ALTER TABLE cards ADD COLUMN {col_name} {col_type}"
                     ))
+                    existing.add(col_name)
                     logger.info(f"Legacy migration: added column cards.{col_name}")
-
-            if "last_four" in existing and "last_digits" not in existing:
-                conn.execute(text(
-                    "ALTER TABLE cards RENAME COLUMN last_four TO last_digits"
-                ))
-                logger.info("Legacy migration: renamed cards.last_four → last_digits")
 
     if "card_benefits" in table_names:
         existing = {col["name"] for col in inspector.get_columns("card_benefits")}
@@ -154,6 +186,11 @@ async def _template_reload_loop(interval: int) -> None:
                     summary = sync_cards_to_templates(db)
                     if summary["cards_synced"] or summary["cards_initialized"]:
                         logger.info(f"Template hot-reload sync: {summary}")
+                except Exception:
+                    # The fingerprint was already advanced by load_templates, so
+                    # without this the sync would never be retried.
+                    invalidate_fingerprint()
+                    raise
                 finally:
                     db.close()
         except Exception:
@@ -230,6 +267,11 @@ async def lifespan(app: FastAPI):
         summary = sync_cards_to_templates(db)
         if summary["cards_synced"] or summary["cards_initialized"]:
             logger.info(f"Template sync: {summary}")
+
+        # In `open` mode "admin" is not a credential, so privileged operations
+        # fall back to a token the operator can only read from these logs.
+        if get_system_config(db, "auth_mode", "open") == "open":
+            log_bootstrap_token()
     finally:
         db.close()
 
@@ -264,9 +306,17 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 
 def _cors_kwargs() -> dict:
-    """Build CORSMiddleware origin kwargs based on ALLOWED_ORIGINS setting."""
+    """Build CORSMiddleware origin kwargs based on ALLOWED_ORIGINS setting.
+
+    Unset means no cross-origin access, which is correct for the shipped
+    topology (the frontend proxies /api/* same-origin). "*" still reflects the
+    request origin for anyone who explicitly opts in, but it is no longer the
+    default — combined with allow_credentials=True it is never safe.
+    """
     raw = settings.allowed_origins.strip()
-    if raw == "*" or not raw:
+    if not raw:
+        return {"allow_origins": []}
+    if raw == "*":
         # Reflect actual request origin (required when allow_credentials=True)
         return {"allow_origin_regex": ".*"}
     origins = []
@@ -280,13 +330,19 @@ def _cors_kwargs() -> dict:
     return {"allow_origins": origins}
 
 
-app.add_middleware(
-    CORSMiddleware,
-    **_cors_kwargs(),
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
-)
+_cors = _cors_kwargs()
+# Skip the middleware entirely when no origins are allowed. With
+# allow_origins=[] Starlette still emits a bare `Access-Control-Allow-Credentials`
+# on every response — inert without an `Access-Control-Allow-Origin`, but a
+# confusing signal to anyone inspecting headers or auditing the deployment.
+if _cors.get("allow_origins") != []:
+    app.add_middleware(
+        CORSMiddleware,
+        **_cors,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+    )
 
 app.include_router(setup.router)
 app.include_router(auth.router)

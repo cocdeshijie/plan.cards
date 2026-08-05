@@ -10,6 +10,7 @@ from app.models.card_event import CardEvent
 from app.models.profile import Profile
 from app.models.setting import Setting
 from app.models.user_setting import UserSetting
+from app.utils.timezone import resolve_timezone
 from app.schemas.export_import import (
     ExportBenefit,
     ExportBonus,
@@ -58,6 +59,8 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
                     frequency=b.frequency,
                     reset_type=b.reset_type,
                     from_template=b.from_template,
+                    template_key=b.template_key,
+                    user_modified=b.user_modified,
                     retired=b.retired,
                     notes=b.notes,
                     amount_used=b.amount_used,
@@ -97,6 +100,7 @@ def export_profiles(db: Session, profile_id: int | None = None, user_id: int | N
                 ExportCard(
                     template_id=card.template_id,
                     template_version_id=card.template_version_id,
+                    template_version_pinned=card.template_version_pinned,
                     card_image=card.card_image,
                     card_name=card.card_name,
                     last_digits=card.last_digits,
@@ -157,6 +161,7 @@ def _create_cards_and_events(
             profile_id=profile.id,
             template_id=card_data.template_id,
             template_version_id=card_data.template_version_id,
+            template_version_pinned=card_data.template_version_pinned,
             card_image=card_data.card_image,
             card_name=card_data.card_name,
             last_digits=card_data.last_digits,
@@ -207,6 +212,8 @@ def _create_cards_and_events(
                 frequency=benefit_data.frequency,
                 reset_type=benefit_data.reset_type,
                 from_template=benefit_data.from_template,
+                template_key=benefit_data.template_key,
+                user_modified=benefit_data.user_modified,
                 retired=benefit_data.retired,
                 notes=benefit_data.notes,
                 amount_used=benefit_data.amount_used,
@@ -297,8 +304,15 @@ def import_profiles(
         if not profile:
             raise ValueError("Target profile not found")
 
-        # Delete existing cards (cascade deletes events and benefits)
+        # Delete existing cards (cascade deletes events and benefits).
+        # Soft-deleted cards are excluded: export_profiles skips them, so they
+        # were never in the file the user is restoring, and they are still
+        # recoverable via POST /api/cards/{id}/restore. Destroying them here
+        # made "export then re-import" silently lossy. Merge mode already
+        # treats them this way.
         for card in list(profile.cards):
+            if card.deleted_at is not None:
+                continue
             db.delete(card)
         db.flush()
 
@@ -350,9 +364,16 @@ def import_profiles(
     else:
         raise ValueError(f"Invalid import mode: {mode}")
 
-    # Import settings if present (only known keys)
+    # Import settings if present (only known keys, and only valid values).
+    # An unvalidated timezone here used to poison every date-aware endpoint with
+    # a permanent 500 -- the import path applied none of the validation that
+    # PUT /api/settings does.
     _IMPORTABLE_SETTINGS = {"timezone"}
     if data.settings:
+        data.settings = {
+            k: v for k, v in data.settings.items()
+            if k != "timezone" or resolve_timezone(v) is not None
+        }
         if user_id is not None:
             for key, value in data.settings.items():
                 if key not in _IMPORTABLE_SETTINGS:

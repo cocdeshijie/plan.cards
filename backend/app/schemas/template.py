@@ -1,11 +1,25 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+# Closed sets, matching BenefitFrequency / BenefitResetType on the card schemas.
+# These were previously bare `str`, which let a community template ship
+# `frequency: yearly` — a value the period engine, the CardBenefit update schema
+# and the dashboard widget all reject. It loaded fine and then broke export with
+# a 500, so the enum is enforced here at the boundary where templates enter.
+TemplateFrequency = Literal["monthly", "quarterly", "semi_annual", "annual"]
+TemplateResetType = Literal["calendar", "cardiversary"]
 
 
 class TemplateCreditOut(BaseModel):
+    # Optional stable identifier. When present, template sync matches user
+    # benefits on this instead of the display name, so renaming a credit
+    # upstream preserves every user's tracked usage.
+    key: str | None = None
     name: str
     amount: int
-    frequency: str  # monthly|quarterly|semi_annual|annual
-    reset_type: str = "calendar"
+    frequency: TemplateFrequency
+    reset_type: TemplateResetType = "calendar"
 
 
 class TemplateBonusCategoryOut(BaseModel):
@@ -16,10 +30,11 @@ class TemplateBonusCategoryOut(BaseModel):
 
 
 class TemplateSpendThresholdOut(BaseModel):
+    key: str | None = None
     name: str
     spend_required: int
-    frequency: str  # monthly|quarterly|semi_annual|annual
-    reset_type: str = "cardiversary"
+    frequency: TemplateFrequency
+    reset_type: TemplateResetType = "cardiversary"
     description: str | None = None
 
 

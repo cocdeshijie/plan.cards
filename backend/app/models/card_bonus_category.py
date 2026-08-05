@@ -16,6 +16,11 @@ class CardBonusCategory(Base):
     portal_only: Mapped[bool] = mapped_column(Boolean, default=False)
     cap: Mapped[int | None] = mapped_column(Integer, nullable=True)
     from_template: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Set when the user edits a from_template category, so sync leaves it alone.
+    # Mirrors CardBenefit.user_modified. Clearing from_template instead would
+    # hide the row from sync's from_template query and make it re-add the
+    # template's version as a SECOND row (there is no unique constraint here).
+    user_modified: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

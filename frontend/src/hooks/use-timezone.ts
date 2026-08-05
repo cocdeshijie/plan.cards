@@ -24,7 +24,16 @@ export function useToday(): Date {
   }, [tz, tick]);
 
   return useMemo(() => {
-    if (!tz) return new Date();
+    // Must be midnight, not "now". Every caller compares this against
+    // parseDateStr() values, which are local midnight — returning the current
+    // time of day makes `afDate >= today` false for a fee due today (dropped
+    // from the timeline all day), `today > deadline` true for a deadline due
+    // today (renders a red "Past Due"), and pushes a cardiversary that falls
+    // today a full year out.
+    if (!tz) {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz,
       year: "numeric",

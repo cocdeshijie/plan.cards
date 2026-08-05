@@ -1,4 +1,6 @@
+import hashlib
 import logging
+import secrets
 import time
 
 import jwt
@@ -12,14 +14,20 @@ from app.models.oauth_provider import OAuthProvider
 from app.models.oauth_state import OAuthState
 from app.models.user import User
 from app.rate_limit import limiter
-from app.routers.auth import require_admin
+from app.routers.auth import require_admin, require_privileged
 from app.schemas.user import TokenResponse, UserBrief
-from app.services.auth_service import create_access_token, decode_token, set_auth_cookie
-from app.services.crypto import encrypt_value
+from app.services.auth_service import (
+    _request_is_secure,
+    create_access_token,
+    decode_token,
+    set_auth_cookie,
+)
+from app.services.crypto import DecryptionError, encrypt_value
 from app.services.oauth_presets import get_preset, list_presets
 from app.services.oauth_service import (
     AccountDeactivatedError,
     EmailConflictError,
+    MissingSubjectError,
     generate_state,
     get_authorization_url,
     exchange_code,
@@ -116,7 +124,7 @@ def list_providers(admin: User = Depends(require_admin), db: Session = Depends(g
 @router.post("/providers", response_model=ProviderOut, status_code=201)
 def create_or_update_provider(
     data: ProviderConfigRequest,
-    admin: User = Depends(require_admin),
+    admin: User = Depends(require_privileged),
     db: Session = Depends(get_db),
 ):
     # Get preset defaults
@@ -165,7 +173,7 @@ def create_or_update_provider(
 @router.delete("/providers/{provider_name}", status_code=204)
 def delete_provider(
     provider_name: str,
-    admin: User = Depends(require_admin),
+    admin: User = Depends(require_privileged),
     db: Session = Depends(get_db),
 ):
     from app.models.oauth_account import OAuthAccount
@@ -194,10 +202,111 @@ def delete_provider(
                     status_code=400,
                     detail="Cannot delete the OAuth provider your account is linked to. Link another provider first.",
                 )
+    # Refuse if any OTHER user would lose their only way to log in. The guard
+    # above only considers the acting admin, so deleting a provider used to wipe
+    # every other user's oauth_accounts row -- and re-creating the provider does
+    # not restore access, because their next login has no link to match.
+    orphaned = [
+        row.user_id
+        for row in db.query(OAuthAccount).filter(OAuthAccount.provider == provider_name).all()
+        if row.user_id != admin.id
+        and db.query(OAuthAccount)
+        .filter(OAuthAccount.user_id == row.user_id, OAuthAccount.provider != provider_name)
+        .count()
+        == 0
+    ]
+    if orphaned:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"{len(orphaned)} other user(s) have no other way to sign in and would be "
+                "locked out. Disable the provider instead, or link those accounts to "
+                "another provider first."
+            ),
+        )
+
     # Also clean up linked accounts for this provider
     db.query(OAuthAccount).filter(OAuthAccount.provider == provider_name).delete()
     db.delete(provider)
     db.commit()
+
+
+OAUTH_NONCE_COOKIE = "cct_oauth_nonce"
+
+
+def _hash_nonce(nonce: str) -> str:
+    return hashlib.sha256(nonce.encode()).hexdigest()
+
+
+def issue_state(db: Session, response: Response, request: Request, provider_name: str) -> str:
+    """Mint a state bound to this browser via an HttpOnly nonce cookie."""
+    nonce = secrets.token_urlsafe(32)
+    state = generate_state()
+    now = time.time()
+
+    db.add(OAuthState(
+        state=state,
+        created_at=now,
+        browser_nonce_hash=_hash_nonce(nonce),
+        provider=provider_name,
+    ))
+    # Lazy cleanup: remove states older than STATE_TTL
+    db.query(OAuthState).filter(OAuthState.created_at < now - STATE_TTL).delete()
+    db.commit()
+
+    response.set_cookie(
+        key=OAUTH_NONCE_COOKIE,
+        value=nonce,
+        max_age=STATE_TTL,
+        httponly=True,
+        secure=_request_is_secure(request),
+        samesite="lax",
+        path="/",
+    )
+    return state
+
+
+def consume_state(db: Session, request: Request, response: Response, state: str, provider_name: str) -> None:
+    """Atomically consume a state, verifying it belongs to THIS browser.
+
+    Atomic by construction: delete first and check the row count, so two
+    concurrent callbacks carrying the same state cannot both proceed.
+    """
+    now = time.time()
+    row = (
+        db.query(OAuthState)
+        .filter(OAuthState.state == state, OAuthState.created_at >= now - STATE_TTL)
+        .first()
+    )
+    if row is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
+
+    expected_hash = row.browser_nonce_hash
+    expected_provider = row.provider
+
+    deleted = (
+        db.query(OAuthState)
+        .filter(OAuthState.state == state, OAuthState.created_at >= now - STATE_TTL)
+        .delete()
+    )
+    db.commit()
+    response.delete_cookie(OAUTH_NONCE_COOKIE, path="/")
+    if deleted == 0:
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
+
+    if expected_provider and expected_provider != provider_name:
+        raise HTTPException(status_code=400, detail="State was issued for a different provider")
+
+    if expected_hash:
+        nonce = request.cookies.get(OAUTH_NONCE_COOKIE)
+        if not nonce or not secrets.compare_digest(_hash_nonce(nonce), expected_hash):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "This sign-in link was not started in this browser. "
+                    "Start the sign-in from this device."
+                ),
+            )
 
 
 def _validate_redirect_uri(redirect_uri: str) -> None:
@@ -228,7 +337,15 @@ def _validate_redirect_uri(redirect_uri: str) -> None:
 
 
 @router.get("/{provider_name}/authorize", response_model=AuthorizeResponse)
-def authorize(provider_name: str, redirect_uri: str, db: Session = Depends(get_db), _=Depends(_require_oauth_or_admin)):
+@limiter.limit("30/minute")
+def authorize(
+    request: Request,
+    response: Response,
+    provider_name: str,
+    redirect_uri: str,
+    db: Session = Depends(get_db),
+    _=Depends(_require_oauth_or_admin),
+):
     _validate_redirect_uri(redirect_uri)
     provider = (
         db.query(OAuthProvider)
@@ -238,13 +355,10 @@ def authorize(provider_name: str, redirect_uri: str, db: Session = Depends(get_d
     if not provider:
         raise HTTPException(status_code=404, detail="OAuth provider not found or disabled")
 
-    state = generate_state()
-
-    now = time.time()
-    db.add(OAuthState(state=state, created_at=now))
-    # Lazy cleanup: remove states older than STATE_TTL
-    db.query(OAuthState).filter(OAuthState.created_at < now - STATE_TTL).delete()
-    db.commit()
+    # Rate-limited and bound to this browser: this endpoint is unauthenticated
+    # in OAuth mode, so without a limit it is an unbounded insert into
+    # oauth_states reclaimed only by a 10-minute TTL.
+    state = issue_state(db, response, request, provider_name)
 
     url = get_authorization_url(provider, redirect_uri, state)
     return AuthorizeResponse(authorization_url=url)
@@ -263,16 +377,7 @@ async def token_exchange(
     # 1a: Validate redirect_uri in token exchange (not just in /authorize)
     _validate_redirect_uri(data.redirect_uri)
 
-    # 1e: Atomic state consumption — delete first, check rows affected
-    now = time.time()
-    deleted = (
-        db.query(OAuthState)
-        .filter(OAuthState.state == data.state, OAuthState.created_at >= now - STATE_TTL)
-        .delete()
-    )
-    db.commit()
-    if deleted == 0:
-        raise HTTPException(status_code=400, detail="Invalid or expired state")
+    consume_state(db, request, response, data.state, provider_name)
 
     provider = (
         db.query(OAuthProvider)
@@ -284,11 +389,20 @@ async def token_exchange(
 
     try:
         oauth_result = await exchange_code(provider, data.code, data.redirect_uri)
+    except DecryptionError as e:
+        # The stored client secret can't be read — almost always a rotated
+        # SECRET_KEY. Say so, instead of blaming "provider configuration".
+        logger.error(f"OAuth client secret unreadable for {provider_name}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"OAuth token exchange failed for {provider_name}: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")
 
-    user_info = extract_user_info(provider_name, oauth_result["userinfo"])
+    try:
+        user_info = extract_user_info(provider_name, oauth_result["userinfo"])
+    except MissingSubjectError as e:
+        logger.error("OAuth identity missing for %s: %s", provider_name, e)
+        raise HTTPException(status_code=400, detail=str(e))
     try:
         user = find_or_create_user(db, provider_name, user_info, oauth_result)
     except AccountDeactivatedError:

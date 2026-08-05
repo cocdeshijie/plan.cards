@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -68,6 +68,8 @@ class CardCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_dates(self) -> "CardCreate":
+        validate_card_date(self.open_date, "open_date")
+        validate_card_date(self.close_date, "close_date")
         if self.close_date and self.open_date and self.close_date < self.open_date:
             raise ValueError("close_date cannot be before open_date")
         if self.spend_deadline and not self.spend_requirement:
@@ -75,8 +77,32 @@ class CardCreate(BaseModel):
         return self
 
 
+# A card date outside this range is a typo, not data. Without an upper bound a
+# mistyped year (2099, 3000) silently inflates the 5/24 count -- the one number
+# the whole app exists to get right -- and pushes the annual-fee schedule
+# decades out with no error and nothing to notice.
+MIN_CARD_DATE = date(1950, 1, 1)
+MAX_FUTURE_DAYS = 366  # an approved-but-not-yet-arrived card is legitimate
+
+
+def validate_card_date(value: date | None, field: str) -> date | None:
+    if value is None:
+        return value
+    if value < MIN_CARD_DATE:
+        raise ValueError(f"{field} cannot be before {MIN_CARD_DATE.isoformat()}")
+    if value > date.today() + timedelta(days=MAX_FUTURE_DAYS):
+        raise ValueError(f"{field} cannot be more than a year in the future")
+    return value
+
+
 class CardUpdate(BaseModel):
-    template_id: str | None = None
+    # `template_id` is deliberately NOT updatable here. Setting it through the
+    # plain update endpoint bypassed every product-change invariant -- the
+    # closed-card guard, the same-template guard, the change-date guard, the
+    # product_change event, the issuer/version update, the AF recalculation and
+    # the benefit sync -- and left template_version_id pointing at a version
+    # belonging to a different template, which template sync then acted on.
+    # Use POST /api/cards/{id}/product-change.
     card_name: str | None = Field(default=None, min_length=1, max_length=200)
     last_digits: str | None = None
     card_image: str | None = None
@@ -130,6 +156,8 @@ class CardUpdate(BaseModel):
 
     @model_validator(mode="after")
     def validate_dates(self) -> "CardUpdate":
+        validate_card_date(self.open_date, "open_date")
+        validate_card_date(self.close_date, "close_date")
         if self.close_date and self.open_date and self.close_date < self.open_date:
             raise ValueError("close_date cannot be before open_date")
         if self.spend_deadline and not self.spend_requirement:

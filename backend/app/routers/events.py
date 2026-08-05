@@ -43,12 +43,20 @@ def _maybe_anchor_af_date(db: Session, event: CardEvent, user_id: int | None = N
     )
     if latest_af and latest_af.id == event.id:
         card = db.query(Card).filter(Card.id == event.card_id).first()
-        if card:
+        # A closed card has no next fee. _recalculate_af_date_after_delete has
+        # always guarded this; without the same guard here, recording the final
+        # fee before closure resurrected a fee date years into the future.
+        if card and card.status != "closed":
             today = get_today(db, user_id)
-            next_date = event.event_date + relativedelta(months=12)
-            while next_date <= today:
-                next_date += relativedelta(years=1)
-            card.annual_fee_date = next_date
+            # A future-dated event IS the next fee — stepping forward from it
+            # unconditionally skipped the very fee the user just recorded.
+            if event.event_date > today:
+                card.annual_fee_date = event.event_date
+            else:
+                next_date = event.event_date + relativedelta(months=12)
+                while next_date <= today:
+                    next_date += relativedelta(years=1)
+                card.annual_fee_date = next_date
 
 
 def _recalculate_af_date_after_delete(db: Session, card: Card, user_id: int | None) -> None:
@@ -67,11 +75,17 @@ def _recalculate_af_date_after_delete(db: Session, card: Card, user_id: int | No
     if latest_af:
         meta = latest_af.metadata_json if isinstance(latest_af.metadata_json, dict) else {}
         if not meta.get("approximate_date"):
-            # Exact event: step by +12mo until future
-            next_date = latest_af.event_date + relativedelta(months=12)
-            while next_date <= today:
-                next_date += relativedelta(years=1)
-            card.annual_fee_date = next_date
+            if latest_af.event_date > today:
+                # Still-upcoming fee: that IS the next one.
+                card.annual_fee_date = latest_af.event_date
+            else:
+                # Exact event: step by +12mo until future
+                next_date = latest_af.event_date + relativedelta(months=12)
+                while next_date <= today:
+                    next_date += relativedelta(years=1)
+                card.annual_fee_date = next_date
+        elif latest_af.event_date > today:
+            card.annual_fee_date = latest_af.event_date
         else:
             # Approximate event: step using +13mo/+12mo schedule until future
             anniversary = latest_af.event_date
@@ -124,6 +138,18 @@ def list_card_events(card_id: int, user: User = Depends(require_auth), db: Sessi
 @router.post("/cards/{card_id}/events", response_model=CardEventOut, status_code=201)
 def create_event(card_id: int, data: CardEventCreate, user: User = Depends(require_auth), db: Session = Depends(get_db)):
     _verify_card_ownership(db, user, card_id)
+    # update_event and delete_event both refuse system-managed types, but
+    # create_event did not — so a caller could mint a `closed` event dated 2001
+    # on an active card and then never delete it or change its type. Those
+    # events are produced by close/reopen/product-change, not by hand.
+    if data.event_type in SYSTEM_EVENT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"'{data.event_type}' events are created automatically. "
+                "Use the close, reopen or product-change actions instead."
+            ),
+        )
     event = CardEvent(
         card_id=card_id,
         event_type=data.event_type,

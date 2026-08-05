@@ -51,6 +51,9 @@ interface AppState {
   setTimezone: (tz: string) => Promise<void>;
 }
 
+/** Bumped on logout so in-flight requests from the old session are discarded. */
+let sessionGeneration = 0;
+
 function getInitialDarkMode(): boolean {
   if (typeof window === "undefined") return false;
   const stored = localStorage.getItem("darkMode");
@@ -132,6 +135,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   logout: () => {
     apiLogout();
+    // Invalidate any in-flight loadData: without this, a refresh started before
+    // logout resolved afterwards and wrote the previous user's profiles and
+    // cards straight back into the store.
+    sessionGeneration += 1;
     set({
       authed: false,
       currentUser: null,
@@ -141,6 +148,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       authMode: null,
       registrationEnabled: false,
       oauthProviders: [],
+      // Reset to loading so the next user's shell doesn't render the previous
+      // user's (now empty) data as if it were loaded.
+      dataLoading: true,
+      dataError: null,
     });
     get().fetchAuthMode();
   },
@@ -150,6 +161,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   loadData: async () => {
+    const generation = sessionGeneration;
     try {
       const [profiles, cards, settings] = await Promise.all([
         getProfiles(),
@@ -165,6 +177,9 @@ export const useAppStore = create<AppState>((set, get) => ({
           if (typeof window !== "undefined") localStorage.setItem("selectedProfileId", "all");
         }
       }
+      // The session changed while this request was in flight (logout, or a
+      // different user signed in). Drop the result.
+      if (generation !== sessionGeneration) return;
       const current = get();
       const updates: Partial<AppState> = {
         timezone: settings.timezone || "",
@@ -181,6 +196,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
       set(updates);
     } catch {
+      if (generation !== sessionGeneration) return;
       set({ dataLoading: false, dataError: "Failed to load data. Check your connection." });
     }
   },
@@ -219,6 +235,8 @@ if (typeof window !== "undefined" && !_authListenerAttached) {
   window.addEventListener("auth:unauthorized", () => {
     const state = useAppStore.getState();
     if (state.authed) {
+      // Same reasoning as logout(): discard anything already in flight.
+      sessionGeneration += 1;
       useAppStore.setState({
         authed: false,
         currentUser: null,

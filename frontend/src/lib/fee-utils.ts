@@ -1,12 +1,14 @@
 import { addMonthsClamped, parseDateStr } from "@/lib/utils";
 
-export type Proximity = "far" | "soon" | "imminent";
+export type Proximity = "far" | "soon" | "imminent" | "overdue";
 
 export interface NextFeeInfo {
   nextDate: Date;
   proximity: Proximity;
   label: string;
   daysUntil: number;
+  /** True when the fee date has passed with no annual_fee_posted event recorded. */
+  overdue: boolean;
 }
 
 export function getAnniversaryForYear(openDate: Date, year: number): Date {
@@ -52,6 +54,19 @@ export function getNextFeeInfo(
   let proximity: Proximity;
   let label: string;
 
+  if (daysUntil < 0) {
+    // Nothing advances annual_fee_date on a timer — the backend only moves it
+    // when a card or event is written. So a fee whose date passed without the
+    // user recording an annual_fee_posted event keeps a past date indefinitely,
+    // which is the most common state for an untouched card. Without this branch
+    // it rendered as a literal "Next fee ~-212 days", in orange.
+    const overdueDays = Math.abs(daysUntil);
+    proximity = "overdue";
+    if (overdueDays === 1) label = "was due yesterday";
+    else label = `was due ${overdueDays} days ago`;
+    return { nextDate: next, proximity, label, daysUntil, overdue: true };
+  }
+
   if (daysUntil <= 14) {
     proximity = "imminent";
     if (daysUntil === 0) label = "around now";
@@ -67,5 +82,5 @@ export function getNextFeeInfo(
     label = `~${months} month${months !== 1 ? "s" : ""}`;
   }
 
-  return { nextDate: next, proximity, label, daysUntil };
+  return { nextDate: next, proximity, label, daysUntil, overdue: false };
 }

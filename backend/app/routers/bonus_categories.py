@@ -74,6 +74,13 @@ def update_bonus_category(
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(cat, field, value)
+    # The user has taken ownership. Template sync hard-deletes from_template
+    # categories absent from the template, so a renamed one would be destroyed
+    # outright (and an edited multiplier silently reverted). from_template stays
+    # True so sync still SEES the row -- otherwise it re-adds the template's
+    # version alongside it as a duplicate.
+    if update_data:
+        cat.user_modified = True
     db.commit()
     db.refresh(cat)
     return cat

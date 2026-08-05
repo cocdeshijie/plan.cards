@@ -39,17 +39,30 @@ _CASCADE_FKS = [
 _NAMING = {"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"}
 
 
+def _table_exists(bind, name: str) -> bool:
+    return bool(
+        bind.exec_driver_sql(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)
+        ).first()
+    )
+
+
 def _prepare_sqlite() -> None:
     """Make this migration safe to (re)run on a populated SQLite DB.
 
     1. Batch table-rebuilds drop a parent table while children still reference it;
-       with PRAGMA foreign_keys=ON (set by the app's connect listener) the DROP
-       fails. Disable enforcement for this connection. PRAGMA foreign_keys is a
-       no-op inside a transaction, so it runs in an autocommit block.
+       with PRAGMA foreign_keys=ON the DROP fails. Disable enforcement for this
+       connection. PRAGMA foreign_keys is a no-op inside a transaction, so it
+       runs in an autocommit block. `_restore_sqlite()` turns it back on.
     2. An earlier failed run can leave `_alembic_tmp_*` tables behind (SQLite DDL
        here is non-transactional), which makes the next run fail with "table
-       already exists". Drop any leftovers first; the real data is untouched in
-       the original tables.
+       already exists".
+
+       Recovering these correctly matters: batch mode goes CREATE _alembic_tmp_x
+       -> INSERT..SELECT -> DROP TABLE x -> RENAME. If the process died between
+       the DROP and the RENAME, the temp table holds the ONLY copy of the rows.
+       So drop a leftover only when the real table is still there; otherwise
+       rename it back into place.
     """
     bind = op.get_bind()
     if bind.dialect.name != "sqlite":
@@ -57,7 +70,24 @@ def _prepare_sqlite() -> None:
     with op.get_context().autocommit_block():
         op.execute("PRAGMA foreign_keys=OFF")
         for table, _column, _ref_table in _CASCADE_FKS:
-            op.execute(f"DROP TABLE IF EXISTS _alembic_tmp_{table}")
+            tmp = f"_alembic_tmp_{table}"
+            if not _table_exists(bind, tmp):
+                continue
+            if _table_exists(bind, table):
+                # Real table survived — the temp copy is redundant.
+                op.execute(f"DROP TABLE {tmp}")
+            else:
+                # Crash between DROP and RENAME: the temp table is the only copy.
+                op.execute(f"ALTER TABLE {tmp} RENAME TO {table}")
+
+
+def _restore_sqlite() -> None:
+    """Re-enable FK enforcement disabled by _prepare_sqlite."""
+    bind = op.get_bind()
+    if bind.dialect.name != "sqlite":
+        return
+    with op.get_context().autocommit_block():
+        op.execute("PRAGMA foreign_keys=ON")
 
 
 def _rebuild_fks(ondelete: str | None) -> None:
@@ -72,9 +102,15 @@ def _rebuild_fks(ondelete: str | None) -> None:
 
 def upgrade() -> None:
     _prepare_sqlite()
-    _rebuild_fks("CASCADE")
+    try:
+        _rebuild_fks("CASCADE")
+    finally:
+        _restore_sqlite()
 
 
 def downgrade() -> None:
     _prepare_sqlite()
-    _rebuild_fks(None)
+    try:
+        _rebuild_fks(None)
+    finally:
+        _restore_sqlite()

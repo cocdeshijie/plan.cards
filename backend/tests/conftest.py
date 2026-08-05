@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, StaticPool
+from sqlalchemy import create_engine, event, StaticPool
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
@@ -12,6 +12,20 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
+
+
+@event.listens_for(engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, connection_record):
+    """Mirror the app engine's pragmas so tests exercise real FK enforcement.
+
+    Without this, ON DELETE CASCADE is silently a no-op under test and the
+    cascade behaviour the migrations exist to provide goes uncovered.
+    """
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -72,6 +86,19 @@ def multi_user_headers(client):
     assert r.status_code == 200
     token = r.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def bootstrap_headers():
+    """Header proving host access, required for privileged ops in `open` mode.
+
+    In `open` mode require_auth hands back the first admin without checking any
+    credential, so require_admin gates nothing — including the irreversible auth
+    mode upgrade. See app/services/bootstrap_token.py.
+    """
+    from app.services.bootstrap_token import BOOTSTRAP_TOKEN_HEADER, get_bootstrap_token
+
+    return {BOOTSTRAP_TOKEN_HEADER: get_bootstrap_token()}
 
 
 @pytest.fixture

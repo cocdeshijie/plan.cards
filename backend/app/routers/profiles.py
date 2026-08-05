@@ -81,7 +81,11 @@ async def import_profiles_endpoint(
             raise HTTPException(status_code=404, detail="Target profile not found")
     try:
         result = import_profiles(db, data, mode, target_profile_id, user_id=user.id)
-        sync_cards_to_templates(db)
+        # Scoped to this user: sync_cards_to_templates() is otherwise unfiltered
+        # and would rewrite annual fees, retire benefits and delete bonus
+        # categories across every account on the instance, triggered by one
+        # user clicking Import.
+        sync_cards_to_templates(db, user_id=user.id)
         return result
     except ValueError as e:
         db.rollback()

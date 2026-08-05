@@ -18,6 +18,11 @@ class ExportBenefit(BaseModel):
     frequency: Literal["monthly", "quarterly", "semi_annual", "annual"]
     reset_type: Literal["calendar", "cardiversary"] = "calendar"
     from_template: bool = False
+    # Round-tripped so an export/import doesn't silently strip the protections
+    # that stop template sync from overwriting a user's edits or stranding
+    # their tracked usage.
+    template_key: str | None = None
+    user_modified: bool = False
     retired: bool = False
     notes: str | None = None
     amount_used: int = 0
@@ -51,6 +56,7 @@ class ExportBonusCategory(BaseModel):
 class ExportCard(BaseModel):
     template_id: str | None = None
     template_version_id: str | None = None
+    template_version_pinned: bool = False
     card_image: str | None = None
     card_name: str = Field(max_length=200)
     last_digits: str | None = None
@@ -73,10 +79,13 @@ class ExportCard(BaseModel):
     signup_bonus_amount: int | None = Field(default=None, ge=0, le=99_999_999)
     signup_bonus_type: str | None = None
     signup_bonus_earned: bool = False
-    events: list[ExportEvent] = []
-    benefits: list[ExportBenefit] = []
-    bonuses: list[ExportBonus] = []
-    bonus_categories: list[ExportBonusCategory] = []
+    # Bounded like `profiles` and `cards` are: without a cap, one card can carry
+    # an unbounded number of rows through validation and into a flush-per-row
+    # insert loop.
+    events: list[ExportEvent] = Field(default=[], max_length=2000)
+    benefits: list[ExportBenefit] = Field(default=[], max_length=200)
+    bonuses: list[ExportBonus] = Field(default=[], max_length=200)
+    bonus_categories: list[ExportBonusCategory] = Field(default=[], max_length=200)
 
 
 class ExportProfile(BaseModel):

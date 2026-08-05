@@ -44,9 +44,19 @@ benefits:
   # These are auto-populated as trackable CardBenefits when a user
   # creates a card from this template.
   credits:
-    - name: Travel Credit             # Human-readable credit name
+    - key: travel_credit              # RECOMMENDED. Stable identifier, never changed
+                                      # once published. Sync matches a user's tracked
+                                      # credit on this, so renaming `name` preserves
+                                      # their year-to-date usage. Without a key, sync
+                                      # falls back to matching on `name` — and a
+                                      # rename then reads as "removed + added",
+                                      # resetting every user's tracking to $0.
+                                      # Use lower_snake_case, unique within the card.
+      name: Travel Credit             # Human-readable credit name (safe to change)
       amount: 300                     # Dollar amount per period (whole dollars)
       frequency: annual               # Reset frequency: monthly | quarterly | semi_annual | annual
+                                      # These four values are the ONLY valid ones —
+                                      # `yearly` is not one of them.
       reset_type: cardiversary        # When it resets:
                                       #   calendar     — resets on calendar boundaries
                                       #                  (1st of month, Jan 1, etc.)
@@ -84,7 +94,9 @@ benefits:
   # (e.g. "spend $15K/year to earn a Free Night Award").
   # Auto-populated as CardBenefits with benefit_type="spend_threshold".
   spend_thresholds:
-    - name: Free Night Award           # Human-readable threshold name
+    - key: free_night_award            # RECOMMENDED — same stable-identity rules as
+                                       # credits above. See the note there.
+      name: Free Night Award           # Human-readable threshold name (safe to change)
       spend_required: 15000            # Dollars that must be spent to unlock the perk
       frequency: annual                # Reset frequency: monthly | quarterly | semi_annual | annual
       reset_type: cardiversary         # Same options as credits: calendar | cardiversary

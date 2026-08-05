@@ -1,5 +1,7 @@
 """Tests for setup, auth modes, registration, user management, admin, and user isolation."""
 
+import pytest
+
 from app.models.user import User
 from tests.conftest import TEST_PASSWORD
 
@@ -239,11 +241,70 @@ def test_change_password(client):
 
 
 def test_change_password_wrong_current(client, auth_headers):
+    """400, deliberately NOT 401.
+
+    This is the only non-session 401 the backend ever produced, and the
+    frontend's apiFetch treats every 401 as session expiry: it deletes the
+    stored token, dispatches auth:unauthorized and bounces to the landing page.
+    So mistyping your current password logged you out of the whole app, with a
+    toast reading "Unauthorized" rather than the real reason.
+    """
     r = client.put("/api/users/me/password", json={
         "current_password": "wrong",
         "new_password": "newpass123",
     }, headers=auth_headers)
-    assert r.status_code == 401
+    assert r.status_code == 400
+    assert "current password" in r.json()["detail"].lower()
+
+
+def test_change_password_in_single_password_mode_changes_the_login_credential(client, auth_headers):
+    """Regression: the login credential in single_password mode lives in
+    system_config.single_password_hash, which POST /api/auth/login reads.
+    change_password only wrote user.password_hash, so it reported success while
+    the old -- possibly leaked -- password remained the only working one."""
+    r = client.put("/api/users/me/password", json={
+        "current_password": TEST_PASSWORD,
+        "new_password": "brandnewpass456",
+    }, headers=auth_headers)
+    assert r.status_code == 200
+
+    assert client.post("/api/auth/login", json={"password": "brandnewpass456"}).status_code == 200
+    assert client.post("/api/auth/login", json={"password": TEST_PASSWORD}).status_code == 401
+
+
+def test_upgrade_from_open_mode_revokes_existing_tokens(client, bootstrap_headers):
+    """Regression: in `open` mode any anonymous caller gets a 24h admin JWT.
+    Upgrading the auth mode exists specifically to close that off, but it never
+    set password_changed_at -- and require_auth skips the whole revocation check
+    while that column is NULL -- so the pre-upgrade admin token stayed valid."""
+    assert client.post("/api/setup/complete", json={"auth_mode": "open"}).status_code == 200
+    token = client.post("/api/auth/login", json={}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    assert client.get("/api/auth/verify", headers=headers).status_code == 200
+
+    r = client.post("/api/admin/auth/upgrade", json={
+        "target_mode": "single_password",
+        "single_password": "lockeddown123",
+    }, headers={**headers, **bootstrap_headers})
+    assert r.status_code == 200
+
+    client.cookies.clear()
+    assert client.get("/api/auth/verify", headers=headers).status_code == 401
+
+
+def test_long_passwords_do_not_500(client):
+    """bcrypt rejects >72 bytes; password fields allow 128 chars, and a
+    multibyte passphrase crosses 72 BYTES far sooner (40 emoji = 160)."""
+    long_password = "a" * 100
+    assert client.post("/api/setup/complete", json={
+        "auth_mode": "single_password",
+        "admin_password": long_password,
+    }).status_code == 200
+
+    assert client.post("/api/auth/login", json={"password": long_password}).status_code == 200
+    assert client.post("/api/auth/login", json={"password": "x" * 100}).status_code == 401
+    # Multibyte, well under 128 characters but well over 72 bytes.
+    assert client.post("/api/auth/login", json={"password": "🎉" * 40}).status_code == 401
 
 
 # ── Admin User Management ─────────────────────────────────────────────
@@ -377,12 +438,12 @@ def test_admin_toggle_registration(client, auth_headers):
 
 # ── Auth Mode Upgrade ──────────────────────────────────────────────────
 
-def test_upgrade_open_to_single_password(client):
+def test_upgrade_open_to_single_password(client, bootstrap_headers):
     client.post("/api/setup/complete", json={"auth_mode": "open"})
     # Login in open mode
     login = client.post("/api/auth/login", json={})
     token = login.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token}", **bootstrap_headers}
 
     r = client.post("/api/admin/auth/upgrade", json={
         "target_mode": "single_password",
@@ -671,12 +732,12 @@ def test_admin_config_includes_oauth_linked(client, multi_user_headers):
 
 # ── Upgrade Warning ───────────────────────────────────────────────────
 
-def test_upgrade_includes_warning_for_passwordless_users(client):
+def test_upgrade_includes_warning_for_passwordless_users(client, bootstrap_headers):
     """Upgrade to multi_user warns about users without passwords."""
     # Setup in open mode
     r = client.post("/api/setup/complete", json={"auth_mode": "open"})
     token = r.json()["access_token"]
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token}", **bootstrap_headers}
 
     # Upgrade to multi_user (admin gets a password, but any other OAuth-only users won't)
     r2 = client.post("/api/admin/auth/upgrade", json={
@@ -2007,3 +2068,195 @@ def test_login_sets_auth_cookie_and_authenticates(client, setup_complete):
     assert out.status_code == 200
     client.cookies.clear()
     assert client.get("/api/auth/verify").status_code == 401
+
+
+# ── OAuth subject (provider_user_id) integrity ──────────────────────────────
+
+
+def test_extract_user_info_rejects_missing_subject():
+    """An empty provider_user_id is not an identity.
+
+    Every caller keys an OAuthAccount on this value, so an empty one makes the
+    lookup match (provider, "") — collapsing every user of that provider into
+    whichever account was created first, including its admin role.
+    """
+    from app.services.oauth_service import extract_user_info, MissingSubjectError
+
+    # Standard OIDC response with no `sub` at all.
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("google", {"email": "a@b.com", "email_verified": True})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("google", {"sub": ""})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("github", {"login": "u"})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("discord", {"username": "u"})
+    with pytest.raises(MissingSubjectError):
+        extract_user_info("facebook", {"name": "U"})
+
+
+def test_extract_user_info_facebook_uses_id_not_sub():
+    """The shipped Facebook preset points at graph.facebook.com/me, which
+    returns `id` and never OIDC's `sub`."""
+    from app.services.oauth_service import extract_user_info
+
+    info = extract_user_info("facebook", {"id": "10223344", "name": "Alice", "email": "a@b.com"})
+    assert info["provider_user_id"] == "10223344"
+    # Facebook asserts no email_verified claim, so email must not drive linking.
+    assert info["email"] is None
+
+
+def test_extract_user_info_generic_provider_falls_back_to_id():
+    """A hand-registered non-OIDC provider (Gitea etc.) exposes `id`."""
+    from app.services.oauth_service import extract_user_info
+
+    info = extract_user_info("gitea", {"id": 42, "name": "Bob"})
+    assert info["provider_user_id"] == "42"
+
+
+def test_two_facebook_users_get_distinct_accounts(db_session):
+    """Regression: with provider_user_id == "" for everyone, the second
+    Facebook user logged straight into the first user's (admin) account."""
+    from app.services.oauth_service import extract_user_info, find_or_create_user
+
+    tokens = {"access_token": "t"}
+    first = find_or_create_user(
+        db_session, "facebook",
+        extract_user_info("facebook", {"id": "111", "name": "First"}),
+        tokens,
+    )
+    second = find_or_create_user(
+        db_session, "facebook",
+        extract_user_info("facebook", {"id": "222", "name": "Second"}),
+        tokens,
+    )
+    assert first is not None and second is not None
+    assert first.id != second.id
+    assert first.role == "admin"
+    assert second.role == "user"
+
+
+def test_open_mode_upgrade_requires_bootstrap_token(client):
+    """Regression: in `open` mode require_auth returns the first admin without
+    checking any credential, so ANY anonymous caller could switch the auth mode
+    and set their own password. _MODE_ORDER forbids downgrades, so that locked
+    the real owner out permanently with no in-app recovery."""
+    client.post("/api/setup/complete", json={"auth_mode": "open"})
+    token = client.post("/api/auth/login", json={}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    r = client.post("/api/admin/auth/upgrade", json={
+        "target_mode": "single_password",
+        "single_password": "attacker-owns-you",
+    }, headers=headers)
+    assert r.status_code == 403
+    assert "X-Admin-Token" in r.json()["detail"]
+
+    # And the instance is untouched.
+    assert client.get("/api/auth/mode").json()["auth_mode"] == "open"
+
+
+def test_open_mode_oauth_provider_config_requires_bootstrap_token(client):
+    """Same hole exposed attacker-controlled OAuth client_id/client_secret."""
+    client.post("/api/setup/complete", json={"auth_mode": "open"})
+    token = client.post("/api/auth/login", json={}).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    r = client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "attacker",
+        "client_secret": "attacker",
+    }, headers=headers)
+    assert r.status_code == 403
+
+
+def test_bootstrap_token_not_required_outside_open_mode(client, auth_headers):
+    """single_password mode has a real credential, so the token is not needed."""
+    r = client.post("/api/admin/auth/upgrade", json={
+        "target_mode": "multi_user",
+        "admin_password": "adminpass123",
+    }, headers=auth_headers)
+    assert r.status_code == 200
+
+
+# ── OAuth state is bound to the browser that started the flow ──────────────
+
+
+def test_authorize_sets_a_browser_nonce_cookie(client, multi_user_headers):
+    client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "test-id",
+        "client_secret": "test-secret",
+    }, headers=multi_user_headers)
+    r = client.get(
+        "/api/auth/oauth/google/authorize?redirect_uri=http://localhost:3000/auth/callback",
+        headers=multi_user_headers,
+    )
+    assert r.status_code == 200
+    assert "cct_oauth_nonce" in r.cookies or "cct_oauth_nonce" in client.cookies
+
+
+def test_state_from_another_browser_is_rejected(client, multi_user_headers, db_session):
+    """Regression (login CSRF / forced account linking).
+
+    /authorize is unauthenticated in OAuth mode, so an attacker can mint a valid
+    state, complete the provider flow with their OWN account, and hand the
+    resulting ?code=&state= callback URL to a victim. With state unbound, the
+    victim's browser gets signed into the attacker's account — and if the victim
+    had a link flow pending, the attacker's identity is permanently bound to the
+    victim's account instead.
+    """
+    from app.models.oauth_state import OAuthState
+
+    client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "test-id",
+        "client_secret": "test-secret",
+    }, headers=multi_user_headers)
+
+    # Attacker's browser starts a flow and captures the state.
+    r = client.get(
+        "/api/auth/oauth/google/authorize?redirect_uri=http://localhost:3000/auth/callback",
+        headers=multi_user_headers,
+    )
+    assert r.status_code == 200
+    state = db_session.query(OAuthState).order_by(OAuthState.created_at.desc()).first().state
+    assert state
+
+    # Victim's browser: same state, but no matching nonce cookie.
+    client.cookies.delete("cct_oauth_nonce")
+    r2 = client.post("/api/admin/oauth/link", json={
+        "provider_name": "google",
+        "code": "attacker-code",
+        "state": state,
+        "redirect_uri": "http://localhost:3000/auth/callback",
+    }, headers=multi_user_headers)
+    assert r2.status_code == 400
+    assert "not started in this browser" in r2.json()["detail"].lower()
+
+
+def test_state_is_scoped_to_the_provider_that_issued_it(client, multi_user_headers, db_session):
+    """A state minted for provider A must not be replayable at provider B."""
+    from app.models.oauth_state import OAuthState
+
+    client.post("/api/auth/oauth/providers", json={
+        "provider_name": "google",
+        "client_id": "test-id",
+        "client_secret": "test-secret",
+    }, headers=multi_user_headers)
+
+    r = client.get(
+        "/api/auth/oauth/google/authorize?redirect_uri=http://localhost:3000/auth/callback",
+        headers=multi_user_headers,
+    )
+    assert r.status_code == 200
+    state = db_session.query(OAuthState).order_by(OAuthState.created_at.desc()).first().state
+
+    r2 = client.post("/api/admin/oauth/link", json={
+        "provider_name": "github",
+        "code": "code",
+        "state": state,
+        "redirect_uri": "http://localhost:3000/auth/callback",
+    }, headers=multi_user_headers)
+    assert r2.status_code == 400
+    assert "different provider" in r2.json()["detail"].lower()

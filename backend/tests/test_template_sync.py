@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.card import Card
 from app.models.card_benefit import CardBenefit
 from app.models.profile import Profile
+from app.services.template_loader import get_template
 from app.services.template_sync import sync_cards_to_templates
 
 
@@ -64,7 +65,13 @@ def _make_benefit(
 
 
 def test_initialize_version_on_first_sync(db_session):
-    """Cards without template_version_id get initialized."""
+    """Cards without template_version_id get initialized AND synced.
+
+    Initialization used to only tag matching benefits and stamp the version,
+    which marked the card reconciled with a template state it had never
+    received — so a card with a template_id but no benefits stayed empty until
+    maintainers happened to bump the template's version_id.
+    """
     profile = _make_profile(db_session)
     card = _make_card(db_session, profile.id, template_version_id=None)
     # Add a benefit matching a template credit
@@ -73,7 +80,7 @@ def test_initialize_version_on_first_sync(db_session):
 
     summary = sync_cards_to_templates(db_session)
     assert summary["cards_initialized"] == 1
-    assert summary["cards_synced"] == 0
+    assert summary["cards_synced"] == 1
 
     db_session.refresh(card)
     assert card.template_version_id == "amex_plat_2025_1"
@@ -84,6 +91,22 @@ def test_initialize_version_on_first_sync(db_session):
         CardBenefit.benefit_name == "Uber Cash",
     ).first()
     assert benefit.from_template is True
+
+    # ...and the card must actually receive the template's other benefits.
+    assert summary["benefits_added"] > 0
+
+
+def test_initialize_populates_a_card_with_no_benefits(db_session):
+    """Regression: a card with a template_id but no benefits stayed empty."""
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id=None)
+    db_session.commit()
+
+    sync_cards_to_templates(db_session)
+
+    benefits = db_session.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
+    assert benefits, "card received none of the template's benefits"
+    assert all(b.from_template for b in benefits)
 
 
 def test_skip_closed_cards(db_session):
@@ -258,3 +281,188 @@ def test_unretire_readded_benefit(db_session):
         CardBenefit.benefit_name == "Uber Cash",
     ).first()
     assert benefit.retired is False
+
+
+# ── Sync must not destroy user data ────────────────────────────────────────
+
+
+def test_user_modified_benefit_is_not_overwritten(db_session):
+    """Regression: any edit to a template-sourced credit was silently reverted
+    on the next version bump. Card.annual_fee_user_modified already protected
+    the annual fee; benefits had no equivalent."""
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    benefit = _make_benefit(db_session, card.id, "Uber Cash", amount=200, from_template=True)
+    benefit.frequency = "annual"
+    benefit.reset_type = "cardiversary"
+    benefit.user_modified = True
+    benefit.amount_used = 150
+    db_session.commit()
+
+    summary = sync_cards_to_templates(db_session)
+    assert summary["benefits_preserved"] >= 1
+
+    db_session.refresh(benefit)
+    assert benefit.benefit_amount == 200, "user's amount was overwritten by the template"
+    assert benefit.frequency == "annual"
+    assert benefit.reset_type == "cardiversary"
+    assert benefit.amount_used == 150, "user's tracked usage was reset"
+
+
+def test_template_rename_preserves_usage_via_stable_key(db_session):
+    """Regression: matching on benefit_name meant an upstream rename read as
+    'removed + added' — usage stranded on a retired row, new row at $0."""
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    benefit = _make_benefit(db_session, card.id, "Old Uber Name", from_template=True)
+    benefit.template_key = "uber_cash"
+    benefit.amount_used = 45
+    db_session.commit()
+
+    class _Credit:
+        key = "uber_cash"
+        name = "Uber Cash Credit"   # renamed upstream
+        amount = 15
+        # Same schedule as the stored benefit: only the display name changed,
+        # so nothing should re-anchor the period.
+        frequency = "annual"
+        reset_type = "calendar"
+
+    from app.services.template_sync import _sync_benefit_group
+
+    summary = {"benefits_added": 0, "benefits_updated": 0,
+               "benefits_retired": 0, "benefits_preserved": 0}
+    _sync_benefit_group(db_session, card, summary, [_Credit()], [benefit], "credit")
+    db_session.commit()
+    db_session.refresh(benefit)
+
+    assert summary["benefits_added"] == 0, "rename created a duplicate benefit"
+    assert summary["benefits_retired"] == 0, "rename retired the original benefit"
+    assert benefit.benefit_name == "Uber Cash Credit"
+    assert benefit.amount_used == 45, "usage was lost across the rename"
+
+
+def test_frequency_change_reanchors_period(db_session):
+    """period_start is only meaningful relative to the frequency that produced
+    it; carrying a monthly period into an annual bucket reports stale spend."""
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    benefit = _make_benefit(db_session, card.id, "Uber Cash", from_template=True)
+    benefit.frequency = "annual"
+    benefit.period_start = date(2026, 1, 1)
+    benefit.amount_used = 120
+    db_session.commit()
+
+    sync_cards_to_templates(db_session)
+    db_session.refresh(benefit)
+
+    assert benefit.frequency == "monthly", "template frequency was not applied"
+    assert benefit.amount_used == 0, "stale usage carried into the new period"
+    assert benefit.period_start is None, "period was not re-anchored"
+
+
+def test_pinned_card_is_not_force_upgraded(db_session):
+    """Regression: sync treated any version mismatch as 'behind', so a card the
+    user deliberately created on an older template version was upgraded on the
+    next restart or hot-reload tick."""
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    card.template_version_pinned = True
+    db_session.commit()
+
+    summary = sync_cards_to_templates(db_session)
+    assert summary["cards_pinned"] == 1
+    assert summary["cards_synced"] == 0
+
+    db_session.refresh(card)
+    assert card.template_version_id == "amex_plat_2020_1"
+
+
+def test_adding_a_key_to_an_existing_template_credit_preserves_usage(db_session):
+    """Regression: matching was key-only when the template declared a key, with
+    no fallback. Every benefit written before template_key existed has it NULL,
+    so the first contributor to follow the new docs and add `key:` to a
+    published credit would retire every user's row and start a fresh $0 one —
+    exactly the loss the key exists to prevent."""
+    from app.services.template_sync import _sync_benefit_group
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    benefit = _make_benefit(db_session, card.id, "Uber Cash", amount=15, from_template=True)
+    benefit.template_key = None          # pre-dates the column
+    benefit.frequency = "monthly"
+    benefit.reset_type = "calendar"
+    benefit.amount_used = 45
+    db_session.commit()
+
+    class Credit:
+        key = "uber_cash"                # contributor adds a key
+        name = "Uber Cash"               # name unchanged
+        amount = 15
+        frequency = "monthly"
+        reset_type = "calendar"
+
+    summary = {"benefits_added": 0, "benefits_updated": 0,
+               "benefits_retired": 0, "benefits_preserved": 0}
+    existing = [
+        b for b in db_session.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
+        if b.from_template
+    ]
+    _sync_benefit_group(db_session, card, summary, [Credit()], existing, "credit")
+    db_session.commit()
+
+    rows = db_session.query(CardBenefit).filter(CardBenefit.card_id == card.id).all()
+    assert len(rows) == 1, f"duplicate created: {[(r.benefit_name, r.template_key) for r in rows]}"
+    assert rows[0].amount_used == 45, "usage lost when the key was adopted"
+    assert rows[0].template_key == "uber_cash", "key not backfilled"
+    assert not rows[0].retired
+    assert summary["benefits_added"] == 0 and summary["benefits_retired"] == 0
+
+
+def test_editing_a_template_bonus_category_does_not_duplicate_it(db_session):
+    """Regression: clearing from_template on edit hid the row from sync's
+    from_template query, so sync re-added the template's version as a SECOND
+    row (there is no unique constraint on card_bonus_categories)."""
+    from app.models.card_bonus_category import CardBonusCategory
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    tmpl = get_template("amex/platinum")
+    assert tmpl and tmpl.benefits and tmpl.benefits.bonus_categories
+    first = tmpl.benefits.bonus_categories[0]
+
+    cat = CardBonusCategory(
+        card_id=card.id, category=first.category, multiplier="99x",
+        from_template=True, user_modified=True,   # what the API sets on edit
+    )
+    db_session.add(cat)
+    db_session.commit()
+
+    sync_cards_to_templates(db_session)
+
+    rows = db_session.query(CardBonusCategory).filter(
+        CardBonusCategory.card_id == card.id,
+        CardBonusCategory.category == first.category,
+    ).all()
+    assert len(rows) == 1, f"duplicate rows for {first.category!r}: {[r.multiplier for r in rows]}"
+    assert rows[0].multiplier == "99x", "user's edit was reverted"
+
+
+def test_user_renamed_bonus_category_is_not_deleted(db_session):
+    """A renamed category matches no template name by definition, so the
+    'absent from template' delete loop would destroy it."""
+    from app.models.card_bonus_category import CardBonusCategory
+
+    profile = _make_profile(db_session)
+    card = _make_card(db_session, profile.id, template_version_id="amex_plat_2020_1")
+    cat = CardBonusCategory(
+        card_id=card.id, category="Dining (weekends only)", multiplier="4x",
+        from_template=True, user_modified=True,
+    )
+    db_session.add(cat)
+    db_session.commit()
+    cat_id = cat.id
+
+    sync_cards_to_templates(db_session)
+
+    assert db_session.get(CardBonusCategory, cat_id) is not None, "user-renamed category deleted"

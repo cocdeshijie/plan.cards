@@ -27,6 +27,9 @@ import {
   type AdminConfig,
   type OAuthProviderConfig,
   type OAuthPreset,
+  downloadDatabaseBackup,
+  setAdminToken,
+  getAdminToken,
 } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -532,6 +535,20 @@ function SettingsTab({
   const [upgradeTarget, setUpgradeTarget] = useState("");
   const [upgradePassword, setUpgradePassword] = useState("");
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
+  const [backingUp, setBackingUp] = useState(false);
+  const [adminToken, setAdminTokenInput] = useState(() => getAdminToken());
+
+  const handleDownloadBackup = async () => {
+    setBackingUp(true);
+    try {
+      await downloadDatabaseBackup();
+      toast.success("Backup downloaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Backup failed");
+    } finally {
+      setBackingUp(false);
+    }
+  };
 
   // OAuth wizard state
   const [wizardPresets, setWizardPresets] = useState<OAuthPreset[]>(oauthPresets);
@@ -654,6 +671,25 @@ function SettingsTab({
         <p className="text-sm text-muted-foreground">
           Current: <span className="font-medium text-foreground">{modeLabels[config.auth_mode] || config.auth_mode}</span>
         </p>
+        {config.auth_mode === "open" && (
+          <div className="space-y-1.5 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3">
+            <Label htmlFor="admin-token" className="text-xs font-medium">Admin token required</Label>
+            <p className="text-xs text-muted-foreground">
+              In open mode anyone who can reach this instance is treated as an
+              admin, so changing the auth mode or configuring OAuth needs a token
+              that proves you have access to the server. Find it in the backend
+              container logs on startup:{" "}
+              <code className="text-[11px]">docker compose logs backend | grep X-Admin-Token</code>
+            </p>
+            <Input
+              id="admin-token"
+              value={adminToken}
+              placeholder="Paste the token from your container logs"
+              onChange={(e) => { setAdminTokenInput(e.target.value); setAdminToken(e.target.value.trim()); }}
+              className="h-8 font-mono text-xs"
+            />
+          </div>
+        )}
         {availableUpgrades.length > 0 && !showUpgrade && (
           <Button size="sm" variant="outline" onClick={() => { setShowUpgrade(true); handleTargetChange(availableUpgrades[0]); }}>
             Upgrade Auth Mode
@@ -804,6 +840,22 @@ function SettingsTab({
           </button>
         </div>
       )}
+
+      {/* Backup */}
+      <div className="space-y-2 pt-2 border-t">
+        <h3 className="font-medium">Backup</h3>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            Downloads a complete snapshot of the database — every profile, plus
+            users, auth mode and OAuth configuration. Safe to run while the app
+            is in use. To restore: stop the stack, replace{" "}
+            <code className="text-[11px]">/data/cards.db</code> with this file, start it again.
+          </p>
+          <Button size="sm" variant="outline" onClick={handleDownloadBackup} disabled={backingUp}>
+            {backingUp ? "Preparing…" : "Download backup"}
+          </Button>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={showUpgradeConfirm}

@@ -9,7 +9,7 @@ benefits:
   credits:
     - name: United TravelBank Cash
       amount: 50
-      frequency: yearly
+      frequency: annual
   spend_thresholds:
     - name: Statement Credit + Bonus Points
       spend_required: 20000

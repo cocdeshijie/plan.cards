@@ -1,18 +1,25 @@
 import logging
+import os
+import shutil
+import tempfile
 import time
 from datetime import datetime, timezone
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.models.oauth_account import OAuthAccount
 from app.models.oauth_provider import OAuthProvider
 from app.models.user import User
-from app.routers.auth import require_admin
+from app.routers.auth import require_admin, require_privileged
 from app.schemas.user import UserOut
 from app.services.auth_service import hash_password
 from app.services.crypto import encrypt_value
@@ -86,11 +93,11 @@ def create_user(
             status_code=400,
             detail="Cannot create password-based users in OAuth mode. Users register via OAuth.",
         )
-    existing = db.query(User).filter(User.username == data.username).first()
+    existing = db.query(User).filter(func.lower(User.username) == data.username.strip().lower()).first()
     if existing:
         raise HTTPException(status_code=409, detail="Username already taken")
     if data.email:
-        existing_email = db.query(User).filter(User.email == data.email).first()
+        existing_email = db.query(User).filter(func.lower(User.email) == data.email.strip().lower()).first()
         if existing_email:
             raise HTTPException(status_code=409, detail="Email already registered")
     user = User(
@@ -121,24 +128,37 @@ def update_user(
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    # DELETE /users/{id} already refuses self-targeting; this endpoint performs
+    # the same state changes and must enforce the same invariant. Otherwise an
+    # admin can demote or deactivate themselves and require_auth rejects their
+    # own token on the very next request.
+    if user.id == admin.id:
+        if data.role is not None and data.role != user.role:
+            raise HTTPException(status_code=400, detail="Cannot change your own role")
+        if data.is_active is not None and not data.is_active:
+            raise HTTPException(status_code=400, detail="Cannot deactivate your own account")
     if data.display_name is not None:
         user.display_name = data.display_name
     if data.email is not None:
         if data.email:
-            existing = db.query(User).filter(User.email == data.email, User.id != user.id).first()
+            existing = db.query(User).filter(func.lower(User.email) == data.email.strip().lower(), User.id != user.id).first()
             if existing:
                 raise HTTPException(status_code=409, detail="Email already registered")
         user.email = data.email or None
+    # Captured before any mutation: assigning user.role first would make the
+    # deactivation guard below read the already-demoted role, so
+    # {"role": "user", "is_active": false} slipped past the last-admin check.
+    was_admin = user.role == "admin"
     if data.role is not None:
         # Prevent removing the last admin
-        if user.role == "admin" and data.role == "user":
+        if was_admin and data.role == "user":
             admin_count = db.query(User).filter(User.role == "admin", User.is_active.is_(True)).count()
             if admin_count <= 1:
                 raise HTTPException(status_code=400, detail="Cannot remove the last admin")
         user.role = data.role
     if data.is_active is not None:
         # Prevent deactivating the last admin
-        if user.role == "admin" and not data.is_active:
+        if was_admin and not data.is_active:
             admin_count = db.query(User).filter(User.role == "admin", User.is_active.is_(True)).count()
             if admin_count <= 1:
                 raise HTTPException(status_code=400, detail="Cannot deactivate the last admin")
@@ -200,7 +220,7 @@ def get_config(admin: User = Depends(require_admin), db: Session = Depends(get_d
 @router.put("/config")
 def update_config(
     data: SystemConfigUpdate,
-    admin: User = Depends(require_admin),
+    admin: User = Depends(require_privileged),
     db: Session = Depends(get_db),
 ):
     if data.registration_enabled is not None:
@@ -216,7 +236,7 @@ _MODE_ORDER = ["open", "single_password", "multi_user", "multi_user_oauth"]
 @router.post("/auth/upgrade")
 def upgrade_auth_mode(
     data: AuthUpgradeRequest,
-    admin: User = Depends(require_admin),
+    admin: User = Depends(require_privileged),
     db: Session = Depends(get_db),
 ):
     current = get_system_config(db, "auth_mode", "open")
@@ -265,6 +285,14 @@ def upgrade_auth_mode(
             .scalar()
         )
 
+    # Revoke every token minted under the looser mode. In `open` mode
+    # POST /api/auth/login hands any anonymous caller a 24h admin JWT; without
+    # this, that token keeps full admin access for the rest of its lifetime
+    # AFTER the operator has locked the instance down. require_auth's pwd_ts
+    # check is skipped entirely while password_changed_at is NULL.
+    now = datetime.now(timezone.utc)
+    db.query(User).update({User.password_changed_at: now}, synchronize_session=False)
+
     set_system_config(db, "auth_mode", target)
     db.commit()
 
@@ -296,28 +324,22 @@ class AdminOAuthLinkRequest(BaseModel):
 
 @router.post("/oauth/link")
 async def admin_link_oauth(
+    request: Request,
+    response: Response,
     data: AdminOAuthLinkRequest,
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Link the admin's account to an OAuth provider (for OAuth mode setup)."""
-    from app.models.oauth_state import OAuthState
-    from app.routers.oauth import STATE_TTL, _validate_redirect_uri
-    from app.services.oauth_service import exchange_code, extract_user_info
+    from app.routers.oauth import _validate_redirect_uri, consume_state
+    from app.services.oauth_service import exchange_code, extract_user_info, MissingSubjectError
+    from app.services.crypto import DecryptionError
 
     # Validate redirect_uri against ALLOWED_ORIGINS
     _validate_redirect_uri(data.redirect_uri)
 
-    # Atomic state consumption — delete first, check rows affected
-    now = time.time()
-    deleted = (
-        db.query(OAuthState)
-        .filter(OAuthState.state == data.state, OAuthState.created_at >= now - STATE_TTL)
-        .delete()
-    )
-    db.commit()
-    if deleted == 0:
-        raise HTTPException(status_code=400, detail="Invalid or expired OAuth state")
+    # Atomic, browser-bound, provider-scoped state consumption.
+    consume_state(db, request, response, data.state, data.provider_name)
 
     # Get the provider config
     provider = (
@@ -331,11 +353,20 @@ async def admin_link_oauth(
     # Exchange code for tokens
     try:
         tokens = await exchange_code(provider, data.code, data.redirect_uri)
+    except DecryptionError as e:
+        # The stored client secret can't be read — almost always a rotated
+        # SECRET_KEY. Say so, instead of blaming "provider configuration".
+        logger.error(f"Admin OAuth link client secret unreadable: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Admin OAuth link token exchange failed: {e}")
         raise HTTPException(status_code=400, detail="OAuth token exchange failed. Check provider configuration.")
 
-    user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    try:
+        user_info = extract_user_info(data.provider_name, tokens["userinfo"])
+    except MissingSubjectError as e:
+        logger.error("OAuth identity missing for %s: %s", data.provider_name, e)
+        raise HTTPException(status_code=400, detail=str(e))
     provider_user_id = str(user_info["provider_user_id"])
 
     # Check if this OAuth account is already linked to another user
@@ -391,3 +422,57 @@ def reload_templates(
         "templates_loaded": templates_loaded,
         "sync": summary,
     }
+
+
+# ── Database backup ─────────────────────────────────────────────────
+
+
+@router.get("/backup")
+def download_backup(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Stream a consistent snapshot of the SQLite database.
+
+    Uses `VACUUM INTO`, which produces a valid single-file copy of a LIVE
+    database. That matters because the app runs in WAL mode: the obvious backup
+    a self-hoster reaches for --
+        docker cp backend:/data/cards.db ./backup.db
+    -- silently captures a file missing every commit still sitting in
+    cards.db-wal, and the copy looks fine until you restore it.
+
+    Unlike the JSON profile export this covers everything: users, auth mode,
+    OAuth provider config, and all profiles.
+    """
+    # Back up the database this session is actually bound to, not a
+    # module-level engine that may point somewhere else.
+    bind = db.get_bind()
+    if bind.dialect.name != "sqlite":
+        raise HTTPException(
+            status_code=400, detail="Database backup is only supported for SQLite"
+        )
+
+    tmp_dir = tempfile.mkdtemp(prefix="cct-backup-")
+    # Server-generated path; no user input reaches this statement (SQLite has no
+    # bind-parameter form for VACUUM INTO).
+    tmp_path = os.path.join(tmp_dir, "cards.db")
+    try:
+        # VACUUM cannot run inside a transaction.
+        with bind.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.exec_driver_sql(f"VACUUM INTO '{tmp_path}'")
+    except Exception as e:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        logger.exception("Database backup failed")
+        raise HTTPException(status_code=500, detail=f"Backup failed: {e}")
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+    def _cleanup() -> None:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+
+    return FileResponse(
+        tmp_path,
+        media_type="application/octet-stream",
+        filename=f"plan-cards-{stamp}.db",
+        background=BackgroundTask(_cleanup),
+    )

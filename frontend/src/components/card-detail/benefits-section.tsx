@@ -596,9 +596,19 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                     <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
                       <Pencil className="h-3 w-3" />
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive" onClick={() => handleDelete(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    {/* Two-step, matching the credits list above: a single
+                        click here used to permanently delete the threshold and
+                        its accumulated amount_used, and the control sits at the
+                        same coordinates as the guarded one. */}
+                    {deletingId === benefit.id ? (
+                      <Button size="sm" variant="destructive" className="h-6 px-2 text-xs" onClick={() => { handleDelete(benefit.id); setDeletingId(null); }}>
+                        Delete?
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive" onClick={() => setDeletingId(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 </div>
 
