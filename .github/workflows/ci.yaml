@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Lets a run be started by hand from the Actions tab or `gh workflow run ci.yaml`,
+  # without pushing a throwaway commit just to re-trigger the checks.
+  workflow_dispatch:
 
 jobs:
   backend:
