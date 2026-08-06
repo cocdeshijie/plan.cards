@@ -111,6 +111,11 @@ export function CardSecretDialog({
     }
   });
 
+  const cardLabel = (c: Card) =>
+    `${c.issuer} ${c.card_name}${c.last_digits ? ` ···${c.last_digits}` : ""}`;
+  const profileNameFor = (c: Card) =>
+    profiles.find((pr) => pr.id === c.profile_id)?.name ?? "—";
+
   const digits = digitsOnly(pan);
   const detected = useMemo(() => detectNetwork(digits), [digits]);
   const network: CardNetwork | null = override === "auto" ? detected : (override as CardNetwork);
@@ -276,7 +281,7 @@ export function CardSecretDialog({
         {/* overflow-x-hidden is a backstop: setting overflow-y alone makes the
             other axis compute to `auto`, so any over-wide child scrolls the
             whole form sideways. A form dialog never wants that. */}
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
             <DialogTitle>{existing ? "Edit card details" : "Add card details"}</DialogTitle>
             <DialogDescription>
@@ -304,7 +309,16 @@ export function CardSecretDialog({
                   }}
                   disabled={!!existing || lockCard}
                 >
-                  <SelectTrigger id="secret-card">
+                  <SelectTrigger
+                    id="secret-card"
+                    title={
+                      selectedId
+                        ? cards
+                            .filter((c) => String(c.id) === selectedId)
+                            .map((c) => `${profileNameFor(c)} · ${cardLabel(c)}`)[0]
+                        : undefined
+                    }
+                  >
                     <SelectValue placeholder="Select a card…" />
                   </SelectTrigger>
                   {/* Cap the menu at the field's width — card names are
@@ -315,13 +329,13 @@ export function CardSecretDialog({
                       <SelectItem
                         key={c.id}
                         value={String(c.id)}
+                        title={`${profileNameFor(c)} · ${cardLabel(c)}`}
                         className="overflow-hidden [&>span:last-child]:min-w-0 [&>span:last-child]:truncate"
                       >
                         <span className="text-xs text-muted-foreground mr-1.5">
-                          {profiles.find((p) => p.id === c.profile_id)?.name ?? "—"}
+                          {profileNameFor(c)}
                         </span>
-                        {c.issuer} {c.card_name}
-                        {c.last_digits ? ` ···${c.last_digits}` : ""}
+                        {cardLabel(c)}
                       </SelectItem>
                     ))}
                   </SelectContent>
