@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Card, CardSecretMasked } from "@/types";
+import { useAppStore } from "@/hooks/use-app-store";
+import { useCardVault } from "@/hooks/use-card-vault";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -53,6 +55,8 @@ interface CardSecretDialogProps {
   cardId?: number | null;
   /** Present when editing, so the dialog can offer Delete. */
   existing?: CardSecretMasked | null;
+  /** Opened from a specific card, so the picker shouldn't be changeable. */
+  lockCard?: boolean;
 }
 
 export function CardSecretDialog({
@@ -62,7 +66,9 @@ export function CardSecretDialog({
   cards,
   cardId = null,
   existing = null,
+  lockCard = false,
 }: CardSecretDialogProps) {
+  const profiles = useAppStore((st) => st.profiles);
   const [selectedId, setSelectedId] = useState<string>(cardId ? String(cardId) : "");
   const [pan, setPan] = useState("");
   const [exp, setExp] = useState("");
@@ -211,6 +217,10 @@ export function CardSecretDialog({
         billing_zip: zip || null,
         network: override === "auto" ? null : override,
       });
+      // Drop any revealed copy of the OLD values — otherwise the vault row
+      // keeps showing, and copying, the pre-edit number until auto-hide fires.
+      // Done here rather than at each call site so every caller gets it.
+      useCardVault.getState().hide(Number(selectedId));
       toast.success("Card details saved");
       onSaved();
       onClose();
@@ -226,6 +236,7 @@ export function CardSecretDialog({
     setSubmitting(true);
     try {
       await deleteCardSecret(cardId);
+      useCardVault.getState().hide(cardId);
       toast.success("Card details deleted");
       onSaved();
       onClose();
@@ -256,13 +267,16 @@ export function CardSecretDialog({
             <div className="space-y-3">
               <div>
                 <Label htmlFor="secret-card">Which card?</Label>
-                <Select value={selectedId} onValueChange={setSelectedId} disabled={!!existing}>
+                <Select value={selectedId} onValueChange={setSelectedId} disabled={!!existing || lockCard}>
                   <SelectTrigger id="secret-card">
                     <SelectValue placeholder="Select a card…" />
                   </SelectTrigger>
                   <SelectContent>
                     {cards.map((c) => (
                       <SelectItem key={c.id} value={String(c.id)}>
+                        <span className="text-xs text-muted-foreground mr-1.5">
+                          {profiles.find((p) => p.id === c.profile_id)?.name ?? "—"}
+                        </span>
                         {c.issuer} {c.card_name}
                         {c.last_digits ? ` ···${c.last_digits}` : ""}
                       </SelectItem>
