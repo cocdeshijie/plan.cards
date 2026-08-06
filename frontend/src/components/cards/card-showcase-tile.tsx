@@ -8,15 +8,21 @@ import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL } from "@/lib/api";
 import { useColorExtraction } from "@/hooks/use-color-extraction";
-import { Clock, CalendarClock } from "lucide-react";
+import { Clock, CalendarClock, Lock } from "lucide-react";
 
 interface CardShowcaseTileProps {
   card: Card;
   onClick: () => void;
   profileName?: string;
+  /**
+   * Whether stored card details exist for this card. `undefined` means not
+   * known yet (still loading, or the request failed) — the indicator is hidden
+   * rather than claiming "none stored", which would be a confident lie.
+   */
+  hasDetails?: boolean;
 }
 
-export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTileProps) {
+export function CardShowcaseTile({ card, onClick, profileName, hasDetails }: CardShowcaseTileProps) {
   const [imgError, setImgError] = useState(false);
   const today = useToday();
 
@@ -105,6 +111,20 @@ export function CardShowcaseTile({ card, onClick, profileName }: CardShowcaseTil
           <Badge variant="outline" className="text-[10px]">
             {card.card_type === "personal" ? "Personal" : "Business"}
           </Badge>
+          {/* A fixed slot with two states rather than an icon that only appears
+              when set — absence alone would be ambiguous between "nothing
+              stored" and "this build has no such feature". */}
+          {hasDetails !== undefined && (
+            <span
+              className={`ml-auto self-center ${hasDetails ? "text-muted-foreground" : "text-muted-foreground/25"}`}
+              title={hasDetails ? "Card details stored" : "No card details stored"}
+            >
+              <Lock className="h-3 w-3" aria-hidden="true" />
+              <span className="sr-only">
+                {hasDetails ? "Card details stored" : "No card details stored"}
+              </span>
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
