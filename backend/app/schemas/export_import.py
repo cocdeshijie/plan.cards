@@ -115,3 +115,7 @@ class ImportResult(BaseModel):
     bonuses_imported: int = 0
     bonus_categories_imported: int = 0
     cards_skipped: int = 0
+    # Override mode recreates cards, which would destroy their stored details —
+    # those are never in the export file, so they could not be restored from it.
+    # They are carried across and re-attached instead; this reports how many.
+    card_secrets_preserved: int = 0

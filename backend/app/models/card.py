@@ -60,3 +60,8 @@ class Card(Base):
     benefits: Mapped[list["CardBenefit"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
     bonuses: Mapped[list["CardBonus"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
     bonus_categories: Mapped[list["CardBonusCategory"]] = relationship(back_populates="card", cascade="all, delete-orphan")  # noqa: F821
+    # Optional stored card details. Never serialized through CardOut — the vault
+    # has its own router and response models. See models/card_secret.py.
+    secret: Mapped["CardSecret | None"] = relationship(  # noqa: F821
+        back_populates="card", cascade="all, delete-orphan", uselist=False
+    )

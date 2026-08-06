@@ -24,6 +24,9 @@ import type {
   AuthModeResponse,
   TokenResponse,
   UserBrief,
+  CardSecretMasked,
+  CardSecretRevealed,
+  CardSecretInput,
 } from "@/types";
 
 export const API_BASE =
@@ -480,3 +483,20 @@ export const userLinkOAuth = (data: { provider_name: string; code: string; state
   apiFetch<{ status: string; provider: string }>("/api/users/me/oauth/link", { method: "POST", body: JSON.stringify(data) });
 export const userUnlinkOAuth = (provider: string) =>
   apiFetch<void>(`/api/users/me/oauth/${provider}`, { method: "DELETE" });
+
+// Card details vault
+export const getCardSecrets = () => apiFetch<CardSecretMasked[]>("/api/card-secrets");
+export const saveCardSecret = (cardId: number, data: CardSecretInput) =>
+  apiFetch<CardSecretMasked>(`/api/card-secrets/${cardId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+/**
+ * POST, not GET: a card number must never appear in a URL. Uvicorn's access log
+ * records full request lines, so a GET would write the identity of what was
+ * revealed to disk, and the response would be cacheable.
+ */
+export const revealCardSecret = (cardId: number) =>
+  apiFetch<CardSecretRevealed>(`/api/card-secrets/${cardId}/reveal`, { method: "POST" });
+export const deleteCardSecret = (cardId: number) =>
+  apiFetch<void>(`/api/card-secrets/${cardId}`, { method: "DELETE" });

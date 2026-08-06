@@ -10,10 +10,11 @@ from app.models.card_event import CardEvent
 from app.models.card_benefit import CardBenefit
 from app.models.card_bonus import CardBonus
 from app.models.card_bonus_category import CardBonusCategory
+from app.models.card_secret import CardSecret
 from app.models.setting import Setting
 
 __all__ = [
     "User", "UserSetting", "SystemConfig", "OAuthAccount", "OAuthProvider",
     "OAuthState", "Profile", "Card", "CardEvent", "CardBenefit", "CardBonus",
-    "CardBonusCategory", "Setting",
+    "CardBonusCategory", "CardSecret", "Setting",
 ]

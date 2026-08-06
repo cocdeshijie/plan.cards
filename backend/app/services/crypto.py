@@ -55,15 +55,34 @@ def _load_or_create_key() -> bytes:
     except OSError:
         # No writable /data (tests, local dev). Fall back to deriving from
         # SECRET_KEY so encryption still works within the process.
+        #
+        # The fallback is CACHED like any other key. It used to return without
+        # caching, which let one process diverge: card_vault_crypto caches its
+        # HKDF subkey on first use, so if /data became writable later this
+        # module would silently switch to the new file key while the vault kept
+        # using the SECRET_KEY-derived one. Everything written in that window
+        # was unrecoverable after a restart. Caching also stops the 100k-round
+        # PBKDF2 re-running on every call.
         logger.warning(
             "Could not persist encryption key to %s — falling back to a "
             "SECRET_KEY-derived key for this process",
             ENCRYPTION_KEY_FILE,
         )
-        return _derive_from_secret_key()
+        _cached_key = _derive_from_secret_key()
+        return _cached_key
 
     _cached_key = key
     return _cached_key
+
+
+def root_key_material() -> bytes:
+    """The persisted key bytes, for callers deriving their own subkeys.
+
+    Exposed so the card vault can HKDF a separate key out of the same file
+    (see services/card_vault_crypto.py) instead of reusing this module's Fernet
+    key directly. One file to back up, two cryptographically independent keys.
+    """
+    return _load_or_create_key()
 
 
 def _derive_from_secret_key() -> bytes:
