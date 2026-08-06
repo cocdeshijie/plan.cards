@@ -570,9 +570,7 @@ export default function CardDetailsPage() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSaved={() => {
-          // The revealed copy in the store is now stale — without this the row
-          // keeps displaying (and copying) the pre-edit number until auto-hide.
-          if (editing.cardId !== null) hide(editing.cardId);
+          // The dialog drops the stale revealed copy itself, for every caller.
           load();
           useAppStore.getState().refresh();
         }}

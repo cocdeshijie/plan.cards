@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import type { Card, CardEvent, CardTemplate } from "@/types";
+import { useCallback, useEffect, useState, useMemo } from "react";
+import type { Card, CardEvent, CardTemplate, CardSecretMasked } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, deleteEvent, updateBonus, deleteBonus, deleteCard, restoreCard } from "@/lib/api";
+import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, deleteEvent, updateBonus, deleteBonus, deleteCard, restoreCard, getCardSecrets } from "@/lib/api";
 import { frequencyShort } from "@/lib/benefit-utils";
 import { formatDate, formatCurrency, parseIntStrict, parseDateStr } from "@/lib/utils";
 import { useToday } from "@/hooks/use-timezone";
@@ -24,6 +24,7 @@ import { useColorExtraction } from "@/hooks/use-color-extraction";
 import { getEventMeta } from "@/lib/event-icons";
 import { Switch } from "@/components/ui/switch";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { CardSecretDialog } from "@/components/card-details/card-secret-dialog";
 import {
   Check,
   Clock,
@@ -42,6 +43,7 @@ import {
   ChevronDown,
   Trophy,
   Trash2,
+  Lock,
 } from "lucide-react";
 
 interface CardDetailContentProps {
@@ -53,6 +55,19 @@ interface CardDetailContentProps {
 
 export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: CardDetailContentProps) {
   const { isExpanded, toggle, expand } = useCardSections(card.id);
+
+  // Stored card details live in their own table with their own endpoints, so
+  // this block saves independently of the Edit Card form around it.
+  const [secretEntry, setSecretEntry] = useState<CardSecretMasked | null>(null);
+  const [showSecretDialog, setShowSecretDialog] = useState(false);
+  const loadSecret = useCallback(async () => {
+    try {
+      const all = await getCardSecrets();
+      setSecretEntry(all.find((s) => s.card_id === card.id) ?? null);
+    } catch {
+      setSecretEntry(null);
+    }
+  }, [card.id]);
   const today = useToday();
   const [imgError, setImgError] = useState(false);
 
@@ -98,6 +113,12 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
   const [editEventType, setEditEventType] = useState("");
   const [editEventFee, setEditEventFee] = useState("");
   const [showEditForm, setShowEditForm] = useState(false);
+
+  // Only when the form is actually open — this is one request per open, and
+  // there's no reason to make it for every card the user merely looks at.
+  useEffect(() => {
+    if (showEditForm) loadSecret();
+  }, [showEditForm, loadSecret]);
   const [ef, setEf] = useState({
     card_name: "",
     issuer: "",
@@ -1460,6 +1481,33 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             );
           })()}
 
+          {/* Stored card details — saved separately from this form, because
+              they live in their own encrypted table with their own endpoint. */}
+          <div className="rounded-lg border bg-background p-3 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Card details</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {secretEntry ? (
+                      <>
+                        <span className="font-mono tabular-nums">{secretEntry.masked_pan}</span>
+                        {" · expires "}
+                        {secretEntry.exp_display}
+                      </>
+                    ) : (
+                      "Optional. Number, expiry and security code, encrypted at rest."
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={() => setShowSecretDialog(true)}>
+                {secretEntry ? "Edit" : "Add"}
+              </Button>
+            </div>
+          </div>
+
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSaveEdit} disabled={submittingAction !== null || !ef.card_name?.trim() || !ef.issuer?.trim()}>
               {submittingAction === "edit" ? "Saving..." : "Save Changes"}
@@ -1468,6 +1516,16 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           </div>
         </div>
       )}
+
+      <CardSecretDialog
+        open={showSecretDialog}
+        onClose={() => setShowSecretDialog(false)}
+        onSaved={() => { loadSecret(); onUpdated(); }}
+        cards={[card]}
+        cardId={card.id}
+        existing={secretEntry}
+        lockCard
+      />
 
       <ConfirmDialog
         open={showDiscardConfirm}
