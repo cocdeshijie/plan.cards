@@ -855,6 +855,18 @@ function SettingsTab({
             {backingUp ? "Preparing…" : "Download backup"}
           </Button>
         </div>
+        <div className="flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-500" />
+          <p className="text-muted-foreground">
+            <span className="font-medium text-foreground">
+              The encryption key is not in this file.
+            </span>{" "}
+            Stored card details and OAuth client secrets are encrypted with{" "}
+            <code className="text-[11px]">/data/.encryption_key</code>, which lives outside the
+            database. That keeps a leaked backup unreadable — but it also means restoring onto a
+            fresh volume leaves those values undecryptable unless you copy the key file across too.
+          </p>
+        </div>
       </div>
 
       <ConfirmDialog
