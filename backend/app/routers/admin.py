@@ -19,6 +19,7 @@ from app.database import get_db
 from app.models.oauth_account import OAuthAccount
 from app.models.oauth_provider import OAuthProvider
 from app.models.user import User
+from app.rate_limit import limiter
 from app.routers.auth import require_admin, require_privileged
 from app.schemas.user import UserOut
 from app.services.auth_service import hash_password
@@ -428,11 +429,25 @@ def reload_templates(
 
 
 @router.get("/backup")
+@limiter.limit("5/minute")
 def download_backup(
-    admin: User = Depends(require_admin),
+    request: Request,
+    admin: User = Depends(require_privileged),
     db: Session = Depends(get_db),
 ):
     """Stream a consistent snapshot of the SQLite database.
+
+    Gated by require_privileged, not require_admin. In `open` mode require_auth
+    hands back the first admin without checking any credential, so require_admin
+    gates nothing — this endpoint was downloadable with no credential at all,
+    yielding password hashes and encrypted OAuth secrets. Once card details are
+    stored it also yields those. require_privileged additionally demands the
+    bootstrap token from the container logs when the mode is `open`.
+
+    Note the backup does NOT contain /data/.encryption_key, so restoring it onto
+    a fresh volume produces card details and OAuth secrets that cannot be
+    decrypted. That is the right default for a file that leaves the server, but
+    it has to be said out loud wherever the download is offered.
 
     Uses `VACUUM INTO`, which produces a valid single-file copy of a LIVE
     database. That matters because the app runs in WAL mode: the obvious backup

@@ -373,3 +373,52 @@ export interface TokenResponse {
   token_type: string;
   user: UserBrief;
 }
+
+// ── Card details vault ────────────────────────────────────────────────
+// Optional stored card data. Deliberately NOT part of `Card`: the card list is
+// cached in the app store for the whole session and feeds every widget, so
+// plaintext must never ride along with it. Masked entries are safe to list;
+// plaintext comes only from the explicit reveal call.
+
+export interface CardSecretMasked {
+  card_id: number;
+  network: string | null;
+  last_digits: string;
+  masked_pan: string;
+  exp_month: number;
+  exp_year: number;
+  exp_display: string;
+  code_label: string;
+  /** So a cancelled card is visibly dead rather than looking usable. */
+  card_status: string;
+  has_cvv: boolean;
+  has_holder: boolean;
+  has_billing_zip: boolean;
+  updated_at: string;
+}
+
+export interface CardSecretRevealed {
+  card_id: number;
+  network: string | null;
+  /** Grouped for display: "3782 822463 10005". */
+  pan: string;
+  /** Bare digits, for copying — checkout fields reject or truncate spaces. */
+  pan_digits: string;
+  exp_month: number;
+  exp_year: number;
+  exp_display: string;
+  cvv: string | null;
+  code_label: string;
+  holder: string | null;
+  billing_zip: string | null;
+}
+
+export interface CardSecretInput {
+  pan: string;
+  exp_month: number;
+  exp_year: number;
+  cvv?: string | null;
+  holder?: string | null;
+  billing_zip?: string | null;
+  network?: string | null;
+}

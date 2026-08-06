@@ -17,7 +17,7 @@ Docker self-hosted credit card lifecycle tracker. Tracks openings, closings, pro
 
 ## Project Structure
 - `backend/app/` — FastAPI application
-  - `routers/` — auth, cards, events, profiles, benefits, bonuses, bonus_categories, templates, settings, setup, admin, oauth, users, alerts
+  - `routers/` — auth, cards, card_secrets, events, profiles, benefits, bonuses, bonus_categories, templates, settings, setup, admin, oauth, users, alerts
   - `models/` — SQLAlchemy models (card, profile, user, oauth_provider, oauth_account, etc.)
   - `schemas/` — Pydantic request/response schemas
   - `services/` — Business logic (card_service, auth_service, oauth_service, etc.)
@@ -32,5 +32,6 @@ Docker self-hosted credit card lifecycle tracker. Tracks openings, closings, pro
 - Auth: 4 modes (open → single_password → multi_user → multi_user_oauth), configured via setup wizard on first run. Modes can only be upgraded, never downgraded.
 - OAuth state stored in DB (`oauth_states` table), not in-memory
 - Rate limiting on auth endpoints via slowapi (disabled in tests via `RATE_LIMIT_ENABLED=false`)
-- SQLite DB persisted via Docker volume at `/data/cards.db`
+- Card details vault (optional): full PAN, security code, cardholder and billing postcode in `card_secrets`, AES-256-GCM with AAD bound to `(table, column, card_id)`. Key is HKDF-derived from `/data/.encryption_key` — the same file OAuth secrets use, but a separate key. Plaintext leaves the server only from `POST /api/card-secrets/{id}/reveal`; it is never on `CardOut` and never in the JSON export.
+- SQLite DB persisted via Docker volume at `/data/cards.db`. **Backups do not contain `/data/.encryption_key`** — restoring onto a fresh volume leaves card details and OAuth secrets undecryptable.
 - Runtime API URL injection via `/__env.js` for non-localhost Docker deployments

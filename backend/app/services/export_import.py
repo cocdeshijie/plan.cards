@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.card import Card
+from app.models.card_secret import CardSecret
 from app.models.card_benefit import CardBenefit
 from app.models.card_bonus import CardBonus
 from app.models.card_bonus_category import CardBonusCategory
@@ -259,6 +260,115 @@ def _create_cards_and_events(
     return cards_count, events_count, benefits_count, bonuses_count, bonus_categories_count
 
 
+def _secret_identity(card_name: str, issuer: str, open_date) -> tuple:
+    """The same identity tuple merge mode uses to recognise a card."""
+    return (card_name.lower(), issuer.lower(), open_date)
+
+
+def _capture_card_secrets(db: Session, profile: Profile) -> dict[tuple, dict]:
+    """Decrypt a profile's stored card details before its cards are deleted.
+
+    Held as plaintext in memory only for the duration of the import. They cannot
+    simply be re-pointed at the new rows: the ciphertext AAD binds to the card's
+    id and creation timestamp, and the recreated card has neither.
+
+    A card whose details can't be decrypted (missing key file) is skipped rather
+    than failing the whole import — the user is mid-restore and blocking them
+    would be worse than losing a value they already couldn't read.
+    """
+    from app.services.card_vault_crypto import (
+        VaultDecryptionError,
+        card_binding,
+        decrypt_field,
+    )
+
+    carried: dict[tuple, dict] = {}
+    for card in list(profile.cards):
+        if card.deleted_at is not None:
+            continue
+        secret = db.get(CardSecret, card.id)
+        if secret is None:
+            continue
+        binding = card_binding(card.created_at)
+
+        def dec(blob, column):
+            return decrypt_field(
+                blob, table="card_secrets", column=column, pk=card.id, binding=binding
+            )
+
+        try:
+            carried[_secret_identity(card.card_name, card.issuer, card.open_date)] = {
+                "pan": dec(secret.pan_encrypted, "pan_encrypted"),
+                "cvv": dec(secret.cvv_encrypted, "cvv_encrypted"),
+                "holder": dec(secret.holder_encrypted, "holder_encrypted"),
+                "billing_zip": dec(secret.billing_zip_encrypted, "billing_zip_encrypted"),
+                "exp_month": secret.exp_month,
+                "exp_year": secret.exp_year,
+                "network": secret.network,
+                "last_digits": secret.last_digits,
+                "pan_length": secret.pan_length,
+            }
+        except VaultDecryptionError:
+            continue
+    return carried
+
+
+def _restore_card_secrets(db: Session, profile: Profile, carried: dict[tuple, dict]) -> int:
+    """Re-encrypt carried details against the recreated cards. Returns the count."""
+    if not carried:
+        return 0
+    from app.services.card_vault_crypto import CIPHERTEXT_VERSION, card_binding, encrypt_field
+
+    db.flush()
+    # Re-read from the database rather than trusting profile.cards.
+    #
+    # The old cards were deleted and the new ones INSERTed, and SQLite reuses
+    # freed rowids — so the collection still held the DELETED objects under the
+    # same ids, with their old created_at. Encrypting against those produced
+    # ciphertext the reveal endpoint then refused to decrypt (correctly: that is
+    # the recycled-id protection working). The rows we want are the ones now in
+    # the table.
+    db.expire_all()
+    fresh_cards = (
+        db.query(Card)
+        .filter(Card.profile_id == profile.id, Card.deleted_at == None)  # noqa: E711
+        .all()
+    )
+
+    restored = 0
+    for card in fresh_cards:
+        values = carried.get(_secret_identity(card.card_name, card.issuer, card.open_date))
+        if not values or not values.get("pan"):
+            continue
+        binding = card_binding(card.created_at)
+
+        def enc(value, column):
+            if not value:
+                return None
+            return encrypt_field(
+                value, table="card_secrets", column=column, pk=card.id, binding=binding
+            )
+
+        db.add(
+            CardSecret(
+                card_id=card.id,
+                pan_encrypted=enc(values["pan"], "pan_encrypted"),
+                cvv_encrypted=enc(values["cvv"], "cvv_encrypted"),
+                holder_encrypted=enc(values["holder"], "holder_encrypted"),
+                billing_zip_encrypted=enc(values["billing_zip"], "billing_zip_encrypted"),
+                exp_month=values["exp_month"],
+                exp_year=values["exp_year"],
+                network=values["network"],
+                last_digits=values["last_digits"],
+                pan_length=values["pan_length"],
+                version=CIPHERTEXT_VERSION,
+            )
+        )
+        restored += 1
+    db.flush()
+    return restored
+
+
 def import_profiles(
     db: Session,
     data: ExportData,
@@ -304,6 +414,13 @@ def import_profiles(
         if not profile:
             raise ValueError("Target profile not found")
 
+        # Stored card details are deliberately NOT in the export file, so a
+        # re-import cannot restore them — and deleting the cards below would
+        # destroy them permanently. Carry them across by card identity instead.
+        # Without this, "export a profile, then re-import that same file" wiped
+        # every stored card number with no warning and no way back.
+        carried = _capture_card_secrets(db, profile)
+
         # Delete existing cards (cascade deletes events and benefits).
         # Soft-deleted cards are excluded: export_profiles skips them, so they
         # were never in the file the user is restoring, and they are still
@@ -318,6 +435,7 @@ def import_profiles(
 
         profile_data = data.profiles[0]
         cards, events, benefits, bonuses, bcats = _create_cards_and_events(db, profile, profile_data.cards)
+        result.card_secrets_preserved = _restore_card_secrets(db, profile, carried)
         result.profiles_imported = 1
         result.cards_imported = cards
         result.events_imported = events

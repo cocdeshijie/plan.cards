@@ -97,4 +97,18 @@ class AccountThrottle:
 
 login_throttle = AccountThrottle()
 
-limiter = Limiter(key_func=client_key, enabled=RATE_LIMIT_ENABLED)
+# key_style="endpoint" is load-bearing, not a preference.
+#
+# slowapi defaults to key_style="url", which puts every distinct URL in its own
+# bucket. For a route with a path parameter that means one bucket PER RESOURCE:
+# "60/minute" on POST /api/card-secrets/{card_id}/reveal bounded re-revealing a
+# single card and nothing else, so dumping a hundred-card vault took a hundred
+# requests and never tripped the limit — exactly the exfiltration the limit
+# exists to slow down. The same flaw made PUT /api/cards/{id} and DELETE
+# /api/cards/{id} share a bucket (same URL) while the same verb on a different
+# id did not, so saving one card twenty times returned 429 for deleting THAT
+# card while leaving every other card unthrottled.
+#
+# Keying on the view function gives one bucket per endpoint per client, which is
+# what every limit in this app was written to mean.
+limiter = Limiter(key_func=client_key, key_style="endpoint", enabled=RATE_LIMIT_ENABLED)

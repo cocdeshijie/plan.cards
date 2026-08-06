@@ -10,6 +10,7 @@ from alembic import command as alembic_command
 from alembic.config import Config as AlembicConfig
 from alembic.util import exc as alembic_util_exc
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
@@ -18,7 +19,7 @@ from sqlalchemy import inspect, text
 from app.config import settings
 from app.rate_limit import limiter
 from app.database import engine, SessionLocal
-from app.routers import auth, profiles, cards, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
+from app.routers import auth, profiles, cards, card_secrets, events, templates, benefits, bonuses, bonus_categories, settings as settings_router, setup, users, admin, oauth, alerts
 from app.services.bootstrap_token import log_bootstrap_token
 from app.services.setup_service import get_system_config
 from app.services.template_loader import invalidate_fingerprint, load_templates, reload_if_changed
@@ -264,6 +265,25 @@ async def lifespan(app: FastAPI):
             logger.info("Cleaned up %d expired OAuth states", expired)
             db.commit()
 
+        # Sweep card_secrets rows whose card no longer exists.
+        #
+        # `cards.id` is a plain SQLite rowid alias, so SQLite reuses the ids of
+        # deleted rows. An orphaned vault row is therefore a live hazard: create
+        # a new card, get the recycled id, inherit someone else's stored number.
+        # Nothing inside the app orphans a row -- the FK cascade handles every
+        # delete path -- but the sqlite3 CLI starts with foreign_keys=OFF, this
+        # repo's own migrations disable them around table rebuilds, and a
+        # partially restored backup can do it too. The AAD binding makes an
+        # inherited row fail to decrypt; this removes it outright.
+        orphans = db.execute(
+            text("DELETE FROM card_secrets WHERE card_id NOT IN (SELECT id FROM cards)")
+        ).rowcount
+        if orphans:
+            logger.warning(
+                "Removed %d orphaned card_secrets row(s) with no matching card", orphans
+            )
+            db.commit()
+
         summary = sync_cards_to_templates(db)
         if summary["cards_synced"] or summary["cards_initialized"]:
             logger.info(f"Template sync: {summary}")
@@ -303,6 +323,25 @@ app.state.limiter = limiter
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(status_code=429, content={"detail": "Too many requests. Please try again later."})
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_handler(request: Request, exc: RequestValidationError):
+    """422 responses that never echo the rejected value back.
+
+    FastAPI's default handler includes `input` (and sometimes `ctx`) for every
+    failed field. The frontend flattens `detail` into an error toast, so a
+    mistyped card number would be reflected into the UI — and into anything that
+    captures response bodies. Nothing in this app needs the offending value
+    returned to the client, so it is stripped for every endpoint rather than
+    only the card-vault ones: an allowlist is one forgotten field away from
+    leaking, and `loc` + `msg` is all the frontend reads.
+    """
+    safe = [
+        {"type": err.get("type"), "loc": list(err.get("loc", ())), "msg": err.get("msg", "")}
+        for err in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content={"detail": safe})
 
 
 def _cors_kwargs() -> dict:
@@ -348,6 +387,7 @@ app.include_router(setup.router)
 app.include_router(auth.router)
 app.include_router(profiles.router)
 app.include_router(cards.router)
+app.include_router(card_secrets.router)
 app.include_router(events.router)
 app.include_router(templates.router)
 app.include_router(benefits.router)

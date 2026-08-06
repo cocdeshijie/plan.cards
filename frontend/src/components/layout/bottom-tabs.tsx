@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CreditCard } from "lucide-react";
+import { LayoutDashboard, CreditCard, Lock } from "lucide-react";
 
 const tabs = [
   { href: "/summary", label: "Summary", icon: LayoutDashboard },
   { href: "/cards", label: "Cards", icon: CreditCard },
+  { href: "/card-details", label: "Details", icon: Lock },
 ];
 
 export function BottomTabs() {

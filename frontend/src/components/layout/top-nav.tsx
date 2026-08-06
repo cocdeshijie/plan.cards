@@ -90,6 +90,7 @@ export function TopNav() {
   const navLinks = [
     { href: "/summary", label: "Summary" },
     { href: "/cards", label: "Cards" },
+    { href: "/card-details", label: "Card details" },
   ];
 
   return (
