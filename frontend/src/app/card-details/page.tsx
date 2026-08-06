@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CardSecretDialog } from "@/components/card-details/card-secret-dialog";
+import { CardDetailResponsive } from "@/components/card-detail/card-detail-responsive";
 import {
   Search,
   Eye,
@@ -60,6 +61,10 @@ export default function CardDetailsPage() {
   const [query, setQuery] = useState("");
   const [persons, setPersons] = useState<number[]>([]);
   const [types, setTypes] = useState<string[]>([]);
+  // Defaults to active. A closed card's number is dead, and pasting one into a
+  // checkout is the obvious failure this page could cause. Shown as a pressed
+  // chip rather than hidden default state, so it's visible and removable.
+  const [statuses, setStatuses] = useState<string[]>(["active"]);
   const [groupBy, setGroupBy] = useState<GroupBy>("none");
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
@@ -70,6 +75,10 @@ export default function CardDetailsPage() {
     existing: null,
   });
   const [now, setNow] = useState(() => Date.now());
+  // Derived from the id, not stored as an object, so it stays current when the
+  // store refreshes — the same pattern the cards page uses.
+  const [openCardId, setOpenCardId] = useState<number | null>(null);
+  const openCard = openCardId !== null ? (cards.find((c) => c.id === openCardId) ?? null) : null;
 
   const load = useCallback(async () => {
     try {
@@ -144,9 +153,15 @@ export default function CardDetailsPage() {
     (r: Row) => types.length === 0 || types.includes(r.card.card_type),
     [types],
   );
+  const passStatuses = useCallback(
+    (r: Row) => statuses.length === 0 || statuses.includes(r.secret.card_status),
+    [statuses],
+  );
 
   const visible = useMemo(() => {
-    const filtered = rows.filter((r) => passSearch(r) && passPersons(r) && passTypes(r));
+    const filtered = rows.filter(
+      (r) => passSearch(r) && passPersons(r) && passTypes(r) && passStatuses(r),
+    );
     const sorted = [...filtered].sort((a, b) => {
       let r = 0;
       if (sortField === "exp") {
@@ -165,7 +180,7 @@ export default function CardDetailsPage() {
       return r * sortDir;
     });
     return sorted;
-  }, [rows, passSearch, passPersons, passTypes, sortField, sortDir]);
+  }, [rows, passSearch, passPersons, passTypes, passStatuses, sortField, sortDir]);
 
   // Counts are computed against the OTHER active facets, so a chip reading 0
   // warns you it would empty the table before you click it.
@@ -175,19 +190,38 @@ export default function CardDetailsPage() {
       .map((id) => ({
         id,
         name: profileName(id),
-        count: rows.filter((r) => passSearch(r) && passTypes(r) && r.card.profile_id === id).length,
+        count: rows.filter(
+          (r) => passSearch(r) && passTypes(r) && passStatuses(r) && r.card.profile_id === id,
+        ).length,
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [rows, profileName, passSearch, passTypes]);
+  }, [rows, profileName, passSearch, passTypes, passStatuses]);
 
   const typeChips = useMemo(
     () =>
       (["personal", "business"] as const).map((t) => ({
         value: t,
         label: t === "business" ? "Business" : "Personal",
-        count: rows.filter((r) => passSearch(r) && passPersons(r) && r.card.card_type === t).length,
+        count: rows.filter(
+          (r) => passSearch(r) && passPersons(r) && passStatuses(r) && r.card.card_type === t,
+        ).length,
       })),
-    [rows, passSearch, passPersons],
+    [rows, passSearch, passPersons, passStatuses],
+  );
+
+  const statusChips = useMemo(
+    () =>
+      ([
+        { value: "active", label: "Open" },
+        { value: "closed", label: "Closed" },
+      ] as const).map((st) => ({
+        value: st.value,
+        label: st.label,
+        count: rows.filter(
+          (r) => passSearch(r) && passPersons(r) && passTypes(r) && r.secret.card_status === st.value,
+        ).length,
+      })),
+    [rows, passSearch, passPersons, passTypes],
   );
 
   const grouped = useMemo(() => {
@@ -220,7 +254,9 @@ export default function CardDetailsPage() {
 
   const revealedCount = Object.keys(revealed).length;
   const allRevealed = visible.length > 0 && visible.every((r) => revealed[r.card.id]);
-  const activeFilters = persons.length + types.length + (query.trim() ? 1 : 0);
+  const statusIsDefault = statuses.length === 1 && statuses[0] === "active";
+  const activeFilters =
+    persons.length + types.length + (query.trim() ? 1 : 0) + (statusIsDefault ? 0 : 1);
 
   const secondsLeft = expiresAt === null ? 0 : Math.max(0, Math.ceil((expiresAt - now) / 1000));
   const timerLabel =
@@ -469,6 +505,33 @@ export default function CardDetailsPage() {
                   </button>
                 );
               })}
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground w-14 shrink-0">
+                Status
+              </span>
+              {statusChips.map((st) => {
+                const on = statuses.includes(st.value);
+                return (
+                  <button
+                    key={st.value}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() =>
+                      setStatuses((s2) =>
+                        s2.includes(st.value) ? s2.filter((x) => x !== st.value) : [...s2, st.value],
+                      )
+                    }
+                    className={`h-7 px-3 rounded-full border text-xs font-medium transition-colors ${
+                      on
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : `bg-background text-muted-foreground hover:text-foreground ${st.count === 0 ? "opacity-40" : ""}`
+                    }`}
+                  >
+                    {st.label} <span className="opacity-60 tabular-nums">{st.count}</span>
+                  </button>
+                );
+              })}
               {activeFilters > 0 && (
                 <Button
                   variant="ghost"
@@ -478,6 +541,9 @@ export default function CardDetailsPage() {
                     setPersons([]);
                     setTypes([]);
                     setQuery("");
+                    // Back to the default view, not to "no filters at all" —
+                    // showing closed cards is a deliberate choice, not a baseline.
+                    setStatuses(["active"]);
                   }}
                 >
                   Clear filters
@@ -547,6 +613,7 @@ export default function CardDetailsPage() {
                             }
                             onCopy={doCopy}
                             onEdit={() => openEdit(row)}
+                            onOpenCard={() => setOpenCardId(row.card.id)}
                           />
                         ))}
                       </Fragment>
@@ -564,6 +631,25 @@ export default function CardDetailsPage() {
             browsers can&apos;t do that reliably, so this page doesn&apos;t claim it.
           </p>
         </>
+      )}
+
+      {openCard && (
+        <CardDetailResponsive
+          card={openCard}
+          open={!!openCard}
+          onClose={() => setOpenCardId(null)}
+          onUpdated={() => {
+            useAppStore.getState().refresh();
+            // The card editor can change stored details too, so re-read them.
+            load();
+          }}
+          onDeleted={() => {
+            setOpenCardId(null);
+            useAppStore.getState().refresh();
+            load();
+          }}
+          profileName={profiles.find((p) => p.id === openCard.profile_id)?.name}
+        />
       )}
 
       <CardSecretDialog
@@ -590,6 +676,7 @@ function SecretRow({
   onReveal,
   onCopy,
   onEdit,
+  onOpenCard,
 }: {
   row: Row;
   revealedData: CardSecretRevealed | undefined;
@@ -598,6 +685,7 @@ function SecretRow({
   onReveal: () => void;
   onCopy: (key: string, value: string, label: string) => void;
   onEdit: () => void;
+  onOpenCard: () => void;
 }) {
   const { card, secret, profileName } = row;
   const on = !!revealedData;
@@ -660,7 +748,13 @@ function SecretRow({
     <tr className={`border-b last:border-b-0 ${on ? "bg-primary/5" : "hover:bg-muted/40"}`}>
       <td className="px-3 h-12">
         <div className="min-w-0">
-          <div className="text-sm font-medium truncate">{card.card_name}</div>
+          <button
+            type="button"
+            onClick={onOpenCard}
+            className="text-sm font-medium truncate text-left hover:underline focus-visible:ring-2 focus-visible:ring-ring rounded-sm outline-none max-w-full"
+          >
+            {card.card_name}
+          </button>
           <div className="text-xs text-muted-foreground truncate">
             {card.issuer}
             {card.network ? ` · ${card.network}` : ""}

@@ -81,6 +81,27 @@ export function CardSecretDialog({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const panRef = useRef<HTMLInputElement>(null);
   const caretRef = useRef<number | null>(null);
+  const [holderTouched, setHolderTouched] = useState(false);
+
+  /**
+   * Cardholder defaults to the card's profile name, but ONLY while no details
+   * have been stored yet. Once an entry exists we show exactly what was saved —
+   * including a name the user deliberately cleared — rather than reintroducing
+   * a default they already rejected.
+   *
+   * Held in a ref rather than a useCallback in the effect's deps: `cards` and
+   * `profiles` come from the app store and change identity on a background
+   * refresh, which would re-run the open effect and wipe a half-filled form.
+   */
+  const holderDefaultRef = useRef<(cid: number | null) => string>(() => "");
+  holderDefaultRef.current = (cid) => {
+    if (cid == null) return "";
+    const c = cards.find((x) => x.id === cid);
+    if (!c) return "";
+    // Uppercase to match how names are printed on cards, and how the field
+    // normalises anything the user types into it.
+    return (profiles.find((pr) => pr.id === c.profile_id)?.name ?? "").toUpperCase();
+  };
 
   // Restore the caret after the reformatted value commits to the DOM.
   useLayoutEffect(() => {
@@ -111,7 +132,8 @@ export function CardSecretDialog({
     setExp("");
     setCvv("");
     setZip("");
-    setHolder("");
+    setHolder(existing ? "" : holderDefaultRef.current(cardId));
+    setHolderTouched(false);
     // Preserve a stored override so the editor labels the security code the way
     // the saved card does, rather than re-deriving it from the prefix.
     setOverride(existing?.network ?? "auto");
@@ -267,7 +289,18 @@ export function CardSecretDialog({
             <div className="space-y-3">
               <div>
                 <Label htmlFor="secret-card">Which card?</Label>
-                <Select value={selectedId} onValueChange={setSelectedId} disabled={!!existing || lockCard}>
+                <Select
+                  value={selectedId}
+                  onValueChange={(v) => {
+                    setSelectedId(v);
+                    // Track the newly chosen card's owner, unless the user has
+                    // already written a name of their own.
+                    if (!existing && !holderTouched) {
+                      setHolder(holderDefaultRef.current(Number(v)));
+                    }
+                  }}
+                  disabled={!!existing || lockCard}
+                >
                   <SelectTrigger id="secret-card">
                     <SelectValue placeholder="Select a card…" />
                   </SelectTrigger>
@@ -372,12 +405,20 @@ export function CardSecretDialog({
                 <Input
                   id="secret-holder"
                   value={holder}
-                  onChange={(e) => setHolder(e.target.value.slice(0, 100))}
+                  onChange={(e) => {
+                    setHolderTouched(true);
+                    setHolder(e.target.value.slice(0, 100));
+                  }}
                   onBlur={() => setHolder((h) => h.toUpperCase())}
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="As printed on the card"
                 />
+                {!existing && !holderTouched && holder && (
+                  <p className="text-xs mt-1 text-muted-foreground">
+                    Prefilled from the profile name — edit if the card says something else.
+                  </p>
+                )}
               </div>
 
               <div>
