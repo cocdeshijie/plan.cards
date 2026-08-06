@@ -15,6 +15,7 @@ import { TimelineView } from "@/components/timeline-view/timeline-view";
 import { FiveTwentyFourBadge } from "@/components/five-twenty-four/badge";
 import { CardGridSkeleton } from "@/components/cards/card-grid-skeleton";
 import { Plus, Wallet, FilterX, Search } from "lucide-react";
+import { getCardSecrets } from "@/lib/api";
 
 function sortCards(cards: Card[], field: SortField, dir: SortDir): Card[] {
   const sorted = [...cards].sort((a, b) => {
@@ -41,6 +42,22 @@ export default function CardsPage() {
   const { cards, profiles, selectedProfileId, refresh, dataLoading } = useAppStore();
 
   const [selectedCardId, setSelectedCardId] = useState<number | null>(null);
+
+  // Which cards have stored details, for the tile indicator. Kept null until it
+  // loads (and on failure) so the tiles show nothing rather than asserting
+  // "none stored". One masked-list request; no plaintext is involved.
+  const [detailCardIds, setDetailCardIds] = useState<Set<number> | null>(null);
+  const loadDetailIds = useCallback(async () => {
+    try {
+      const all = await getCardSecrets();
+      setDetailCardIds(new Set(all.map((s) => s.card_id)));
+    } catch {
+      setDetailCardIds(null);
+    }
+  }, []);
+  useEffect(() => {
+    loadDetailIds();
+  }, [loadDetailIds]);
   const [showAddCard, setShowAddCard] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -213,6 +230,7 @@ export default function CardsPage() {
                   card={card}
                   onClick={() => setSelectedCardId(card.id)}
                   profileName={selectedProfileId === "all" ? profiles.find(p => p.id === card.profile_id)?.name : undefined}
+                  hasDetails={detailCardIds ? detailCardIds.has(card.id) : undefined}
                 />
               ))}
             </div>
@@ -243,8 +261,8 @@ export default function CardsPage() {
           card={selectedCard}
           open={!!selectedCard}
           onClose={() => setSelectedCardId(null)}
-          onUpdated={() => refresh()}
-          onDeleted={() => { setSelectedCardId(null); refresh(); }}
+          onUpdated={() => { refresh(); loadDetailIds(); }}
+          onDeleted={() => { setSelectedCardId(null); refresh(); loadDetailIds(); }}
           profileName={profiles.find(p => p.id === selectedCard.profile_id)?.name}
         />
       )}
