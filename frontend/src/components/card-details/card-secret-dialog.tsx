@@ -273,7 +273,10 @@ export function CardSecretDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* overflow-x-hidden is a backstop: setting overflow-y alone makes the
+            other axis compute to `auto`, so any over-wide child scrolls the
+            whole form sideways. A form dialog never wants that. */}
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
             <DialogTitle>{existing ? "Edit card details" : "Add card details"}</DialogTitle>
             <DialogDescription>
@@ -304,9 +307,16 @@ export function CardSecretDialog({
                   <SelectTrigger id="secret-card">
                     <SelectValue placeholder="Select a card…" />
                   </SelectTrigger>
-                  <SelectContent>
+                  {/* Cap the menu at the field's width — card names are
+                      user-supplied and can be long enough to balloon the
+                      popover past the viewport otherwise. */}
+                  <SelectContent className="max-w-[var(--radix-select-trigger-width)]">
                     {cards.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
+                      <SelectItem
+                        key={c.id}
+                        value={String(c.id)}
+                        className="overflow-hidden [&>span:last-child]:min-w-0 [&>span:last-child]:truncate"
+                      >
                         <span className="text-xs text-muted-foreground mr-1.5">
                           {profiles.find((p) => p.id === c.profile_id)?.name ?? "—"}
                         </span>
