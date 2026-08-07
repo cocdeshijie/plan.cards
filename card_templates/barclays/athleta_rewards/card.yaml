@@ -1,9 +1,9 @@
-name: Athleta Rewards Mastercard
+name: Athleta Encore Mastercard
 issuer: Barclays
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: barclays_athleta_2024_1
+version_id: barclays_athleta_2026_1
 
 benefits:
   bonus_categories:
@@ -13,6 +13,9 @@ benefits:
       multiplier: 1x
 
 notes: |
+  Renamed by Barclays to the "Encore" card branding. Note that gap.com still
+  calls the loyalty PROGRAM "Gap Good Rewards"/"Navyist Rewards" — program name
+  and card name have diverged.
   Part of Gap Inc. Good Rewards program.
   Points redeemable at all Gap Inc. brands.
   Free standard shipping on $50+ purchases.

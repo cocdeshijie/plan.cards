@@ -1,10 +1,12 @@
-name: Lumber Liquidators Credit Card
+name: LL Flooring Credit Card
 issuer: Synchrony
 annual_fee: 0
 currency: USD
-version_id: synchrony_lumber_liquidators_2020_1
+version_id: synchrony_ll_flooring_2026_1
 
 notes: |
+  Retailer rebranded from Lumber Liquidators to LL Flooring; the directory slug is
+  kept so existing cards keep resolving. Confirmed live and Synchrony-issued.
   Store card — can only be used at Lumber Liquidators locations.
   Special financing offers available on qualifying purchases.
   Category: flooring.
