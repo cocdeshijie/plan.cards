@@ -1,11 +1,16 @@
-name: Pier 1 Credit Card
+name: My Pier 1 Rewards Credit Card
 issuer: Comenity
 annual_fee: 0
 currency: USD
 version_id: comenity_pier_1_2020_1
+status: discontinued
+status_date: 2020-10-30
 
 notes: |
   Store card — can only be used at Pier 1 locations.
+  Program discontinued in Pier 1's bankruptcy: cards stopped being accepted
+  for purchases on August 31, 2020 and all accounts were closed on
+  October 30, 2020.
   Issued by Comenity Bank (Bread Financial).
   Category: home decor & furniture.
 

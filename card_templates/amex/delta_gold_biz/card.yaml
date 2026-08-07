@@ -3,13 +3,18 @@ issuer: Amex
 network: Amex
 annual_fee: 150
 currency: USD
-version_id: amex_delta_gold_biz_2024_1
+version_id: amex_delta_gold_biz_2026_1
 
 benefits:
   credits:
     - name: Delta Stays Credit
       amount: 150
       frequency: annual
+      reset_type: calendar
+    - key: rideshare_credit
+      name: Rideshare Credit
+      amount: 10
+      frequency: monthly
       reset_type: calendar
   spend_thresholds:
     - name: Delta Flight Credit

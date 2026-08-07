@@ -1,9 +1,9 @@
-name: Capital One Spark Cash Select for Business
+name: Capital One Spark 1.5% Cash Select
 issuer: Capital One
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: capitalone_spark_cash_select_2020_1
+version_id: capitalone_spark_cash_select_2026_1
 
 benefits:
   bonus_categories:

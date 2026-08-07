@@ -1,0 +1,14 @@
+name: Exxon Mobil Smart Card+
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_exxon_mobil_smart_2026_1
+
+notes: |
+  Fuel co-brand issued by Citi, present in Citi's current card lineup.
+  Earning structure not yet verified against a primary source.
+
+tags:
+  - gas
+  - no-annual-fee

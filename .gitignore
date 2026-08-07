@@ -16,6 +16,10 @@ dist/
 
 # Database
 *.db
+# SQLite write-ahead log sidecars — *.db does not match these, so a test run
+# leaves them staged-and-committable.
+*.db-wal
+*.db-shm
 
 # IDE
 .vscode/

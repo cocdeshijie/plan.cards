@@ -33,6 +33,7 @@ export function AddCardDialog({ profiles, open, onClose, onCreated, defaultProfi
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
   const [templateSearch, setTemplateSearch] = useState("");
   const [issuerFilter, setIssuerFilter] = useState("all");
+  const [showUnavailable, setShowUnavailable] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("custom");
   const [profileId, setProfileId] = useState<string>(defaultProfileId?.toString() || "");
   const [cardName, setCardName] = useState("");
@@ -112,12 +113,26 @@ export function AddCardDialog({ profiles, open, onClose, onCreated, defaultProfi
   const filteredTemplates = useMemo(
     () =>
       templates.filter((t) => {
+        // Never filter out the current selection — otherwise picking a
+        // discontinued card and then typing in the search box makes the chosen
+        // template vanish from its own dropdown.
+        if (t.id === selectedTemplate) return true;
+        // Cards whose program has ended stay available behind a toggle rather
+        // than being removed: this app tracks closed cards too, so backfilling
+        // a card you held years ago is a legitimate reason to reach for a
+        // template that nobody can apply for today.
+        if (!showUnavailable && t.status !== "active") return false;
         if (issuerFilter !== "all" && t.issuer !== issuerFilter) return false;
         if (!templateSearch) return true;
         const q = templateSearch.toLowerCase();
         return t.name.toLowerCase().includes(q) || t.issuer.toLowerCase().includes(q);
       }),
-    [templates, templateSearch, issuerFilter],
+    [templates, templateSearch, issuerFilter, showUnavailable, selectedTemplate],
+  );
+
+  const unavailableCount = useMemo(
+    () => templates.filter((t) => t.status !== "active").length,
+    [templates],
   );
 
   const formatDateStr = (d: Date | undefined) => d ? format(d, "yyyy-MM-dd") : null;
@@ -165,6 +180,7 @@ export function AddCardDialog({ profiles, open, onClose, onCreated, defaultProfi
   const resetForm = () => {
     setTemplateSearch("");
     setIssuerFilter("all");
+    setShowUnavailable(false);
     setSelectedTemplate("custom");
     setSelectedImage(null);
     setVersions([]);
@@ -229,10 +245,28 @@ export function AddCardDialog({ profiles, open, onClose, onCreated, defaultProfi
               <SelectContent>
                 <SelectItem value="custom">Custom Card</SelectItem>
                 {filteredTemplates.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.name} ({t.issuer})</SelectItem>
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name} ({t.issuer})
+                    {t.status !== "active" && (
+                      <span className="ml-1.5 text-xs text-muted-foreground">
+                        {t.status === "discontinued" ? "· discontinued" : "· closed to new"}
+                      </span>
+                    )}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {unavailableCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowUnavailable((v) => !v)}
+                className="mt-1.5 text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+              >
+                {showUnavailable
+                  ? "Hide discontinued cards"
+                  : `Show ${unavailableCount} discontinued or closed card${unavailableCount === 1 ? "" : "s"}`}
+              </button>
+            )}
           </div>
 
           {/* Version picker */}

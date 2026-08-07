@@ -1,23 +1,29 @@
 name: Wayfair Mastercard
-issuer: Comenity
+issuer: Citi
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: comenity_wayfair_mc_2020_1
+version_id: comenity_wayfair_mc_2026_1
 
 benefits:
   bonus_categories:
     - category: Wayfair, Joss & Main, AllModern, Birch Lane, Perigold
-      multiplier: 5%
+      multiplier: 7%
     - category: Groceries
       multiplier: 3%
+    - category: Qualifying Online Purchases (off-site)
+      multiplier: 2%
     - category: All Other Purchases
       multiplier: 1%
 
 notes: |
+  Issued by Citibank, N.A. — Citi won the Wayfair partnership in 2020, replacing
+  Comenity. The template directory name is historical.
   Usable anywhere Mastercard is accepted.
-  5% back at Wayfair family of brands.
+  7% back at the Wayfair family of brands, but only 5% on purchases where
+  promotional financing is applied.
   Special financing on Wayfair purchases of $499+.
+  Rewards enrollment is free.
 
 tags:
   - no-annual-fee

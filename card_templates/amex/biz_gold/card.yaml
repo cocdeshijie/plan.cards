@@ -3,7 +3,7 @@ issuer: Amex
 network: Amex
 annual_fee: 375
 currency: USD
-version_id: amex_biz_gold_2025_1
+version_id: amex_biz_gold_2026_1
 
 benefits:
   credits:
@@ -17,6 +17,11 @@ benefits:
       reset_type: calendar
     - name: Squarespace Credit
       amount: 150
+      frequency: annual
+      reset_type: calendar
+    - key: chatgpt_business_credit
+      name: ChatGPT Business Credit
+      amount: 300
       frequency: annual
       reset_type: calendar
   bonus_categories:

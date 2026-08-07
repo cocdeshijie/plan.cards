@@ -3,7 +3,7 @@ issuer: HSBC
 network: Mastercard
 annual_fee: 495
 currency: USD
-version_id: hsbc_elite_2024_1
+version_id: hsbc_elite_2026_1
 
 benefits:
   bonus_categories:
@@ -14,23 +14,32 @@ benefits:
     - category: All Other Purchases
       multiplier: 1x
   credits:
-    - name: Airline Fee Credit
-      amount: 200
+    - key: hsbc_travel_credit
+      name: HSBC Travel Credit
+      amount: 400
       frequency: annual
       reset_type: calendar
-    - name: Hotel Credit
-      amount: 100
-      frequency: annual
-      reset_type: calendar
-    - name: CLEAR+ Credit
-      amount: 189
-      frequency: annual
+    - key: rideshare_credit
+      name: Rideshare Credit
+      amount: 10
+      frequency: monthly
       reset_type: calendar
 
 notes: |
-  Requires HSBC Premier banking relationship.
+  The previously listed $200 Airline Fee, $100 Hotel and $189 CLEAR+ credits were
+  removed in 2026: no such credits exist on this card and the evidence suggests
+  they were never correct. The real benefit is a single travel credit worth up to
+  $400/year, valid only on airfare, hotels and car rentals booked through
+  HSBC Travel.
+  Airport screening credit: up to $120 toward Global Entry, TSA PreCheck,
+  TSA PreCheck by CLEAR or NEXUS once every 4.5 years. Not modelled above — the
+  template schema has no multi-year frequency.
+  Instacart+ (up to $140/year) and the $5 monthly Lyft App credit after 3 rides
+  are Mastercard World Elite network perks, not HSBC statement credits.
+  Requires HSBC Premier banking relationship — apply via authenticated logon,
+  the Wealth Center, or by phone.
+  Annual fee waived for authorized users.
   $0 AF with Private Banking, $295 for HSBC employees.
-  60,000 welcome bonus points.
   No foreign transaction fees.
 
 tags:

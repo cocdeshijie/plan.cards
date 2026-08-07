@@ -1,20 +1,30 @@
-name: State Farm Business Rewards Card
+name: State Farm Business Cash Rewards Visa Signature Card
 issuer: US Bank
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: usbank_state_farm_biz_2020_1
+version_id: usbank_state_farm_biz_2026_1
 
 benefits:
+  credits:
+    - key: software_subscription_credit
+      name: Software Subscription Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
   bonus_categories:
-    - category: Office Supply / Gas
-      multiplier: 3x
+    - category: State Farm Insurance Premiums
+      multiplier: 3%
+      cap: 4000
+    - category: Gas / EV Charging / Cell Phone / Office Supply / Dining
+      multiplier: 3%
     - category: All Other Purchases
-      multiplier: 1x
+      multiplier: 1%
 
 notes: |
-  Business version of State Farm co-brand.
+  Business version of the State Farm co-brand.
   Requires State Farm insurance or financial services relationship.
+  Issued by U.S. Bank National Association pursuant to a license from Visa.
   3% foreign transaction fee.
 
 tags:

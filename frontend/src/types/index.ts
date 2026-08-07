@@ -167,7 +167,11 @@ export interface CardTemplate {
   has_image: boolean;
   version_id: string | null;
   images: string[];
+  status: TemplateStatus;
+  status_date: string | null;
 }
+
+export type TemplateStatus = "active" | "closed_to_new_applicants" | "discontinued";
 
 export interface TemplateVersionSummary {
   version_id: string;

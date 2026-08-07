@@ -3,9 +3,15 @@ issuer: US Bank
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: usbank_biz_triple_cash_2021_1
+version_id: usbank_biz_triple_cash_2026_1
 
 benefits:
+  credits:
+    - key: software_subscription_credit
+      name: Software Subscription Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
   bonus_categories:
     - category: Gas / EV / Office Supply / Cell Phone / Restaurant
       multiplier: 3%

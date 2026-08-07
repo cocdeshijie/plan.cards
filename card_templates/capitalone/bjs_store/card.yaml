@@ -1,0 +1,17 @@
+name: BJ's Wholesale Club Credit Card
+issuer: Capital One
+annual_fee: 0
+currency: USD
+version_id: capitalone_bjs_store_2026_1
+
+notes: |
+  Moved from Comenity to Capital One on February 27, 2023 when Bread Financial
+  sold the BJ's portfolio; existing accounts were converted, not run in parallel.
+  The fate of the store-only card at that conversion is unconfirmed — it may have
+  been discontinued rather than migrated.
+  Store card — can only be used at BJ's Wholesale Club locations.
+  Issued by Capital One.
+  Category: warehouse club.
+
+tags:
+  - no-annual-fee

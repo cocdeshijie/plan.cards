@@ -33,6 +33,25 @@ version_id: example_premium_2025_1  # Unique version identifier for template ver
                                     # Convention: <issuer_short>_<card_short>_<year>_<seq>
                                     # Bump this when AF or benefits change to trigger auto-sync
 
+# --- Availability -----------------------------------------------------------
+# Whether the underlying product still exists. Omit entirely for a normal card.
+#
+#   active                   — offered to new applicants (the default)
+#   closed_to_new_applicants — existing cardholders unaffected, no new approvals
+#   discontinued             — the program itself has ended
+#
+# A non-active card is HIDDEN from the "Add Card" template picker by default,
+# behind a "show discontinued" toggle — not removed. Users track closed cards
+# here, so backfilling a card you held years ago has to stay possible.
+#
+# NEVER delete a template just because the product died: existing cards
+# reference it by template_id and need it to resolve for their name, image and
+# benefit history.
+status: discontinued                # optional; defaults to active
+status_date: 2026-03-24             # optional; when the status took effect.
+                                    # Omit if the date is only vaguely known —
+                                    # absent means "we know it changed, not when".
+
 # --- Benefits ---------------------------------------------------------------
 # Three sub-sections: credits (trackable statement credits), bonus_categories
 # (earn-rate multipliers), and spend_thresholds (spend-to-unlock perks).

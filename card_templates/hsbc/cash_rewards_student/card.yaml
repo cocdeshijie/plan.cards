@@ -4,6 +4,7 @@ network: Mastercard
 annual_fee: 0
 currency: USD
 version_id: hsbc_cash_rewards_student_2020_1
+status: discontinued
 
 benefits:
   bonus_categories:

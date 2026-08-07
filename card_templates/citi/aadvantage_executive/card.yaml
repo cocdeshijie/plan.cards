@@ -1,11 +1,37 @@
-name: Citi AAdvantage Executive World Elite Mastercard
+name: Citi / AAdvantage Executive World Legend Mastercard
 issuer: Citi
 network: Mastercard
-annual_fee: 595
+annual_fee: 695
 currency: USD
-version_id: citi_aadvantage_executive_2020_1
+version_id: citi_aadvantage_executive_2026_1
 
 benefits:
+  credits:
+    - key: aa_vacations_credit
+      name: AA Vacations Credit
+      amount: 250
+      frequency: semi_annual
+      reset_type: calendar
+    - key: lyft_credit
+      name: Lyft Credit
+      amount: 15
+      frequency: monthly
+      reset_type: calendar
+    - key: grubhub_credit
+      name: Grubhub Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - key: avis_budget_credit
+      name: Avis / Budget Credit
+      amount: 120
+      frequency: annual
+      reset_type: calendar
+    - key: inflight_admirals_credit
+      name: Inflight & Admirals Club Credit
+      amount: 100
+      frequency: annual
+      reset_type: calendar
   spend_thresholds:
     - name: Enhanced AA Earning Rate
       spend_required: 150000
@@ -21,6 +47,12 @@ benefits:
       multiplier: 1x
 
 notes: |
+  August 23, 2026 refresh. Annual fee increased $595 -> $695 and the card moved
+  from the World Elite to the World Legend Mastercard tier. Existing cardholders
+  get the new benefits immediately and the higher fee at their next anniversary;
+  they can stay on old/card_citi_aadvantage_executive_2020_1.yaml until then.
+  The Avis/Budget, Lyft and Grubhub credits are not new — they predate the
+  refresh and were simply missing from this template.
   Admirals Club membership included.
   Checked bag free for cardholder + up to 8 companions on same reservation.
   Preferred boarding.

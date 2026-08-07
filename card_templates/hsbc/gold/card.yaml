@@ -4,6 +4,7 @@ network: Mastercard
 annual_fee: 0
 currency: USD
 version_id: hsbc_gold_2020_1
+status: discontinued
 
 notes: |
   Discontinued — HSBC exited US mass market banking in 2022.

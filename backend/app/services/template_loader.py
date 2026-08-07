@@ -271,6 +271,8 @@ def load_templates() -> None:
                     has_image=image_path is not None,
                     version_id=data.get("version_id"),
                     images=images,
+                    status=data.get("status") or "active",
+                    status_date=data.get("status_date"),
                 )
             except Exception as exc:
                 new_errors.append(f"{template_id}: validation error: {exc}")

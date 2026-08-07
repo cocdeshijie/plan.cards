@@ -4,6 +4,7 @@ network: Visa
 annual_fee: 95
 currency: USD
 version_id: capitalone_spark_miles_2020_1
+status: discontinued
 
 benefits:
   bonus_categories:
@@ -17,6 +18,9 @@ benefits:
       multiplier: 2x
 
 notes: |
+  Renamed by Capital One in 2026; the current product is tracked at
+  capitalone/venture_biz. This template is kept so existing cards opened under the
+  Spark Miles name keep resolving.
   Flat 2x miles on all purchases.
   Transfer miles to 15+ airline and hotel partners.
   No foreign transaction fee.

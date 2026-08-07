@@ -1,9 +1,9 @@
-name: Capital One Spark Classic for Business
+name: Capital One Spark 1% Classic
 issuer: Capital One
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: capitalone_spark_classic_2020_1
+version_id: capitalone_spark_classic_2026_1
 
 benefits:
   bonus_categories:

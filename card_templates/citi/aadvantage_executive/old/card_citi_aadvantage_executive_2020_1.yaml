@@ -1,0 +1,34 @@
+name: Citi AAdvantage Executive World Elite Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 595
+currency: USD
+version_id: citi_aadvantage_executive_2020_1
+
+benefits:
+  spend_thresholds:
+    - name: Enhanced AA Earning Rate
+      spend_required: 150000
+      frequency: annual
+      reset_type: calendar
+      description: "Earn 5x miles on American Airlines purchases after $150,000 total spend in a calendar year."
+  bonus_categories:
+    - category: American Airlines Purchases
+      multiplier: 4x
+    - category: Restaurants / Gas
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Admirals Club membership included.
+  Checked bag free for cardholder + up to 8 companions on same reservation.
+  Preferred boarding.
+  Concierge service.
+  No foreign transaction fee.
+
+tags:
+  - airline
+  - american-airlines
+  - premium
+  - lounge-access

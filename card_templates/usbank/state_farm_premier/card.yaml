@@ -1,19 +1,25 @@
-name: State Farm Premier Cash Rewards Card
+name: State Farm Premier Cash Rewards Visa Signature Card
 issuer: US Bank
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: usbank_state_farm_premier_2020_1
+version_id: usbank_state_farm_premier_2026_1
 
 benefits:
   bonus_categories:
-    - category: All Purchases
+    - category: State Farm Insurance Premiums
       multiplier: 3%
+      cap: 4000
+    - category: Gas / EV Charging / Drugstores / Grocers / Dining
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
 
 notes: |
-  Flat 3% cash back on all purchases.
+  The previously recorded "flat 3% on all purchases" was wrong: 3% applies only
+  to State Farm insurance premiums and is capped at $4,000/year.
   Requires State Farm insurance or financial services relationship.
-  Co-branded with State Farm.
+  Issued by U.S. Bank National Association pursuant to a license from Visa.
   3% foreign transaction fee.
 
 tags:

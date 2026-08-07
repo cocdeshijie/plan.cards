@@ -1,21 +1,18 @@
-name: State Farm Good Neighbor Card
+name: State Farm Good Neighbor Visa Card
 issuer: US Bank
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: usbank_state_farm_neighbor_2020_1
-
-benefits:
-  bonus_categories:
-    - category: All Purchases
-      multiplier: 1%
+version_id: usbank_state_farm_neighbor_2026_1
 
 notes: |
-  Flat 1% cash back on all purchases.
+  This card earns NO cash back. The previously recorded "flat 1% cash back on all
+  purchases" was wrong — it is a low-intro-APR card (18 billing cycles on
+  purchases and balance transfers), not a rewards card.
   Entry-level State Farm co-brand card.
   Does not require existing State Farm relationship.
+  Issued by U.S. Bank National Association pursuant to a license from Visa.
   3% foreign transaction fee.
 
 tags:
-  - cashback
   - no-annual-fee
