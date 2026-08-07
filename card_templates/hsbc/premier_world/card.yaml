@@ -1,9 +1,10 @@
-name: HSBC Premier World Mastercard (2020)
+name: HSBC Premier World Mastercard (legacy entry)
 issuer: HSBC
 network: Mastercard
 annual_fee: 95
 currency: USD
-version_id: hsbc_premier_world_2020_1
+version_id: hsbc_premier_world_2026_1
+status: discontinued
 
 benefits:
   bonus_categories:
@@ -13,7 +14,10 @@ benefits:
       multiplier: 1x
 
 notes: |
-  Discontinued — replaced by current HSBC Premier card with enhanced benefits.
+  DUPLICATE — not a discontinued product. The live HSBC Premier World Mastercard
+  is named exactly this and still costs $95; it is tracked at hsbc/premier.
+  This entry is retained only so cards created against it keep resolving.
+  Use hsbc/premier for new cards.
   Required HSBC Premier relationship.
   $85 TSA PreCheck credit every 5 years.
   No foreign transaction fees.

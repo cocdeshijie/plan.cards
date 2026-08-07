@@ -3,22 +3,38 @@ issuer: Barclays
 network: Mastercard
 annual_fee: 499
 currency: USD
-version_id: barclays_jetblue_premier_2025_1
+version_id: barclays_jetblue_premier_2026_1
 
 benefits:
+  credits:
+    - key: trueblue_travel_credit
+      name: TrueBlue Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: calendar
   bonus_categories:
-    - category: JetBlue Purchases
-      multiplier: 8x
-    - category: Dining & Groceries
-      multiplier: 3x
+    - category: JetBlue & TrueBlue Travel Purchases
+      multiplier: 6x
+    - category: Restaurants & Grocery
+      multiplier: 2x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  JetBlue lounge access.
+  2026 refresh (announced April 8, live around May 5). The TrueBlue Travel
+  credit replaced the old Paisly structure: every $1 of TrueBlue Travel spend is
+  reimbursed as statement credit, up to $300 per calendar year, with no minimum
+  spend. Annual fee unchanged at $499.
+  ClassPass partnership: 14 monthly credits for fitness and wellness. These are
+  ClassPass platform credits, NOT dollar statement credits, so they are not
+  modelled above — do not assign them a dollar value.
+  Premier Companion Pass credit: up to $500 after $15,000 annual spend, up to
+  $1,500 after $75,000 (calendar year).
+  Award redemption rebate raised from 10% to 15%.
+  JetBlue lounge (BlueHouse) access.
   Priority boarding on JetBlue flights.
   Free first and second checked bags on JetBlue.
-  Mosaic qualification tiles earned with spend.
+  Mosaic qualification tiles earned with spend, plus a 25-tile bonus.
   No foreign transaction fees.
   Launched January 2025.
 

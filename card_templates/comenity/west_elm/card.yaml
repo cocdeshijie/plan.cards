@@ -1,13 +1,17 @@
-name: West Elm Credit Card
-issuer: Comenity
+name: West Elm Key Rewards Visa
+issuer: Capital One
+network: Visa
 annual_fee: 0
 currency: USD
-version_id: comenity_west_elm_2020_1
+version_id: comenity_west_elm_2026_1
 
 notes: |
-  Store card — can only be used at West Elm locations.
-  Issued by Comenity Bank (Bread Financial).
-  Category: modern furniture & home decor.
+  Moved from Comenity to Capital One in 2021 under the "Key Rewards" program
+  (announced June 15, migration completed September 13). The template directory
+  name is historical.
+  This is a general-purpose Visa, NOT a store-only card — it is usable anywhere
+  Visa is accepted.
+  Category: modern furniture.
 
 tags:
   - no-annual-fee

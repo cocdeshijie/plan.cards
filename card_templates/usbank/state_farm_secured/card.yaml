@@ -1,0 +1,15 @@
+name: State Farm Cash Rewards Secured Visa Card
+issuer: US Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: usbank_state_farm_secured_2026_1
+
+notes: |
+  Secured card requiring a refundable security deposit.
+  Issued by U.S. Bank National Association pursuant to a license from Visa.
+  Fourth live product in the State Farm co-brand lineup.
+
+tags:
+  - secured
+  - no-annual-fee

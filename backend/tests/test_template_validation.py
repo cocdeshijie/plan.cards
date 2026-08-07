@@ -61,6 +61,8 @@ def test_card_template_validates(path: Path):
             notes=data.get("notes"),
             tags=data.get("tags"),
             version_id=data.get("version_id"),
+            status=data.get("status") or "active",
+            status_date=data.get("status_date"),
         )
     except ValidationError as e:
         pytest.fail(f"{path.relative_to(TEMPLATES_DIR)} does not validate:\n{e}")
@@ -148,3 +150,74 @@ def test_loader_reports_no_errors():
     errors = template_loader.get_load_errors()
     assert not errors, "template loader skipped files:\n" + "\n".join(errors)
     assert len(template_loader.get_all_templates()) == len(_card_files())
+
+
+VALID_STATUSES = {"active", "closed_to_new_applicants", "discontinued"}
+
+
+def test_status_values_are_from_the_closed_set():
+    """A typo'd status fails the WHOLE template to validate, which drops it from
+    the corpus — and a dropped template stops resolving for every card pointing
+    at it. Catch it in CI rather than at container start."""
+    bad = []
+    for path in _card_files():
+        status = (_load(path) or {}).get("status")
+        if status is not None and status not in VALID_STATUSES:
+            bad.append(f"{path.relative_to(TEMPLATES_DIR)}: {status!r}")
+    assert not bad, (
+        f"status must be one of {sorted(VALID_STATUSES)}:\n" + "\n".join(bad)
+    )
+
+
+def test_status_date_is_not_set_on_active_templates():
+    """A status_date with no status reads as "something changed" while the app
+    still treats the card as fully available — the worst of both."""
+    stray = [
+        str(p.relative_to(TEMPLATES_DIR))
+        for p in _card_files()
+        if (_load(p) or {}).get("status_date")
+        and ((_load(p) or {}).get("status") or "active") == "active"
+    ]
+    assert not stray, f"status_date set on templates with no status: {stray}"
+
+
+def test_discontinued_templates_still_load():
+    """The whole point of the status field is that a dead card stays TRACKABLE.
+    If marking one discontinued ever removed it from the loaded corpus, every
+    card referencing it would lose its name, image and benefit history."""
+    from app.services import template_loader
+
+    template_loader.load_templates()
+    loaded = {t.id: t for t in template_loader.get_all_templates()}
+
+    marked = {
+        _template_id(p): (_load(p) or {}).get("status")
+        for p in _card_files()
+        if ((_load(p) or {}).get("status") or "active") != "active"
+    }
+    assert marked, "expected at least one non-active template in the corpus"
+
+    for tid, status in marked.items():
+        assert tid in loaded, f"{tid} is {status} but was dropped from the corpus"
+        assert loaded[tid].status == status
+        # Resolvable by id too — this is the path a card's template lookup takes.
+        assert template_loader.get_template(tid) is not None
+
+
+def test_template_names_are_unique():
+    """Two templates sharing a display name means the same product is tracked
+    twice — which is what happens when a renamed card is added afresh instead of
+    the old entry being marked superseded. The picker then shows two identical
+    rows and users split their history across both."""
+    seen: dict[str, str] = {}
+    dupes: list[str] = []
+    for path in _card_files():
+        name = ((_load(path) or {}).get("name") or "").strip()
+        if not name:
+            continue
+        tid = _template_id(path)
+        if name in seen:
+            dupes.append(f"{name!r}: {seen[name]} and {tid}")
+        else:
+            seen[name] = tid
+    assert not dupes, "duplicate template names:\n" + "\n".join(dupes)

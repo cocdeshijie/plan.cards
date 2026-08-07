@@ -1,0 +1,25 @@
+name: OnePay CashRewards Mastercard
+issuer: Synchrony
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: synchrony_onepay_cashrewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Walmart (Walmart+ members)
+      multiplier: 5%
+    - category: Walmart (without Walmart+)
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1.5%
+
+notes: |
+  Walmart's card, issued by Synchrony Bank under license from Mastercard.
+  The 5% rate requires a paid Walmart+ membership, which is NOT included with the
+  card and is not credited back.
+  One-time $35 welcome bonus. No recurring statement credits.
+
+tags:
+  - cashback
+  - no-annual-fee

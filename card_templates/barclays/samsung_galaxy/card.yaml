@@ -1,0 +1,29 @@
+name: Samsung Galaxy Card
+issuer: Barclays
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: barclays_samsung_galaxy_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Samsung.com and Samsung Store Purchases
+      multiplier: 5%
+    - category: Samsung Wallet Purchases
+      multiplier: 3%
+    - category: Streaming (Netflix, Disney+, Spotify)
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Samsung's first credit card, launched July 22, 2026. Issued by Barclays Bank
+  Delaware under license from Visa.
+  3% on Samsung Wallet purchases is uncapped.
+  20% VIP Advantage discount.
+  Welcome bonus: $200 after $2,000 in purchases in 90 days.
+  No recurring statement credits.
+
+tags:
+  - cashback
+  - no-annual-fee

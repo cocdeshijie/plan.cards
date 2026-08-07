@@ -4,6 +4,8 @@ network: Mastercard
 annual_fee: 0
 currency: USD
 version_id: citi_custom_cash_2021_1
+status: closed_to_new_applicants
+status_date: 2026-05-28
 
 benefits:
   bonus_categories:

@@ -1,9 +1,9 @@
-name: Capital One Spark Cash Plus Card
+name: Capital One Spark 2% Cash Plus
 issuer: Capital One
 network: Visa
 annual_fee: 150
 currency: USD
-version_id: capitalone_spark_cash_plus_2020_1
+version_id: capitalone_spark_cash_plus_2026_1
 
 benefits:
   spend_thresholds:

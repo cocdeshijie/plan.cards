@@ -4,6 +4,8 @@ network: Mastercard
 annual_fee: 0
 currency: USD
 version_id: citi_rewards_plus_2020_1
+status: discontinued
+status_date: 2025-07-20
 
 benefits:
   bonus_categories:

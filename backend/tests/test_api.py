@@ -509,14 +509,14 @@ def test_product_change_updates_version(client, auth_headers):
         f"/api/cards/{card['id']}/product-change",
         json={
             "new_template_id": "amex/green",
-            "new_card_name": "American Express Green Card",
+            "new_card_name": "American Express Classic Green Card",
             "change_date": "2025-02-01",
         },
         headers=auth_headers,
     )
     assert resp.status_code == 200
     result = resp.json()
-    assert result["template_version_id"] == "amex_green_2025_1"
+    assert result["template_version_id"] == "amex_green_2026_1"
 
 
 def test_create_card_with_old_version(client, auth_headers):

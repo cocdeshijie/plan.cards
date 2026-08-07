@@ -1,0 +1,19 @@
+name: OnePay Walmart Spend Card
+issuer: Synchrony
+annual_fee: 0
+currency: USD
+version_id: synchrony_onepay_walmart_spend_2026_1
+
+notes: |
+  Closed-loop store card usable only at Walmart and Walmart.com.
+  Cannot be applied for directly: applicants are considered for the OnePay
+  CashRewards Mastercard first and offered this card if they do not qualify.
+  No standard cash-back program — only occasional limited-time OnePay Points
+  offers.
+  UNCONFIRMED: the issuing bank is never stated on OnePay's own materials
+  (only CashRewards is attributed to Synchrony), and the $0 annual fee comes from
+  a section headline rather than a Schumer-box disclosure. Both are best guesses.
+
+tags:
+  - store-card
+  - no-annual-fee

@@ -3,21 +3,34 @@ issuer: Citi
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: citi_att_points_plus_2020_1
+version_id: citi_att_points_plus_2026_1
 
 benefits:
+  credits:
+    - key: att_bill_credit
+      name: AT&T Bill Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
   bonus_categories:
     - category: Gas / EV Charging
       multiplier: 3x
-    - category: Grocery
+    - category: AT&T Purchases
+      multiplier: 2x
+    - category: Grocery & Delivery
       multiplier: 2x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
+  April 2026 revamp. The bill credit is now a flat $20 statement credit in every
+  billing cycle you spend $1,000, replacing the old tiered
+  "$20 after $1,000 / $10 after $500" structure. The paperless-billing
+  requirement was dropped.
+  Additionally $10/month per AT&T phone line and $10/month for internet — these
+  are AT&T service discounts rather than card statement credits, so they are not
+  modelled above.
   ThankYou points.
-  Monthly AT&T bill credits: $20/month after $1,000 spend,
-  $10/month after $500 spend (up to $240/year).
   3% foreign transaction fee.
 
 tags:

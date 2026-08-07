@@ -1,9 +1,9 @@
-name: American Express Classic Green Card
+name: American Express Green Card
 issuer: Amex
 network: Amex
 annual_fee: 150
 currency: USD
-version_id: amex_green_2026_1
+version_id: amex_green_2025_1
 
 benefits:
   credits:
@@ -20,8 +20,6 @@ benefits:
       multiplier: 3x
 
 notes: |
-  Renamed from "American Express Green Card" on August 20, 2026. No change to
-  benefits, fee or rewards structure.
   LoungeBuddy credit discontinued Jan 2025.
   No foreign transaction fees.
 

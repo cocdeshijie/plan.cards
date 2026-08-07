@@ -3,7 +3,7 @@ issuer: Amex
 network: Amex
 annual_fee: 895
 currency: USD
-version_id: amex_biz_plat_2025_1
+version_id: amex_biz_plat_2026_1
 
 benefits:
   credits:
@@ -34,6 +34,11 @@ benefits:
     - name: Wireless Credit
       amount: 10
       frequency: monthly
+      reset_type: calendar
+    - key: chatgpt_business_credit
+      name: ChatGPT Business Credit
+      amount: 300
+      frequency: annual
       reset_type: calendar
   bonus_categories:
     - category: Flights & Prepaid Hotels (Amex Travel)

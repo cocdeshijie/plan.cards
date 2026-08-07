@@ -1,6 +1,22 @@
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel
+
+# Availability of the underlying product, so a card that no longer exists stops
+# being offered for NEW cards without becoming untrackable for the people who
+# still hold one. Before this, the only place to record "this program is dead"
+# was free-text `notes:`, which nothing could act on — a Pier 1 card whose
+# accounts were force-closed in 2020 still read as openly available six years
+# later.
+#
+#   active                    — offered to new applicants
+#   closed_to_new_applicants  — existing cardholders unaffected, no new approvals
+#   discontinued              — the program itself has ended
+#
+# Deliberately NOT a reason to drop the template: existing cards reference it by
+# template_id and need it to resolve for their name, image and benefit history.
+TemplateStatus = Literal["active", "closed_to_new_applicants", "discontinued"]
 
 # Closed sets, matching BenefitFrequency / BenefitResetType on the card schemas.
 # These were previously bare `str`, which let a community template ship
@@ -57,6 +73,10 @@ class CardTemplateOut(BaseModel):
     has_image: bool = False
     version_id: str | None = None
     images: list[str] = []
+    status: TemplateStatus = "active"
+    # When the status took effect. Omitted where a program's end date is known
+    # only vaguely — an absent date means "we know it changed, not when".
+    status_date: date | None = None
 
 
 class TemplateVersionSummary(BaseModel):
