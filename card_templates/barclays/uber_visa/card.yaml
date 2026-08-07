@@ -4,6 +4,7 @@ network: Visa
 annual_fee: 0
 currency: USD
 version_id: barclays_uber_2020_1
+status: discontinued
 
 benefits:
   bonus_categories:
@@ -17,6 +18,9 @@ benefits:
       multiplier: 1%
 
 notes: |
+  Not offered: "Uber" appears nowhere on Barclays' card lineup. No end date is
+  recorded because no issuer discontinuation notice could be sourced — this is
+  absence-of-listing evidence, not a dated announcement.
   Discontinued June 2020. Converted to Barclays View Mastercard October 2021.
   Cell phone protection (up to $600/claim).
   No foreign transaction fees.
