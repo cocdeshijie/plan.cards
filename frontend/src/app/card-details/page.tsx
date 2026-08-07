@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CardSecretDialog } from "@/components/card-details/card-secret-dialog";
 import { CardDetailResponsive } from "@/components/card-detail/card-detail-responsive";
+import { CardThumbnail } from "@/components/shared/card-thumbnail";
 import {
   Search,
   Eye,
@@ -560,7 +561,9 @@ export default function CardDetailsPage() {
           ) : (
             <div className="rounded-xl border bg-card overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[980px] border-collapse">
+                {/* Wider than the 980px this used to need: the card art adds
+                    ~48px to the Card column before anything else can shrink. */}
+                <table className="w-full min-w-[1030px] border-collapse">
                   <thead>
                     <tr className="bg-muted/60 border-b">
                       {["Card", "Person", "Number", "Expires", "Code", "ZIP", "Cardholder"].map((h) => (
@@ -747,19 +750,30 @@ function SecretRow({
   return (
     <tr className={`border-b last:border-b-0 ${on ? "bg-primary/5" : "hover:bg-muted/40"}`}>
       <td className="px-3 h-12">
-        <div className="min-w-0">
-          <button
-            type="button"
-            onClick={onOpenCard}
-            className="text-sm font-medium truncate text-left hover:underline focus-visible:ring-2 focus-visible:ring-ring rounded-sm outline-none max-w-full"
-          >
-            {card.card_name}
-          </button>
-          <div className="text-xs text-muted-foreground truncate">
-            {card.issuer}
-            {card.network ? ` · ${card.network}` : ""}
-          </div>
-        </div>
+        {/* Card art sits inside the click target, as it does on the summary
+            page — spans rather than divs, because a button may only contain
+            phrasing content. */}
+        <button
+          type="button"
+          onClick={onOpenCard}
+          className="group flex items-center gap-2 min-w-0 max-w-full text-left rounded-sm focus-visible:ring-2 focus-visible:ring-ring outline-none"
+        >
+          <CardThumbnail
+            templateId={card.template_id}
+            cardName={card.card_name}
+            cardImage={card.card_image}
+            className="w-10 h-[25px] shrink-0"
+          />
+          <span className="min-w-0">
+            <span className="block text-sm font-medium truncate group-hover:underline">
+              {card.card_name}
+            </span>
+            <span className="block text-xs text-muted-foreground truncate">
+              {card.issuer}
+              {card.network ? ` · ${card.network}` : ""}
+            </span>
+          </span>
+        </button>
       </td>
       <td className="px-3 h-12">
         <div className="flex items-center gap-1.5">
