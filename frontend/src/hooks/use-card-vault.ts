@@ -51,6 +51,16 @@ interface CardVaultState {
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * In-flight reveals, so concurrent callers share one request.
+ *
+ * Kept outside the store because it is transport bookkeeping, not state
+ * anything renders. It matters now that two benefit tiles can ask for the same
+ * card in quick succession: skipping the second call would resolve it before
+ * the value existed, and firing a second POST would decrypt the same row twice.
+ */
+const inFlight = new Map<number, Promise<void>>();
+
 function clearTimer() {
   if (hideTimer) {
     clearTimeout(hideTimer);
@@ -81,14 +91,26 @@ export const useCardVault = create<CardVaultState>((set, get) => {
 
     reveal: async (cardId) => {
       if (get().revealed[cardId]) return;
-      set((s) => ({ loadingIds: [...s.loadingIds, cardId] }));
-      try {
-        const data = await revealCardSecret(cardId);
-        set((s) => ({ revealed: { ...s.revealed, [cardId]: data } }));
-        armTimer();
-      } finally {
-        set((s) => ({ loadingIds: s.loadingIds.filter((id) => id !== cardId) }));
-      }
+      // Return the running request rather than starting a second one — and
+      // rather than returning early, which would tell the caller it had
+      // succeeded before anything was decrypted.
+      const running = inFlight.get(cardId);
+      if (running) return running;
+
+      const request = (async () => {
+        set((s) => ({ loadingIds: [...s.loadingIds, cardId] }));
+        try {
+          const data = await revealCardSecret(cardId);
+          set((s) => ({ revealed: { ...s.revealed, [cardId]: data } }));
+          armTimer();
+        } finally {
+          set((s) => ({ loadingIds: s.loadingIds.filter((id) => id !== cardId) }));
+          inFlight.delete(cardId);
+        }
+      })();
+
+      inFlight.set(cardId, request);
+      return request;
     },
 
     revealMany: async (cardIds) => {
