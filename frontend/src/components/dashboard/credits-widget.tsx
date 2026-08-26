@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import type { BenefitSummaryItem } from "@/types";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import type { BenefitSummaryItem, CardSecretMasked } from "@/types";
 import { useAppStore } from "@/hooks/use-app-store";
-import { getAllBenefits, updateBenefitUsage, updateCardBenefit, deleteCardBenefit } from "@/lib/api";
+import { hydrateAutoHidePreference, useCardVault } from "@/hooks/use-card-vault";
+import {
+  getAllBenefits,
+  updateBenefitUsage,
+  updateCardBenefit,
+  deleteCardBenefit,
+  getCardSecrets,
+} from "@/lib/api";
 import { toast } from "sonner";
 import { frequencyLabel, usagePercentage, usageColor } from "@/lib/benefit-utils";
 import { formatCurrency, parseIntStrict } from "@/lib/utils";
@@ -13,7 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Gift, ChevronDown, ChevronRight, Target, Pencil, Trash2, X, Check } from "lucide-react";
+import { CardSecretDialog } from "@/components/card-details/card-secret-dialog";
+import { VaultPanel, VaultTrigger, type PanelState } from "./benefit-card-vault";
+import { Gift, ChevronDown, ChevronRight, Target, Pencil, Trash2, X, Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FREQUENCY_ORDER = ["monthly", "quarterly", "semi_annual", "annual"] as const;
@@ -24,7 +33,8 @@ interface CreditsWidgetProps {
 }
 
 export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
-  const { selectedProfileId } = useAppStore();
+  const { selectedProfileId, cards, authMode } = useAppStore();
+  const { revealed, expiresAt, reveal, hide, checkExpiry } = useCardVault();
   const [benefits, setBenefits] = useState<BenefitSummaryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -39,6 +49,12 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   const [submitting, setSubmitting] = useState(false);
   const [editingUsageId, setEditingUsageId] = useState<number | null>(null);
   const [editUsageAmount, setEditUsageAmount] = useState("");
+  /** null while the vault list is still loading, so the trigger can hold its slot. */
+  const [secrets, setSecrets] = useState<CardSecretMasked[] | null>(null);
+  /** Which benefit tiles are expanded, keyed by benefit id — never by card id. */
+  const [panels, setPanels] = useState<Map<number, PanelState>>(() => new Map());
+  const [addDetailsFor, setAddDetailsFor] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     try {
@@ -62,6 +78,35 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   useEffect(() => {
     fetchBenefits();
   }, [fetchBenefits]);
+
+  // A card closed or deleted from anywhere else drops out of `list_all_benefits`,
+  // which filters to active cards — but this widget only re-fetched on a profile
+  // switch, so its credits stayed on screen until a reload. Skip the first run:
+  // the effect above already covers mount.
+  const cardsSettled = useRef(false);
+  useEffect(() => {
+    if (!cardsSettled.current) {
+      cardsSettled.current = true;
+      return;
+    }
+    fetchBenefits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards]);
+
+  const loadSecrets = useCallback(async () => {
+    try {
+      setSecrets(await getCardSecrets());
+    } catch {
+      // This widget's job is credits. A vault that won't load means no triggers,
+      // not an error the user has to dismiss to read their benefits.
+      setSecrets([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    hydrateAutoHidePreference();
+    loadSecrets();
+  }, [loadSecrets]);
 
   const groupByFrequency = (items: BenefitSummaryItem[]) => {
     const result: { frequency: string; creditTypes: { benefitName: string; items: BenefitSummaryItem[] }[] }[] = [];
@@ -99,6 +144,170 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
     };
   }, [benefits]);
 
+  const benefitById = useMemo(() => {
+    const m = new Map<number, BenefitSummaryItem>();
+    for (const b of benefits) m.set(b.id, b);
+    return m;
+  }, [benefits]);
+
+  const secretByCard = useMemo(() => {
+    const m = new Map<number, CardSecretMasked>();
+    for (const s of secrets ?? []) m.set(s.card_id, s);
+    return m;
+  }, [secrets]);
+
+  /** Nothing stored on any card: the feature stays invisible entirely. */
+  const vaultInUse = (secrets?.length ?? 0) > 0;
+
+  /** Distinct cards currently shown by a panel in THIS widget. */
+  const openCardIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (const [benefitId, state] of panels) {
+      if (state.status !== "ready") continue;
+      const b = benefitById.get(benefitId);
+      if (b) ids.add(b.card_id);
+    }
+    return ids;
+  }, [panels, benefitById]);
+
+  /**
+   * Close panels the widget no longer has any business showing.
+   *
+   * Plaintext is cleared from outside this component in four ways — the
+   * auto-hide timer, "Hide all" on the Card details page, a 401, and saving or
+   * deleting in CardSecretDialog. A panel left open past any of those would
+   * render against a value that is gone. Only "ready" panels are pruned: a
+   * panel showing "no details stored" or an error was never backed by the
+   * store in the first place.
+   */
+  useEffect(() => {
+    setPanels((prev) => {
+      let changed = false;
+      const next = new Map(prev);
+      for (const [benefitId, state] of prev) {
+        const benefit = benefitById.get(benefitId);
+        // The benefit itself is gone — profile switch, deletion, card closed.
+        if (!benefit) {
+          next.delete(benefitId);
+          changed = true;
+          continue;
+        }
+        if (state.status === "ready" && !revealed[benefit.card_id]) {
+          next.delete(benefitId);
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [revealed, benefitById]);
+
+  // Drives the countdown label only; the store owns expiry and hides itself.
+  useEffect(() => {
+    if (expiresAt === null || openCardIds.size === 0) return;
+    setNow(Date.now());
+    const t = setInterval(() => {
+      setNow(Date.now());
+      checkExpiry();
+    }, 1000);
+    return () => clearInterval(t);
+  }, [expiresAt, openCardIds.size, checkExpiry]);
+
+  const secondsLeft = expiresAt === null ? 0 : Math.max(0, Math.ceil((expiresAt - now) / 1000));
+  const timerLabel = `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`;
+
+  const openPanel = (benefit: BenefitSummaryItem) => {
+    setPanels((prev) => new Map(prev).set(benefit.id, { status: "loading" }));
+    reveal(benefit.card_id)
+      .then(() => setPanels((prev) => new Map(prev).set(benefit.id, { status: "ready" })))
+      .catch((e) =>
+        setPanels((prev) =>
+          new Map(prev).set(benefit.id, {
+            status: "error",
+            message: e instanceof Error ? e.message : "Could not reveal details",
+          }),
+        ),
+      );
+  };
+
+  const closePanel = (benefitId: number, refocus = false) => {
+    const benefit = benefitById.get(benefitId);
+    const next = new Map(panels);
+    next.delete(benefitId);
+    setPanels(next);
+    if (benefit) {
+      // Drop the plaintext once nothing in this widget is still showing the
+      // card. Another tile on the same card keeps it alive.
+      const stillShown = [...next].some(
+        ([id, st]) => st.status === "ready" && benefitById.get(id)?.card_id === benefit.card_id,
+      );
+      if (!stillShown && revealed[benefit.card_id]) hide(benefit.card_id);
+    }
+    if (refocus) {
+      document
+        .querySelector<HTMLButtonElement>(`[data-vault-trigger="${benefitId}"]`)
+        ?.focus();
+    }
+  };
+
+  const closeAllPanels = () => {
+    setPanels(new Map());
+    openCardIds.forEach((cardId) => hide(cardId));
+  };
+
+  const togglePanel = (benefit: BenefitSummaryItem) => {
+    if (panels.has(benefit.id)) {
+      closePanel(benefit.id);
+      return;
+    }
+    if (!secretByCard.has(benefit.card_id)) {
+      setPanels((prev) => new Map(prev).set(benefit.id, { status: "empty" }));
+      return;
+    }
+    // Already decrypted by another tile, or by the Card details page.
+    if (revealed[benefit.card_id]) {
+      setPanels((prev) => new Map(prev).set(benefit.id, { status: "ready" }));
+      return;
+    }
+    openPanel(benefit);
+  };
+
+  const renderVaultTrigger = (benefit: BenefitSummaryItem) => {
+    // Hold the slot while the vault list is in flight so the amount badge
+    // doesn't jump sideways when it lands.
+    if (secrets === null) return <span className="h-6 w-6 shrink-0" aria-hidden />;
+    if (!vaultInUse) return null;
+    const state = panels.get(benefit.id);
+    const secret = secretByCard.get(benefit.card_id);
+    return (
+      <VaultTrigger
+        benefitId={benefit.id}
+        stored={!!secret}
+        open={!!state}
+        loading={state?.status === "loading"}
+        cardName={benefit.card_name}
+        codeLabel={secret?.code_label}
+        onClick={() => togglePanel(benefit)}
+      />
+    );
+  };
+
+  const renderVaultPanel = (benefit: BenefitSummaryItem) => {
+    const state = panels.get(benefit.id);
+    if (!state) return null;
+    return (
+      <VaultPanel
+        state={state}
+        secret={secretByCard.get(benefit.card_id) ?? null}
+        data={revealed[benefit.card_id]}
+        cardName={benefit.card_name}
+        authOpen={authMode === "open"}
+        onClose={() => closePanel(benefit.id, true)}
+        onRetry={() => openPanel(benefit)}
+        onAddDetails={() => setAddDetailsFor(benefit.card_id)}
+      />
+    );
+  };
+
   const toggleCollapse = (freq: string) => {
     setCollapsed((prev) => {
       const next = new Set(prev);
@@ -131,6 +340,9 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
   };
 
   const startEdit = (benefit: BenefitSummaryItem) => {
+    // The edit form replaces the whole tile, so a panel underneath it would
+    // just reappear on cancel. You switched task; close it.
+    if (panels.has(benefit.id)) closePanel(benefit.id);
     setEditingId(benefit.id);
     setEditName(benefit.benefit_name);
     setEditAmount(benefit.benefit_amount.toString());
@@ -233,6 +445,21 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
         {benefits.length > 0 && (
           <Badge variant="secondary" className="text-xs">{benefits.length}</Badge>
         )}
+        {openCardIds.size > 0 && (
+          <div className="ml-auto flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+              <Lock className="h-3 w-3" />
+              <span className="tabular-nums">
+                {openCardIds.size} card{openCardIds.size === 1 ? "" : "s"} revealed
+                {/* Auto-hide can be switched off entirely, and "0:00" would be a lie. */}
+                {expiresAt !== null && ` · ${timerLabel}`}
+              </span>
+            </span>
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={closeAllPanels}>
+              Hide all
+            </Button>
+          </div>
+        )}
       </div>
 
       {creditGroups.length === 0 && thresholdGroups.length === 0 ? (
@@ -281,7 +508,7 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                           )}
                         >
                           <p className="text-xs font-semibold text-muted-foreground">{benefitName}</p>
-                          <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2")}>
+                          <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2 items-start")}>
                             {items.map((benefit) => {
                               const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
                               const barColor = usageColor(pct);
@@ -374,6 +601,7 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                       <Badge variant="outline" className="text-[10px]">
                                         {formatCurrency(benefit.benefit_amount)}
                                       </Badge>
+                                      {renderVaultTrigger(benefit)}
                                       <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)}>
                                         <Pencil className="h-3 w-3" />
                                       </Button>
@@ -438,6 +666,10 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                   {benefit.notes && (
                                     <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
                                   )}
+
+                                  {/* Stored card details, above the usage box on purpose: paste the
+                                      number elsewhere, come back, and log the spend without scrolling. */}
+                                  {renderVaultPanel(benefit)}
 
                                   {/* Quick add usage */}
                                   <div className="flex items-center gap-1.5">
@@ -527,7 +759,7 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                               )}
                             >
                               <p className="text-xs font-semibold text-muted-foreground">{benefitName}</p>
-                              <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2")}>
+                              <div className={cn(isMulti && !hasEditingItem && "grid grid-cols-1 lg:grid-cols-2 gap-2 items-start")}>
                                 {items.map((benefit) => {
                                   const pct = usagePercentage(benefit.amount_used, benefit.benefit_amount);
                                   const isUnlocked = pct >= 100;
@@ -622,6 +854,7 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                               Unlocked!
                                             </Badge>
                                           )}
+                                          {renderVaultTrigger(benefit)}
                                           <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)}>
                                             <Pencil className="h-3 w-3" />
                                           </Button>
@@ -684,6 +917,8 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
                                         <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
                                       )}
 
+                                      {renderVaultPanel(benefit)}
+
                                       <div className="flex items-center gap-1.5">
                                         <span className="text-xs text-muted-foreground">+$</span>
                                         <Input
@@ -734,6 +969,31 @@ export function CreditsWidget({ className, onCardClick }: CreditsWidgetProps) {
           )}
         </div>
       )}
+
+      {/* Opened from a tile whose card has nothing stored. `existing` stays
+          null, so the dialog never tries to reveal a row that isn't there. */}
+      <CardSecretDialog
+        open={addDetailsFor !== null}
+        onClose={() => setAddDetailsFor(null)}
+        onSaved={() => {
+          const cardId = addDetailsFor;
+          loadSecrets();
+          useAppStore.getState().refresh();
+          // The tile that sent you here is still showing "no details stored".
+          if (cardId !== null) {
+            setPanels((prev) => {
+              const next = new Map(prev);
+              for (const [id, st] of prev) {
+                if (st.status === "empty" && benefitById.get(id)?.card_id === cardId) next.delete(id);
+              }
+              return next;
+            });
+          }
+        }}
+        cards={cards}
+        cardId={addDetailsFor}
+        lockCard
+      />
     </div>
   );
 }
