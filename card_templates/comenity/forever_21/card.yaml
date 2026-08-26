@@ -2,12 +2,22 @@ name: Forever 21 Credit Card
 issuer: Comenity
 annual_fee: 0
 currency: USD
-version_id: comenity_forever_21_2020_1
+version_id: comenity_forever_21_2026_1
+status: closed_to_new_applicants
+status_date: 2025-03-16
 
 notes: |
   Store card — can only be used at Forever 21 locations.
-  Issued by Comenity Bank (Bread Financial).
+  Issued by Comenity Capital Bank (Bread Financial) — the Utah charter, not
+  Comenity Bank (Delaware).
   Category: fast fashion.
+  Forever 21's US operating entity (F21 OpCo) filed Chapter 11 on 2025-03-16 and
+  its still-live notice reads "we are no longer offering new gift cards or
+  credit cards." All US stores closed by 2025-05-01. The brand survived under an
+  Authentic Brands Group licensee; forever21.com today has no card programme.
+  A single uncorroborated source puts full programme termination at 2025-06-06;
+  that date is deliberately NOT encoded.
+  A separate Forever 21 Visa co-brand also existed and has no template here.
 
 tags:
   - no-annual-fee

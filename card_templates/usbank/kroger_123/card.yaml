@@ -1,24 +1,37 @@
-name: Kroger 1-2-3 Rewards Visa
+name: Kroger Rewards World Elite Mastercard
 issuer: US Bank
-network: Visa
+network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: usbank_kroger_123_2020_1
+version_id: usbank_kroger_123_2026_1
 
 benefits:
   bonus_categories:
-    - category: Kroger Family Stores (Grocery + Fuel)
-      multiplier: 3x
-    - category: Dining / Travel
+    - category: Kroger Pay (non-fuel)
+      multiplier: 5x
+      cap: 3000
+    - category: Mobile Wallet (Apple Pay, Google Wallet, Samsung Pay, Garmin Pay)
+      multiplier: 5x
+      cap: 3000
+    - category: Kroger Family of Companies (excludes Fuel Centers)
       multiplier: 2x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  Points redeemable for Kroger gift cards and fuel points.
-  1,000 points = $1 Kroger gift card or 1,000 fuel points.
-  Co-branded with Kroger.
-  3% foreign transaction fee.
+  Renamed from "Kroger 1-2-3 Rewards Visa". The card is a MASTERCARD (World Elite);
+  the template previously recorded Visa, which appears never to have been correct.
+  The 5x rates drop to 2x (Kroger Pay) and 1x (other mobile wallets) after $3,000
+  of spend in each category per calendar year.
+  Fuel Center purchases earn NOTHING — the previous "Grocery + Fuel 3x" was backwards.
+  Redemption: 1,000 points = $10 statement credit (NOT $1), or 2,500 points = $25
+  Kroger gift card. Real-Time Rewards on Kroger purchases of $10+. Points expire
+  after 36 months.
+  No foreign transaction fee — the previously recorded 3% was wrong.
+  New-cardmember offers are one-time, not recurring: $100 statement credit after
+  $500 in 90 days, plus a Boost Essential membership at approval.
+  Verified against U.S. Bank application terms self-dated 08/2026.
 
 tags:
   - no-annual-fee
+  - groceries
