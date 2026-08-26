@@ -34,3 +34,6 @@ Thumbs.db
 
 # Build info
 *.tsbuildinfo
+
+# Generated card-art review UIs (published as Artifacts; rebuild via tools/build_review.py)
+tools/card-art-review*.html

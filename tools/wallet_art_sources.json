@@ -1,0 +1,179 @@
+{
+  "_comment": "Apple Wallet asset ids for card art, keyed by template id. Fetch with: python3 tools/wallet_card_art.py fetch. Ids are per-artwork and per-pod, not per-cardholder.",
+  "aliases": {
+    "Bilt World Elite Mastercard": "bilt/bilt_card",
+    "Amazon Rewards Visa": "chase/amazon",
+    "Discover": "discover/it_cash_back"
+  },
+  "cards": {
+    "amex/amazon_biz": {
+      "sha1": "1d183b1441ed7a61d42262a08371f9be9d1fdc03",
+      "sources": [
+        {
+          "pod": "pod3",
+          "guid": "fb4a78ebc61a40cb849fe6bfacbf5697",
+          "sha1": "1d183b1441ed7a61d42262a08371f9be9d1fdc03"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 700303
+    },
+    "amex/biz_gold": {
+      "sha1": "0d3c4c3598793f694f11970ef6f046c015a7ef62",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "5d068187a27349d7ba2f86a625ddd066",
+          "sha1": "0d3c4c3598793f694f11970ef6f046c015a7ef62"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 1126347
+    },
+    "amex/biz_platinum": {
+      "sha1": "de430094cff3bf8a60261d3845cbf0e3ef6c17c3",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "91da03b963d44327b5c58b3c24267697",
+          "sha1": "de430094cff3bf8a60261d3845cbf0e3ef6c17c3"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 1726028
+    },
+    "amex/green": {
+      "sha1": "c6a2b878124a6d96bad11abf5207fc6ef33b22a4",
+      "sources": [
+        {
+          "pod": "pod3",
+          "guid": "1c78874fa36e47eb977981e62f6b2a29",
+          "sha1": "c6a2b878124a6d96bad11abf5207fc6ef33b22a4"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 982926
+    },
+    "amex/hilton_aspire": {
+      "sha1": "dfc71931187c1ce62e6774bfad26eba48d8df01a",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "e7bcfc184d8b4bd1b9d51d52214639e5",
+          "sha1": "dfc71931187c1ce62e6774bfad26eba48d8df01a"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 532492
+    },
+    "apple/apple_card": {
+      "sha1": "eaf04284c2ff7b740bd2e9a7f1a61946474d1950",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "0755e9ba20454410a1a0423998d912f9",
+          "sha1": "eaf04284c2ff7b740bd2e9a7f1a61946474d1950"
+        }
+      ],
+      "width": 1146,
+      "height": 720,
+      "size": 396336
+    },
+    "chase/amazon": {
+      "sha1": "d657f7e0a78d28faa85b52f011806d9cdd240085",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "b8c898cc2bba4ab0b9e98f4a4502e1eb",
+          "sha1": "d657f7e0a78d28faa85b52f011806d9cdd240085"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 1212717
+    },
+    "chase/freedom_student": {
+      "sha1": "d6d313b75fd957e64bc835fb86606e3fca87a4d4",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "7e69fb36cd834f1ca1710db407074204",
+          "sha1": "d6d313b75fd957e64bc835fb86606e3fca87a4d4"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 1170857
+    },
+    "chase/freedom_unlimited": {
+      "sha1": "0bbdbc9988d14006f31f1e392e0e69f3cb47ee09",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "72290a9ec8664eb794de8a8acb88a2a7",
+          "sha1": "0bbdbc9988d14006f31f1e392e0e69f3cb47ee09"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 517417
+    },
+    "discover/it_cash_back": {
+      "sha1": "66113030b43681946914a321d1e482a99dee261a",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "810c69f4a41e4b22b5f093f3b7b03947",
+          "sha1": "66113030b43681946914a321d1e482a99dee261a"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 340971
+    },
+    "bilt/bilt_card": {
+      "sha1": "028f9f9766a627423d8f13253292336ed4df20e4",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "7d26000434df428f86ee011823745e58",
+          "sha1": "028f9f9766a627423d8f13253292336ed4df20e4"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 439732
+    },
+    "wellsfargo/active_cash": {
+      "sha1": "206ea37cb2f6d5dfa80fd340488fdf338c8bbdb5",
+      "sources": [
+        {
+          "pod": "pod10",
+          "guid": "1e126e560cc545f9bf5f48edb128a1c5",
+          "sha1": "206ea37cb2f6d5dfa80fd340488fdf338c8bbdb5"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 887162
+    },
+    "citi/strata_elite": {
+      "sha1": "3898fa52412ce00b9b72b8c31c23201f05256201",
+      "sources": [
+        {
+          "type": "google",
+          "sha1": "3898fa52412ce00b9b72b8c31c23201f05256201",
+          "url": "https://www.gstatic.com/payments_api/partnerasset/cardart/5c564c46-afaa-410b-bbf5-98a84557920b.png"
+        }
+      ],
+      "width": 1536,
+      "height": 969,
+      "size": 2473382
+    }
+  }
+}

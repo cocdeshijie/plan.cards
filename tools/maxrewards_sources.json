@@ -1,0 +1,487 @@
+{
+  "_comment": "MaxRewards card-art provenance. Images are re-hosted issuer marketing art, downloaded from the CloudFront CDN, then trimmed and converted to PNG. Rebuild with tools/maxrewards_ingest.py. sha1 is of the SOURCE webp (for change-detection), not the committed png.",
+  "cdn": "https://d1f8ie53h08h9n.cloudfront.net/{slug}/lg.webp",
+  "sitemap": "https://www.maxrewards.com/sitemap.xml",
+  "cards": {
+    "barclays/athleta_rewards": {
+      "slug": "athleta-encore-mastercard",
+      "source_sha1": "4f24c93d1ee4a428c19a456df2572a3bb8f884e6",
+      "png_sha1": "24a8bc67ec434a04d4988b942465fe7926e056c6",
+      "dims": "230x145"
+    },
+    "barclays/banana_republic_rewards": {
+      "slug": "banana-republic-encore-mastercard",
+      "source_sha1": "b525d9f5e35f4712e47a77ee6ac125655292d65c",
+      "png_sha1": "28c52a64ad3973df8879ad6514327d1225c1f9c1",
+      "dims": "230x145"
+    },
+    "barclays/barnes_noble": {
+      "slug": "barnes-noble-mastercard",
+      "source_sha1": "c20ab9ee7aee9fd92b9000062369f8b01e2b68dd",
+      "png_sha1": "d61d3b177d7d19d4f067ccd5dbdff45f04a23a15",
+      "dims": "230x146"
+    },
+    "barclays/frontier": {
+      "slug": "frontier-airlines-world-mastercard",
+      "source_sha1": "a718bfe8ece6eaab51bf947f4828b0847705aa89",
+      "png_sha1": "d2c3a027814b75bf4147456d3b63ad60c6def725",
+      "dims": "230x145"
+    },
+    "barclays/gap_good_rewards": {
+      "slug": "gap-encore-mastercard",
+      "source_sha1": "a075ed3162923cef9530fee7d491662438c3fc50",
+      "png_sha1": "832f4a9ea8f304b2615049ecda78a8a2a21f0701",
+      "dims": "230x145"
+    },
+    "barclays/jetblue_plus": {
+      "slug": "jetblue-plus",
+      "source_sha1": "284f6f6620d70d0f38f69495872c1f237422271b",
+      "png_sha1": "db1c1b44b0794a1e988532c012b34af22b99a316",
+      "dims": "900x568"
+    },
+    "barclays/jetblue_premier": {
+      "slug": "jetblue-premier",
+      "source_sha1": "f5a66a7f1524e1f0c7e4ee33b2a03823259c02bb",
+      "png_sha1": "c3625f3275890e4a21cb2ae1e4d7ce0c54f1babe",
+      "dims": "230x145"
+    },
+    "barclays/lufthansa_miles_more": {
+      "slug": "miles-more-world-elite-mastercard",
+      "source_sha1": "238285f2beb5d4becf555956cd0161e2c7c56359",
+      "png_sha1": "ac730aa3be29e1c0ab761d50856536033419e5c4",
+      "dims": "230x145"
+    },
+    "barclays/navyist_rewards": {
+      "slug": "old-navy-encore-mastercard",
+      "source_sha1": "0e06cead8ca1e776485f4dfca3bbd2eabbabb7bf",
+      "png_sha1": "ca7246a9ab00077d92b386f404e8e32b2237b5fb",
+      "dims": "230x145"
+    },
+    "barclays/upromise": {
+      "slug": "upromise-world-mastercard",
+      "source_sha1": "7e498ad99b0e54328b568d440cf87d0f489f5096",
+      "png_sha1": "a3d8060236a52e7cacdb9e00a1abf6387b573631",
+      "dims": "900x568"
+    },
+    "barclays/wyndham_earner": {
+      "slug": "wyndham-rewards-earner",
+      "source_sha1": "d0e87d9c772fc712c6c7a29889aaa7e849bb5571",
+      "png_sha1": "45e4c88b508357cbaca3099fa092f949950a690a",
+      "dims": "512x323"
+    },
+    "barclays/wyndham_earner_plus": {
+      "slug": "wyndham-rewards-earner-plus",
+      "source_sha1": "88f0aba284856fc703a856bf6a64fd718213ed85",
+      "png_sha1": "5ac21fc54cbeafcc15d31e92ecd30691e59829fa",
+      "dims": "230x145"
+    },
+    "barclays/wyndham_earner_premier": {
+      "slug": "wyndham-rewards-earner-premier",
+      "source_sha1": "2238ee98697eda63c3626aa24e92f7fc3556d9d5",
+      "png_sha1": "00e60b2c76fbcb25f99e9e065cb8bf8bbd63bae7",
+      "dims": "230x145"
+    },
+    "barclays/xbox": {
+      "slug": "xbox-mastercard",
+      "source_sha1": "21ef68d659cf36c5812719ab3ec06a388f9dbf4c",
+      "png_sha1": "5140d2f7174740ec507cdef49395c6742b5869b3",
+      "dims": "230x145"
+    },
+    "bilt/blue": {
+      "slug": "bilt-blue",
+      "source_sha1": "cc36f683c9de452297c20475f8be17890f756cbc",
+      "png_sha1": "8ca976f95e9327f32949abbae93ef4722130e5a7",
+      "dims": "564x358"
+    },
+    "bilt/obsidian": {
+      "slug": "bilt-obsidian",
+      "source_sha1": "e27814047ea19fcaa1bcbdbae53eb9ee3f34e91c",
+      "png_sha1": "3ef37336f8f8d6f9c3bfc405e12ded32fc52b14c",
+      "dims": "564x358"
+    },
+    "bilt/palladium": {
+      "slug": "bilt-palladium",
+      "source_sha1": "34a11b0e5f96836d9bccc8f1d0a9e5a220e17e09",
+      "png_sha1": "bb98afc5d9630c1aa1315483ba2f5dd6f4b0a081",
+      "dims": "564x358"
+    },
+    "boa/biz_travel_rewards": {
+      "slug": "bank-of-america-travel-rewards",
+      "source_sha1": "f940bb76bf91cbc6f5c22605b436704416c908f0",
+      "png_sha1": "fd4a81781265ff038fc48cd9235af24da8a5deda",
+      "dims": "900x568"
+    },
+    "boa/customized_cash_student": {
+      "slug": "bank-of-america-customized-cash-rewards",
+      "source_sha1": "ea4b14f3123886d52b902a216b5e452b70cbe001",
+      "png_sha1": "3ccfe55571d6b25fdf2c2e826efa93718afa28af",
+      "dims": "900x568"
+    },
+    "boa/unlimited_cash": {
+      "slug": "bank-of-america-unlimited-cash-rewards",
+      "source_sha1": "5888ad8698306e7ce72b70bb7b33f1949bf36a9f",
+      "png_sha1": "4361c91412a089d459a0253ca21daea0ffe82890",
+      "dims": "900x568"
+    },
+    "boa/unlimited_cash_secured": {
+      "slug": "bank-of-america-unlimited-cash-rewards-secured",
+      "source_sha1": "cfd1e112dc303f7324c5b2938504996f42769a15",
+      "png_sha1": "4ab139916a7f5e02f87aaeb34de69dcd3341a12a",
+      "dims": "250x158"
+    },
+    "bread_financial/aaa_daily_advantage": {
+      "slug": "aaa-daily-advantage-visa-signature",
+      "source_sha1": "7cea241cab999a14125a51b473157c5e81714d72",
+      "png_sha1": "03b97d94f00496f1b9bc70e1ba8b4d818636c508",
+      "dims": "505x319"
+    },
+    "capitalone/bjs_mastercard": {
+      "slug": "bj-s-one-mastercard",
+      "source_sha1": "790b37dc71ffc0ff6f2b38ff33c4322e0c5b7af6",
+      "png_sha1": "ae09e3cf21eee45c714a4d7ca25d31ae86dc29c2",
+      "dims": "900x567"
+    },
+    "capitalone/spark_cash_plus": {
+      "slug": "spark-2-cash-plus",
+      "source_sha1": "aa062655ee9c7bd5e130142f77a48325c4ba0703",
+      "png_sha1": "3d7383038f2533477c56c3b9d458d612a4941952",
+      "dims": "500x315"
+    },
+    "capitalone/spark_cash_select": {
+      "slug": "spark-1-5-cash-select",
+      "source_sha1": "b1eeca7e3e9128bf892fc315228e277fe91ad31b",
+      "png_sha1": "232ea9daa9e13bb64ca33a9466d2ab5488abbf7c",
+      "dims": "500x315"
+    },
+    "capitalone/spark_classic": {
+      "slug": "spark-1-classic",
+      "source_sha1": "99e42b5048b0a068798181c2d20de79d4ee05faa",
+      "png_sha1": "45e8fa90e0c97dd8c85d271e9b57706aa599b987",
+      "dims": "645x406"
+    },
+    "chase/united_club_biz": {
+      "slug": "united-club",
+      "source_sha1": "c301a64fe18f30ee61c1797d44cf1d1ece01b81f",
+      "png_sha1": "d9f2ad5fb7b9bfa6d0cd4d14d140bc4aa6b8a966",
+      "dims": "300x185"
+    },
+    "citi/att_points_plus": {
+      "slug": "at-t-points-plus",
+      "source_sha1": "49390ec743708599c28692bd88d52f3d04245e85",
+      "png_sha1": "14cbd03a1d2dec0adc0d399d55db958e6ebc0901",
+      "dims": "341x216"
+    },
+    "citi/costco_anywhere_biz": {
+      "slug": "costco-anywhere-visa",
+      "source_sha1": "40fed827a42ab98822e66c4f1a564de15a788a68",
+      "png_sha1": "7231cdbca476025e787a850b961fc510d6d305fc",
+      "dims": "900x568"
+    },
+    "citi/custom_cash": {
+      "slug": "citi-custom-cash",
+      "source_sha1": "3f79212ed6c41fa55438e891e708dff29e8f1197",
+      "png_sha1": "f76ebcbefcd032c567bc71053ab2376021a04a05",
+      "dims": "900x568"
+    },
+    "citi/exxon_mobil_smart": {
+      "slug": "exxon-mobil-smart-card-plus",
+      "source_sha1": "49cccc9c2b2fc8db8f5e364f74cda2787645fe5c",
+      "png_sha1": "53b7db6831951925ce5b38c50d0d32b2fa74f905",
+      "dims": "341x215"
+    },
+    "citizens/cash_back_plus": {
+      "slug": "citizens-cash-back-plus-world-mastercard",
+      "source_sha1": "02cfc8db08c976ff452caf40678d12820cceef32",
+      "png_sha1": "b518b231ea472961f053cce6988eab8367f615f4",
+      "dims": "600x378"
+    },
+    "citizens/clear_value": {
+      "slug": "citizens-clear-value-mastercard",
+      "source_sha1": "c8b323df3658dcaee98cba0d6cf6beb2d028eb24",
+      "png_sha1": "fe60e461d1bef9dd0600ab36776133e01c9abf7c",
+      "dims": "600x378"
+    },
+    "comenity/pottery_barn": {
+      "slug": "pottery-barn-key-rewards-visa",
+      "source_sha1": "bf970b79aa3808d2fc6e570206c1340541151931",
+      "png_sha1": "7ffcd5410efa744b5fe97f752262eada528d558a",
+      "dims": "900x567"
+    },
+    "comenity/west_elm": {
+      "slug": "west-elm-key-rewards-visa",
+      "source_sha1": "611a92dc041d846e7770ee94c6c34559c9f83da1",
+      "png_sha1": "0b313a8e95ad909aa6cc610ab9a6c1b1012dbdd3",
+      "dims": "900x567"
+    },
+    "comenity/williams_sonoma": {
+      "slug": "williams-sonoma-key-rewards-visa",
+      "source_sha1": "d8c6476af41489c2d6ce5eafa61f6e7955536b9f",
+      "png_sha1": "be9e601e3c4492e3e192bee53acd68142fec6453",
+      "dims": "900x567"
+    },
+    "fifth_third/cash_back": {
+      "slug": "fifth-third-1-cash-back",
+      "source_sha1": "39bc3960dc29ac34c26c1249bb48e088b9940264",
+      "png_sha1": "81bf95505b822c6afabb84f86134561ec9dc58f4",
+      "dims": "900x567"
+    },
+    "fifth_third/preferred_cash_back": {
+      "slug": "fifth-third-preferred-cash-back",
+      "source_sha1": "dcd099d8819965a8c74a203be2baf45521e32e33",
+      "png_sha1": "ac83424d059696ca5a9e2634b2f8761667f2804e",
+      "dims": "900x570"
+    },
+    "fifth_third/secured": {
+      "slug": "fifth-third-secured",
+      "source_sha1": "21ba700751e34cf146a650c86113462f0ab7a9cf",
+      "png_sha1": "c0c32c97caad4b33cbf88816d5f861434f4d0880",
+      "dims": "900x565"
+    },
+    "hsbc/premier": {
+      "slug": "hsbc-premier",
+      "source_sha1": "2167934e26e028fad10ed3a2fb3698adc14ae2d9",
+      "png_sha1": "04329afd7d330d9ed7a5be881c7699dd21b74ded",
+      "dims": "900x568"
+    },
+    "paypal/cashback": {
+      "slug": "paypal-cashback-mastercard",
+      "source_sha1": "40a63aa9c4cb0c7ad5104942471c09d26127158b",
+      "png_sha1": "a13363b1f610a84e2ade33f55bb17421b19814a1",
+      "dims": "900x568"
+    },
+    "pnc/cash_rewards": {
+      "slug": "pnc-cash-rewards",
+      "source_sha1": "9e48a2133f4f181f82afd17b5f84e4f5807bf783",
+      "png_sha1": "5d78fff9e18627c0a577af818fcabce0393de28c",
+      "dims": "380x239"
+    },
+    "pnc/core": {
+      "slug": "pnc-core",
+      "source_sha1": "cf2e34abeea31477038b9ef6939c6c84f10e7ab9",
+      "png_sha1": "357e5c2505a701bdb9ab2bf91815b9a2717a2132",
+      "dims": "380x239"
+    },
+    "pnc/points": {
+      "slug": "pnc-points",
+      "source_sha1": "ccbe1122e52b9730c6a4540e8bb40a7f6d2269bf",
+      "png_sha1": "cbb59ab795daa97fded9328b05621de26d0c53df",
+      "dims": "380x239"
+    },
+    "pnc/premier_traveler": {
+      "slug": "pnc-premier-traveler",
+      "source_sha1": "568cdad6358e96218f9d5e866b2057d163287f13",
+      "png_sha1": "4584d89d70b8d3a0e0c6c3b33134210e71971d67",
+      "dims": "380x239"
+    },
+    "robinhood/gold_card": {
+      "slug": "robinhood-gold",
+      "source_sha1": "5f7d364fda172e10a0d67b653e5d613e5e568fce",
+      "png_sha1": "ce29251c94871e63ec82b9358565476dd09b57c5",
+      "dims": "900x568"
+    },
+    "sofi/smart_card": {
+      "slug": "sofi-smart-card",
+      "source_sha1": "7da4a5a395a3e6433b2b90c8b2404034eadbafc8",
+      "png_sha1": "b02797cb2006dac231c8ce38544948b3c5c7c648",
+      "dims": "512x323"
+    },
+    "sofi/unlimited_2": {
+      "slug": "sofi-unlimited-2",
+      "source_sha1": "af70a550fa7e7b67e5d2c5944fc289c1392302e3",
+      "png_sha1": "3f3d5c215b170d85e2a1afe50e2689cce2806d2b",
+      "dims": "820x520"
+    },
+    "synchrony/premier_world": {
+      "slug": "synchrony-premier-world-mastercard",
+      "source_sha1": "d451aa6d96144008c8b8c2bae0d8e390458e4bdd",
+      "png_sha1": "9be22c5882ffd23ebec438105353a5ce3541027d",
+      "dims": "900x566"
+    },
+    "upgrade/cash_rewards": {
+      "slug": "upgrade-cash-rewards",
+      "source_sha1": "a738909655ae56d4c0cedbf25ab1317b83324b73",
+      "png_sha1": "a800a131f3cb8afd1b878ab3774c34abdfcfa439",
+      "dims": "841x568"
+    },
+    "upgrade/triple_cash": {
+      "slug": "upgrade-triple-cash-rewards",
+      "source_sha1": "20a815f2425b597a970ddac3e006a33e1526283d",
+      "png_sha1": "2a55c7c69f4735f8abeb23ae65a8c643d3d7d6a5",
+      "dims": "900x568"
+    },
+    "usbank/fidelity": {
+      "slug": "fidelity-rewards-visa-signature",
+      "source_sha1": "0c6647042913426fa7331311675e120b295860a0",
+      "png_sha1": "33dcd58a946489223c5c669ba4af886cc3c557b3",
+      "dims": "275x173"
+    },
+    "usbank/state_farm_biz": {
+      "slug": "state-farm-business-cash-rewards-visa-signature",
+      "source_sha1": "b237b485d8173d231ba4edeb107182b849823324",
+      "png_sha1": "bd9b2d55e66e8cc32a01880cf0f7675bdbddeff2",
+      "dims": "760x478"
+    },
+    "usbank/state_farm_neighbor": {
+      "slug": "state-farm-good-neighbor-visa",
+      "source_sha1": "37b8651615a811bc20cd9911bc344072418c342a",
+      "png_sha1": "3055751d9ce76e5d5cf4bfe991d55f60695a1db9",
+      "dims": "760x478"
+    },
+    "usbank/state_farm_premier": {
+      "slug": "state-farm-premier-cash-rewards-visa-signature",
+      "source_sha1": "f7d8c0137ce3bbc76bd55c0ee693a6dd2c1d2832",
+      "png_sha1": "aed39b94fd0c17b921f2071f2029d82c2a9e53b4",
+      "dims": "760x478"
+    },
+    "barclays/gm_rewards": {
+      "slug": "gm-business-mastercard",
+      "source_sha1": "ee91cce2413f2da7f88b881773d3847d942260a7",
+      "png_sha1": "3a406a0b64ff2fb318ffab7fe955f5d3f3d1e9a3",
+      "dims": "230x145"
+    },
+    "barclays/wyndham_earner_biz": {
+      "slug": "wyndham-rewards-earner-business",
+      "source_sha1": "49ecb8fe63abb58cacfff3824263aaffb60e0d7f",
+      "png_sha1": "948de15dea47066fb06c9cd755a7ad8c09fc3f8c",
+      "dims": "230x145"
+    },
+    "boa/atmos_biz": {
+      "slug": "atmos-rewards-visa-signature-business",
+      "source_sha1": "394af7c70f2ca577c9586f381dc98183e2601f37",
+      "png_sha1": "81349894090d4662591d18514630320a84a53ca9",
+      "dims": "900x566"
+    },
+    "boa/biz_customized_cash": {
+      "slug": "bank-of-america-customized-cash-rewards-secured",
+      "source_sha1": "8cb4f6918786f9c27c11b643581648d108650140",
+      "png_sha1": "bc3c2ad070dec5b8bd77331459be057fd983996f",
+      "dims": "900x568"
+    },
+    "boa/biz_unlimited_cash": {
+      "slug": "business-advantage-unlimited-cash-rewards",
+      "source_sha1": "7262d30bf009b46457f7670db41d3a09b471ffa0",
+      "png_sha1": "1db677e56019da78d7fd44fe1eb669eca3f8d416",
+      "dims": "250x157"
+    },
+    "boa/biz_unlimited_cash_secured": {
+      "slug": "business-advantage-unlimited-cash-rewards-mastercard-secured",
+      "source_sha1": "7262d30bf009b46457f7670db41d3a09b471ffa0",
+      "png_sha1": "1db677e56019da78d7fd44fe1eb669eca3f8d416",
+      "dims": "250x157"
+    },
+    "capitalone/platinum": {
+      "slug": "platinum",
+      "source_sha1": "a5c1f3b9b3599cecb65bf151465e8bee297329b2",
+      "png_sha1": "b8ec4334672c5b73e0100b4844454b382f987ff6",
+      "dims": "323x203"
+    },
+    "capitalone/platinum_secured": {
+      "slug": "platinum-secured",
+      "source_sha1": "5a386d55d4220c6ecd29a3ae3b617b46fd375a54",
+      "png_sha1": "e9626fbc9a085f12bc7ed5b5cd4f5759c53252b4",
+      "dims": "500x310"
+    },
+    "capitalone/quicksilverone": {
+      "slug": "quicksilverone-rewards",
+      "source_sha1": "68372ac1cf15a770823f9847fd70af1e5333d3cb",
+      "png_sha1": "b1c93f72871a0336929c64d7834e34cd00c84209",
+      "dims": "500x315"
+    },
+    "capitalone/savor": {
+      "slug": "savor-rewards",
+      "source_sha1": "6a9056542bfecf1cb5c2215215fc97470cd8f070",
+      "png_sha1": "965aaf2c60e0cc79430aae214855e06dcec9c158",
+      "dims": "500x315"
+    },
+    "capitalone/savor_student": {
+      "slug": "savor-rewards-for-students",
+      "source_sha1": "5ceada30df2e945e0b810e07af67d130e59670ae",
+      "png_sha1": "7776c86789d8ee305de9cf46d27434aa5bac10d3",
+      "dims": "450x282"
+    },
+    "capitalone/savorone": {
+      "slug": "savorone-rewards",
+      "source_sha1": "78315816ee688c8aa023681a70c4ff6769d83a0f",
+      "png_sha1": "17d4e9a8605df16ec54e92722499e3fb50b973b3",
+      "dims": "500x315"
+    },
+    "capitalone/spark_cash": {
+      "slug": "spark-2-cash",
+      "source_sha1": "b1eeca7e3e9128bf892fc315228e277fe91ad31b",
+      "png_sha1": "232ea9daa9e13bb64ca33a9466d2ab5488abbf7c",
+      "dims": "500x315"
+    },
+    "capitalone/venture": {
+      "slug": "venture-rewards",
+      "source_sha1": "d2de2dba250bfbe046633f46835116bd6df9bfcb",
+      "png_sha1": "d737064f0d2536a684603582b3c772e7bebe73dd",
+      "dims": "500x315"
+    },
+    "capitalone/venture_biz": {
+      "slug": "venture-business",
+      "source_sha1": "331f349569f203a4bcef77fccaf74d0d4a6995c3",
+      "png_sha1": "6f1d344c213e27ec6b281859751243e6e863311a",
+      "dims": "500x315"
+    },
+    "capitalone/venture_x_biz": {
+      "slug": "venture-x-business",
+      "source_sha1": "995184b4d31f7148d35081a344ba538b500676cc",
+      "png_sha1": "cc1cfe66131b94e7a2de3fd213fe5210b43acfad",
+      "dims": "500x315"
+    },
+    "capitalone/ventureone": {
+      "slug": "ventureone-rewards",
+      "source_sha1": "40c76764af3280763db1001e271ed9143f607e31",
+      "png_sha1": "9bc013a172d302abae99ecbd79f5e287c04d4fc5",
+      "dims": "500x315"
+    },
+    "capitalone/ventureone_biz": {
+      "slug": "ventureone-business",
+      "source_sha1": "655e4f4e62d0b01cfc817ae8ec63234b36fd1609",
+      "png_sha1": "2783d335b09079f0eb255134527c737059d01c3a",
+      "dims": "323x203"
+    },
+    "fifth_third/trio": {
+      "slug": "fifth-third-1-67-cash-back",
+      "source_sha1": "bedcd94f0a1902e39d6a86d95eb5ef6f0be42774",
+      "png_sha1": "959e2f09582bbf100e7daa543e75a6531e72da98",
+      "dims": "900x570"
+    },
+    "pnc/business_options": {
+      "slug": "pnc-cashbuilder-visa",
+      "source_sha1": "021bf891522c87c2561fca76835c9cb4adffebc0",
+      "png_sha1": "d3b4b2c7d497a3da3448f735fc8212fcfca107ba",
+      "dims": "380x239"
+    },
+    "synchrony/american_eagle": {
+      "slug": "american-eagle-outfitters",
+      "source_sha1": "048542d3e8bc88da95245842c26c312a44625427",
+      "png_sha1": "1661bbafb85d9cec75fef7178664ef29664dac8d",
+      "dims": "500x309"
+    },
+    "upgrade/cash_elite": {
+      "slug": "upgrade-unlimited-cash-rewards",
+      "source_sha1": "8855b69a007bc1a5caba2af484e25a1001d6dc08",
+      "png_sha1": "47e6494d0004459c5198fd8d1e9a5af6f8a60729",
+      "dims": "900x568"
+    },
+    "usbank/biz_altitude_connect": {
+      "slug": "u-s-bank-altitude-connect",
+      "source_sha1": "a9c6df7b0e7bf4ec336fba09455a1ed3e0fa72f1",
+      "png_sha1": "12b4f3ced64b087d6cffe9a960bc1348e92bc077",
+      "dims": "900x567"
+    },
+    "wellsfargo/attune": {
+      "slug": "attune",
+      "source_sha1": "4cd314b389e12c14ae9a91f95278148d6d8a8f98",
+      "png_sha1": "68bf05d2f18c7e2c31172457ccc9aadda00818f5",
+      "dims": "436x274"
+    },
+    "wellsfargo/autograph": {
+      "slug": "autograph",
+      "source_sha1": "e14a9e71f08fd790f3a24aa5ee3e2545e46193a6",
+      "png_sha1": "27e72f0ff02c6fe5a2858f018f3e9315d1c00a4c",
+      "dims": "900x568"
+    }
+  }
+}
