@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
-import { X, Users, Settings, Shield, Plus, UserCheck, UserX, Key, Trash2, Loader2, AlertTriangle, Check, Copy } from "lucide-react";
+import { copyToClipboard } from "@/lib/clipboard";
+import { X, Users, Settings, Shield, ShieldMinus, ShieldPlus, Plus, UserCheck, UserX, Key, Trash2, Loader2, AlertTriangle, Check, Copy, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
 import {
@@ -37,9 +39,12 @@ interface AdminPanelProps {
   onClose: () => void;
 }
 
+type AdminTab = "users" | "settings" | "oauth";
+
 export function AdminPanel({ onClose }: AdminPanelProps) {
   const panelRef = useFocusTrap<HTMLDivElement>();
-  const [tab, setTab] = useState<"users" | "settings" | "oauth">("settings");
+  const backdropPointerDown = useRef(false);
+  const [tab, setTab] = useState<AdminTab>("settings");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [config, setConfig] = useState<AdminConfig | null>(null);
   const [oauthProviders, setOAuthProviders] = useState<OAuthProviderConfig[]>([]);
@@ -70,19 +75,113 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
     loadData();
   }, [loadData]);
 
-  // Escape key to close
+  const retry = useCallback(() => {
+    setLoading(true);
+    loadData();
+  }, [loadData]);
+
+  // Escape key to close.
+  //
+  // Radix's dismissable layer (every ConfirmDialog and Select in this panel)
+  // listens in the CAPTURE phase and calls preventDefault() but never
+  // stopPropagation, so this bubble-phase document listener used to fire as
+  // well: one Escape closed the Select AND unmounted the panel, taking a
+  // half-entered client secret or upgrade password with it. Two guards — the
+  // layer's own preventDefault, and any portalled overlay living outside this
+  // panel (the same selector useFocusTrap stands down on).
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const panel = panelRef.current;
+      const nestedLayerOpen = Array.from(
+        document.querySelectorAll(
+          '[role="dialog"], [role="alertdialog"], [data-radix-popper-content-wrapper]',
+        ),
+      ).some((node) => !panel?.contains(node));
+      if (nestedLayerOpen) return;
+      onClose();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, panelRef]);
+
+  // Lock body scroll while this full-screen overlay is open, so a touch scroll
+  // that runs past the end of the panel doesn't chain into the page behind.
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
 
   const currentUser = useAppStore((s) => s.currentUser);
 
+  const tabId = useId();
+  const tabRefs = useRef<Partial<Record<AdminTab, HTMLButtonElement | null>>>({});
+
+  const visibleTabs = useMemo(() => {
+    const mode = config?.auth_mode;
+    const list: { id: AdminTab; label: string; Icon: typeof Users }[] = [];
+    if (mode === "multi_user" || mode === "multi_user_oauth") {
+      list.push({ id: "users", label: "Users", Icon: Users });
+    }
+    list.push({ id: "settings", label: "Settings", Icon: Settings });
+    if (mode === "multi_user_oauth") {
+      list.push({ id: "oauth", label: "OAuth", Icon: Key });
+    }
+    return list;
+  }, [config?.auth_mode]);
+
+  // Which tabs a mode exposes is only known once config lands, and the initial
+  // state ("settings") was not always the one rendered first — a multi-user
+  // instance opened with Users on the left and Settings underlined. Select
+  // whatever is leftmost on first load, and afterwards only step in if the tab
+  // the user is standing on disappears (an auth-mode upgrade rebuilds the list).
+  const initialTabPicked = useRef(false);
+  useEffect(() => {
+    if (!config) return;
+    if (!initialTabPicked.current) {
+      initialTabPicked.current = true;
+      setTab(visibleTabs[0].id);
+      return;
+    }
+    setTab((current) => (visibleTabs.some((t) => t.id === current) ? current : visibleTabs[0].id));
+  }, [config, visibleTabs]);
+
+  // The tab bar only exists once config has landed, so the panel below it only
+  // claims role="tabpanel" then too — otherwise the loading and error states
+  // point aria-labelledby at a tab element that is not in the document.
+  const tabsVisible = !loading && !!config;
+
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let next: number;
+    if (e.key === "ArrowRight") next = (index + 1) % visibleTabs.length;
+    else if (e.key === "ArrowLeft") next = (index - 1 + visibleTabs.length) % visibleTabs.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = visibleTabs.length - 1;
+    else return;
+    e.preventDefault();
+    const target = visibleTabs[next];
+    setTab(target.id);
+    tabRefs.current[target.id]?.focus();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+      // Close only when the gesture BEGAN on the backdrop: a drag-select that
+      // started inside the client-secret field and was released past the panel
+      // edge reports the backdrop as its click target, and used to throw the
+      // whole form away.
+      onPointerDown={(e) => {
+        backdropPointerDown.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && backdropPointerDown.current) onClose();
+        backdropPointerDown.current = false;
+      }}
+    >
       <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Admin Panel" className="fixed inset-y-0 right-0 w-full max-w-lg bg-card border-l shadow-xl flex flex-col" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -90,58 +189,72 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
             <Shield className="h-5 w-5" />
             Admin Panel
           </h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Close admin panel"
+            className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b px-6">
-          {(config?.auth_mode === "multi_user" || config?.auth_mode === "multi_user_oauth") && (
+        {/* Tabs — held back until config lands, so the bar doesn't render with
+            Settings selected and then have Users appear to its left. */}
+        {tabsVisible && (
+        <div role="tablist" aria-label="Admin sections" className="flex border-b px-6">
+          {visibleTabs.map(({ id, label, Icon }, index) => (
             <button
-              onClick={() => setTab("users")}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                tab === "users" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              key={id}
+              id={`${tabId}-tab-${id}`}
+              ref={(node) => { tabRefs.current[id] = node; }}
+              role="tab"
+              type="button"
+              aria-selected={tab === id}
+              aria-controls={`${tabId}-panel-${id}`}
+              // Roving tabindex: one stop for the whole bar, arrow keys move
+              // between tabs — the WAI-ARIA tabs pattern these three loose
+              // buttons were only imitating visually.
+              tabIndex={tab === id ? 0 : -1}
+              onClick={() => setTab(id)}
+              onKeyDown={(e) => handleTabKeyDown(e, index)}
+              className={`px-4 py-2.5 min-h-[44px] sm:min-h-0 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                tab === id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Users className="h-4 w-4 inline mr-1.5" />
-              Users
+              <Icon className="h-4 w-4 inline mr-1.5" />
+              {label}
             </button>
-          )}
-          <button
-            onClick={() => setTab("settings")}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              tab === "settings" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Settings className="h-4 w-4 inline mr-1.5" />
-            Settings
-          </button>
-          {config?.auth_mode === "multi_user_oauth" && (
-            <button
-              onClick={() => setTab("oauth")}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                tab === "oauth" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Key className="h-4 w-4 inline mr-1.5" />
-              OAuth
-            </button>
-          )}
+          ))}
         </div>
+        )}
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div
+          id={tabsVisible ? `${tabId}-panel-${tab}` : undefined}
+          role={tabsVisible ? "tabpanel" : undefined}
+          aria-labelledby={tabsVisible ? `${tabId}-tab-${tab}` : undefined}
+          className="flex-1 overflow-y-auto overscroll-contain p-6"
+        >
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
+          ) : !config ? (
+            // SettingsTab dereferences config.auth_mode immediately, so the old
+            // `config!` turned any failed admin fetch into a TypeError that the
+            // ErrorBoundary answered by replacing the entire app.
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <p className="text-sm text-muted-foreground">Couldn&apos;t load admin data.</p>
+              <Button size="sm" variant="outline" onClick={retry}>Retry</Button>
+            </div>
           ) : tab === "users" ? (
-            <UsersTab users={users} currentUserId={currentUser?.id ?? null} authMode={config?.auth_mode} onRefresh={loadData} />
+            <UsersTab users={users} currentUserId={currentUser?.id ?? null} authMode={config.auth_mode} onRefresh={loadData} />
           ) : tab === "oauth" ? (
-            <OAuthTab providers={oauthProviders} presets={oauthPresets} authMode={config?.auth_mode} onRefresh={loadData} />
+            <OAuthTab providers={oauthProviders} presets={oauthPresets} authMode={config.auth_mode} onRefresh={loadData} />
           ) : (
-            <SettingsTab config={config!} oauthProviders={oauthProviders} oauthPresets={oauthPresets} onRefresh={loadData} />
+            <SettingsTab config={config} oauthProviders={oauthProviders} oauthPresets={oauthPresets} onRefresh={loadData} />
           )}
         </div>
       </div>
@@ -149,25 +262,48 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
   );
 }
 
+/** Status chips render Title Case everywhere — "admin"/"inactive" lowercase in
+ *  one panel while the rest of the app writes "Active"/"Closed" read as two
+ *  different vocabularies for the same idea. */
+const ROLE_LABELS: Record<string, string> = { admin: "Admin", user: "User" };
+
+type UserAction = "deactivate" | "demote" | "promote";
+
 function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminUser[]; currentUserId: number | null; authMode?: string; onRefresh: () => void }) {
+  const formId = useId();
   const [showCreate, setShowCreate] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("user");
-  const [confirmTarget, setConfirmTarget] = useState<{ user: AdminUser; action: "deactivate" | "demote" } | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState<{ user: AdminUser; action: UserAction } | null>(null);
 
-  const handleCreate = async () => {
-    if (!newUsername || !newPassword) return;
+  const resetCreateForm = () => {
+    // Cancel discards the draft. Leaving it in state meant reopening the form
+    // re-displayed a password someone had typed and thought better of.
+    setShowCreate(false);
+    setNewUsername("");
+    setNewPassword("");
+    setNewRole("user");
+  };
+
+  const handleCreate = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (creating) return;
+    if (!newUsername.trim() || newPassword.length < 8) {
+      toast.error("A username and a password of at least 8 characters are required");
+      return;
+    }
+    setCreating(true);
     try {
-      await createAdminUser({ username: newUsername, password: newPassword, role: newRole });
+      await createAdminUser({ username: newUsername.trim(), password: newPassword, role: newRole });
       toast.success("User created");
-      setShowCreate(false);
-      setNewUsername("");
-      setNewPassword("");
-      setNewRole("user");
+      resetCreateForm();
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create user");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -185,19 +321,11 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
     }
   };
 
-  const handleToggleRole = async (user: AdminUser) => {
-    const targetRole = user.role === "admin" ? "user" : "admin";
-    if (targetRole === "user") {
-      setConfirmTarget({ user, action: "demote" });
-      return;
-    }
-    try {
-      await updateAdminUser(user.id, { role: "admin" });
-      toast.success(`${user.username} is now admin`);
-      onRefresh();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to update role");
-    }
+  // Both directions confirm. Promotion used to fire on the first click, and the
+  // only thing separating it from demotion was a `title` tooltip touch never
+  // shows — so on a phone the two were literally indistinguishable.
+  const handleToggleRole = (user: AdminUser) => {
+    setConfirmTarget({ user, action: user.role === "admin" ? "demote" : "promote" });
   };
 
   const executeConfirm = async () => {
@@ -207,6 +335,9 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
       if (action === "deactivate") {
         await deactivateAdminUser(user.id);
         toast.success(`${user.username} deactivated`);
+      } else if (action === "promote") {
+        await updateAdminUser(user.id, { role: "admin" });
+        toast.success(`${user.username} is now admin`);
       } else {
         await updateAdminUser(user.id, { role: "user" });
         toast.success(`${user.username} is now user`);
@@ -218,12 +349,38 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
     setConfirmTarget(null);
   };
 
+  const confirmCopy: Record<UserAction, { title: string; describe: (name: string) => string; label: string; pending: string }> = {
+    deactivate: {
+      title: "Deactivate User",
+      describe: (name) => `Deactivate ${name}? They will lose access.`,
+      label: "Deactivate",
+      pending: "Deactivating…",
+    },
+    demote: {
+      title: "Demote Admin",
+      describe: (name) => `Demote ${name} from admin to user?`,
+      label: "Demote",
+      pending: "Demoting…",
+    },
+    promote: {
+      title: "Promote to Admin",
+      describe: (name) => `Promote ${name} to admin? They will be able to manage every user, the auth mode and OAuth settings.`,
+      label: "Promote",
+      pending: "Promoting…",
+    },
+  };
+  const copy = confirmCopy[confirmTarget?.action ?? "deactivate"];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">{users.length} user{users.length !== 1 ? "s" : ""}</h3>
         {authMode !== "multi_user_oauth" && (
-          <Button size="sm" onClick={() => setShowCreate(!showCreate)}>
+          <Button
+            size="sm"
+            aria-expanded={showCreate}
+            onClick={() => (showCreate ? resetCreateForm() : setShowCreate(true))}
+          >
             <Plus className="h-4 w-4 mr-1" />
             Add User
           </Button>
@@ -231,76 +388,107 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
       </div>
 
       {showCreate && (
-        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+        <form className="border rounded-lg p-4 space-y-3 bg-muted/30" onSubmit={handleCreate}>
           <div className="space-y-1.5">
-            <Label>Username</Label>
-            <Input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
+            <Label htmlFor={`${formId}-username`}>Username</Label>
+            <Input
+              id={`${formId}-username`}
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+              autoComplete="username"
+              enterKeyHint="next"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>Password</Label>
-            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <Label htmlFor={`${formId}-password`}>Password</Label>
+            <Input
+              id={`${formId}-password`}
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              enterKeyHint="done"
+            />
+            {newPassword.length > 0 && newPassword.length < 8 && (
+              <p className="text-xs text-muted-foreground">Password must be at least 8 characters</p>
+            )}
           </div>
           <div className="space-y-1.5">
-            <Label>Role</Label>
-            <select
-              value={newRole}
-              onChange={(e) => setNewRole(e.target.value)}
-              className="w-full h-9 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
+            {/* Was a raw <select>: no chevron, a different focus ring from every
+                other control in the panel, and — with no `color-scheme` anywhere
+                in the CSS — a white native option list over a dark panel. */}
+            <Label htmlFor={`${formId}-role`}>Role</Label>
+            <Select value={newRole} onValueChange={setNewRole}>
+              <SelectTrigger id={`${formId}-role`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleCreate}>Create</Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={creating || !newUsername.trim() || newPassword.length < 8}
+            >
+              {creating ? "Creating…" : "Create"}
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={resetCreateForm} disabled={creating}>Cancel</Button>
           </div>
-        </div>
+        </form>
       )}
 
       <div className="space-y-2">
         {users.map((user) => (
           <div
             key={user.id}
-            className={`border rounded-lg p-3 flex items-center justify-between ${!user.is_active ? "opacity-50" : ""}`}
+            className={`border rounded-lg p-3 flex items-center justify-between gap-2 ${!user.is_active ? "opacity-50" : ""}`}
           >
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{user.username}</span>
-                <span className={`text-xs px-1.5 py-0.5 rounded ${
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-medium truncate" title={user.username}>{user.username}</span>
+                <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${
                   user.role === "admin" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                 }`}>
-                  {user.role}
+                  {ROLE_LABELS[user.role] ?? user.role}
                 </span>
                 {!user.is_active && (
-                  <span className="text-xs px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">
-                    inactive
+                  <span className="text-xs px-1.5 py-0.5 rounded shrink-0 bg-destructive/10 text-danger">
+                    Inactive
                   </span>
                 )}
               </div>
               {user.display_name && user.display_name !== user.username && (
-                <p className="text-xs text-muted-foreground">{user.display_name}</p>
+                <p className="text-xs text-muted-foreground truncate" title={user.display_name}>{user.display_name}</p>
               )}
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2 sm:gap-1 shrink-0">
               {user.id === currentUserId ? (
                 <span className="text-xs text-muted-foreground px-2">You</span>
               ) : (
                 <>
+                  {/* Promote and demote were the same Shield glyph, separated
+                      only by a `title` — invisible on touch. Distinct icons and
+                      an aria-label carry the difference now. */}
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0"
                     onClick={() => handleToggleRole(user)}
+                    aria-label={user.role === "admin" ? `Demote ${user.username} to user` : `Promote ${user.username} to admin`}
                     title={user.role === "admin" ? "Demote to user" : "Promote to admin"}
                   >
-                    <Shield className="h-3.5 w-3.5" />
+                    {user.role === "admin" ? <ShieldMinus className="h-3.5 w-3.5" /> : <ShieldPlus className="h-3.5 w-3.5" />}
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0"
                     onClick={() => handleToggleActive(user)}
+                    aria-label={user.is_active ? `Deactivate ${user.username}` : `Activate ${user.username}`}
                     title={user.is_active ? "Deactivate" : "Activate"}
                   >
                     {user.is_active ? <UserX className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
@@ -315,14 +503,11 @@ function UsersTab({ users, currentUserId, authMode, onRefresh }: { users: AdminU
       <ConfirmDialog
         open={!!confirmTarget}
         onOpenChange={(open) => { if (!open) setConfirmTarget(null); }}
-        title={confirmTarget?.action === "deactivate" ? "Deactivate User" : "Demote Admin"}
-        description={
-          confirmTarget?.action === "deactivate"
-            ? `Deactivate ${confirmTarget.user.username}? They will lose access.`
-            : `Demote ${confirmTarget?.user.username} from admin to user?`
-        }
-        confirmLabel={confirmTarget?.action === "deactivate" ? "Deactivate" : "Demote"}
-        variant="destructive"
+        title={copy.title}
+        description={copy.describe(confirmTarget?.user.username ?? "")}
+        confirmLabel={copy.label}
+        pendingLabel={copy.pending}
+        variant={confirmTarget?.action === "promote" ? "default" : "destructive"}
         onConfirm={executeConfirm}
       />
     </div>
@@ -338,7 +523,19 @@ function RedirectUriDisplay({ provider }: { provider: string }) {
   if (!provider || !redirectUri) return null;
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(redirectUri);
+    // Not navigator.clipboard directly: it is undefined outside a secure
+    // context, and http://192.168.x.x — the documented way to reach a
+    // self-hosted instance — is not one. The bare call threw into nothing, so
+    // the click did nothing and said nothing. copyToClipboard falls back to
+    // execCommand and reports which path it took.
+    const result = await copyToClipboard(redirectUri);
+    if (result === "failed") {
+      toast.error("Couldn't copy the redirect URI. Select it and copy manually.");
+      return;
+    }
+    if (result === "fallback") {
+      toast.success("Redirect URI copied — via the legacy path; the Clipboard API is blocked here");
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -350,11 +547,19 @@ function RedirectUriDisplay({ provider }: { provider: string }) {
         Add this URI to your OAuth provider&apos;s allowed redirect URIs. It must match exactly.
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
+        <code className="flex-1 min-w-0 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
           {redirectUri}
         </code>
-        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={handleCopy}>
-          {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 shrink-0"
+          onClick={handleCopy}
+          aria-label={copied ? "Redirect URI copied" : "Copy redirect URI"}
+          title="Copy redirect URI"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
         </Button>
       </div>
     </div>
@@ -372,32 +577,54 @@ function OAuthTab({
   authMode?: string;
   onRefresh: () => void;
 }) {
+  const formId = useId();
   const [showAdd, setShowAdd] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState("");
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+  const [adding, setAdding] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const configuredNames = new Set(providers.map((p) => p.provider_name));
   const availablePresets = presets.filter((p) => !configuredNames.has(p.name));
+  const isLastProvider = authMode === "multi_user_oauth" && providers.length <= 1;
 
-  const handleAdd = async () => {
-    if (!selectedPreset || !clientId || !clientSecret) return;
+  const providerLabel = (name: string) =>
+    providers.find((p) => p.provider_name === name)?.display_name ||
+    presets.find((p) => p.name === name)?.display_name ||
+    name;
+
+  const resetAddForm = () => {
+    // Cancel discards the draft — a client secret left in state came back on
+    // screen the next time the form was opened.
+    setShowAdd(false);
+    setSelectedPreset("");
+    setClientId("");
+    setClientSecret("");
+  };
+
+  const handleAdd = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (adding) return;
+    if (!selectedPreset || !clientId.trim() || !clientSecret) {
+      toast.error("Pick a provider and fill in both the client ID and secret");
+      return;
+    }
+    setAdding(true);
     try {
       await saveOAuthProvider({
         provider_name: selectedPreset,
-        client_id: clientId,
+        client_id: clientId.trim(),
         client_secret: clientSecret,
         enabled: true,
       });
       toast.success("OAuth provider added");
-      setShowAdd(false);
-      setSelectedPreset("");
-      setClientId("");
-      setClientSecret("");
+      resetAddForm();
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to add provider");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -418,7 +645,15 @@ function OAuthTab({
       <div className="flex items-center justify-between">
         <h3 className="font-medium">OAuth Providers</h3>
         {availablePresets.length > 0 && (
-          <Button size="sm" onClick={() => { setShowAdd(!showAdd); if (!selectedPreset && availablePresets.length) setSelectedPreset(availablePresets[0].name); }}>
+          <Button
+            size="sm"
+            aria-expanded={showAdd}
+            onClick={() => {
+              if (showAdd) { resetAddForm(); return; }
+              setShowAdd(true);
+              if (!selectedPreset) setSelectedPreset(availablePresets[0].name);
+            }}
+          >
             <Plus className="h-4 w-4 mr-1" />
             Add Provider
           </Button>
@@ -426,11 +661,11 @@ function OAuthTab({
       </div>
 
       {showAdd && (
-        <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+        <form className="border rounded-lg p-4 space-y-3 bg-muted/30" onSubmit={handleAdd}>
           <div className="space-y-1.5">
-            <Label>Provider</Label>
+            <Label htmlFor={`${formId}-provider`}>Provider</Label>
             <Select value={selectedPreset} onValueChange={setSelectedPreset}>
-              <SelectTrigger>
+              <SelectTrigger id={`${formId}-provider`}>
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
               <SelectContent>
@@ -446,19 +681,40 @@ function OAuthTab({
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Client ID</Label>
-            <Input value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="OAuth client ID" />
+            <Label htmlFor={`${formId}-client-id`}>Client ID</Label>
+            <Input
+              id={`${formId}-client-id`}
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              placeholder="OAuth client ID"
+              autoComplete="off"
+              enterKeyHint="next"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>Client Secret</Label>
-            <Input type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="OAuth client secret" />
+            <Label htmlFor={`${formId}-client-secret`}>Client Secret</Label>
+            <Input
+              id={`${formId}-client-secret`}
+              type="password"
+              value={clientSecret}
+              onChange={(e) => setClientSecret(e.target.value)}
+              placeholder="OAuth client secret"
+              autoComplete="off"
+              enterKeyHint="done"
+            />
           </div>
           <RedirectUriDisplay provider={selectedPreset} />
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleAdd}>Add</Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={adding || !selectedPreset || !clientId.trim() || !clientSecret}
+            >
+              {adding ? "Adding…" : "Add"}
+            </Button>
+            <Button type="button" size="sm" variant="ghost" onClick={resetAddForm} disabled={adding}>Cancel</Button>
           </div>
-        </div>
+        </form>
       )}
 
       {providers.length === 0 ? (
@@ -466,30 +722,50 @@ function OAuthTab({
       ) : (
         <div className="space-y-2">
           {providers.map((provider) => (
-            <div key={provider.id} className="border rounded-lg p-3 flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <OAuthProviderIcon provider={provider.provider_name} className="h-3.5 w-3.5" />
-                  <span className="font-medium">{provider.display_name || provider.provider_name}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+            <div key={provider.id} className="border rounded-lg p-3 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <OAuthProviderIcon provider={provider.provider_name} className="h-3.5 w-3.5 shrink-0" />
+                  <span className="font-medium truncate" title={provider.display_name || provider.provider_name}>{provider.display_name || provider.provider_name}</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${
                     provider.enabled ? "bg-green-500/10 text-green-600 dark:text-green-400" : "bg-muted text-muted-foreground"
                   }`}>
-                    {provider.enabled ? "enabled" : "disabled"}
+                    {provider.enabled ? "Enabled" : "Disabled"}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Client ID: {provider.client_id.length > 20 ? `${provider.client_id.slice(0, 16)}...` : provider.client_id}</p>
+                {/* One truncation rule for the client ID, with the full value in
+                    the title — this row used to cut at 16 chars and the upgrade
+                    wizard at 12, neither recoverable. */}
+                <p className="text-xs text-muted-foreground mt-0.5 truncate" title={provider.client_id}>
+                  Client ID: {provider.client_id}
+                </p>
               </div>
-              {!(authMode === "multi_user_oauth" && providers.length <= 1) && (
+              {/* The button stays put and goes disabled rather than vanishing:
+                  losing the only provider in OAuth-only mode locks everyone out,
+                  and silently removing the control explained none of that.
+                  account-menu.tsx does the same for the last linked account.
+                  The reason lives on the WRAPPER as well as the button, because
+                  Button's base class carries `disabled:pointer-events-none` — a
+                  disabled button is never hit-tested, so its own title tooltip
+                  can never appear, which is the one place the explanation was.
+                  The button keeps its title so screen readers still get it as
+                  the description. */}
+              <span
+                className="flex shrink-0"
+                title={isLastProvider ? "Cannot remove the only sign-in provider" : "Remove provider"}
+              >
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  className="min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 shrink-0 text-danger hover:text-danger"
                   onClick={() => setDeleteTarget(provider.provider_name)}
-                  title="Remove provider"
+                  disabled={isLastProvider}
+                  aria-label={`Remove ${provider.display_name || provider.provider_name}`}
+                  title={isLastProvider ? "Cannot remove the only sign-in provider" : "Remove provider"}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-              )}
+              </span>
             </div>
           ))}
         </div>
@@ -499,8 +775,9 @@ function OAuthTab({
         open={!!deleteTarget}
         onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
         title="Remove OAuth Provider"
-        description={`Remove the ${deleteTarget} provider? Users who rely on it will lose access.`}
+        description={`Remove the ${deleteTarget ? providerLabel(deleteTarget) : ""} provider? Users who rely on it will lose access.`}
         confirmLabel="Remove"
+        pendingLabel="Removing…"
         variant="destructive"
         onConfirm={handleDelete}
       />
@@ -520,20 +797,29 @@ function SettingsTab({
   onRefresh: () => void;
 }) {
   const fetchAuthMode = useAppStore((s) => s.fetchAuthMode);
+  const fieldId = useId();
+
+  const [togglingRegistration, setTogglingRegistration] = useState(false);
 
   const handleToggleRegistration = async () => {
+    if (togglingRegistration) return;
+    setTogglingRegistration(true);
     try {
       await updateAdminConfig({ registration_enabled: !config.registration_enabled });
       toast.success(`Registration ${config.registration_enabled ? "disabled" : "enabled"}`);
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to update");
+    } finally {
+      setTogglingRegistration(false);
     }
   };
 
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [upgradeTarget, setUpgradeTarget] = useState("");
   const [upgradePassword, setUpgradePassword] = useState("");
+  const [upgradePasswordConfirm, setUpgradePasswordConfirm] = useState("");
+  const [showUpgradePassword, setShowUpgradePassword] = useState(false);
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [backingUp, setBackingUp] = useState(false);
   const [adminToken, setAdminTokenInput] = useState(() => getAdminToken());
@@ -648,8 +934,15 @@ function SettingsTab({
       if (result.warning) {
         toast.warning(result.warning);
       }
+      // Closed here rather than in the ConfirmDialog's onConfirm: the dialog
+      // now owns the busy state for as long as this promise is pending, and
+      // closing it up front meant the "cannot be undone" click looked like it
+      // had done nothing while the request was still in flight.
+      setShowUpgradeConfirm(false);
       setShowUpgrade(false);
       setUpgradePassword("");
+      setUpgradePasswordConfirm("");
+      setShowUpgradePassword(false);
       await fetchAuthMode();
       onRefresh();
     } catch (e) {
@@ -657,7 +950,21 @@ function SettingsTab({
     }
   };
 
+  const cancelUpgrade = () => {
+    setShowUpgrade(false);
+    setUpgradePassword("");
+    setUpgradePasswordConfirm("");
+    setShowUpgradePassword(false);
+  };
+
   const isOAuthTarget = upgradeTarget === "multi_user_oauth";
+  // An upgrade is irreversible, so the password that will gate every future
+  // sign-in gets the same treatment as the setup wizard's: a confirm pair, an
+  // 8-character floor, inline messages, and an Upgrade button that stays
+  // disabled until both hold.
+  const needsPassword = !isOAuthTarget && upgradeTarget !== "open" && upgradeTarget !== "";
+  const passwordReady =
+    !needsPassword || (upgradePassword.length >= 8 && upgradePassword === upgradePasswordConfirm);
   const hasProvider = wizardProviders.length > 0;
   const adminLinked = config.admin_oauth_linked;
   const configuredNames = new Set(wizardProviders.map((p) => p.provider_name));
@@ -702,9 +1009,9 @@ function SettingsTab({
               <span>Auth mode upgrades are permanent and cannot be reversed.</span>
             </div>
             <div className="space-y-1.5">
-              <Label>Upgrade to</Label>
+              <Label htmlFor={`${fieldId}-target`}>Upgrade to</Label>
               <Select value={upgradeTarget} onValueChange={handleTargetChange}>
-                <SelectTrigger>
+                <SelectTrigger id={`${fieldId}-target`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -715,12 +1022,57 @@ function SettingsTab({
               </Select>
             </div>
 
-            {/* Password-based upgrade (single_password / multi_user) */}
-            {!isOAuthTarget && upgradeTarget !== "open" && (
-              <div className="space-y-1.5">
-                <Label>{upgradeTarget === "single_password" ? "Shared Password" : "Admin Password"}</Label>
-                <Input type="password" value={upgradePassword} onChange={(e) => setUpgradePassword(e.target.value)} />
-              </div>
+            {/* Password-based upgrade (single_password / multi_user). This is
+                the password every future sign-in depends on and the change
+                cannot be undone, so it is collected exactly the way the setup
+                wizard collects it: confirm pair, 8-character floor, inline
+                messages — plus a reveal, because a typo here locks you out. */}
+            {needsPassword && (
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${fieldId}-pw`}>
+                    {upgradeTarget === "single_password" ? "Shared Password" : "Admin Password"}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id={`${fieldId}-pw`}
+                      type={showUpgradePassword ? "text" : "password"}
+                      value={upgradePassword}
+                      onChange={(e) => setUpgradePassword(e.target.value)}
+                      autoComplete="new-password"
+                      enterKeyHint="next"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="min-h-[44px] min-w-[44px] sm:h-9 sm:w-9 sm:min-h-0 sm:min-w-0 shrink-0"
+                      onClick={() => setShowUpgradePassword((v) => !v)}
+                      aria-label={showUpgradePassword ? "Hide password" : "Show password"}
+                      aria-pressed={showUpgradePassword}
+                    >
+                      {showUpgradePassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  {upgradePassword.length > 0 && upgradePassword.length < 8 && (
+                    <p className="text-xs text-muted-foreground">Password must be at least 8 characters</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${fieldId}-pw-confirm`}>Confirm Password</Label>
+                  <Input
+                    id={`${fieldId}-pw-confirm`}
+                    type={showUpgradePassword ? "text" : "password"}
+                    value={upgradePasswordConfirm}
+                    onChange={(e) => setUpgradePasswordConfirm(e.target.value)}
+                    autoComplete="new-password"
+                    enterKeyHint="done"
+                  />
+                  {upgradePasswordConfirm && upgradePassword !== upgradePasswordConfirm && (
+                    <p className="text-xs text-danger">Passwords do not match</p>
+                  )}
+                </div>
+              </>
             )}
 
             {/* OAuth upgrade wizard */}
@@ -737,29 +1089,45 @@ function SettingsTab({
                   {wizardProviders.length > 0 && (
                     <div className="ml-7 space-y-1">
                       {wizardProviders.map((p) => (
-                        <div key={p.id} className="flex items-center gap-2 text-sm">
-                          <OAuthProviderIcon provider={p.provider_name} className="h-3 w-3" />
-                          <span>{p.display_name || p.provider_name}</span>
-                          <span className="text-xs text-muted-foreground">({p.client_id.slice(0, 12)}...)</span>
+                        <div key={p.id} className="flex items-center gap-2 text-sm min-w-0">
+                          <OAuthProviderIcon provider={p.provider_name} className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{p.display_name || p.provider_name}</span>
+                          {/* Same truncation rule as the OAuth tab's row, and
+                              the full id is in the title either way. */}
+                          <span className="text-xs text-muted-foreground truncate" title={p.client_id}>({p.client_id})</span>
                         </div>
                       ))}
                     </div>
                   )}
                   {availablePresets.length > 0 && (
                     <div className="ml-7 border rounded-lg p-3 space-y-2 bg-background">
-                      <select
-                        value={selectedPreset}
-                        onChange={(e) => setSelectedPreset(e.target.value)}
-                        className="w-full h-8 rounded-md border bg-background px-2 text-sm"
-                      >
-                        {availablePresets.map((p) => (
-                          <option key={p.name} value={p.name}>{p.display_name}</option>
-                        ))}
-                      </select>
-                      <Input size={1} value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Client ID" className="h-8 text-sm" />
-                      <Input size={1} type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="Client Secret" className="h-8 text-sm" />
+                      {/* Was a raw <select> sitting next to the shadcn Select
+                          twelve lines above: no chevron, its own focus ring,
+                          and a native option list that ignores the dark theme
+                          because nothing in the CSS sets `color-scheme`. */}
+                      {/* These three are placeholder-labelled in a deliberately
+                          compact box, so they carry aria-label rather than a
+                          visible <Label> — an sr-only one would still take a
+                          space-y slot and push the box open. */}
+                      <Select value={selectedPreset} onValueChange={setSelectedPreset}>
+                        <SelectTrigger className="h-8" aria-label="Provider">
+                          <SelectValue placeholder="Select provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availablePresets.map((p) => (
+                            <SelectItem key={p.name} value={p.name}>
+                              <span className="flex items-center gap-2">
+                                <OAuthProviderIcon provider={p.name} className="h-4 w-4" />
+                                {p.display_name}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input size={1} value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Client ID" aria-label="Client ID" autoComplete="off" className="h-8 text-sm" />
+                      <Input size={1} type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="Client Secret" aria-label="Client Secret" autoComplete="off" className="h-8 text-sm" />
                       <RedirectUriDisplay provider={selectedPreset} />
-                      <Button size="sm" onClick={handleAddProvider} disabled={oauthLoading || !clientId || !clientSecret}>
+                      <Button type="button" size="sm" onClick={handleAddProvider} disabled={oauthLoading || !selectedPreset || !clientId.trim() || !clientSecret}>
                         {oauthLoading ? "Adding..." : "Add Provider"}
                       </Button>
                     </div>
@@ -803,13 +1171,15 @@ function SettingsTab({
 
             <div className="flex gap-2">
               {isOAuthTarget ? (
-                <Button size="sm" onClick={() => setShowUpgradeConfirm(true)} disabled={!hasProvider || !adminLinked}>
+                <Button type="button" size="sm" onClick={() => setShowUpgradeConfirm(true)} disabled={!hasProvider || !adminLinked}>
                   Upgrade to OAuth
                 </Button>
               ) : (
-                <Button size="sm" onClick={() => setShowUpgradeConfirm(true)}>Upgrade</Button>
+                <Button type="button" size="sm" onClick={() => setShowUpgradeConfirm(true)} disabled={!passwordReady}>
+                  Upgrade
+                </Button>
               )}
-              <Button size="sm" variant="ghost" onClick={() => setShowUpgrade(false)}>Cancel</Button>
+              <Button type="button" size="sm" variant="ghost" onClick={cancelUpgrade}>Cancel</Button>
             </div>
           </div>
         )}
@@ -817,27 +1187,21 @@ function SettingsTab({
 
       {/* Registration toggle */}
       {(config.auth_mode === "multi_user" || config.auth_mode === "multi_user_oauth") && (
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium">User Registration</p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <Label htmlFor={`${fieldId}-registration`} className="text-sm font-medium">User Registration</Label>
             <p className="text-xs text-muted-foreground">Allow new users to create accounts</p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={config.registration_enabled}
-            aria-label="Enable registration"
-            onClick={handleToggleRegistration}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              config.registration_enabled ? "bg-primary" : "bg-muted"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                config.registration_enabled ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
+          {/* The hand-rolled version painted a bg-white knob on a bg-muted
+              track — about 1.1:1 in light mode's OFF state, i.e. a blank pill.
+              The shared Switch is token-based and contrasts in both themes. */}
+          <Switch
+            id={`${fieldId}-registration`}
+            checked={config.registration_enabled}
+            onCheckedChange={handleToggleRegistration}
+            disabled={togglingRegistration}
+            className="shrink-0"
+          />
         </div>
       )}
 
@@ -875,8 +1239,13 @@ function SettingsTab({
         title="Upgrade Auth Mode"
         description={`Upgrade to ${modeLabels[upgradeTarget] || upgradeTarget}? This cannot be undone.`}
         confirmLabel="Upgrade"
+        pendingLabel="Upgrading…"
         variant="destructive"
-        onConfirm={() => { setShowUpgradeConfirm(false); handleUpgrade(); }}
+        // Returned, not fired and forgotten: ConfirmDialog disables both
+        // buttons and spins the confirm for as long as the promise is pending,
+        // and blocks Esc/overlay dismissal while it runs. handleUpgrade closes
+        // this dialog itself once the request has actually landed.
+        onConfirm={handleUpgrade}
       />
     </div>
   );

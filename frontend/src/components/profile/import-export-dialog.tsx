@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useId, useState, useRef } from "react";
 import type { Profile, ExportData } from "@/types";
 import { exportProfiles, importProfiles } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
@@ -12,8 +13,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 import { Download, Upload } from "lucide-react";
+
+/** "1 card" / "2 cards" — every other count in the app pluralizes conditionally. */
+function plural(count: number, noun: string, pluralNoun = `${noun}s`) {
+  return `${count} ${count === 1 ? noun : pluralNoun}`;
+}
 
 interface ImportExportDialogProps {
   profiles: Profile[];
@@ -32,6 +39,7 @@ export function ImportExportDialog({
 }: ImportExportDialogProps) {
   const [exportProfileId, setExportProfileId] = useState<string>(selectedProfileId);
   const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const [importFile, setImportFile] = useState<ExportData | null>(null);
   const [importFileName, setImportFileName] = useState("");
@@ -39,23 +47,45 @@ export function ImportExportDialog({
   const [targetProfileId, setTargetProfileId] = useState<string>(
     selectedProfileId !== "all" ? selectedProfileId : (profiles[0]?.id.toString() ?? "")
   );
-  // The dialog is mounted by TopNav on the very first render, when profiles is
-  // still []. Without this the initial "" sticks for the whole session, so
-  // "Merge into existing" posted target_profile_id=NaN.
-  useEffect(() => {
-    if (!targetProfileId && profiles.length > 0) {
-      setTargetProfileId(profiles[0].id.toString());
-    }
-  }, [profiles, targetProfileId]);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [confirmOverride, setConfirmOverride] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputId = useId();
+
+  // Re-seed both profile pickers from the current scope every time the dialog
+  // opens. They used to be seeded once, in the useState initialiser — and both
+  // nav bars mount this dialog on their very first render, when
+  // selectedProfileId is still "all" and profiles is still []. So the export
+  // picker was frozen on "All Profiles" for the whole session, and the import
+  // target silently fell back to profiles[0]. For "Override Existing" that
+  // meant the default target was whichever profile sorted first, not the one
+  // the user was looking at.
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      setExportProfileId(selectedProfileId);
+      setTargetProfileId(
+        selectedProfileId !== "all" ? selectedProfileId : (profiles[0]?.id.toString() ?? "")
+      );
+    }
+    wasOpenRef.current = open;
+  }, [open, selectedProfileId, profiles]);
+
+  // Opened before the profile list landed: back-fill once it does, otherwise
+  // "Merge into existing" posts target_profile_id=NaN.
+  useEffect(() => {
+    if (open && !targetProfileId && profiles.length > 0) {
+      setTargetProfileId(profiles[0].id.toString());
+    }
+  }, [open, profiles, targetProfileId]);
 
   const handleExport = async () => {
+    if (exporting) return;
     setExporting(true);
-    setError(null);
+    setExportError(null);
     try {
       const profileId = exportProfileId !== "all" ? parseInt(exportProfileId) : undefined;
       const data = await exportProfiles(profileId);
@@ -71,14 +101,14 @@ export function ImportExportDialog({
       URL.revokeObjectURL(url);
       toast.success("Export downloaded");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Export failed");
+      setExportError(e instanceof Error ? e.message : "Export failed");
     } finally {
       setExporting(false);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
+    setImportError(null);
     setImportResult(null);
     const file = e.target.files?.[0];
     if (!file) return;
@@ -88,152 +118,237 @@ export function ImportExportDialog({
       try {
         const data = JSON.parse(ev.target?.result as string) as ExportData;
         if (!data.version || !data.profiles) {
-          setError("Invalid export file format");
+          setImportError("Invalid export file format");
           setImportFile(null);
           return;
         }
         setImportFile(data);
       } catch {
-        setError("Failed to parse JSON file");
+        setImportError("Failed to parse JSON file");
         setImportFile(null);
       }
+    };
+    // Without onerror an unreadable file (permissions, a disconnected network
+    // volume, a directory) was completely silent: the filename was already on
+    // screen and the Import button stayed gated on importFile, so the dialog
+    // simply looked like it had ignored the file.
+    reader.onerror = () => {
+      setImportError(`Couldn't read ${file.name}. Check the file and try again.`);
+      setImportFile(null);
     };
     reader.readAsText(file);
   };
 
+  const importedCardCount = importFile
+    ? importFile.profiles.reduce((sum, p) => sum + p.cards.length, 0)
+    : 0;
+  // Both pickers clamp their value to one line (SelectTrigger's own
+  // [&>span]:line-clamp-1), and a profile name is user-supplied — so the full
+  // string has to stay recoverable from a title, same as the two nav bars do.
+  const exportProfileName =
+    exportProfileId === "all"
+      ? "All Profiles"
+      : profiles.find((p) => p.id.toString() === exportProfileId)?.name;
+  const targetProfile = profiles.find((p) => p.id.toString() === targetProfileId);
+  const targetProfileName = targetProfile?.name ?? "the selected profile";
+
   const handleImport = async () => {
-    if (!importFile) return;
+    if (!importFile || importing) return;
     setImporting(true);
-    setError(null);
+    setImportError(null);
     setImportResult(null);
     try {
       const target = importMode !== "new" ? parseInt(targetProfileId) : undefined;
       const result = await importProfiles(importFile, importMode, target);
-      const skippedMsg = result.cards_skipped > 0 ? `, ${result.cards_skipped} skipped as duplicate(s)` : "";
+      const skippedMsg =
+        result.cards_skipped > 0
+          ? `, ${plural(result.cards_skipped, "duplicate")} skipped`
+          : "";
       setImportResult(
-        `Imported ${result.profiles_imported} profile(s), ${result.cards_imported} card(s), ${result.events_imported} event(s)${skippedMsg}`
+        `Imported ${plural(result.profiles_imported, "profile")}, ${plural(result.cards_imported, "card")}, ${plural(result.events_imported, "event")}${skippedMsg}`
       );
       setImportFile(null);
       setImportFileName("");
       if (fileInputRef.current) fileInputRef.current.value = "";
       onImported();
-      toast.success(`Imported ${result.cards_imported} card(s)${skippedMsg}`);
+      toast.success(`Imported ${plural(result.cards_imported, "card")}${skippedMsg}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Import failed");
+      setImportError(e instanceof Error ? e.message : "Import failed");
     } finally {
       setImporting(false);
     }
+  };
+
+  // "Override Existing" is the most destructive action in the app and it used
+  // to be one unguarded click on a button labelled only "Import", against a
+  // target the user may never have chosen. Everything else routes through
+  // ConfirmDialog; so does this now.
+  const handleImportClick = () => {
+    if (!importFile || importing) return;
+    if (importMode === "override") {
+      setConfirmOverride(true);
+      return;
+    }
+    handleImport();
   };
 
   const handleClose = () => {
     setImportFile(null);
     setImportFileName("");
     setImportResult(null);
-    setError(null);
+    setImportError(null);
+    setExportError(null);
     onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Import / Export</DialogTitle>
-          <DialogDescription>Export profiles as JSON or import from a file.</DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={(v) => !v && handleClose()}>
+        {/* Tallest dialog in the app, so it uses the past-fees-dialog pattern:
+            a pinned header with the close X, and a single scrollable body.
+            Letting DialogContent's own overflow do the scrolling would carry
+            the absolutely-positioned X away with the content. */}
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col p-0 gap-0">
+          <DialogHeader className="p-6 pb-4 border-b space-y-1.5">
+            <DialogTitle>Import / Export</DialogTitle>
+            <DialogDescription>Export profiles as JSON or import from a file.</DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Export Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Export</h3>
-            <div className="flex gap-2">
-              <Select value={exportProfileId} onValueChange={setExportProfileId}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select profile" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Profiles</SelectItem>
-                  {profiles.map((p) => (
-                    <SelectItem key={p.id} value={p.id.toString()}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button onClick={handleExport} disabled={exporting}>
-                <Download className="h-4 w-4 mr-1" />
-                {exporting ? "Exporting..." : "Download"}
-              </Button>
-            </div>
-          </div>
-
-          <hr />
-
-          {/* Import Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Import</h3>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleFileSelect}
-              className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"
-            />
-
-            {importFile && (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  File: {importFileName} &mdash;{" "}
-                  {importFile.profiles.length} profile(s),{" "}
-                  {importFile.profiles.reduce((sum, p) => sum + p.cards.length, 0)} card(s)
-                </p>
-
-                <Select value={importMode} onValueChange={setImportMode}>
-                  <SelectTrigger>
-                    <SelectValue />
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Export Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Export</h3>
+              <div className="flex gap-2">
+                <Select value={exportProfileId} onValueChange={setExportProfileId}>
+                  <SelectTrigger className="flex-1 min-w-0" aria-label="Profile to export" title={exportProfileName}>
+                    <SelectValue placeholder="Select profile" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="new">New Profile(s)</SelectItem>
-                    <SelectItem value="override">Override Existing</SelectItem>
-                    <SelectItem value="merge">Merge Into Existing</SelectItem>
+                    <SelectItem value="all">All Profiles</SelectItem>
+                    {profiles.map((p) => (
+                      <SelectItem key={p.id} value={p.id.toString()}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-
-                {importMode !== "new" && (
-                  <Select value={targetProfileId} onValueChange={setTargetProfileId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select target profile" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {profiles.map((p) => (
-                        <SelectItem key={p.id} value={p.id.toString()}>
-                          {p.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-
-                {importMode === "override" && (
-                  <p className="text-sm text-destructive">
-                    Warning: This will delete all existing cards and events in the target profile.
-                  </p>
-                )}
-
-                <Button onClick={handleImport} disabled={importing} className="w-full">
-                  <Upload className="h-4 w-4 mr-1" />
-                  {importing ? "Importing..." : "Import"}
+                <Button onClick={handleExport} disabled={exporting} className="shrink-0">
+                  <Download className="h-4 w-4 mr-1" aria-hidden="true" />
+                  {exporting ? "Exporting..." : "Download"}
                 </Button>
               </div>
-            )}
+              {/* Next to the control that failed. This used to share one `error`
+                  state with the import flow and rendered below the whole import
+                  section — off screen on a phone. */}
+              {exportError && (
+                <p role="alert" className="text-sm text-danger">
+                  {exportError}
+                </p>
+              )}
+            </div>
 
-            {importResult && (
-              <p className="text-sm text-green-600 dark:text-green-400">{importResult}</p>
-            )}
+            <hr />
+
+            {/* Import Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">Import</h3>
+              <Label htmlFor={fileInputId} className="sr-only">
+                Export file to import
+              </Label>
+              <input
+                id={fileInputId}
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileSelect}
+                className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"
+              />
+
+              {importFile && (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground break-words" title={importFileName}>
+                    File: {importFileName} &mdash;{" "}
+                    {plural(importFile.profiles.length, "profile")},{" "}
+                    {plural(importedCardCount, "card")}
+                  </p>
+
+                  <Select value={importMode} onValueChange={setImportMode}>
+                    <SelectTrigger aria-label="Import mode">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">New Profiles</SelectItem>
+                      <SelectItem value="override">Override Existing</SelectItem>
+                      <SelectItem value="merge">Merge Into Existing</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {importMode !== "new" && (
+                    <Select value={targetProfileId} onValueChange={setTargetProfileId}>
+                      <SelectTrigger aria-label="Target profile" title={targetProfile?.name}>
+                        <SelectValue placeholder="Select target profile" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((p) => (
+                          <SelectItem key={p.id} value={p.id.toString()}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {importMode === "override" && (
+                    <p className="text-sm text-danger">
+                      Warning: this will delete every card and event in{" "}
+                      <span className="font-medium">{targetProfileName}</span> before importing.
+                    </p>
+                  )}
+
+                  <Button
+                    onClick={handleImportClick}
+                    disabled={importing || (importMode !== "new" && !targetProfileId)}
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4 mr-1" aria-hidden="true" />
+                    {importing ? "Importing..." : "Import"}
+                  </Button>
+                </div>
+              )}
+
+              {importResult && (
+                <p aria-live="polite" className="text-sm text-green-600 dark:text-green-400">
+                  {importResult}
+                </p>
+              )}
+
+              {importError && (
+                <p role="alert" className="text-sm text-danger">
+                  {importError}
+                </p>
+              )}
+            </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
-        </div>
-      </DialogContent>
-    </Dialog>
+      {/* Sibling of the Dialog, not a child of DialogContent: a successful
+          import clears importFile, which unmounts the section the Import button
+          lives in — a confirm nested in there would vanish mid-flight. */}
+      <ConfirmDialog
+        open={confirmOverride}
+        onOpenChange={setConfirmOverride}
+        title="Replace this profile's data?"
+        description={`Every card and event in "${targetProfileName}" will be permanently deleted and replaced with the ${plural(importedCardCount, "card")} in ${importFileName || "this file"}. This cannot be undone.`}
+        confirmLabel="Replace"
+        pendingLabel="Replacing…"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={async () => {
+          await handleImport();
+          setConfirmOverride(false);
+        }}
+      />
+    </>
   );
 }
