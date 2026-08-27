@@ -22,6 +22,11 @@ export function useColorExtraction(imageUrl: string | null): string {
     }
 
     let cancelled = false;
+    // Nothing is known about this image yet. The !imageUrl and cache-hit
+    // branches above both reset; without this one the previous card's accent
+    // tinted the new art until extraction finished — visible after a product
+    // change swaps the image.
+    setColor(FALLBACK);
 
     async function extract() {
       let fac: InstanceType<typeof import("fast-average-color").FastAverageColor> | null = null;

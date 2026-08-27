@@ -31,7 +31,9 @@ export const KNOWN_NETWORKS: CardNetwork[] = [
   "UnionPay",
 ];
 
-/** Display grouping. Amex is 4-6-5 and Diners 4-6-4; everything else 4-4-4-4. */
+/** Display grouping. Amex is 4-6-5 and Diners 4-6-4; everything else 4-4-4-4.
+ *  Diners also issues 16-digit numbers (the Discover co-branded ranges), and
+ *  those group 4-4-4-4 like every other 16-digit PAN — see groupsFor. */
 const GROUPS: Partial<Record<CardNetwork, number[]>> = {
   Amex: [4, 6, 5],
   Diners: [4, 6, 4],
@@ -140,7 +142,16 @@ export function detectNetwork(digits: string): CardNetwork | null {
   return null;
 }
 
-export function groupsFor(network: CardNetwork | null): number[] {
+/**
+ * Grouping for a network, narrowed by how many digits there actually are.
+ *
+ * `digitCount` matters for Diners alone: LENGTHS.Diners accepts 14 and 16, but
+ * the 4-6-4 grouping consumes only 14, so a valid 16-digit card rendered
+ * "3055 123456 7890 12" with a dangling pair. Sixteen digits are grouped like
+ * every other 16-digit PAN. Omitting the argument keeps the 14-digit shape.
+ */
+export function groupsFor(network: CardNetwork | null, digitCount?: number): number[] {
+  if (network === "Diners" && digitCount !== undefined && digitCount > 14) return DEFAULT_GROUPS;
   return (network && GROUPS[network]) || DEFAULT_GROUPS;
 }
 
@@ -148,7 +159,7 @@ export function groupsFor(network: CardNetwork | null): number[] {
 export function formatPan(digits: string, network: CardNetwork | null): string {
   const out: string[] = [];
   let i = 0;
-  for (const size of groupsFor(network)) {
+  for (const size of groupsFor(network, digits.length)) {
     if (i >= digits.length) break;
     out.push(digits.slice(i, i + size));
     i += size;
@@ -185,8 +196,27 @@ export function codeLength(network: CardNetwork | null): number {
   return network ? CODE[network].length : 3;
 }
 
-/** Masked form used before the API has returned one. Trailing group only. */
-export function maskPan(network: CardNetwork | null, lastDigits: string): string {
-  if (network === "Amex" || network === "Diners") return `•••• •••••• ${lastDigits}`;
-  return `•••• •••• •••• ${lastDigits}`;
+/** Masked form used before the API has returned one. Trailing group only.
+ *  `panLength` disambiguates Diners, which issues both 14- and 16-digit
+ *  numbers; without it the 14-digit shape is assumed, as before. */
+export function maskPan(
+  network: CardNetwork | null,
+  lastDigits: string,
+  panLength?: number,
+): string {
+  const groups = groupsFor(network, panLength);
+  const masked = groups.slice(0, -1).map((size) => "•".repeat(size));
+  return [...masked, lastDigits].join(" ");
+}
+
+/**
+ * The short "••• 1234" tag shown next to a card name in lists.
+ *
+ * One helper because the bullet count had drifted to two, three and four across
+ * eight views. Returns "" when there are no digits, so it is safe to
+ * interpolate unguarded.
+ */
+export function maskLastDigits(lastDigits: string | null | undefined): string {
+  if (!lastDigits) return "";
+  return `••• ${lastDigits}`;
 }
