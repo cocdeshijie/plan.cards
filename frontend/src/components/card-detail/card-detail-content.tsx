@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Card, CardEvent, CardTemplate, CardSecretMasked } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { closeCard, reopenCard, createCardEvent, getTemplates, getTemplateImageUrl, getTemplateImageVariantUrl, PLACEHOLDER_IMAGE_URL, productChange, updateCard, updateEvent, deleteEvent, updateBonus, deleteBonus, deleteCard, restoreCard, getCardSecrets } from "@/lib/api";
-import { frequencyShort } from "@/lib/benefit-utils";
-import { formatDate, formatCurrency, parseIntStrict, parseDateStr } from "@/lib/utils";
+import { frequencyShort, resetTypeLabel } from "@/lib/benefit-utils";
+import { formatDate, formatCurrency, parseMoneyField, parseDateStr } from "@/lib/utils";
+import { maskLastDigits } from "@/lib/card-number";
 import { useToday } from "@/hooks/use-timezone";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { AnnualFeeHistorySection } from "@/components/card-detail/annual-fee-history-section";
@@ -46,29 +47,91 @@ import {
   Lock,
 } from "lucide-react";
 
+/** Status and card type are stored lowercase ("active", "personal") and were
+ *  printed raw here while every other surface capitalises them. */
+function titleCase(value: string): string {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+}
+
+/** Bonus types that are dollars rather than a point count. A retention offer
+ *  stored as amount 500 / type "credit" was rendering as "500 credit". */
+const MONEY_BONUS_TYPES = new Set([
+  "credit",
+  "credits",
+  "statement credit",
+  "cashback",
+  "cash back",
+  "cash",
+  "dollars",
+  "usd",
+]);
+
+function formatBonusValue(amount: number | null | undefined, type: string | null | undefined): string {
+  const label = (type || "points").trim();
+  if (amount == null) return label;
+  return MONEY_BONUS_TYPES.has(label.toLowerCase())
+    ? `${formatCurrency(amount)} ${label}`
+    : `${amount.toLocaleString()} ${label}`;
+}
+
+/**
+ * Is an extracted card-art colour safe to use as a border?
+ *
+ * The accent is the average colour of arbitrary artwork, so a near-black or
+ * near-white card face produced a border that vanished into the matching
+ * theme's background and left the stat tiles and section rules edgeless. The
+ * `hsl()` placeholder the extraction hook returns before it has an answer is
+ * rejected for the same reason — applying it painted the borders faint for a
+ * frame on every open.
+ */
+function accentIsUsable(color: string): boolean {
+  const m = /^rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(color);
+  if (!m) return false;
+  const channel = (raw: string) => {
+    const c = Number(raw) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  const luminance = 0.2126 * channel(m[1]) + 0.7152 * channel(m[2]) + 0.0722 * channel(m[3]);
+  return luminance > 0.04 && luminance < 0.92;
+}
+
 interface CardDetailContentProps {
   card: Card;
   onUpdated: () => void;
   onDeleted?: () => void;
   profileName?: string;
+  /** Reports whether the Edit Card form holds unsaved changes, so the dialog or
+   *  drawer around this content can guard Esc / overlay / drag dismissal with
+   *  the same Discard prompt the form's own X and Cancel use. */
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: CardDetailContentProps) {
+export function CardDetailContent({ card, onUpdated, onDeleted, profileName, onDirtyChange }: CardDetailContentProps) {
   const { isExpanded, toggle, expand } = useCardSections(card.id);
 
   // Stored card details live in their own table with their own endpoints, so
   // this block saves independently of the Edit Card form around it.
   const [secretEntry, setSecretEntry] = useState<CardSecretMasked | null>(null);
   const [showSecretDialog, setShowSecretDialog] = useState(false);
+  // "nothing stored" and "we couldn't ask" are different answers. Collapsing the
+  // failure to null invited the user to re-enter a number that is already there
+  // — and re-entering it overwrites the stored one.
+  const [secretStatus, setSecretStatus] = useState<"idle" | "loading" | "loaded" | "error">("idle");
   const loadSecret = useCallback(async () => {
+    setSecretStatus("loading");
     try {
       const all = await getCardSecrets();
       setSecretEntry(all.find((s) => s.card_id === card.id) ?? null);
+      setSecretStatus("loaded");
     } catch {
       setSecretEntry(null);
+      setSecretStatus("error");
     }
   }, [card.id]);
   const today = useToday();
+  // One id namespace per mounted card so every Label can point at its control.
+  const uid = useId();
+  const fid = (name: string) => `${uid}-${name}`;
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
@@ -113,6 +176,19 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
   const [editEventType, setEditEventType] = useState("");
   const [editEventFee, setEditEventFee] = useState("");
   const [showEditForm, setShowEditForm] = useState(false);
+
+  // Every one of these panels renders away from the button that opens it —
+  // three below the fold, and Add Event a couple of hundred lines above its own
+  // button — so opening one looked like nothing had happened and the second
+  // click closed a form the user never saw.
+  const editFormRef = useRef<HTMLFormElement>(null);
+  const closeFormRef = useRef<HTMLFormElement>(null);
+  const pcFormRef = useRef<HTMLFormElement>(null);
+  const eventFormRef = useRef<HTMLFormElement>(null);
+  useEffect(() => { if (showEditForm) editFormRef.current?.scrollIntoView({ block: "nearest" }); }, [showEditForm]);
+  useEffect(() => { if (showCloseForm) closeFormRef.current?.scrollIntoView({ block: "nearest" }); }, [showCloseForm]);
+  useEffect(() => { if (showPCForm) pcFormRef.current?.scrollIntoView({ block: "nearest" }); }, [showPCForm]);
+  useEffect(() => { if (showEventForm) eventFormRef.current?.scrollIntoView({ block: "nearest" }); }, [showEventForm]);
 
   // Only when the form is actually open — this is one request per open, and
   // there's no reason to make it for every card the user merely looks at.
@@ -167,19 +243,41 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       setShowEditForm(false);
     }
   };
+  // The dialog/drawer owns Esc, the overlay click and the drag-down; it can only
+  // ask the same question the X and Cancel ask if it knows the form is dirty.
+  const editFormDirty = isEditFormDirty();
+  useEffect(() => { onDirtyChange?.(editFormDirty); }, [editFormDirty, onDirtyChange]);
+  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
   const [submittingAction, setSubmittingAction] = useState<string | null>(null);
+
+  // Every field, not the five that used to be reset here: reopening the form
+  // carried the previous attempt's change date and upgrade bonus over, so last
+  // session's bonus could be submitted against a different template.
+  const resetPcForm = useCallback(() => {
+    setPcIssuerFilter("__current__");
+    setPcSelectedTemplate("custom");
+    setPcName("");
+    setPcAnnualFee("");
+    setPcNetwork("");
+    setPcDate(undefined);
+    setPcSyncBenefits(true);
+    setPcResetAfAnniversary(true);
+    setPcSelectedImage(null);
+    setPcUpgradeBonus(false);
+    setPcUpgradeBonusAmount("");
+    setPcUpgradeBonusType("");
+    setPcUpgradeSpendReq("");
+    setPcUpgradeSpendDeadline(undefined);
+    setPcUpgradeSpendNotes("");
+  }, []);
 
   // Fetch templates when PC form opens
   useEffect(() => {
     if (showPCForm) {
       getTemplates().then(setPcTemplates).catch(() => toast.error("Failed to load templates"));
-      setPcIssuerFilter("__current__");
-      setPcSelectedTemplate("custom");
-      setPcAnnualFee("");
-      setPcNetwork("");
-      setPcName("");
+      resetPcForm();
     }
-  }, [showPCForm]);
+  }, [showPCForm, resetPcForm]);
 
   // Fetch templates when edit form opens (for image picker)
   useEffect(() => {
@@ -208,6 +306,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
     setPcSelectedTemplate(templateId);
     setPcSelectedImage(null);
     if (templateId === "custom") {
+      // The name, fee and network were filled in from the previous template, so
+      // they go with it — the form used to read "Custom Card" while still
+      // showing "Freedom Unlimited / $0 / Visa".
+      setPcName("");
       setPcAnnualFee("");
       setPcNetwork("");
       return;
@@ -225,9 +327,31 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       ? getTemplateImageVariantUrl(card.template_id, card.card_image)
       : getTemplateImageUrl(card.template_id))
     : PLACEHOLDER_IMAGE_URL;
-  const accentColor = useColorExtraction(imageUrl);
-  const accentTint = `color-mix(in srgb, ${accentColor} 15%, transparent)`;
-  const accentBorder = `color-mix(in srgb, ${accentColor} 30%, transparent)`;
+  const accentColor = useColorExtraction(imgError ? null : imageUrl);
+  const accentUsable = useMemo(() => accentIsUsable(accentColor), [accentColor]);
+  // Fall back to the border token rather than an unusable accent, so the tiles
+  // and section rules always have an edge in both themes.
+  const accentTint = accentUsable
+    ? `color-mix(in srgb, ${accentColor} 15%, transparent)`
+    : "hsl(var(--border))";
+  const accentBorder = accentUsable
+    ? `color-mix(in srgb, ${accentColor} 30%, transparent)`
+    : "hsl(var(--border))";
+
+  const nextFeeInfo = useMemo(
+    () => getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today),
+    [card.open_date, card.annual_fee, card.status, card.annual_fee_date, today],
+  );
+
+  // Templates are only fetched when a form that needs them opens, so the stat
+  // tile humanises the slug rather than printing "chase/freedom_flex".
+  const templateLabel = useMemo(() => {
+    if (!card.template_id) return "Custom";
+    const tmpl = editTemplates.find((t) => t.id === card.template_id);
+    if (tmpl) return tmpl.name;
+    const slug = card.template_id.split("/").pop() ?? card.template_id;
+    return slug.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }, [card.template_id, editTemplates]);
 
   const handleClose = async () => {
     if (!closeDate) return;
@@ -254,7 +378,9 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         event_type: eventType,
         event_date: format(eventDate, "yyyy-MM-dd"),
         description: isAF ? (eventDesc || null) : (eventDesc || null),
-        ...(isAF && eventFee ? { metadata_json: { annual_fee: parseIntStrict(eventFee) } } : {}),
+        ...(isAF && eventFee
+          ? { metadata_json: { annual_fee: parseMoneyField(eventFee, eventType === "annual_fee_refund" ? "Refund amount" : "Fee amount") } }
+          : {}),
       });
       setShowEventForm(false);
       setEventType("other");
@@ -275,13 +401,13 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
     setSubmittingAction("productChange");
     try {
       const templateId = pcSelectedTemplate === "custom" ? null : pcSelectedTemplate;
-      const annualFee = pcAnnualFee ? (parseIntStrict(pcAnnualFee) ?? undefined) : undefined;
+      const annualFee = parseMoneyField(pcAnnualFee, "Annual fee") ?? undefined;
       const network = pcNetwork || undefined;
       const upgradeBonusData = pcUpgradeBonus && pcUpgradeBonusAmount
         ? {
-            amount: parseIntStrict(pcUpgradeBonusAmount) ?? 0,
+            amount: parseMoneyField(pcUpgradeBonusAmount, "Bonus amount") ?? 0,
             type: pcUpgradeBonusType || undefined,
-            spendRequirement: pcUpgradeSpendReq ? (parseIntStrict(pcUpgradeSpendReq) ?? undefined) : undefined,
+            spendRequirement: parseMoneyField(pcUpgradeSpendReq, "Spend requirement") ?? undefined,
             spendDeadline: pcUpgradeSpendDeadline ? format(pcUpgradeSpendDeadline, "yyyy-MM-dd") : undefined,
             spendReminderNotes: pcUpgradeSpendNotes || undefined,
           }
@@ -304,21 +430,8 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         reset_af_anniversary: pcResetAfAnniversary,
       });
       setShowPCForm(false);
-      setPcName("");
-      setPcSelectedTemplate("custom");
-      setPcDate(undefined);
-      setPcSyncBenefits(true);
-      setPcResetAfAnniversary(true);
-      setPcAnnualFee("");
-      setPcNetwork("");
+      resetPcForm();
       setPcTemplates([]);
-      setPcSelectedImage(null);
-      setPcUpgradeBonus(false);
-      setPcUpgradeBonusAmount("");
-      setPcUpgradeBonusType("");
-      setPcUpgradeSpendReq("");
-      setPcUpgradeSpendDeadline(undefined);
-      setPcUpgradeSpendNotes("");
       onUpdated();
       toast.success("Product change completed");
     } catch (e) {
@@ -360,7 +473,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         await updateEvent(editingEventId, {
           event_date: format(editEventDate, "yyyy-MM-dd"),
           description: editEventDesc || null,
-          metadata_json: { ...cleanMeta, annual_fee: editEventFee ? parseIntStrict(editEventFee) : null },
+          metadata_json: { ...cleanMeta, annual_fee: parseMoneyField(editEventFee, editEventType === "annual_fee_refund" ? "Refund amount" : "Annual fee") },
         });
       } else {
         await updateEvent(editingEventId, {
@@ -369,9 +482,18 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           description: editEventDesc || null,
         });
       }
+      // The timeline filters retention offers out — they live in their own
+      // section, which defaults collapsed — so "Event updated" beside a row that
+      // had just vanished read as data loss. Open the section it moved into.
+      const movedToRetention = editEventType === "retention_offer";
       cancelEditEvent();
       onUpdated();
-      toast.success("Event updated");
+      if (movedToRetention) {
+        expand("retention");
+        toast.success("Moved to Retention History");
+      } else {
+        toast.success("Event updated");
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to update event");
     } finally {
@@ -412,18 +534,9 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       const newOpenDate = ef.open_date ? format(ef.open_date, "yyyy-MM-dd") : null;
       if (newOpenDate !== card.open_date) updates.open_date = newOpenDate;
 
-      // parseIntStrict returns null for a non-integer like "550.5", and "550.5"
-      // is truthy — so treating that null as "the user cleared the field"
-      // silently wiped the annual fee (and with it annual_fee_date) while
-      // toasting "Card updated". Money is tracked in whole dollars; a parse
-      // failure is a validation error, never a clear.
-      const parseMoneyField = (raw: string, label: string): number | null => {
-        if (!raw.trim()) return null; // explicitly cleared
-        const parsed = parseIntStrict(raw);
-        if (parsed === null) throw new Error(`${label} must be a whole dollar amount`);
-        return parsed;
-      };
-
+      // parseMoneyField (lib/utils) throws on an unparseable amount instead of
+      // reporting "cleared" — its docblock carries the silent-wipe story this
+      // local copy used to. The catch below turns the throw into a toast.
       const newAF = parseMoneyField(ef.annual_fee, "Annual fee");
       if (newAF !== card.annual_fee) updates.annual_fee = newAF;
 
@@ -471,6 +584,24 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       (a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
     );
 
+  // The fee row is a pseudo-entry, not a stored event, so it has to be merged
+  // into the newest-first order by hand. Pinning it to the top put a fee that
+  // came due last year above every event that has happened since; a fee still
+  // in the future lands at the top anyway, which is where it belongs.
+  type TimelineRow =
+    | { kind: "fee"; info: NonNullable<typeof nextFeeInfo> }
+    | { kind: "event"; event: CardEvent };
+  const timelineRows: TimelineRow[] = sortedEvents.map((event) => ({ kind: "event", event }));
+  if (nextFeeInfo) {
+    const feeTime = nextFeeInfo.nextDate.getTime();
+    const at = timelineRows.findIndex(
+      (r) => r.kind === "event" && parseDateStr(r.event.event_date).getTime() <= feeTime,
+    );
+    const feeRow: TimelineRow = { kind: "fee", info: nextFeeInfo };
+    if (at === -1) timelineRows.push(feeRow);
+    else timelineRows.splice(at, 0, feeRow);
+  }
+
   const isDeadlineApproaching = () => {
     if (!card.spend_reminder_enabled || !card.spend_deadline) return false;
     const deadline = parseDateStr(card.spend_deadline);
@@ -505,18 +636,25 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-white mb-1.5">
+              {/* Clamped: the caption is bottom-anchored inside a 180px image, so
+                  a long name on a narrow phone pushed its own first lines up out
+                  of the picture and into clipped space. */}
+              <h2 className="text-lg sm:text-xl font-semibold text-white mb-1.5 line-clamp-2 break-words" title={card.card_name}>
                 {card.card_name}
-                {card.last_digits && <span className="font-normal text-white/60"> ••• {card.last_digits}</span>}
+                {card.last_digits && <span className="font-normal text-white/60"> {maskLastDigits(card.last_digits)}</span>}
               </h2>
               <div className="flex items-center gap-2 mb-2">
-                <p className="text-sm text-white/70">
+                <p className="text-sm text-white/80 min-w-0 truncate" title={profileName ? `${card.issuer} · ${profileName}` : card.issuer}>
                   {card.issuer}
-                  {profileName && <span className="text-white/40"> &middot; {profileName}</span>}
+                  {profileName && <span className="text-white/70"> &middot; {profileName}</span>}
                 </p>
                 {editingLastDigits ? (
                   <input
                     autoFocus
+                    aria-label="Last digits"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    enterKeyHint="done"
                     value={lastDigitsValue}
                     onChange={(e) => setLastDigitsValue(e.target.value.replace(/\D/g, "").slice(0, 5))}
                     onBlur={async () => {
@@ -537,13 +675,19 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       if (e.key === "Escape") { setLastDigitsValue(card.last_digits || ""); setEditingLastDigits(false); }
                     }}
                     placeholder="Last digits"
-                    className="bg-white/20 text-white text-xs rounded px-1.5 py-0.5 w-[72px] outline-none placeholder:text-white/40"
+                    /* text-base below sm: anything under 16px makes iOS zoom the
+                       page on focus and never zooms back out. */
+                    className="shrink-0 bg-white/20 text-white text-base sm:text-xs rounded px-1.5 py-0.5 w-[92px] sm:w-[72px] outline-none focus-visible:ring-2 focus-visible:ring-white/70 placeholder:text-white/50"
                   />
                 ) : (
                   <button
+                    type="button"
                     onClick={() => { setLastDigitsValue(card.last_digits || ""); setEditingLastDigits(true); }}
-                    className="text-xs text-white/40 hover:text-white/70 transition-colors"
-                    aria-label="Edit last digits"
+                    /* Padding plus a compensating negative margin: this is the
+                       only affordance for last_digits in this view, and it sat
+                       at 12px in a dense caption row. */
+                    className="shrink-0 text-white/70 hover:text-white transition-colors p-2.5 -m-1.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                    aria-label={card.last_digits ? `Edit last digits, currently ${card.last_digits}` : "Add last digits"}
                   >
                     <Pencil className="h-3 w-3" />
                   </button>
@@ -551,10 +695,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               </div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Badge variant={card.status === "active" ? "success" : "secondary"} className="text-xs">
-                  {card.status}
+                  {titleCase(card.status)}
                 </Badge>
                 <Badge className="text-xs bg-white/20 text-white border-white/20 hover:bg-white/30">
-                  {card.card_type}
+                  {titleCase(card.card_type)}
                 </Badge>
                 {card.network && (
                   <Badge className="text-xs bg-white/20 text-white border-white/20 hover:bg-white/30">
@@ -572,14 +716,14 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       {imgError && (
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold break-words" title={card.card_name}>
               {card.card_name}
-              {card.last_digits && <span className="text-muted-foreground font-normal"> ••• {card.last_digits}</span>}
+              {card.last_digits && <span className="text-muted-foreground font-normal"> {maskLastDigits(card.last_digits)}</span>}
             </h2>
             <Badge variant={card.status === "active" ? "success" : "secondary"}>
-              {card.status}
+              {titleCase(card.status)}
             </Badge>
-            <Badge variant="outline">{card.card_type}</Badge>
+            <Badge variant="outline">{titleCase(card.card_type)}</Badge>
             {card.network && <Badge variant="outline">{card.network}</Badge>}
           </div>
           <p className="text-sm text-muted-foreground">{card.issuer}</p>
@@ -589,7 +733,6 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       {/* Section 2 — Stats Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {(() => {
-          const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today);
           const feeValueClass = nextFeeInfo?.proximity === "overdue"
             ? "text-red-600 dark:text-red-400"
             : nextFeeInfo?.proximity === "imminent"
@@ -601,21 +744,27 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             { icon: Calendar, label: "Opened", value: formatDate(card.open_date) },
             { icon: Calendar, label: "Closed", value: formatDate(card.close_date) },
             { icon: DollarSign, label: "Annual Fee", value: formatCurrency(card.annual_fee) },
-            { icon: CalendarClock, label: "Next Fee", value: nextFeeInfo?.label ?? "\u2014", valueClass: feeValueClass },
+            {
+              icon: CalendarClock,
+              label: "Next Fee",
+              value: nextFeeInfo?.label ?? "\u2014",
+              valueClass: feeValueClass,
+              title: nextFeeInfo ? `${nextFeeInfo.label} — ${format(nextFeeInfo.nextDate, "MMM d, yyyy")}` : undefined,
+            },
             { icon: Landmark, label: "Credit Limit", value: card.credit_limit ? formatCurrency(card.credit_limit) : "\u2014" },
-            { icon: FileText, label: "Template", value: card.template_id || "Custom" },
-          ] as { icon: typeof Calendar; label: string; value: string; valueClass?: string }[];
-        })().map(({ icon: Icon, label, value, valueClass }) => (
+            { icon: FileText, label: "Template", value: templateLabel, title: card.template_id || "Custom" },
+          ] as { icon: typeof Calendar; label: string; value: string; valueClass?: string; title?: string }[];
+        })().map(({ icon: Icon, label, value, valueClass, title }) => (
           <div
             key={label}
-            className="rounded-lg border p-3"
+            className="rounded-lg border p-3 min-w-0"
             style={{ borderColor: accentBorder }}
           >
             <div className="flex items-center gap-1.5 mb-1">
-              <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+              <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <span className="text-xs text-muted-foreground">{label}</span>
             </div>
-            <p className={`text-sm font-medium truncate ${valueClass ?? ""}`}>{value}</p>
+            <p className={`text-sm font-medium truncate ${valueClass ?? ""}`} title={title ?? value}>{value}</p>
           </div>
         ))}
       </div>
@@ -649,7 +798,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         <div className="space-y-3">
           <div className="h-px" style={{ backgroundColor: accentTint }} />
           <div className="flex items-center justify-between">
-            <button onClick={() => toggle("bonuses")} aria-expanded={isExpanded("bonuses")} className="flex items-center gap-2">
+            <button type="button" onClick={() => toggle("bonuses")} aria-expanded={isExpanded("bonuses")} className="flex items-center gap-2 min-h-[44px] sm:min-h-0 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
               <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${!isExpanded("bonuses") ? "-rotate-90" : ""}`} />
               <Trophy className="h-4 w-4 text-muted-foreground" />
               <h4 className="font-medium text-sm">Bonus History</h4>
@@ -670,7 +819,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                     : "border bg-muted/30"
                 }`}>
                   <div className="flex items-center gap-3">
-                    <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                    <div className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${
                       isDeadlinePassed()
                         ? "bg-destructive/10"
                         : isDeadlineApproaching()
@@ -679,19 +828,19 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                     }`}>
                       <Clock className={`h-4 w-4 ${
                         isDeadlinePassed()
-                          ? "text-destructive"
+                          ? "text-danger"
                           : isDeadlineApproaching()
                           ? "text-orange-600 dark:text-orange-400"
                           : "text-muted-foreground"
                       }`} />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-sm">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h5 className="font-medium text-sm break-words">
                           {card.signup_bonus_amount
-                            ? `Earn ${card.signup_bonus_amount.toLocaleString()} ${card.signup_bonus_type || "points"}`
+                            ? `Earn ${formatBonusValue(card.signup_bonus_amount, card.signup_bonus_type)}`
                             : "Spend Reminder"}
-                        </h4>
+                        </h5>
                         <Badge variant="outline" className="text-xs">Signup</Badge>
                         {isDeadlineApproaching() && !isDeadlinePassed() && (
                           <Badge variant="warning" className="text-xs">Approaching</Badge>
@@ -707,9 +856,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       )}
                     </div>
                     <Button
+                      type="button"
                       size="sm"
                       variant="ghost"
-                      className="h-7 px-2 text-xs gap-1"
+                      className="h-7 px-2 text-xs gap-1 shrink-0"
                       disabled={submittingAction !== null}
                       onClick={async () => {
                         setSubmittingAction("bonusAction");
@@ -736,7 +886,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                     </Button>
                   </div>
                   {card.spend_reminder_notes && (
-                    <p className="text-xs text-muted-foreground ml-11">{card.spend_reminder_notes}</p>
+                    <p className="text-xs text-muted-foreground ml-11 break-words">{card.spend_reminder_notes}</p>
                   )}
                 </div>
               );
@@ -746,13 +896,13 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               return (
                 <div className="rounded-xl p-4 border border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30">
+                    <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30">
                       <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm text-green-700 dark:text-green-300">Signup Bonus Earned</h4>
-                      <p className="text-sm text-green-600 dark:text-green-400">
-                        {card.signup_bonus_amount.toLocaleString()} {card.signup_bonus_type || "points"}
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-sm text-green-700 dark:text-green-300">Signup Bonus Earned</h5>
+                      <p className="text-sm text-green-600 dark:text-green-400 break-words">
+                        {formatBonusValue(card.signup_bonus_amount, card.signup_bonus_type)}
                       </p>
                     </div>
                   </div>
@@ -764,21 +914,22 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               return (
                 <div className="rounded-xl p-4 border bg-muted/30">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
+                    <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-muted">
                       <Trophy className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-sm">
-                          {card.signup_bonus_amount.toLocaleString()} {card.signup_bonus_type || "points"}
-                        </h4>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h5 className="font-medium text-sm break-words">
+                          {formatBonusValue(card.signup_bonus_amount, card.signup_bonus_type)}
+                        </h5>
                         <Badge variant="outline" className="text-xs">Signup</Badge>
                       </div>
                     </div>
                     <Button
+                      type="button"
                       size="sm"
                       variant="ghost"
-                      className="h-7 px-2 text-xs gap-1"
+                      className="h-7 px-2 text-xs gap-1 shrink-0"
                       disabled={submittingAction !== null}
                       onClick={async () => {
                         setSubmittingAction("bonusAction");
@@ -814,16 +965,17 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               return (
                 <div key={bonus.id} className="rounded-xl p-4 border border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30">
+                    <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30">
                       <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm text-green-700 dark:text-green-300">{sourceLabel} Bonus Earned</h4>
-                      <p className="text-sm text-green-600 dark:text-green-400">
-                        {bonus.bonus_amount?.toLocaleString()} {bonus.bonus_type || "points"}
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-sm text-green-700 dark:text-green-300">{sourceLabel} Bonus Earned</h5>
+                      <p className="text-sm text-green-600 dark:text-green-400 break-words">
+                        {formatBonusValue(bonus.bonus_amount, bonus.bonus_type)}
+                        {bonus.bonus_credit_amount != null && ` + ${formatCurrency(bonus.bonus_credit_amount)} credit`}
                       </p>
                       {bonus.description && (
-                        <p className="text-xs text-green-600/70 dark:text-green-400/70">{bonus.description}</p>
+                        <p className="text-xs text-green-600/70 dark:text-green-400/70 break-words">{bonus.description}</p>
                       )}
                     </div>
                   </div>
@@ -835,16 +987,17 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               return (
                 <div key={bonus.id} className="rounded-xl p-4 border bg-muted/20 opacity-60">
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
+                    <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-muted">
                       <Ban className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm text-muted-foreground line-through">{sourceLabel} Bonus Missed</h4>
-                      <p className="text-sm text-muted-foreground line-through">
-                        {bonus.bonus_amount?.toLocaleString()} {bonus.bonus_type || "points"}
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-sm text-muted-foreground line-through">{sourceLabel} Bonus Missed</h5>
+                      <p className="text-sm text-muted-foreground line-through break-words">
+                        {formatBonusValue(bonus.bonus_amount, bonus.bonus_type)}
+                        {bonus.bonus_credit_amount != null && ` + ${formatCurrency(bonus.bonus_credit_amount)} credit`}
                       </p>
                       {bonus.description && (
-                        <p className="text-xs text-muted-foreground/70">{bonus.description}</p>
+                        <p className="text-xs text-muted-foreground/70 break-words">{bonus.description}</p>
                       )}
                     </div>
                   </div>
@@ -863,7 +1016,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   : "border bg-muted/30"
               }`}>
                 <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                  <div className={`shrink-0 flex items-center justify-center w-8 h-8 rounded-full ${
                     isPastDue
                       ? "bg-destructive/10"
                       : isApproaching
@@ -872,19 +1025,19 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   }`}>
                     <Clock className={`h-4 w-4 ${
                       isPastDue
-                        ? "text-destructive"
+                        ? "text-danger"
                         : isApproaching
                         ? "text-orange-600 dark:text-orange-400"
                         : "text-muted-foreground"
                     }`} />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h5 className="font-medium text-sm break-words">
                         {bonus.bonus_amount
-                          ? `Earn ${bonus.bonus_amount.toLocaleString()} ${bonus.bonus_type || "points"}`
+                          ? `Earn ${formatBonusValue(bonus.bonus_amount, bonus.bonus_type)}${bonus.bonus_credit_amount != null ? ` + ${formatCurrency(bonus.bonus_credit_amount)} credit` : ""}`
                           : `${sourceLabel} Bonus`}
-                      </h4>
+                      </h5>
                       <Badge variant="outline" className="text-xs">{sourceLabel}</Badge>
                       {isApproaching && !isPastDue && (
                         <Badge variant="warning" className="text-xs">Approaching</Badge>
@@ -899,15 +1052,16 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       </p>
                     )}
                     {bonus.description && (
-                      <p className="text-xs text-muted-foreground/70">{bonus.description}</p>
+                      <p className="text-xs text-muted-foreground/70 break-words">{bonus.description}</p>
                     )}
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 shrink-0">
                     {isPastDue && (
                       <Button
+                        type="button"
                         size="sm"
                         variant="ghost"
-                        className="h-7 px-2 text-xs gap-1 text-destructive hover:text-destructive"
+                        className="h-7 px-2 text-xs gap-1 text-danger hover:text-danger"
                         disabled={submittingAction !== null}
                         onClick={async () => {
                           setSubmittingAction("bonusAction");
@@ -930,6 +1084,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       </Button>
                     )}
                     <Button
+                      type="button"
                       size="sm"
                       variant="ghost"
                       className="h-7 px-2 text-xs gap-1"
@@ -956,7 +1111,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   </div>
                 </div>
                 {bonus.spend_reminder_notes && (
-                  <p className="text-xs text-muted-foreground ml-11">{bonus.spend_reminder_notes}</p>
+                  <p className="text-xs text-muted-foreground ml-11 break-words">{bonus.spend_reminder_notes}</p>
                 )}
               </div>
             );
@@ -981,8 +1136,9 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             <h4 className="font-medium text-sm">Notes</h4>
             {!editingNotes && (
               <button
+                type="button"
                 onClick={() => { setNotesValue(card.custom_notes || ""); setEditingNotes(true); }}
-                className="p-0.5 rounded hover:bg-muted"
+                className="p-2.5 -m-1.5 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 aria-label="Edit notes"
               >
                 <Pencil className="h-3 w-3 text-muted-foreground" />
@@ -993,10 +1149,14 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             <div className="space-y-2">
               <textarea
                 autoFocus
+                aria-label="Notes"
                 value={notesValue}
                 onChange={(e) => setNotesValue(e.target.value)}
                 maxLength={5000}
-                className="w-full text-sm bg-background border rounded-md p-2 min-h-[60px] resize-y outline-none focus:ring-1 focus:ring-ring"
+                disabled={submittingAction === "notes"}
+                /* text-base below sm for the same reason the Input primitive
+                   does it: anything under 16px makes iOS zoom on focus. */
+                className="w-full text-base sm:text-sm bg-background border rounded-md p-2 min-h-[60px] resize-y outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
                 placeholder="Add notes..."
               />
               <div className="flex items-center justify-between">
@@ -1004,9 +1164,12 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               </div>
               <div className="flex gap-1.5">
                 <Button
+                  type="button"
                   size="sm"
                   className="h-7 text-xs"
+                  disabled={submittingAction !== null}
                   onClick={async () => {
+                    setSubmittingAction("notes");
                     try {
                       await updateCard(card.id, { custom_notes: notesValue || null });
                       setEditingNotes(false);
@@ -1014,19 +1177,21 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       toast.success("Notes saved");
                     } catch (e) {
                       toast.error(e instanceof Error ? e.message : "Failed to save notes");
+                    } finally {
+                      setSubmittingAction(null);
                     }
                   }}
                 >
-                  Save
+                  {submittingAction === "notes" ? "Saving..." : "Save"}
                 </Button>
-                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setEditingNotes(false)}>
+                <Button type="button" size="sm" variant="ghost" className="h-7 text-xs" disabled={submittingAction === "notes"} onClick={() => setEditingNotes(false)}>
                   Cancel
                 </Button>
               </div>
             </div>
           ) : (
             card.custom_notes
-              ? <p className="text-sm text-muted-foreground whitespace-pre-wrap">{card.custom_notes}</p>
+              ? <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{card.custom_notes}</p>
               : <p className="text-sm text-muted-foreground italic">No notes</p>
           )}
         </div>
@@ -1040,20 +1205,24 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           <Badge variant="secondary" className="text-xs">{sortedEvents.length} event{sortedEvents.length !== 1 ? "s" : ""}</Badge>
         </div>
         {showEventForm && (
-          <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+          <form
+            ref={eventFormRef}
+            className="rounded-xl border bg-muted/30 p-4 space-y-3"
+            onSubmit={(e) => { e.preventDefault(); if (submittingAction !== null || !eventDate) return; handleAddEvent(); }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <PlusCircle className="h-4 w-4 text-primary" />
-                <h4 className="font-medium text-sm">Add Event</h4>
+                <h5 className="font-medium text-sm">Add Event</h5>
               </div>
-              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowEventForm(false)}>
+              <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0" aria-label="Close add event form" onClick={() => setShowEventForm(false)}>
                 <X className="h-3.5 w-3.5" />
               </Button>
             </div>
             <div className="space-y-2">
-              <Label>Event Type</Label>
+              <Label htmlFor={fid("event-type")}>Event Type</Label>
               <Select value={eventType} onValueChange={setEventType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger id={fid("event-type")}><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="annual_fee_posted">Annual Fee Posted</SelectItem>
                   <SelectItem value="annual_fee_refund">Annual Fee Refund</SelectItem>
@@ -1061,54 +1230,60 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Event Date</Label>
+            {/* DatePicker exposes no id, so the label names the group instead
+                of the trigger — the wrapper was already here. */}
+            <div className="space-y-2" role="group" aria-labelledby={fid("event-date-label")}>
+              <Label id={fid("event-date-label")}>Event Date</Label>
               <DatePicker value={eventDate} onChange={setEventDate} placeholder="Select event date" />
             </div>
             {(eventType === "annual_fee_posted" || eventType === "annual_fee_refund") && (
               <div className="space-y-2">
-                <Label>{eventType === "annual_fee_refund" ? "Refund Amount" : "Fee Amount"}</Label>
-                <Input type="number" value={eventFee} onChange={(e) => setEventFee(e.target.value)} placeholder="e.g. 550" />
+                <Label htmlFor={fid("event-fee")}>{eventType === "annual_fee_refund" ? "Refund Amount" : "Fee Amount"}</Label>
+                <Input id={fid("event-fee")} type="number" min="0" inputMode="numeric" enterKeyHint="done" value={eventFee} onChange={(e) => setEventFee(e.target.value)} placeholder="e.g. 550" />
               </div>
             )}
             <div className="space-y-2">
-              <Label>Description (optional)</Label>
-              <Input value={eventDesc} onChange={(e) => setEventDesc(e.target.value)} maxLength={1000} />
+              <Label htmlFor={fid("event-desc")}>Description (optional)</Label>
+              <Input id={fid("event-desc")} enterKeyHint="done" value={eventDesc} onChange={(e) => setEventDesc(e.target.value)} maxLength={1000} />
             </div>
-            <Button size="sm" onClick={handleAddEvent} disabled={submittingAction !== null}>{submittingAction === "event" ? "Adding..." : "Add Event"}</Button>
-          </div>
+            {/* Disabled without a date: handleAddEvent early-returned, so the
+                button looked live and did nothing. */}
+            <Button type="submit" size="sm" disabled={submittingAction !== null || !eventDate}>{submittingAction === "event" ? "Adding..." : "Add Event"}</Button>
+          </form>
         )}
-        {sortedEvents.length === 0 ? (
+        {timelineRows.length === 0 ? (
           <p className="text-sm text-muted-foreground">No events recorded.</p>
         ) : (
           <div className="relative">
             <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-muted" />
             <div className="space-y-3">
-              {(() => {
-                const nextFeeInfo = getNextFeeInfo(card.open_date, card.annual_fee, card.status, card.annual_fee_date, today);
-                if (!nextFeeInfo) return null;
-                return (
-                  <div className="relative flex items-start gap-3 pl-10">
-                    <div className="absolute left-[4px] top-0.5 w-[22px] h-[22px] rounded-full flex items-center justify-center ring-2 ring-background border-2 border-dashed border-orange-400 bg-orange-50 dark:bg-orange-950/30">
-                      <CalendarClock className="h-3 w-3 text-orange-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs px-1.5 py-0.5 rounded-md font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 italic">
-                          Upcoming Fee
-                        </span>
-                        <span className="text-xs text-muted-foreground italic">
-                          ~{format(nextFeeInfo.nextDate, "MMM yyyy")}
-                        </span>
+              {timelineRows.map((row) => {
+                if (row.kind === "fee") {
+                  const overdue = row.info.overdue;
+                  return (
+                    <div key="upcoming-fee" className="relative flex items-start gap-3 pl-10">
+                      <div className={`absolute left-[4px] top-0.5 w-[22px] h-[22px] rounded-full flex items-center justify-center ring-2 ring-background border-2 border-dashed ${overdue ? "border-red-400 bg-red-50 dark:bg-red-950/30" : "border-orange-400 bg-orange-50 dark:bg-orange-950/30"}`}>
+                        <CalendarClock className={`h-3 w-3 ${overdue ? "text-red-500" : "text-orange-500"}`} />
                       </div>
-                      <p className="text-sm text-muted-foreground mt-0.5 italic">
-                        {nextFeeInfo.label} — around {format(nextFeeInfo.nextDate, "MMM yyyy")}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {/* The badge follows the label's tense: an overdue fee
+                              was reading "Upcoming Fee — was due 212 days ago". */}
+                          <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium italic ${overdue ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300" : "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"}`}>
+                            {overdue ? "Fee Overdue" : "Upcoming Fee"}
+                          </span>
+                          <span className="text-xs text-muted-foreground italic">
+                            ~{format(row.info.nextDate, "MMM yyyy")}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-0.5 italic break-words">
+                          {formatCurrency(card.annual_fee)} annual fee {overdue ? row.info.label : `due ${row.info.label}`}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })()}
-              {sortedEvents.map((event) => {
+                  );
+                }
+                const event = row.event;
                 const meta = getEventMeta(event.event_type);
                 const Icon = meta.icon;
                 const isEditing = editingEventId === event.id;
@@ -1118,12 +1293,15 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                       <Icon className="h-3 w-3 text-white" />
                     </div>
                     {isEditing ? (
-                      <div className="flex-1 min-w-0 space-y-2 rounded-lg border bg-muted/30 p-3">
+                      <form
+                        className="flex-1 min-w-0 space-y-2 rounded-lg border bg-muted/30 p-3"
+                        onSubmit={(e) => { e.preventDefault(); if (submittingAction !== null || !editEventDate) return; handleEditEvent(); }}
+                      >
                         {editEventType !== "annual_fee_posted" && editEventType !== "annual_fee_refund" && (
                           <div className="space-y-1.5">
-                            <Label className="text-xs">Event Type</Label>
+                            <Label className="text-xs" htmlFor={fid(`event-${event.id}-type`)}>Event Type</Label>
                             <Select value={editEventType} onValueChange={setEditEventType}>
-                              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                              <SelectTrigger id={fid(`event-${event.id}-type`)} className="h-8 text-xs"><SelectValue /></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="opened">Opened</SelectItem>
                                 <SelectItem value="closed">Closed</SelectItem>
@@ -1136,25 +1314,25 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                             </Select>
                           </div>
                         )}
-                        <div className="space-y-1.5">
-                          <Label className="text-xs">Date</Label>
+                        <div className="space-y-1.5" role="group" aria-labelledby={fid(`event-${event.id}-date`)}>
+                          <Label className="text-xs" id={fid(`event-${event.id}-date`)}>Date</Label>
                           <DatePicker value={editEventDate} onChange={setEditEventDate} placeholder="Select date" />
                         </div>
                         {(editEventType === "annual_fee_posted" || editEventType === "annual_fee_refund") && (
                           <div className="space-y-1.5">
-                            <Label className="text-xs">{editEventType === "annual_fee_refund" ? "Refund Amount ($)" : "Annual Fee ($)"}</Label>
-                            <Input className="h-8 text-xs w-24" type="number" value={editEventFee} onChange={(e) => setEditEventFee(e.target.value)} placeholder="0" />
+                            <Label className="text-xs" htmlFor={fid(`event-${event.id}-fee`)}>{editEventType === "annual_fee_refund" ? "Refund Amount ($)" : "Annual Fee ($)"}</Label>
+                            <Input id={fid(`event-${event.id}-fee`)} className="h-8 text-sm w-24" type="number" min="0" inputMode="numeric" enterKeyHint="done" value={editEventFee} onChange={(e) => setEditEventFee(e.target.value)} placeholder="0" />
                           </div>
                         )}
                         <div className="space-y-1.5">
-                          <Label className="text-xs">{editEventType === "annual_fee_posted" || editEventType === "annual_fee_refund" ? "Note" : "Description"}</Label>
-                          <Input className="h-8 text-xs" value={editEventDesc} onChange={(e) => setEditEventDesc(e.target.value)} placeholder={editEventType === "annual_fee_posted" || editEventType === "annual_fee_refund" ? "Add a note (optional)" : ""} maxLength={1000} />
+                          <Label className="text-xs" htmlFor={fid(`event-${event.id}-desc`)}>{editEventType === "annual_fee_posted" || editEventType === "annual_fee_refund" ? "Note" : "Description"}</Label>
+                          <Input id={fid(`event-${event.id}-desc`)} className="h-8 text-sm" enterKeyHint="done" value={editEventDesc} onChange={(e) => setEditEventDesc(e.target.value)} placeholder={editEventType === "annual_fee_posted" || editEventType === "annual_fee_refund" ? "Add a note (optional)" : ""} maxLength={1000} />
                         </div>
                         <div className="flex gap-1.5">
-                          <Button size="sm" className="h-7 text-xs" onClick={handleEditEvent} disabled={submittingAction !== null}>{submittingAction === "editEvent" ? "Saving..." : "Save"}</Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={cancelEditEvent}>Cancel</Button>
+                          <Button type="submit" size="sm" className="h-7 text-xs" disabled={submittingAction !== null || !editEventDate}>{submittingAction === "editEvent" ? "Saving..." : "Save"}</Button>
+                          <Button type="button" size="sm" variant="ghost" className="h-7 text-xs" disabled={submittingAction !== null} onClick={cancelEditEvent}>Cancel</Button>
                         </div>
-                      </div>
+                      </form>
                     ) : (
                       <div className="flex-1 min-w-0 group">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -1166,10 +1344,13 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                               ? "~" + format(parseDateStr(event.event_date), "MMM yyyy")
                               : formatDate(event.event_date)}
                           </span>
+                          {/* Hover-only reveals are unreachable on touch, so the
+                              control is dimmed-but-present below sm. */}
                           <button
+                            type="button"
                             onClick={() => startEditEvent(event)}
-                            className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
-                            aria-label="Edit event"
+                            className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity p-2.5 -m-1.5 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            aria-label={`Edit ${meta.label} event from ${formatDate(event.event_date)}`}
                           >
                             <Pencil className="h-3 w-3 text-muted-foreground" />
                           </button>
@@ -1177,7 +1358,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                             deletingTimelineEventId === event.id ? (
                               <>
                                 <button
+                                  type="button"
+                                  disabled={submittingAction !== null}
                                   onClick={async () => {
+                                    setSubmittingAction("deleteEvent");
                                     try {
                                       await deleteEvent(event.id);
                                       setDeletingTimelineEventId(null);
@@ -1185,23 +1369,32 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                                       toast.success("Event deleted");
                                     } catch (e) {
                                       toast.error(e instanceof Error ? e.message : "Failed to delete event");
+                                    } finally {
+                                      setSubmittingAction(null);
                                     }
                                   }}
-                                  className="text-[10px] text-destructive font-medium px-1 hover:underline"
+                                  className="text-xs text-danger font-medium px-1 py-2 -my-1 rounded hover:underline disabled:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 >
-                                  Delete?
+                                  {submittingAction === "deleteEvent" ? "Deleting..." : "Delete?"}
                                 </button>
-                                <button onClick={() => setDeletingTimelineEventId(null)} className="p-0.5 rounded hover:bg-muted">
+                                <button
+                                  type="button"
+                                  disabled={submittingAction !== null}
+                                  onClick={() => setDeletingTimelineEventId(null)}
+                                  className="p-2.5 -m-1.5 rounded hover:bg-muted disabled:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                  aria-label="Keep event"
+                                >
                                   <X className="h-3 w-3 text-muted-foreground" />
                                 </button>
                               </>
                             ) : (
                               <button
+                                type="button"
                                 onClick={() => setDeletingTimelineEventId(event.id)}
-                                className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
-                                aria-label="Delete event"
+                                className="opacity-60 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity p-2.5 -m-1.5 rounded hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                aria-label={`Delete ${meta.label} event from ${formatDate(event.event_date)}`}
                               >
-                                <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                                <Trash2 className="h-3 w-3 text-muted-foreground hover:text-danger" />
                               </button>
                             )
                           )}
@@ -1212,15 +1405,15 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                           </span>
                         )}
                         {event.description && (
-                          <p className="text-sm text-muted-foreground mt-0.5">{event.description}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5 break-words">{event.description}</p>
                         )}
                         {event.metadata_json && event.event_type === "product_change" && (
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <span className="text-xs bg-muted px-2 py-0.5 rounded break-words">
                               {(event.metadata_json as Record<string, string>).from_name}
                             </span>
-                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs bg-muted px-2 py-0.5 rounded">
+                            <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                            <span className="text-xs bg-muted px-2 py-0.5 rounded break-words">
                               {(event.metadata_json as Record<string, string>).to_name}
                             </span>
                           </div>
@@ -1230,7 +1423,7 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                           return (
                             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                               {!!rm.offer_points && <span className="text-xs bg-muted px-2 py-0.5 rounded">{Number(rm.offer_points).toLocaleString()} points</span>}
-                              {!!rm.offer_credit && <span className="text-xs bg-muted px-2 py-0.5 rounded">${Number(rm.offer_credit)} credit</span>}
+                              {!!rm.offer_credit && <span className="text-xs bg-muted px-2 py-0.5 rounded">{formatCurrency(Number(rm.offer_credit))} credit</span>}
                               <Badge variant={rm.accepted !== false ? "success" : "secondary"} className="text-[10px]">
                                 {rm.accepted !== false ? "Accepted" : "Declined"}
                               </Badge>
@@ -1252,13 +1445,14 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
         <div className="h-px" style={{ backgroundColor: accentTint }} />
         <div className="flex gap-2 flex-wrap">
           {card.status === "active" && (
-            <Button size="sm" variant="destructive" className="gap-1.5" onClick={() => setShowCloseForm(!showCloseForm)}>
+            <Button type="button" size="sm" variant="destructive" className="gap-1.5" aria-expanded={showCloseForm} onClick={() => setShowCloseForm(!showCloseForm)}>
               <Ban className="h-3.5 w-3.5" />
               Close Card
             </Button>
           )}
           {card.status === "closed" && (
             <Button
+              type="button"
               size="sm"
               variant="outline"
               className="gap-1.5"
@@ -1277,27 +1471,32 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
               }}
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Reopen Card
+              {submittingAction === "reopen" ? "Reopening..." : "Reopen Card"}
             </Button>
           )}
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={openEditForm}>
+          {/* A real toggle, like the three beside it: aria-expanded has to be
+              honest, and a second click used to re-run openEditForm() — which
+              resets every field from the card, silently discarding whatever was
+              typed. Route the collapse through the same Discard guard. */}
+          <Button type="button" size="sm" variant="outline" className="gap-1.5" aria-expanded={showEditForm} onClick={() => { if (showEditForm) tryCloseEditForm(); else openEditForm(); }}>
             <Pencil className="h-3.5 w-3.5" />
             Edit Card
           </Button>
           {card.status === "active" && (
-            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setShowPCForm(!showPCForm)}>
+            <Button type="button" size="sm" variant="outline" className="gap-1.5" aria-expanded={showPCForm} onClick={() => setShowPCForm(!showPCForm)}>
               <ArrowLeftRight className="h-3.5 w-3.5" />
               Product Change
             </Button>
           )}
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setShowEventForm(!showEventForm)}>
+          <Button type="button" size="sm" variant="outline" className="gap-1.5" aria-expanded={showEventForm} onClick={() => setShowEventForm(!showEventForm)}>
             <PlusCircle className="h-3.5 w-3.5" />
             Add Event
           </Button>
           <Button
+            type="button"
             size="sm"
             variant="outline"
-            className="gap-1.5 text-destructive hover:bg-destructive/10"
+            className="gap-1.5 text-danger hover:bg-destructive/10"
             onClick={() => setConfirmingDelete(true)}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -1309,14 +1508,15 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       {/* Delete confirmation */}
       {confirmingDelete && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-3 space-y-2">
-          <p className="text-sm font-medium text-destructive">
-            Permanently delete this card and all its events, benefits, and bonuses?
+          <p className="text-sm font-medium text-danger break-words">
+            Permanently delete {card.card_name} and all its events, benefits, and bonuses?
           </p>
           <div className="flex gap-2 justify-end">
-            <Button size="sm" variant="outline" onClick={() => setConfirmingDelete(false)} disabled={submittingAction !== null}>
+            <Button type="button" size="sm" variant="outline" onClick={() => setConfirmingDelete(false)} disabled={submittingAction !== null}>
               Cancel
             </Button>
             <Button
+              type="button"
               size="sm"
               variant="destructive"
               disabled={submittingAction !== null}
@@ -1356,13 +1556,21 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
 
       {/* Section 7 — Forms */}
       {showEditForm && (
-        <div className="rounded-xl border bg-muted/30 p-4 space-y-4">
+        <form
+          ref={editFormRef}
+          className="rounded-xl border bg-muted/30 p-4 space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (submittingAction !== null || !ef.card_name?.trim() || !ef.issuer?.trim()) return;
+            handleSaveEdit();
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Pencil className="h-4 w-4 text-primary" />
               <h4 className="font-medium text-sm">Edit Card</h4>
             </div>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { tryCloseEditForm(); }}>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0" aria-label="Close edit card form" onClick={() => { tryCloseEditForm(); }}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -1370,21 +1578,21 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           {/* Identity */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Card Name</Label>
-              <Input className="h-8 text-sm" value={ef.card_name} onChange={(e) => updateEf("card_name", e.target.value)} maxLength={100} />
+              <Label className="text-xs" htmlFor={fid("edit-name")}>Card Name</Label>
+              <Input id={fid("edit-name")} className="h-8 text-sm" enterKeyHint="next" value={ef.card_name} onChange={(e) => updateEf("card_name", e.target.value)} maxLength={100} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Issuer</Label>
-              <Input className="h-8 text-sm" value={ef.issuer} onChange={(e) => updateEf("issuer", e.target.value)} maxLength={100} />
+              <Label className="text-xs" htmlFor={fid("edit-issuer")}>Issuer</Label>
+              <Input id={fid("edit-issuer")} className="h-8 text-sm" enterKeyHint="next" value={ef.issuer} onChange={(e) => updateEf("issuer", e.target.value)} maxLength={100} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Network</Label>
-              <Input className="h-8 text-sm" value={ef.network} onChange={(e) => updateEf("network", e.target.value)} placeholder="e.g. Visa, Mastercard" maxLength={50} />
+              <Label className="text-xs" htmlFor={fid("edit-network")}>Network</Label>
+              <Input id={fid("edit-network")} className="h-8 text-sm" enterKeyHint="next" value={ef.network} onChange={(e) => updateEf("network", e.target.value)} placeholder="e.g. Visa, Mastercard" maxLength={50} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Card Type</Label>
+              <Label className="text-xs" htmlFor={fid("edit-type")}>Card Type</Label>
               <Select value={ef.card_type} onValueChange={(v) => updateEf("card_type", v)}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectTrigger id={fid("edit-type")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="personal">Personal</SelectItem>
                   <SelectItem value="business">Business</SelectItem>
@@ -1395,33 +1603,33 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
 
           {/* Dates & Financials */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">Open Date</Label>
+            <div className="space-y-1.5" role="group" aria-labelledby={fid("edit-open-date-label")}>
+              <Label className="text-xs" id={fid("edit-open-date-label")}>Open Date</Label>
               <DatePicker value={ef.open_date} onChange={(v) => updateEf("open_date", v)} placeholder="Select date" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Annual Fee ($)</Label>
-              <Input className="h-8 text-sm" type="number" min="0" value={ef.annual_fee} onChange={(e) => updateEf("annual_fee", e.target.value)} placeholder="0" />
+              <Label className="text-xs" htmlFor={fid("edit-af")}>Annual Fee ($)</Label>
+              <Input id={fid("edit-af")} className="h-8 text-sm" type="number" min="0" inputMode="numeric" enterKeyHint="next" value={ef.annual_fee} onChange={(e) => updateEf("annual_fee", e.target.value)} placeholder="0" />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Next Fee Date</Label>
+            <div className="space-y-1.5" role="group" aria-labelledby={fid("edit-af-date-label")}>
+              <Label className="text-xs" id={fid("edit-af-date-label")}>Next Fee Date</Label>
               <DatePicker value={ef.annual_fee_date} onChange={(v) => updateEf("annual_fee_date", v)} placeholder="Select date" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Credit Limit ($)</Label>
-              <Input className="h-8 text-sm" type="number" min="1" value={ef.credit_limit} onChange={(e) => updateEf("credit_limit", e.target.value)} placeholder="0" />
+              <Label className="text-xs" htmlFor={fid("edit-cl")}>Credit Limit ($)</Label>
+              <Input id={fid("edit-cl")} className="h-8 text-sm" type="number" min="1" inputMode="numeric" enterKeyHint="next" value={ef.credit_limit} onChange={(e) => updateEf("credit_limit", e.target.value)} placeholder="0" />
             </div>
           </div>
 
           {/* Signup Bonus */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Signup Bonus Amount</Label>
-              <Input className="h-8 text-sm" type="number" min="1" value={ef.signup_bonus_amount} onChange={(e) => updateEf("signup_bonus_amount", e.target.value)} placeholder="e.g. 60000" />
+              <Label className="text-xs" htmlFor={fid("edit-sba")}>Signup Bonus Amount</Label>
+              <Input id={fid("edit-sba")} className="h-8 text-sm" type="number" min="1" inputMode="numeric" enterKeyHint="next" value={ef.signup_bonus_amount} onChange={(e) => updateEf("signup_bonus_amount", e.target.value)} placeholder="e.g. 60000" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Bonus Type</Label>
-              <Input className="h-8 text-sm" value={ef.signup_bonus_type} onChange={(e) => updateEf("signup_bonus_type", e.target.value)} placeholder="e.g. points, miles" maxLength={50} />
+              <Label className="text-xs" htmlFor={fid("edit-sbt")}>Bonus Type</Label>
+              <Input id={fid("edit-sbt")} className="h-8 text-sm" enterKeyHint="next" value={ef.signup_bonus_type} onChange={(e) => updateEf("signup_bonus_type", e.target.value)} placeholder="e.g. points, miles" maxLength={50} />
             </div>
           </div>
 
@@ -1429,24 +1637,25 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Spend Requirement ($)</Label>
-                <Input className="h-8 text-sm" type="number" min="1" value={ef.spend_requirement} onChange={(e) => updateEf("spend_requirement", e.target.value)} placeholder="e.g. 4000" />
+                <Label className="text-xs" htmlFor={fid("edit-sr")}>Spend Requirement ($)</Label>
+                <Input id={fid("edit-sr")} className="h-8 text-sm" type="number" min="1" inputMode="numeric" enterKeyHint="next" value={ef.spend_requirement} onChange={(e) => updateEf("spend_requirement", e.target.value)} placeholder="e.g. 4000" />
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Spend Deadline</Label>
+              <div className="space-y-1.5" role="group" aria-labelledby={fid("edit-spend-deadline-label")}>
+                <Label className="text-xs" id={fid("edit-spend-deadline-label")}>Spend Deadline</Label>
                 <DatePicker value={ef.spend_deadline} onChange={(v) => updateEf("spend_deadline", v)} placeholder="Select date" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Spend Reminder Notes</Label>
-              <Input className="h-8 text-sm" value={ef.spend_reminder_notes} onChange={(e) => updateEf("spend_reminder_notes", e.target.value)} placeholder="Optional notes" maxLength={1000} />
+              <Label className="text-xs" htmlFor={fid("edit-srn")}>Spend Reminder Notes</Label>
+              <Input id={fid("edit-srn")} className="h-8 text-sm" enterKeyHint="next" value={ef.spend_reminder_notes} onChange={(e) => updateEf("spend_reminder_notes", e.target.value)} placeholder="Optional notes" maxLength={1000} />
             </div>
           </div>
 
-          {/* Tags */}
+          {/* Tags — the backend takes at most 20 tags of 50 characters, so the
+              field is capped a little above what that can spell. */}
           <div className="space-y-1.5">
-            <Label className="text-xs">Tags (comma-separated)</Label>
-            <Input className="h-8 text-sm" value={ef.custom_tags} onChange={(e) => updateEf("custom_tags", e.target.value)} placeholder="e.g. travel, dining, keeper" />
+            <Label className="text-xs" htmlFor={fid("edit-tags")}>Tags (comma-separated)</Label>
+            <Input id={fid("edit-tags")} className="h-8 text-sm" enterKeyHint="done" value={ef.custom_tags} onChange={(e) => updateEf("custom_tags", e.target.value)} placeholder="e.g. travel, dining, keeper" maxLength={1040} />
           </div>
 
           {/* Card Art */}
@@ -1456,26 +1665,38 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             if (!tmpl || tmpl.images.length <= 1) return null;
             return (
               <div className="space-y-1.5">
-                <Label className="text-xs">Card Art</Label>
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {tmpl.images.map((filename) => (
-                    <button
-                      key={filename}
-                      type="button"
-                      onClick={() => updateEf("card_image", filename === tmpl.images[0] ? null : filename)}
-                      className={`shrink-0 rounded-md overflow-hidden border-2 transition-all ${
-                        (ef.card_image === filename || (ef.card_image === null && filename === tmpl.images[0]))
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-transparent hover:border-muted-foreground/30"
-                      }`}
-                    >
-                      <img
-                        src={getTemplateImageVariantUrl(tmpl.id, filename)}
-                        alt={filename}
-                        className="w-20 h-[50px] object-cover"
-                      />
-                    </button>
-                  ))}
+                {/* role=group + aria-pressed, because selection was carried by a
+                    border alone and each option announced its filename. */}
+                <Label className="text-xs" id={fid("edit-art-label")}>Card Art</Label>
+                <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-labelledby={fid("edit-art-label")}>
+                  {tmpl.images.map((filename, i) => {
+                    const selected = ef.card_image === filename || (ef.card_image === null && filename === tmpl.images[0]);
+                    return (
+                      <button
+                        key={filename}
+                        type="button"
+                        aria-pressed={selected}
+                        aria-label={i === 0 ? "Default card art" : `Card art option ${i + 1}`}
+                        onClick={() => updateEf("card_image", filename === tmpl.images[0] ? null : filename)}
+                        className={`relative shrink-0 rounded-md overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                          selected
+                            ? "border-primary ring-2 ring-primary/20"
+                            : "border-transparent hover:border-muted-foreground/30"
+                        }`}
+                      >
+                        <img
+                          src={getTemplateImageVariantUrl(tmpl.id, filename)}
+                          alt=""
+                          className="w-20 h-[50px] object-cover"
+                        />
+                        {selected && (
+                          <span className="absolute right-1 top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="h-3 w-3" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -1489,8 +1710,15 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                 <Lock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                 <div className="min-w-0">
                   <p className="text-sm font-medium">Card details</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {secretEntry ? (
+                  <p
+                    className="text-xs text-muted-foreground truncate"
+                    title={secretEntry ? `${secretEntry.masked_pan} · expires ${secretEntry.exp_display}` : undefined}
+                  >
+                    {secretStatus === "loading" || secretStatus === "idle" ? (
+                      "Checking for stored details\u2026"
+                    ) : secretStatus === "error" ? (
+                      "Couldn't load stored details."
+                    ) : secretEntry ? (
                       <>
                         <span className="font-mono tabular-nums">{secretEntry.masked_pan}</span>
                         {" · expires "}
@@ -1502,19 +1730,34 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   </p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={() => setShowSecretDialog(true)}>
-                {secretEntry ? "Edit" : "Add"}
-              </Button>
+              {secretStatus === "error" ? (
+                <Button type="button" size="sm" variant="outline" className="h-8 shrink-0" onClick={() => { loadSecret(); }}>
+                  Retry
+                </Button>
+              ) : (
+                /* Disabled until the lookup lands: offering "Add" over details
+                   that are already stored invites an overwrite. */
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 shrink-0"
+                  disabled={secretStatus !== "loaded"}
+                  onClick={() => setShowSecretDialog(true)}
+                >
+                  {secretEntry ? "Edit" : "Add"}
+                </Button>
+              )}
             </div>
           </div>
 
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleSaveEdit} disabled={submittingAction !== null || !ef.card_name?.trim() || !ef.issuer?.trim()}>
+            <Button type="submit" size="sm" disabled={submittingAction !== null || !ef.card_name?.trim() || !ef.issuer?.trim()}>
               {submittingAction === "edit" ? "Saving..." : "Save Changes"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => { tryCloseEditForm(); }}>Cancel</Button>
+            <Button type="button" size="sm" variant="ghost" disabled={submittingAction !== null} onClick={() => { tryCloseEditForm(); }}>Cancel</Button>
           </div>
-        </div>
+        </form>
       )}
 
       <CardSecretDialog
@@ -1538,51 +1781,70 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
       />
 
       {showCloseForm && (
-        <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+        <form
+          ref={closeFormRef}
+          className="rounded-xl border bg-muted/30 p-4 space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (submittingAction !== null || !closeDate) return;
+            if (!confirmingClose) setConfirmingClose(true);
+            else handleClose();
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Ban className="h-4 w-4 text-destructive" />
+              <Ban className="h-4 w-4 text-danger" />
               <h4 className="font-medium text-sm">Close Card</h4>
             </div>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setShowCloseForm(false); setConfirmingClose(false); }}>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0" aria-label="Dismiss close card form" onClick={() => { setShowCloseForm(false); setConfirmingClose(false); }}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <div className="space-y-2">
-            <Label>Close Date</Label>
+          <div className="space-y-2" role="group" aria-labelledby={fid("close-date-label")}>
+            <Label id={fid("close-date-label")}>Close Date</Label>
             <DatePicker value={closeDate} onChange={setCloseDate} placeholder="Select close date" />
           </div>
           {!confirmingClose ? (
-            <Button size="sm" variant="destructive" onClick={() => setConfirmingClose(true)} disabled={!closeDate}>Close Card</Button>
+            <Button type="submit" size="sm" variant="destructive" disabled={!closeDate}>Close Card</Button>
           ) : (
             <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 space-y-2">
-              <p className="text-sm text-destructive">Are you sure? This card will be marked as closed.</p>
+              <p className="text-sm text-danger">Are you sure? This card will be marked as closed.</p>
               <div className="flex gap-2">
-                <Button size="sm" variant="destructive" onClick={handleClose} disabled={submittingAction !== null}>{submittingAction === "close" ? "Closing..." : "Yes, Close"}</Button>
-                <Button size="sm" variant="outline" onClick={() => setConfirmingClose(false)}>Cancel</Button>
+                <Button type="submit" size="sm" variant="destructive" disabled={submittingAction !== null}>{submittingAction === "close" ? "Closing..." : "Yes, Close"}</Button>
+                <Button type="button" size="sm" variant="outline" disabled={submittingAction !== null} onClick={() => setConfirmingClose(false)}>Cancel</Button>
               </div>
             </div>
           )}
-        </div>
+        </form>
       )}
 
       {showPCForm && (
-        <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+        <form
+          ref={pcFormRef}
+          className="rounded-xl border bg-muted/30 p-4 space-y-3"
+          // The wrapper exists only to swallow implicit submission: a product
+          // change is destructive (rewrites template_id/name/fee/network, writes
+          // an event, re-syncs benefits and resets the AF anniversary) and has no
+          // undo, so Enter in any of the seven text fields must never commit it.
+          // The trigger below is a type="button" with an explicit onClick.
+          onSubmit={(e) => e.preventDefault()}
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ArrowLeftRight className="h-4 w-4 text-blue-500" />
               <h4 className="font-medium text-sm">Product Change</h4>
             </div>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setShowPCForm(false)}>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0" aria-label="Close product change form" onClick={() => { setShowPCForm(false); resetPcForm(); }}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          {/* Issuer filter */}
+          {/* Issuer filter — switching it also clears the name, fee and network
+              the previous template filled in. */}
           <div className="space-y-1.5">
-            <Label className="text-xs">Filter by Issuer</Label>
-            <Select value={pcIssuerFilter} onValueChange={(v) => { setPcIssuerFilter(v); setPcSelectedTemplate("custom"); }}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+            <Label className="text-xs" htmlFor={fid("pc-issuer")}>Filter by Issuer</Label>
+            <Select value={pcIssuerFilter} onValueChange={(v) => { setPcIssuerFilter(v); handlePcTemplateChange("custom"); }}>
+              <SelectTrigger id={fid("pc-issuer")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="__current__">{card.issuer} (Current)</SelectItem>
                 <SelectItem value="__all__">All Issuers</SelectItem>
@@ -1597,9 +1859,9 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
 
           {/* Template selector */}
           <div className="space-y-1.5">
-            <Label className="text-xs">New Card Template</Label>
+            <Label className="text-xs" htmlFor={fid("pc-template")}>New Card Template</Label>
             <Select value={pcSelectedTemplate} onValueChange={handlePcTemplateChange}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select template" /></SelectTrigger>
+              <SelectTrigger id={fid("pc-template")} className="h-8 text-sm"><SelectValue placeholder="Select template" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="custom">Custom Card (No Template)</SelectItem>
                 {pcFilteredTemplates.map((t) => (
@@ -1618,26 +1880,36 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
             if (!tmpl || tmpl.images.length <= 1) return null;
             return (
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Card Art</Label>
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {tmpl.images.map((filename) => (
-                    <button
-                      key={filename}
-                      type="button"
-                      onClick={() => setPcSelectedImage(filename === tmpl.images[0] ? null : filename)}
-                      className={`shrink-0 rounded-md overflow-hidden border-2 transition-all ${
-                        (pcSelectedImage === filename || (pcSelectedImage === null && filename === tmpl.images[0]))
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-transparent hover:border-muted-foreground/30"
-                      }`}
-                    >
-                      <img
-                        src={getTemplateImageVariantUrl(tmpl.id, filename)}
-                        alt={filename}
-                        className="w-20 h-[50px] object-cover"
-                      />
-                    </button>
-                  ))}
+                <Label className="text-xs text-muted-foreground" id={fid("pc-art-label")}>Card Art</Label>
+                <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-labelledby={fid("pc-art-label")}>
+                  {tmpl.images.map((filename, i) => {
+                    const selected = pcSelectedImage === filename || (pcSelectedImage === null && filename === tmpl.images[0]);
+                    return (
+                      <button
+                        key={filename}
+                        type="button"
+                        aria-pressed={selected}
+                        aria-label={i === 0 ? "Default card art" : `Card art option ${i + 1}`}
+                        onClick={() => setPcSelectedImage(filename === tmpl.images[0] ? null : filename)}
+                        className={`relative shrink-0 rounded-md overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                          selected
+                            ? "border-primary ring-2 ring-primary/20"
+                            : "border-transparent hover:border-muted-foreground/30"
+                        }`}
+                      >
+                        <img
+                          src={getTemplateImageVariantUrl(tmpl.id, filename)}
+                          alt=""
+                          className="w-20 h-[50px] object-cover"
+                        />
+                        {selected && (
+                          <span className="absolute right-1 top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="h-3 w-3" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -1658,10 +1930,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   <>
                     <p className="text-xs font-medium text-muted-foreground">Credits:</p>
                     {credits.map((c, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <span>{c.name}</span>
-                        <span className="text-muted-foreground text-xs">
-                          ${c.amount}{frequencyShort(c.frequency)} ({c.reset_type})
+                      <div key={i} className="flex items-start justify-between gap-2 text-sm">
+                        <span className="min-w-0 break-words">{c.name}</span>
+                        <span className="text-muted-foreground text-xs shrink-0">
+                          {formatCurrency(c.amount)}{frequencyShort(c.frequency)} ({resetTypeLabel(c.reset_type)})
                         </span>
                       </div>
                     ))}
@@ -1671,10 +1943,10 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
                   <>
                     <p className="text-xs font-medium text-muted-foreground mt-2">Spend thresholds:</p>
                     {thresholds.map((t, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <span>{t.name}</span>
-                        <span className="text-muted-foreground text-xs">
-                          ${t.spend_required.toLocaleString()}{frequencyShort(t.frequency)} ({t.reset_type})
+                      <div key={i} className="flex items-start justify-between gap-2 text-sm">
+                        <span className="min-w-0 break-words">{t.name}</span>
+                        <span className="text-muted-foreground text-xs shrink-0">
+                          {formatCurrency(t.spend_required)}{frequencyShort(t.frequency)} ({resetTypeLabel(t.reset_type)})
                         </span>
                       </div>
                     ))}
@@ -1686,89 +1958,92 @@ export function CardDetailContent({ card, onUpdated, onDeleted, profileName }: C
 
           {/* Card name */}
           <div className="space-y-1.5">
-            <Label className="text-xs">New Card Name</Label>
-            <Input className="h-8 text-sm" value={pcName} onChange={(e) => setPcName(e.target.value)} placeholder="e.g. Freedom Unlimited" maxLength={100} />
+            <Label className="text-xs" htmlFor={fid("pc-name")}>New Card Name</Label>
+            <Input id={fid("pc-name")} className="h-8 text-sm" enterKeyHint="next" value={pcName} onChange={(e) => setPcName(e.target.value)} placeholder="e.g. Freedom Unlimited" maxLength={100} />
           </div>
 
           {/* Annual fee + Network */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Annual Fee ($)</Label>
-              <Input className="h-8 text-sm" type="number" min="0" value={pcAnnualFee} onChange={(e) => setPcAnnualFee(e.target.value)} placeholder="0" />
+              <Label className="text-xs" htmlFor={fid("pc-af")}>Annual Fee ($)</Label>
+              <Input id={fid("pc-af")} className="h-8 text-sm" type="number" min="0" inputMode="numeric" enterKeyHint="next" value={pcAnnualFee} onChange={(e) => setPcAnnualFee(e.target.value)} placeholder="0" />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Network</Label>
-              <Input className="h-8 text-sm" value={pcNetwork} onChange={(e) => setPcNetwork(e.target.value)} placeholder="e.g. Visa" maxLength={50} />
+              <Label className="text-xs" htmlFor={fid("pc-network")}>Network</Label>
+              <Input id={fid("pc-network")} className="h-8 text-sm" enterKeyHint="next" value={pcNetwork} onChange={(e) => setPcNetwork(e.target.value)} placeholder="e.g. Visa" maxLength={50} />
             </div>
           </div>
 
           {/* Change date */}
-          <div className="space-y-1.5">
-            <Label className="text-xs">Change Date</Label>
+          <div className="space-y-1.5" role="group" aria-labelledby={fid("pc-date-label")}>
+            <Label className="text-xs" id={fid("pc-date-label")}>Change Date</Label>
             <DatePicker value={pcDate} onChange={setPcDate} placeholder="Select change date" />
           </div>
 
           {/* Sync benefits toggle */}
           <div className="flex items-center gap-2">
             <Switch
+              id={fid("pc-sync")}
               checked={pcSyncBenefits}
               onCheckedChange={setPcSyncBenefits}
               disabled={pcSelectedTemplate === "custom"}
             />
-            <Label className="text-sm font-normal">Update benefits from new template</Label>
+            <Label className="text-sm font-normal" htmlFor={fid("pc-sync")}>Update benefits from new template</Label>
           </div>
 
           {/* Reset AF anniversary toggle */}
           <div className="flex items-center gap-2">
             <Switch
+              id={fid("pc-reset-af")}
               checked={pcResetAfAnniversary}
               onCheckedChange={setPcResetAfAnniversary}
             />
-            <Label className="text-sm font-normal">Reset annual fee anniversary to change date</Label>
+            <Label className="text-sm font-normal" htmlFor={fid("pc-reset-af")}>Reset annual fee anniversary to change date</Label>
           </div>
 
           {/* Upgrade bonus toggle */}
           <div className="flex items-center gap-2">
             <Switch
+              id={fid("pc-upgrade-bonus")}
               checked={pcUpgradeBonus}
               onCheckedChange={setPcUpgradeBonus}
             />
-            <Label className="text-sm font-normal">Include upgrade bonus</Label>
+            <Label className="text-sm font-normal" htmlFor={fid("pc-upgrade-bonus")}>Include upgrade bonus</Label>
           </div>
 
           {pcUpgradeBonus && (
             <div className="rounded-lg border bg-muted/20 p-3 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Bonus Amount</Label>
-                  <Input className="h-8 text-sm" type="number" min="1" value={pcUpgradeBonusAmount} onChange={(e) => setPcUpgradeBonusAmount(e.target.value)} placeholder="e.g. 150000" />
+                  <Label className="text-xs" htmlFor={fid("pc-bonus-amount")}>Bonus Amount</Label>
+                  <Input id={fid("pc-bonus-amount")} className="h-8 text-sm" type="number" min="1" inputMode="numeric" enterKeyHint="next" value={pcUpgradeBonusAmount} onChange={(e) => setPcUpgradeBonusAmount(e.target.value)} placeholder="e.g. 150000" />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Bonus Type</Label>
-                  <Input className="h-8 text-sm" value={pcUpgradeBonusType} onChange={(e) => setPcUpgradeBonusType(e.target.value)} placeholder="e.g. points, miles" maxLength={100} />
+                  <Label className="text-xs" htmlFor={fid("pc-bonus-type")}>Bonus Type</Label>
+                  <Input id={fid("pc-bonus-type")} className="h-8 text-sm" enterKeyHint="next" value={pcUpgradeBonusType} onChange={(e) => setPcUpgradeBonusType(e.target.value)} placeholder="e.g. points, miles" maxLength={100} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Spend Requirement ($)</Label>
-                  <Input className="h-8 text-sm" type="number" min="1" value={pcUpgradeSpendReq} onChange={(e) => setPcUpgradeSpendReq(e.target.value)} placeholder="e.g. 6000" />
+                  <Label className="text-xs" htmlFor={fid("pc-spend-req")}>Spend Requirement ($)</Label>
+                  <Input id={fid("pc-spend-req")} className="h-8 text-sm" type="number" min="1" inputMode="numeric" enterKeyHint="next" value={pcUpgradeSpendReq} onChange={(e) => setPcUpgradeSpendReq(e.target.value)} placeholder="e.g. 6000" />
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Spend Deadline</Label>
+                <div className="space-y-1.5" role="group" aria-labelledby={fid("pc-spend-deadline-label")}>
+                  <Label className="text-xs" id={fid("pc-spend-deadline-label")}>Spend Deadline</Label>
                   <DatePicker value={pcUpgradeSpendDeadline} onChange={setPcUpgradeSpendDeadline} placeholder="Select date" />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Spend Reminder Notes</Label>
-                <Input className="h-8 text-sm" value={pcUpgradeSpendNotes} onChange={(e) => setPcUpgradeSpendNotes(e.target.value)} placeholder="Optional notes" maxLength={1000} />
+                <Label className="text-xs" htmlFor={fid("pc-spend-notes")}>Spend Reminder Notes</Label>
+                <Input id={fid("pc-spend-notes")} className="h-8 text-sm" enterKeyHint="done" value={pcUpgradeSpendNotes} onChange={(e) => setPcUpgradeSpendNotes(e.target.value)} placeholder="Optional notes" maxLength={1000} />
               </div>
             </div>
           )}
 
-          <Button size="sm" onClick={handleProductChange} disabled={submittingAction !== null || !pcName?.trim() || !pcDate || (pcUpgradeBonus && !pcUpgradeBonusAmount)}>
+          <Button type="button" size="sm" onClick={handleProductChange} disabled={submittingAction !== null || !pcName?.trim() || !pcDate || (pcUpgradeBonus && !pcUpgradeBonusAmount)}>
             {submittingAction === "productChange" ? "Saving..." : "Confirm Product Change"}
           </Button>
-        </div>
+        </form>
       )}
 
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import type { Card, CardBenefit } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,22 @@ import {
   usagePercentage,
   usageColor,
 } from "@/lib/benefit-utils";
-import { parseIntStrict } from "@/lib/utils";
+import { formatCurrency, parseIntStrict } from "@/lib/utils";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Gift, Plus, Pencil, Trash2, X, RefreshCw, Target, ChevronDown, Check } from "lucide-react";
+import { Gift, Plus, Pencil, Trash2, X, RefreshCw, Target, ChevronDown, Check, Loader2 } from "lucide-react";
+
+// The Notes fields are plain <textarea>s (there is no Textarea primitive), so
+// they carry the Input primitive's classes by hand — including text-base below
+// md, without which iOS Safari zooms the page on focus and never zooms back.
+const TEXTAREA_CLASS =
+  "flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-base md:text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 min-h-[60px] resize-y";
+
+// Collapse/expand headers are a single line of 14px text, which is a ~20px tap
+// target. The negative margin gives the padding back to the layout so the header
+// row keeps the height it had.
+const SECTION_HEADER_CLASS =
+  "flex items-center gap-2 text-left min-h-[44px] sm:min-h-0 py-2 -my-2";
 
 interface BenefitsSectionProps {
   card: Card;
@@ -58,8 +70,18 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
   const [editResetType, setEditResetType] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [populating, setPopulating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  // Per-row in-flight guard: the usage, auto-complete and delete controls all
+  // live inside a row, so a single boolean would freeze every other row too.
+  const [busyId, setBusyId] = useState<number | null>(null);
+
+  // One id namespace per mounted section; the add form and the (single) open
+  // edit form get their own prefixes so both can be on screen at once.
+  const uid = useId();
+  const addId = (field: string) => `${uid}-add-${field}`;
+  const editId = (field: string) => `${uid}-edit-${field}`;
 
   const fetchBenefits = async () => {
     try {
@@ -76,33 +98,42 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
     fetchBenefits();
   }, [card.id]);
 
-  const handleAdd = async () => {
-    if (!addName || !addAmount) return;
+  // Closing the form used to leave the draft — and the error banner, which
+  // lives outside the form — sitting there for the next open.
+  const resetAddForm = () => {
+    setShowAddForm(false);
+    setAddName("");
+    setAddAmount("");
+    setAddFrequency("monthly");
+    setAddResetType("calendar");
+    setAddBenefitType("credit");
+    setAddNotes("");
+    setError(null);
+  };
+
+  const handleAdd = async (e?: FormEvent) => {
+    e?.preventDefault();
+    if (submitting || !addName.trim() || !addAmount.trim()) return;
     setSubmitting(true);
     setError(null);
     try {
       const parsedAmount = parseIntStrict(addAmount);
       if (!parsedAmount || parsedAmount <= 0) {
-        setError("Amount must be a positive number");
+        setError("Amount must be a positive whole dollar amount");
         setSubmitting(false);
         return;
       }
       await createCardBenefit(card.id, {
-        benefit_name: addName,
+        benefit_name: addName.trim(),
         benefit_amount: parsedAmount,
         frequency: addFrequency,
         reset_type: addResetType,
         benefit_type: addBenefitType,
         notes: addNotes || null,
       });
-      setShowAddForm(false);
-      setAddName("");
-      setAddAmount("");
-      setAddFrequency("monthly");
-      setAddResetType("calendar");
-      setAddBenefitType("credit");
-      setAddNotes("");
-      fetchBenefits();
+      resetAddForm();
+      await fetchBenefits();
+      onUpdated();
       toast.success("Benefit added");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to add benefit");
@@ -111,25 +142,39 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
     }
   };
 
-  const handleEdit = async (benefitId: number) => {
+  const handleEdit = async (benefitId: number, e?: FormEvent) => {
+    e?.preventDefault();
+    if (submitting) return;
+    // Name and Amount are required, and `x || undefined` used to drop an empty
+    // one from the PATCH body — the backend then saw "unchanged" and we toasted
+    // "Benefit updated" over an edit that never happened.
+    if (!editName.trim()) {
+      setError("Name is required");
+      return;
+    }
+    if (!editAmount.trim()) {
+      setError("Amount is required");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
-      const parsedEditAmount = editAmount ? parseIntStrict(editAmount) : undefined;
-      if (editAmount && parsedEditAmount === null) {
-        setError("Amount must be a valid number");
+      const parsedEditAmount = parseIntStrict(editAmount);
+      if (parsedEditAmount === null || parsedEditAmount <= 0) {
+        setError("Amount must be a positive whole dollar amount");
         setSubmitting(false);
         return;
       }
       await updateCardBenefit(card.id, benefitId, {
-        benefit_name: editName || undefined,
-        benefit_amount: parsedEditAmount ?? undefined,
+        benefit_name: editName.trim(),
+        benefit_amount: parsedEditAmount,
         frequency: editFrequency || undefined,
         reset_type: editResetType || undefined,
         notes: editNotes,
       });
       setEditingId(null);
-      fetchBenefits();
+      await fetchBenefits();
+      onUpdated();
       toast.success("Benefit updated");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to update benefit");
@@ -139,53 +184,87 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
   };
 
   const handleDelete = async (benefitId: number) => {
+    // Scoped to this row, matching `disabled={busyId === benefit.id}` on the
+    // controls: a global `busyId !== null` swallowed clicks on every other row
+    // while one request was in flight, with no spinner or toast to explain it.
+    if (busyId === benefitId) return;
+    setBusyId(benefitId);
     setError(null);
     try {
       await deleteCardBenefit(card.id, benefitId);
-      fetchBenefits();
+      setDeletingId(null);
+      await fetchBenefits();
+      onUpdated();
       toast.success("Benefit deleted");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to delete benefit");
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleAddUsage = async (benefit: CardBenefit) => {
-    const addVal = parseIntStrict(addAmounts[benefit.id] || "0");
-    if (!addVal || addVal <= 0) return;
+    if (busyId === benefit.id) return;
+    const raw = addAmounts[benefit.id] || "";
+    if (!raw.trim()) return;
+    const addVal = parseIntStrict(raw);
+    // Silent early-return on "12.50" made the Add button look dead, exactly as
+    // it did on the dashboard twin (credits-widget.tsx handleAddUsage).
+    if (addVal === null) {
+      toast.error("Enter a whole dollar amount");
+      return;
+    }
+    if (addVal <= 0) return;
     const newTotal = benefit.amount_used + addVal;
+    setBusyId(benefit.id);
     try {
       await updateBenefitUsage(card.id, benefit.id, { amount_used: newTotal });
       setAddAmounts((prev) => ({ ...prev, [benefit.id]: "" }));
-      fetchBenefits();
+      await fetchBenefits();
+      onUpdated();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to update usage");
+      toast.error(e instanceof Error ? e.message : "Failed to update usage");
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleAutoComplete = async (benefit: CardBenefit) => {
+    if (busyId === benefit.id) return;
+    setBusyId(benefit.id);
     try {
       await updateBenefitUsage(card.id, benefit.id, { amount_used: benefit.benefit_amount });
-      fetchBenefits();
+      await fetchBenefits();
+      onUpdated();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to update usage");
+    } finally {
+      setBusyId(null);
     }
   };
 
+  // Its own flag rather than `submitting`, which the add/edit forms already own —
+  // sharing it made the header button read "Populating..." during an unrelated save.
   const handlePopulate = async () => {
-    setSubmitting(true);
+    if (populating) return;
+    setPopulating(true);
     setError(null);
     try {
       await populateBenefits(card.id);
-      fetchBenefits();
+      await fetchBenefits();
+      onUpdated();
       toast.success("Benefits populated from template");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to populate benefits");
     } finally {
-      setSubmitting(false);
+      setPopulating(false);
     }
   };
 
   const startEdit = (benefit: CardBenefit) => {
+    // An armed "Delete?" survived a jump into the edit form and stayed armed
+    // behind it, so cancelling the edit dropped you back onto a live delete.
+    setDeletingId(null);
     setEditingId(benefit.id);
     setEditName(benefit.benefit_name);
     setEditAmount(benefit.benefit_amount.toString());
@@ -197,12 +276,28 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
   if (loading) {
     return (
       <div className="space-y-3">
-        <div className="h-px bg-muted" />
-        <button onClick={onToggleExpand} aria-expanded={expanded} className="flex items-center gap-2">
-          <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${!expanded ? "-rotate-90" : ""}`} />
-          <Gift className="h-4 w-4 text-muted-foreground" />
-          <h4 className="font-medium text-sm">Benefits & Credits</h4>
-        </button>
+        {/* Same divider colour and same action row as the loaded header, or the
+            whole section jumps ~8px sideways-and-down when the data lands. */}
+        <div className="h-px" style={{ backgroundColor: accentTint }} />
+        <div className="flex items-center justify-between">
+          <button onClick={onToggleExpand} aria-expanded={expanded} className={SECTION_HEADER_CLASS}>
+            <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${!expanded ? "-rotate-90" : ""}`} />
+            <Gift className="h-4 w-4 text-muted-foreground" />
+            <h4 className="font-medium text-sm">Benefits & Credits</h4>
+          </button>
+          <div className="flex gap-1.5 shrink-0">
+            {card.template_id && (
+              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" disabled>
+                <RefreshCw className="h-3 w-3" />
+                Populate
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" disabled>
+              <Plus className="h-3 w-3" />
+              Add
+            </Button>
+          </div>
+        </div>
         {expanded && [1, 2].map((i) => (
           <div key={i} className="rounded-lg border bg-muted/20 p-3 space-y-2">
             <div className="flex items-center justify-between">
@@ -224,7 +319,7 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
     <div className="space-y-3">
       <div className="h-px" style={{ backgroundColor: accentTint }} />
       <div className="flex items-center justify-between">
-        <button onClick={onToggleExpand} aria-expanded={expanded} className="flex items-center gap-2">
+        <button onClick={onToggleExpand} aria-expanded={expanded} className={SECTION_HEADER_CLASS}>
           <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${!expanded ? "-rotate-90" : ""}`} />
           <Gift className="h-4 w-4 text-muted-foreground" />
           <h4 className="font-medium text-sm">Benefits & Credits</h4>
@@ -234,14 +329,14 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
             </Badge>
           )}
         </button>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 shrink-0">
           {card.template_id && (
-            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" onClick={() => { onExpand(); handlePopulate(); }}>
-              <RefreshCw className="h-3 w-3" />
-              Populate
+            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" onClick={() => { onExpand(); handlePopulate(); }} disabled={populating}>
+              {populating ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+              {populating ? "Populating..." : "Populate"}
             </Button>
           )}
-          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" onClick={() => { onExpand(); setShowAddForm(true); }}>
+          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1" onClick={() => { onExpand(); setShowAddForm(true); }} disabled={populating}>
             <Plus className="h-3 w-3" />
             Add
           </Button>
@@ -249,9 +344,9 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
       </div>
 
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-2 text-xs text-destructive flex items-center justify-between">
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-2 text-xs text-danger flex items-center justify-between">
           <span>{error}</span>
-          <button onClick={() => setError(null)} className="ml-2 hover:opacity-70"><X className="h-3 w-3" /></button>
+          <button onClick={() => setError(null)} className="ml-2 p-2.5 -m-1.5 hover:opacity-70" aria-label="Dismiss error"><X className="h-3 w-3" /></button>
         </div>
       )}
 
@@ -262,17 +357,17 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
 
       {/* Add benefit form */}
       {showAddForm && (
-        <div className="rounded-lg border bg-muted/20 p-3 space-y-2">
+        <form onSubmit={handleAdd} className="rounded-lg border bg-muted/20 p-3 space-y-2">
           <div className="flex items-center justify-between">
             <h5 className="text-sm font-medium">Add Benefit</h5>
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setShowAddForm(false)}>
+            <Button type="button" size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={resetAddForm} aria-label="Close add benefit form">
               <X className="h-3 w-3" />
             </Button>
           </div>
           <div>
-            <Label className="text-xs">Type</Label>
+            <Label htmlFor={addId("type")} className="text-xs">Type</Label>
             <Select value={addBenefitType} onValueChange={setAddBenefitType}>
-              <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+              <SelectTrigger id={addId("type")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="credit">Credit</SelectItem>
                 <SelectItem value="spend_threshold">Spend Threshold</SelectItem>
@@ -280,20 +375,20 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Name</Label>
-              <Input className="h-8 text-sm" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "e.g. Free Night Award" : "e.g. Uber Cash"} maxLength={100} />
+            <div className="min-w-0">
+              <Label htmlFor={addId("name")} className="text-xs">Name</Label>
+              <Input id={addId("name")} className="h-8 text-sm" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "e.g. Free Night Award" : "e.g. Uber Cash"} maxLength={100} enterKeyHint="next" />
             </div>
-            <div>
-              <Label className="text-xs">{addBenefitType === "spend_threshold" ? "Spend Required ($)" : "Amount ($)"}</Label>
-              <Input className="h-8 text-sm" type="number" value={addAmount} onChange={(e) => setAddAmount(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "15000" : "15"} />
+            <div className="min-w-0">
+              <Label htmlFor={addId("amount")} className="text-xs">{addBenefitType === "spend_threshold" ? "Spend Required ($)" : "Amount ($)"}</Label>
+              <Input id={addId("amount")} className="h-8 text-sm" type="number" inputMode="numeric" value={addAmount} onChange={(e) => setAddAmount(e.target.value)} placeholder={addBenefitType === "spend_threshold" ? "15000" : "15"} enterKeyHint="done" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Frequency</Label>
+            <div className="min-w-0">
+              <Label htmlFor={addId("frequency")} className="text-xs">Frequency</Label>
               <Select value={addFrequency} onValueChange={setAddFrequency}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectTrigger id={addId("frequency")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="monthly">Monthly</SelectItem>
                   <SelectItem value="quarterly">Quarterly</SelectItem>
@@ -302,10 +397,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-xs">Reset Type</Label>
+            <div className="min-w-0">
+              <Label htmlFor={addId("reset")} className="text-xs">Reset Type</Label>
               <Select value={addResetType} onValueChange={setAddResetType}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                <SelectTrigger id={addId("reset")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="calendar">Calendar</SelectItem>
                   <SelectItem value="cardiversary">Cardiversary</SelectItem>
@@ -314,9 +409,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
             </div>
           </div>
           <div>
-            <Label className="text-xs">Notes</Label>
+            <Label htmlFor={addId("notes")} className="text-xs">Notes</Label>
             <textarea
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+              id={addId("notes")}
+              className={TEXTAREA_CLASS}
               value={addNotes}
               onChange={(e) => setAddNotes(e.target.value)}
               maxLength={1000}
@@ -324,10 +420,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
             />
             <span className="text-[10px] text-muted-foreground">{addNotes.length}/1000</span>
           </div>
-          <Button size="sm" className="h-7 text-xs" onClick={handleAdd} disabled={submitting || !addName || !addAmount}>
-            {submitting ? "Adding..." : "Add Benefit"}
+          <Button type="submit" size="sm" className="h-7 text-xs" disabled={submitting || !addName.trim() || !addAmount.trim()}>
+            {submitting ? <><Loader2 className="h-3 w-3 animate-spin mr-1.5" />Adding...</> : "Add Benefit"}
           </Button>
-        </div>
+        </form>
       )}
 
       {benefits.filter(b => b.benefit_type !== "spend_threshold").map((benefit) => {
@@ -337,28 +433,28 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
 
         if (isEditing) {
           return (
-            <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+            <form key={benefit.id} onSubmit={(e) => handleEdit(benefit.id, e)} className="rounded-lg border bg-muted/20 p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <h5 className="text-sm font-medium">Edit Benefit</h5>
-                <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setEditingId(null)}>
+                <Button type="button" size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={() => setEditingId(null)} aria-label={`Cancel editing ${benefit.benefit_name}`}>
                   <X className="h-3 w-3" />
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">Name</Label>
-                  <Input className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} />
+                <div className="min-w-0">
+                  <Label htmlFor={editId("name")} className="text-xs">Name</Label>
+                  <Input id={editId("name")} className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} enterKeyHint="next" />
                 </div>
-                <div>
-                  <Label className="text-xs">Amount ($)</Label>
-                  <Input className="h-8 text-sm" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} />
+                <div className="min-w-0">
+                  <Label htmlFor={editId("amount")} className="text-xs">Amount ($)</Label>
+                  <Input id={editId("amount")} className="h-8 text-sm" type="number" inputMode="numeric" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} enterKeyHint="done" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">Frequency</Label>
+                <div className="min-w-0">
+                  <Label htmlFor={editId("frequency")} className="text-xs">Frequency</Label>
                   <Select value={editFrequency} onValueChange={setEditFrequency}>
-                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id={editId("frequency")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="monthly">Monthly</SelectItem>
                       <SelectItem value="quarterly">Quarterly</SelectItem>
@@ -367,10 +463,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label className="text-xs">Reset Type</Label>
+                <div className="min-w-0">
+                  <Label htmlFor={editId("reset")} className="text-xs">Reset Type</Label>
                   <Select value={editResetType} onValueChange={setEditResetType}>
-                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id={editId("reset")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="calendar">Calendar</SelectItem>
                       <SelectItem value="cardiversary">Cardiversary</SelectItem>
@@ -379,9 +475,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                 </div>
               </div>
               <div>
-                <Label className="text-xs">Notes</Label>
+                <Label htmlFor={editId("notes")} className="text-xs">Notes</Label>
                 <textarea
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+                  id={editId("notes")}
+                  className={TEXTAREA_CLASS}
                   value={editNotes}
                   onChange={(e) => setEditNotes(e.target.value)}
                   maxLength={1000}
@@ -389,8 +486,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                 />
                 <span className="text-[10px] text-muted-foreground">{editNotes.length}/1000</span>
               </div>
-              <Button size="sm" className="h-7 text-xs" onClick={() => handleEdit(benefit.id)} disabled={submitting}>{submitting ? "Saving..." : "Save"}</Button>
-            </div>
+              <Button type="submit" size="sm" className="h-7 text-xs" disabled={submitting || !editName.trim() || !editAmount.trim()}>
+                {submitting ? <><Loader2 className="h-3 w-3 animate-spin mr-1.5" />Saving...</> : "Save"}
+              </Button>
+            </form>
           );
         }
 
@@ -403,8 +502,8 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                 : "bg-muted/20"
             }`}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                 <span className="text-sm font-medium">{benefit.benefit_name}</span>
                 {benefit.retired && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 font-medium">
@@ -420,19 +519,26 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                   {frequencyLabel(benefit.frequency)} &middot; {resetTypeLabel(benefit.reset_type)}
                 </span>
               </div>
-              <div className="flex gap-0.5">
-                <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" title="Mark as fully used" disabled={benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
-                  <Check className="h-3 w-3" />
+              <div className="flex gap-0.5 shrink-0">
+                <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" title="Mark as fully used" disabled={busyId === benefit.id || benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
+                  {busyId === benefit.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                 </Button>
                 <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
                   <Pencil className="h-3 w-3" />
                 </Button>
+                {/* Armed state keeps the arming button's tap target, and carries
+                    its own X — there is no outside-click or timeout to disarm it. */}
                 {deletingId === benefit.id ? (
-                  <Button size="sm" variant="destructive" className="h-6 px-2 text-xs" onClick={() => { handleDelete(benefit.id); setDeletingId(null); }}>
-                    Delete?
-                  </Button>
+                  <>
+                    <Button size="sm" variant="destructive" className="h-6 min-h-[44px] sm:min-h-0 px-2 text-xs" disabled={busyId === benefit.id} onClick={() => handleDelete(benefit.id)} aria-label={`Confirm delete ${benefit.benefit_name}`}>
+                      {busyId === benefit.id ? "Deleting..." : "Delete?"}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" disabled={busyId === benefit.id} onClick={() => setDeletingId(null)} aria-label={`Keep ${benefit.benefit_name}`}>
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </>
                 ) : (
-                  <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0 text-destructive" onClick={() => setDeletingId(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
+                  <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0 text-danger" onClick={() => setDeletingId(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 )}
@@ -449,7 +555,9 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span className={pct > 100 ? "text-amber-600 dark:text-amber-400 font-medium" : ""}>
-                  ${benefit.amount_used} / ${benefit.benefit_amount}
+                  {formatCurrency(benefit.amount_used)} / {formatCurrency(benefit.benefit_amount)}
+                  {/* Same wording as the dashboard twin (credits-widget.tsx) —
+                      the two screens named one state two different ways. */}
                   {pct > 100 && " (over limit)"}
                   {pct > 0 && pct <= 100 && <span className="ml-1">({pct}%)</span>}
                 </span>
@@ -464,24 +572,24 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
               <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
             )}
 
-            {/* Quick add usage */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">+$</span>
+            {/* Quick add usage — a real form so Enter submits it on mobile too */}
+            <form className="flex items-center gap-1.5" onSubmit={(e) => { e.preventDefault(); handleAddUsage(benefit); }}>
+              <span className="text-xs text-muted-foreground" aria-hidden="true">+$</span>
               <Input
                 className="h-7 w-20 text-sm"
                 type="number"
+                inputMode="numeric"
                 min="0"
                 placeholder="0"
+                enterKeyHint="done"
+                aria-label={`Dollars to add to ${benefit.benefit_name}`}
                 value={addAmounts[benefit.id] || ""}
                 onChange={(e) => setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddUsage(benefit);
-                }}
               />
-              <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleAddUsage(benefit)}>
-                Add
+              <Button type="submit" size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={busyId === benefit.id} aria-label={`Add usage to ${benefit.benefit_name}`}>
+                {busyId === benefit.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
               </Button>
-            </div>
+            </form>
           </div>
         );
       })}
@@ -501,28 +609,28 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
 
             if (isEditing) {
               return (
-                <div key={benefit.id} className="rounded-lg border bg-muted/20 p-3 space-y-2">
+                <form key={benefit.id} onSubmit={(e) => handleEdit(benefit.id, e)} className="rounded-lg border bg-muted/20 p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <h5 className="text-sm font-medium">Edit Threshold</h5>
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setEditingId(null)}>
+                    <Button type="button" size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={() => setEditingId(null)} aria-label={`Cancel editing ${benefit.benefit_name}`}>
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs">Name</Label>
-                      <Input className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} />
+                    <div className="min-w-0">
+                      <Label htmlFor={editId("name")} className="text-xs">Name</Label>
+                      <Input id={editId("name")} className="h-8 text-sm" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={100} enterKeyHint="next" />
                     </div>
-                    <div>
-                      <Label className="text-xs">Spend Required ($)</Label>
-                      <Input className="h-8 text-sm" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} />
+                    <div className="min-w-0">
+                      <Label htmlFor={editId("amount")} className="text-xs">Spend Required ($)</Label>
+                      <Input id={editId("amount")} className="h-8 text-sm" type="number" inputMode="numeric" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} enterKeyHint="done" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs">Frequency</Label>
+                    <div className="min-w-0">
+                      <Label htmlFor={editId("frequency")} className="text-xs">Frequency</Label>
                       <Select value={editFrequency} onValueChange={setEditFrequency}>
-                        <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id={editId("frequency")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="monthly">Monthly</SelectItem>
                           <SelectItem value="quarterly">Quarterly</SelectItem>
@@ -531,10 +639,10 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label className="text-xs">Reset Type</Label>
+                    <div className="min-w-0">
+                      <Label htmlFor={editId("reset")} className="text-xs">Reset Type</Label>
                       <Select value={editResetType} onValueChange={setEditResetType}>
-                        <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id={editId("reset")} className="h-8 text-sm"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="calendar">Calendar</SelectItem>
                           <SelectItem value="cardiversary">Cardiversary</SelectItem>
@@ -543,16 +651,23 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs">Notes</Label>
+                    <Label htmlFor={editId("notes")} className="text-xs">Notes</Label>
+                    {/* maxLength and the counter match the other three copies of
+                        this field; without them an over-length note 422s. */}
                     <textarea
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm min-h-[60px] resize-y"
+                      id={editId("notes")}
+                      className={TEXTAREA_CLASS}
                       value={editNotes}
                       onChange={(e) => setEditNotes(e.target.value)}
+                      maxLength={1000}
                       placeholder="Optional notes..."
                     />
+                    <span className="text-[10px] text-muted-foreground">{editNotes.length}/1000</span>
                   </div>
-                  <Button size="sm" className="h-7 text-xs" onClick={() => handleEdit(benefit.id)} disabled={submitting}>{submitting ? "Saving..." : "Save"}</Button>
-                </div>
+                  <Button type="submit" size="sm" className="h-7 text-xs" disabled={submitting || !editName.trim() || !editAmount.trim()}>
+                    {submitting ? <><Loader2 className="h-3 w-3 animate-spin mr-1.5" />Saving...</> : "Save"}
+                  </Button>
+                </form>
               );
             }
 
@@ -567,8 +682,8 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                     : "bg-muted/20"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 flex-wrap">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                     <span className="text-sm font-medium">{benefit.benefit_name}</span>
                     {isUnlocked && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 font-medium">
@@ -589,23 +704,29 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                       {frequencyLabel(benefit.frequency)} &middot; {resetTypeLabel(benefit.reset_type)}
                     </span>
                   </div>
-                  <div className="flex gap-0.5">
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" title="Mark as fully used" disabled={benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
-                      <Check className="h-3 w-3" />
+                  <div className="flex gap-0.5 shrink-0">
+                    <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" title="Mark as fully used" disabled={busyId === benefit.id || benefit.amount_used >= benefit.benefit_amount} onClick={() => handleAutoComplete(benefit)} aria-label={`Mark ${benefit.benefit_name} as fully used`}>
+                      {busyId === benefit.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
+                    <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" onClick={() => startEdit(benefit)} aria-label={`Edit ${benefit.benefit_name}`}>
                       <Pencil className="h-3 w-3" />
                     </Button>
                     {/* Two-step, matching the credits list above: a single
                         click here used to permanently delete the threshold and
                         its accumulated amount_used, and the control sits at the
-                        same coordinates as the guarded one. */}
+                        same coordinates as the guarded one. The X disarms it —
+                        nothing else does. */}
                     {deletingId === benefit.id ? (
-                      <Button size="sm" variant="destructive" className="h-6 px-2 text-xs" onClick={() => { handleDelete(benefit.id); setDeletingId(null); }}>
-                        Delete?
-                      </Button>
+                      <>
+                        <Button size="sm" variant="destructive" className="h-6 min-h-[44px] sm:min-h-0 px-2 text-xs" disabled={busyId === benefit.id} onClick={() => handleDelete(benefit.id)} aria-label={`Confirm delete ${benefit.benefit_name}`}>
+                          {busyId === benefit.id ? "Deleting..." : "Delete?"}
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0" disabled={busyId === benefit.id} onClick={() => setDeletingId(null)} aria-label={`Keep ${benefit.benefit_name}`}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </>
                     ) : (
-                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-destructive" onClick={() => setDeletingId(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
+                      <Button size="sm" variant="ghost" className="h-6 w-6 sm:h-6 sm:w-6 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 p-0 text-danger" onClick={() => setDeletingId(benefit.id)} aria-label={`Delete ${benefit.benefit_name}`}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     )}
@@ -622,7 +743,7 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>
-                      ${benefit.amount_used.toLocaleString()} / ${benefit.benefit_amount.toLocaleString()} spent
+                      {formatCurrency(benefit.amount_used)} / {formatCurrency(benefit.benefit_amount)} spent
                       {pct > 0 && <span className="ml-1">({pct}%)</span>}
                     </span>
                     {benefit.reset_label && benefit.days_until_reset != null && (
@@ -636,24 +757,24 @@ export function BenefitsSection({ card, accentTint, onUpdated, expanded, onToggl
                   <p className="text-xs text-muted-foreground whitespace-pre-wrap">{benefit.notes}</p>
                 )}
 
-                {/* Quick add spending */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-muted-foreground">+$</span>
+                {/* Quick add spending — a real form so Enter submits it on mobile too */}
+                <form className="flex items-center gap-1.5" onSubmit={(e) => { e.preventDefault(); handleAddUsage(benefit); }}>
+                  <span className="text-xs text-muted-foreground" aria-hidden="true">+$</span>
                   <Input
                     className="h-7 w-20 text-sm"
                     type="number"
+                    inputMode="numeric"
                     min="0"
                     placeholder="0"
+                    enterKeyHint="done"
+                    aria-label={`Dollars to add to ${benefit.benefit_name}`}
                     value={addAmounts[benefit.id] || ""}
                     onChange={(e) => setAddAmounts((prev) => ({ ...prev, [benefit.id]: e.target.value }))}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleAddUsage(benefit);
-                    }}
                   />
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => handleAddUsage(benefit)}>
-                    Add
+                  <Button type="submit" size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={busyId === benefit.id} aria-label={`Add spending to ${benefit.benefit_name}`}>
+                    {busyId === benefit.id ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
                   </Button>
-                </div>
+                </form>
               </div>
             );
           })}
