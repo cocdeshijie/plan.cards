@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useAppStore } from "@/hooks/use-app-store";
-import { CreditCard, DollarSign, CalendarDays, Building2, TrendingUp, ChevronRight } from "lucide-react";
-import { cn, parseDateStr } from "@/lib/utils";
+import { CreditCard, DollarSign, CalendarDays, Building2, XCircle, ChevronRight } from "lucide-react";
+import { cn, formatCurrency, parseDateStr } from "@/lib/utils";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { useToday } from "@/hooks/use-timezone";
 import { PastFeesDialog } from "./past-fees-dialog";
@@ -81,11 +81,14 @@ export function PortfolioWidget({
     return { active: active.length, closed: closed.length, lifetimeFees, thisYearFees, issuerBreakdown };
   }, [cards, selectedProfileId, today]);
 
+  // Icons and colours match the app's own event vocabulary in lib/event-icons.ts:
+  // an opened card is a green CreditCard, a closed one a red XCircle. "Closed"
+  // was drawing a rising TrendingUp, which reads as growth.
   const statCards = [
     { key: "active", label: "Active Cards", value: stats.active, icon: CreditCard, color: "text-green-500" },
-    { key: "closed", label: "Closed Cards", value: stats.closed, icon: TrendingUp, color: "text-muted-foreground" },
-    { key: "thisYear", label: `${today.getFullYear()} Estimated Fees`, value: `$${stats.thisYearFees.toLocaleString()}`, icon: CalendarDays, color: "text-blue-500" },
-    { key: "lifetime", label: "Lifetime Annual Fees", value: `$${stats.lifetimeFees.toLocaleString()}`, icon: DollarSign, color: "text-orange-500" },
+    { key: "closed", label: "Closed Cards", value: stats.closed, icon: XCircle, color: "text-red-500" },
+    { key: "thisYear", label: `${today.getFullYear()} Estimated Fees`, value: formatCurrency(stats.thisYearFees), icon: CalendarDays, color: "text-blue-500" },
+    { key: "lifetime", label: "Lifetime Annual Fees", value: formatCurrency(stats.lifetimeFees), icon: DollarSign, color: "text-orange-500" },
   ] as const;
 
   return (
@@ -111,6 +114,8 @@ export function PortfolioWidget({
               )}
             </>
           );
+          // Every tile carries the same py-1 so the clickable one does not sit
+          // 4px lower than its three neighbours.
           if (isLifetime) {
             return (
               <button
@@ -118,14 +123,13 @@ export function PortfolioWidget({
                 type="button"
                 onClick={() => setShowPastFees(true)}
                 className="text-center space-y-1 rounded-lg -mx-2 px-2 py-1 hover:bg-accent/60 transition-colors cursor-pointer"
-                aria-label="View past annual fees by year"
               >
                 {content}
               </button>
             );
           }
           return (
-            <div key={s.key} className="text-center space-y-1">
+            <div key={s.key} className="text-center space-y-1 py-1">
               {content}
             </div>
           );
@@ -144,11 +148,11 @@ export function PortfolioWidget({
       {stats.issuerBreakdown.length > 0 && (
         <div className="space-y-2 pt-2 border-t">
           <p className="text-xs font-medium text-muted-foreground">Active Cards by Issuer</p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1 text-sm">
             {stats.issuerBreakdown.map(([issuer, count]) => (
-              <div key={issuer} className="flex items-center justify-between">
-                <span className="truncate">{issuer}</span>
-                <span className="font-medium ml-2">{count}</span>
+              <div key={issuer} className="flex items-center justify-between gap-2">
+                <span className="truncate min-w-0" title={issuer}>{issuer}</span>
+                <span className="font-medium shrink-0">{count}</span>
               </div>
             ))}
           </div>

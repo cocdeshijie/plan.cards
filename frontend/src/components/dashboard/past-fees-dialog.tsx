@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { ChevronRight, DollarSign } from "lucide-react";
 import {
   Dialog,
@@ -9,7 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { cn, parseDateStr } from "@/lib/utils";
+import { cn, formatCurrency, parseDateStr } from "@/lib/utils";
+import { maskLastDigits } from "@/lib/card-number";
 import type { Card, Profile } from "@/types";
 
 interface CardFeeBreakdown {
@@ -94,11 +95,6 @@ function computeYearBreakdowns(
   return result;
 }
 
-function fmt(n: number): string {
-  const sign = n < 0 ? "-" : "";
-  return `${sign}$${Math.abs(n).toLocaleString()}`;
-}
-
 export function PastFeesDialog({
   open,
   onOpenChange,
@@ -139,6 +135,16 @@ export function PastFeesDialog({
     };
   }, [cards, profiles, selectedProfileId]);
 
+  // Opening a card closes this dialog first: the card sheet is its own overlay,
+  // and two bg-black/80 scrims compose to ~96% black behind a panel that then
+  // took two dismissals to escape.
+  const handleCardClick = onCardClick
+    ? (cardId: number) => {
+        onOpenChange(false);
+        onCardClick(cardId);
+      }
+    : undefined;
+
   const toggle = (year: number) => {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -160,7 +166,7 @@ export function PastFeesDialog({
             <div className="flex items-center justify-between text-sm">
               <span className="truncate pr-4">{scopeLabel}</span>
               <span className="text-foreground font-semibold tabular-nums shrink-0">
-                Lifetime {fmt(grandTotal)}
+                Lifetime {formatCurrency(grandTotal)}
               </span>
             </div>
           </DialogDescription>
@@ -180,7 +186,7 @@ export function PastFeesDialog({
                   expanded={expanded.has(y.year)}
                   onToggle={() => toggle(y.year)}
                   showProfile={showProfileOnRow}
-                  onCardClick={onCardClick}
+                  onCardClick={handleCardClick}
                 />
               ))}
             </div>
@@ -206,11 +212,18 @@ function YearRow({
 }) {
   const hasPersonal = year.personal !== 0;
   const hasBusiness = year.business !== 0;
+  // Every year starts collapsed, so this button is the only way into the
+  // dialog's content — it has to announce itself as a disclosure.
+  const uid = useId();
+  const panelId = `${uid}-fees-${year.year}`;
 
   return (
     <div className="rounded-lg border bg-card/40 overflow-hidden">
       <button
+        type="button"
         onClick={onToggle}
+        aria-expanded={expanded}
+        aria-controls={panelId}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent/60 transition-colors text-left"
       >
         <ChevronRight
@@ -225,31 +238,42 @@ function YearRow({
             {hasPersonal && (
               <span className="inline-flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                Personal <span className="tabular-nums">{fmt(year.personal)}</span>
+                Personal <span className="tabular-nums">{formatCurrency(year.personal)}</span>
               </span>
             )}
             {hasBusiness && (
               <span className="inline-flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                Business <span className="tabular-nums">{fmt(year.business)}</span>
+                Business <span className="tabular-nums">{formatCurrency(year.business)}</span>
               </span>
             )}
           </span>
         </div>
-        <span className="font-semibold tabular-nums shrink-0">{fmt(year.total)}</span>
+        {/* Same colour rule as the card rows below: a net refund is money back. */}
+        <span
+          className={cn(
+            "font-semibold tabular-nums shrink-0",
+            year.total < 0 && "text-green-600 dark:text-green-500",
+            year.total === 0 && "text-muted-foreground",
+          )}
+        >
+          {formatCurrency(year.total)}
+        </span>
       </button>
       {expanded && (
-        <div className="border-t divide-y">
+        <div id={panelId} className="border-t divide-y">
           {year.cards.map((c) => {
             const clickable = !!onCardClick;
             const inner = (
               <>
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="truncate font-medium">{c.cardName}</span>
+                    <span className="truncate font-medium min-w-0" title={c.cardName}>
+                      {c.cardName}
+                    </span>
                     {c.lastDigits && (
                       <span className="text-xs text-muted-foreground shrink-0">
-                        ··{c.lastDigits}
+                        {maskLastDigits(c.lastDigits)}
                       </span>
                     )}
                   </div>
@@ -276,7 +300,7 @@ function YearRow({
                       <>
                         <span className="text-muted-foreground/50">·</span>
                         <span className="text-orange-600 dark:text-orange-400">
-                          refund −${c.refunded.toLocaleString()}
+                          refund {formatCurrency(-c.refunded)}
                         </span>
                       </>
                     )}
@@ -289,7 +313,7 @@ function YearRow({
                     c.net === 0 && "text-muted-foreground",
                   )}
                 >
-                  {fmt(c.net)}
+                  {formatCurrency(c.net)}
                 </span>
               </>
             );

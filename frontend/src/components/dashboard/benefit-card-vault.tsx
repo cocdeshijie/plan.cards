@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CardSecretMasked, CardSecretRevealed } from "@/types";
 import { copyToClipboard } from "@/lib/clipboard";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,14 @@ import {
  * two independent panels, because opening the Uber Cash panel and having the
  * Airline Fee panel silently open too is not what anyone asked for.
  */
+
+/**
+ * On a LAN address the Clipboard API is blocked for good — `window.isSecureContext`
+ * is false for http://192.168.x.x — so the legacy path is the normal path, not
+ * an anomaly. Explain it once per page load; after that a successful copy is
+ * just a successful copy, and the green check already says so.
+ */
+let fallbackExplained = false;
 
 export type PanelState =
   | { status: "loading" }
@@ -68,10 +76,12 @@ export function VaultTrigger({
       className={cn(
         "h-6 w-6 p-0",
         open && "text-primary bg-primary/10",
-        // Faded rather than absent: you already store details for other cards,
-        // so the gap is worth pointing at. Hidden entirely when the vault is
-        // unused at all — that decision lives in the widget.
-        !stored && "opacity-40 hover:opacity-100",
+        // Dimmed rather than absent: you already store details for other cards,
+        // so the gap is worth pointing at. Not 40% though — that reads as a
+        // disabled control, and the tap it discouraged is the one that offers
+        // to add the details. Hidden entirely when the vault is unused at all —
+        // that decision lives in the widget.
+        !stored && "opacity-70 hover:opacity-100",
       )}
       title={stored ? `Card number & ${codeLabel ?? "security code"}` : "No details stored — add them"}
       onClick={onClick}
@@ -82,7 +92,7 @@ export function VaultTrigger({
         <CreditCard className="h-3 w-3" />
       )}
       <span className="sr-only">
-        {open ? "Hide" : "Show"} card details for {cardName}
+        {!stored ? "Add" : open ? "Hide" : "Show"} card details for {cardName}
       </span>
     </Button>
   );
@@ -114,12 +124,18 @@ export function VaultPanel({
 
   const doCopy = async (key: string, value: string, label: string) => {
     const result = await copyToClipboard(value);
+    // The green check is a claim that the value is on the clipboard, so it only
+    // goes up when it actually is — it used to flash alongside the red toast.
+    if (result === "failed") {
+      toast.error(`Couldn't copy ${label}. Select the value and copy it manually.`);
+      return;
+    }
     setCopied(key);
     setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
-    if (result === "fallback")
+    if (result === "fallback" && !fallbackExplained) {
+      fallbackExplained = true;
       toast.success(`${label} copied — via the legacy path; the Clipboard API is blocked here`);
-    else if (result === "failed")
-      toast.error(`Couldn't copy ${label}. Select the value and copy it manually.`);
+    }
   };
 
   if (state.status === "loading") {
@@ -169,13 +185,15 @@ export function VaultPanel({
       meta={
         <>
           {data.network && (
-            <span className="hidden truncate text-[10px] text-muted-foreground sm:inline">
+            <span className="hidden truncate text-[10px] text-muted-foreground sm:inline" title={data.network}>
               {data.network}
             </span>
           )}
           {closed && (
+            // "Closed", matching the status filter and the card list — the same
+            // state was being spelled three different ways across the app.
             <Badge variant="destructive" className="px-1.5 py-0 text-[10px]">
-              closed
+              Closed
             </Badge>
           )}
         </>
@@ -184,7 +202,7 @@ export function VaultPanel({
         <button
           type="button"
           onClick={() => doCopy("all", allFields, "All fields")}
-          className="inline-flex h-[22px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-1.5 text-[10.5px] font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="inline-flex h-[22px] min-h-[44px] shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 text-[10.5px] font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:min-h-0 sm:px-1.5"
         >
           {copied === "all" ? (
             <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
@@ -219,6 +237,8 @@ export function VaultPanel({
           // pasted spaces get truncated or rejected outright.
           onCopy={() => doCopy("pan", data.pan_digits, "Number")}
         />
+        {/* One per line below sm: the copy targets are full-size there, and
+            three of them side by side left nothing for the value itself. */}
         <div className="flex flex-wrap gap-1">
           <Field
             label="Exp"
@@ -226,7 +246,7 @@ export function VaultPanel({
             copyLabel="Expiry"
             copied={copied === "exp"}
             onCopy={() => doCopy("exp", data.exp_display, "Expiry")}
-            className="min-w-[6.5rem] flex-1"
+            className="w-full sm:w-auto sm:min-w-[6.5rem] sm:flex-1"
           />
           <Field
             label={codeLabel}
@@ -234,15 +254,18 @@ export function VaultPanel({
             copyLabel={codeLabel}
             copied={copied === "cvv"}
             onCopy={() => data.cvv && doCopy("cvv", data.cvv, codeLabel)}
-            className="min-w-[6.5rem] flex-1"
+            className="w-full sm:w-auto sm:min-w-[6.5rem] sm:flex-1"
           />
+          {/* "Postcode", not "ZIP": the field deliberately accepts letters,
+              spaces and hyphens up to 16 characters, so a US-only label
+              contradicts its own validation. */}
           <Field
-            label="ZIP"
+            label="Postcode"
             value={data.billing_zip}
             copyLabel="Postcode"
             copied={copied === "zip"}
             onCopy={() => data.billing_zip && doCopy("zip", data.billing_zip, "Postcode")}
-            className="min-w-[6.5rem] flex-1"
+            className="w-full sm:w-auto sm:min-w-[8rem] sm:flex-1"
           />
         </div>
         {/* Dropped entirely rather than shown empty — an unfilled name row is
@@ -281,9 +304,21 @@ function Shell({
   onClose: () => void;
   children?: React.ReactNode;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // The keydown handler below only sees Escape if focus is actually inside the
+  // panel, and the trigger that opened it is a *sibling* — so nothing ever
+  // reached it. Take focus on open; the widget hands it back to the trigger
+  // when the panel closes.
+  useEffect(() => {
+    rootRef.current?.focus();
+  }, []);
+
   return (
     <div
+      ref={rootRef}
       role="group"
+      tabIndex={-1}
       aria-label={`Card details for ${cardName}`}
       // Escape closes just this panel. Stopped from bubbling so it can't also
       // close a dialog that happens to be hosting the widget.
@@ -294,7 +329,9 @@ function Shell({
         }
       }}
       className={cn(
-        "space-y-1.5 rounded-lg border p-2",
+        // outline-none is safe on a tabIndex={-1} container: it is never
+        // reached by Tab, only by the focus() above.
+        "space-y-1.5 rounded-lg border p-2 outline-none",
         tone === "warn"
           ? "border-amber-500/40 bg-amber-500/[0.08]"
           : "border-primary/30 bg-primary/[0.06]",
@@ -321,7 +358,7 @@ function Shell({
             <button
               type="button"
               onClick={onClose}
-              className="grid h-[22px] w-[22px] place-items-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="grid h-[22px] w-[22px] min-h-[44px] min-w-[44px] place-items-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:min-h-0 sm:min-w-0"
             >
               <EyeOff className="h-3 w-3" />
               <span className="sr-only">Hide card details for {cardName}</span>
@@ -354,7 +391,9 @@ function Field({
   return (
     <div
       className={cn(
-        "flex items-center gap-1.5 rounded-md bg-background/70 py-0.5 pl-2 pr-1",
+        // min-h below sm so a stored field and an empty one are the same height
+        // once the copy button is full size.
+        "flex min-h-[44px] items-center gap-1.5 rounded-md bg-background/70 py-0.5 pl-2 pr-1 sm:min-h-0",
         className,
       )}
     >
@@ -364,7 +403,7 @@ function Field({
       {value ? (
         <>
           <span
-            className={cn("truncate text-[13px]", mono && "font-mono tabular-nums")}
+            className={cn("min-w-0 truncate text-[13px]", mono && "font-mono tabular-nums")}
             title={value}
           >
             {value}
@@ -372,7 +411,10 @@ function Field({
           <button
             type="button"
             onClick={onCopy}
-            className="ml-auto grid h-5 w-5 shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            // A full-size target below sm: pasting a card number into a
+            // checkout on a phone is the whole point of this panel, and 20px
+            // squares 4px apart is not a target you can hit one-handed.
+            className="ml-auto grid h-5 w-5 min-h-[44px] min-w-[44px] shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:bg-primary/15 hover:text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:min-h-0 sm:min-w-0"
           >
             {copied ? (
               <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
