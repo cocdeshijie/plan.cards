@@ -16,10 +16,14 @@ export function useToday(): Date {
 
   useEffect(() => {
     const now = new Date();
-    const midnight = new Date(now);
-    midnight.setHours(24, 0, 0, 0);
-    const msUntilMidnight = midnight.getTime() - now.getTime() + 100; // +100ms buffer
-    const timer = setTimeout(() => setTick((t) => t + 1), msUntilMidnight);
+    // The date below is derived in `tz`, so the rollover has to be `tz`'s
+    // midnight too. Using the browser's meant that with tz=Tokyo on a US
+    // machine "today" stayed a day stale for ~16 hours — the Timeline's Today
+    // marker, the calendar ring, the "Nd left" counts and every overdue colour.
+    const timer = setTimeout(
+      () => setTick((t) => t + 1),
+      msUntilMidnightIn(tz, now) + 100, // +100ms buffer
+    );
     return () => clearTimeout(timer);
   }, [tz, tick]);
 
@@ -45,4 +49,37 @@ export function useToday(): Date {
     return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tz, tick]);
+}
+
+/**
+ * Milliseconds until the next midnight in `tz` (the browser's when unset).
+ *
+ * Assumes a 24-hour day, so on a DST transition day in `tz` this can be an hour
+ * early or an hour late. That self-corrects: an early tick recomputes the same
+ * date and re-arms for the remainder, and an hour of staleness once or twice a
+ * year is not the bug being fixed here.
+ */
+function msUntilMidnightIn(tz: string | undefined, now: Date): number {
+  const DAY_MS = 86_400_000;
+  if (!tz) {
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    return midnight.getTime() - now.getTime();
+  }
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(now);
+  const part = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  // Some ICU builds report midnight as hour 24 with hour12:false.
+  const hour = part("hour") % 24;
+  const elapsed =
+    (hour * 3600 + part("minute") * 60 + part("second")) * 1000 + now.getMilliseconds();
+  const remaining = DAY_MS - elapsed;
+  // Never schedule a zero/negative timeout: an invalid timezone string throws
+  // above, but a clock skew here would otherwise spin the tick counter.
+  return remaining > 0 ? remaining : DAY_MS;
 }

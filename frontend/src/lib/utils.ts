@@ -70,9 +70,15 @@ export function formatDate(dateStr: string | null): string {
   });
 }
 
-export function formatCurrency(amount: number | null): string {
+export function formatCurrency(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) return "—";
-  return `$${amount.toLocaleString()}`;
+  // Locale is pinned for the same reason formatDate pins it twelve lines above:
+  // on a de-DE browser `toLocaleString()` renders 1199 as "1.199", which next to
+  // a "$" reads as one dollar and change. The sign goes before the symbol —
+  // "$-550" is not how a negative amount is written, and two components had
+  // already reimplemented this helper privately just to get that right.
+  const sign = amount < 0 ? "-" : "";
+  return `${sign}$${Math.abs(amount).toLocaleString("en-US")}`;
 }
 
 export function parseIntStrict(value: string): number | null {
@@ -80,5 +86,32 @@ export function parseIntStrict(value: string): number | null {
   if (!trimmed) return null;
   const num = Number(trimmed);
   if (isNaN(num) || !Number.isInteger(num)) return null;
+  return num;
+}
+
+/**
+ * Parse a whole-dollar money field, distinguishing "cleared" from "invalid".
+ *
+ * `parseIntStrict` returns null for both an empty field and a non-integer like
+ * "550.5" — and "550.5" is truthy — so treating that null as "the user cleared
+ * the field" silently wiped the annual fee (and with it annual_fee_date) while
+ * toasting "Card updated". Money is tracked in whole dollars; a parse failure is
+ * a validation error, never a clear.
+ *
+ * Thousands separators, a currency symbol and stray spaces are stripped because
+ * people paste "$4,000" — `Number("4,000")` is NaN, which was the same silent
+ * wipe by another route.
+ *
+ * Returns null ONLY for a genuinely empty field; throws for anything
+ * unparseable, so the caller's catch can toast the reason.
+ */
+export function parseMoneyField(raw: string, label: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null; // explicitly cleared
+  const normalized = trimmed.replace(/[$,\s]/g, "");
+  const num = Number(normalized);
+  if (!normalized || !Number.isInteger(num)) {
+    throw new Error(`${label} must be a whole dollar amount`);
+  }
   return num;
 }

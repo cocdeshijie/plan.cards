@@ -1,18 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Home, Globe, Lock, Users, Shield, KeyRound, ChevronRight, ChevronLeft, Check, Loader2, Copy } from "lucide-react";
+import { useCallback, useEffect, useId, useState } from "react";
+import { Home, Globe, Lock, Users, Shield, KeyRound, ChevronRight, ChevronLeft, Check, Loader2, Copy, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
+import { copyToClipboard } from "@/lib/clipboard";
 import { completeSetup, getOAuthPresets, API_BASE, type OAuthPreset } from "@/lib/api";
 import { useAppStore } from "@/hooks/use-app-store";
 import type { AuthMode } from "@/types";
 
 type HostingMode = "home" | "public";
+
+/** Mirrors the backend's `min_length=8` on the setup password. */
+const MIN_PASSWORD_LENGTH = 8;
 
 interface WizardState {
   hostingMode: HostingMode | null;
@@ -46,19 +52,33 @@ export function OnboardingWizard() {
   });
   const [oauthPresets, setOauthPresets] = useState<OAuthPreset[]>([]);
   const [presetsLoading, setPresetsLoading] = useState(false);
+  const [presetsError, setPresetsError] = useState("");
+
+  /**
+   * This used to swallow the failure. A dropped request left the Provider
+   * select with zero options, no message and no retry — and validateConfig()
+   * needs a preset, so "Complete & Connect OAuth" stayed disabled forever on
+   * the last step of first-run setup, with nothing on screen explaining why.
+   */
+  const loadPresets = useCallback(() => {
+    setPresetsLoading(true);
+    setPresetsError("");
+    getOAuthPresets()
+      .then((presets) => {
+        setOauthPresets(presets);
+        // Functional update: this runs outside the effect's dep list, so the
+        // captured state.oauthPreset would be stale.
+        setState((s) => (s.oauthPreset || presets.length === 0 ? s : { ...s, oauthPreset: presets[0].name }));
+      })
+      .catch((e) => {
+        setPresetsError(e instanceof Error ? e.message : "Couldn't load the OAuth provider list.");
+      })
+      .finally(() => setPresetsLoading(false));
+  }, []);
 
   useEffect(() => {
     if (state.authMode === "multi_user_oauth" && oauthPresets.length === 0 && !presetsLoading) {
-      setPresetsLoading(true);
-      getOAuthPresets()
-        .then((presets) => {
-          setOauthPresets(presets);
-          if (presets.length > 0 && !state.oauthPreset) {
-            setState((s) => ({ ...s, oauthPreset: presets[0].name }));
-          }
-        })
-        .catch(() => {})
-        .finally(() => setPresetsLoading(false));
+      loadPresets();
     }
   }, [state.authMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -83,12 +103,12 @@ export function OnboardingWizard() {
   const validateConfig = () => {
     if (state.authMode === "open") return true;
     if (state.authMode === "single_password") {
-      return state.adminPassword.length >= 8 && state.adminPassword === state.confirmPassword;
+      return state.adminPassword.length >= MIN_PASSWORD_LENGTH && state.adminPassword === state.confirmPassword;
     }
     if (state.authMode === "multi_user") {
       return (
         state.adminUsername.length > 0 &&
-        state.adminPassword.length >= 8 &&
+        state.adminPassword.length >= MIN_PASSWORD_LENGTH &&
         state.adminPassword === state.confirmPassword
       );
     }
@@ -96,6 +116,16 @@ export function OnboardingWizard() {
       return !!state.oauthPreset && !!state.oauthClientId && !!state.oauthClientSecret;
     }
     return false;
+  };
+
+  /**
+   * Enter inside a ConfigStep field goes through the same gate as the button:
+   * the final step's inputs are the last thing a user touches before setup is
+   * written, and Enter used to do nothing at all.
+   */
+  const submitIfReady = () => {
+    if (submitting || !canGoNext()) return;
+    void handleSubmit();
   };
 
   const handleSubmit = async () => {
@@ -183,6 +213,9 @@ export function OnboardingWizard() {
                 error={error}
                 oauthPresets={oauthPresets}
                 presetsLoading={presetsLoading}
+                presetsError={presetsError}
+                onRetryPresets={loadPresets}
+                onSubmit={submitIfReady}
               />
             )}
 
@@ -203,12 +236,18 @@ export function OnboardingWizard() {
                 </Button>
               ) : (
                 <Button onClick={handleSubmit} disabled={!canGoNext() || submitting}>
-                  {submitting
-                    ? "Setting up..."
-                    : state.authMode === "multi_user_oauth"
-                    ? "Complete & Connect OAuth"
-                    : "Complete Setup"}
-                  <Check className="h-4 w-4 ml-1" />
+                  {/* A success checkmark next to "Setting up..." claimed the
+                      setup had already finished. */}
+                  {submitting ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Setting up...</>
+                  ) : (
+                    <>
+                      {state.authMode === "multi_user_oauth"
+                        ? "Complete & Connect OAuth"
+                        : "Complete Setup"}
+                      <Check className="h-4 w-4 ml-1" />
+                    </>
+                  )}
                 </Button>
               )}
             </div>
@@ -237,7 +276,7 @@ function HostingStep({ value, onChange }: { value: HostingMode | null; onChange:
   return (
     <div className="space-y-4">
       <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold">How will you host this?</h2>
+        <h1 className="text-xl font-semibold">How will you host this?</h1>
         <p className="text-sm text-muted-foreground">This helps us recommend the right security settings</p>
       </div>
       <div className="grid gap-3">
@@ -272,7 +311,7 @@ function AuthModeStep({
   return (
     <div className="space-y-4">
       <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold">Choose authentication</h2>
+        <h1 className="text-xl font-semibold">Choose authentication</h1>
         <p className="text-sm text-muted-foreground">You can always upgrade later — including OAuth/SSO</p>
       </div>
       <div className="grid gap-3">
@@ -325,25 +364,51 @@ function RedirectUriDisplay({ provider }: { provider: string }) {
   if (!provider || !redirectUri) return null;
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(redirectUri);
+    // Not navigator.clipboard directly: it is undefined outside a secure
+    // context, and http://192.168.x.x — the documented way to reach a
+    // self-hosted instance during setup — is not one. The bare call threw into
+    // nothing, so the click did nothing and said nothing. copyToClipboard
+    // falls back to execCommand and reports which path it took.
+    const result = await copyToClipboard(redirectUri);
+    if (result === "failed") {
+      toast.error("Couldn't copy the redirect URI. Select it and copy manually.");
+      return;
+    }
+    if (result === "fallback") {
+      toast.success("Redirect URI copied — via the legacy path; the Clipboard API is blocked here");
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="space-y-1.5">
-      <Label>Redirect URI</Label>
+      {/* Not a <Label>: there is no form control to point it at, and a <label>
+          for nothing is a label a screen reader can never resolve. */}
+      <p className="text-sm font-medium leading-snug">Redirect URI</p>
       <p className="text-xs text-muted-foreground">
         Add this URI to your OAuth provider&apos;s allowed redirect URIs. It must match exactly.
       </p>
       <div className="flex items-center gap-2">
-        <code className="flex-1 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
+        <code className="flex-1 min-w-0 text-xs bg-muted rounded-md px-3 py-2 break-all select-all">
           {redirectUri}
         </code>
-        <Button type="button" variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={handleCopy}>
-          {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="min-h-[44px] min-w-[44px] sm:h-8 sm:w-8 sm:min-h-0 sm:min-w-0 shrink-0"
+          onClick={handleCopy}
+          aria-label={copied ? "Redirect URI copied" : "Copy redirect URI"}
+          title="Copy redirect URI"
+        >
+          {copied ? <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
         </Button>
       </div>
+      {/* The icon swap is the only visual feedback; this is the spoken half. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {copied ? "Redirect URI copied to clipboard" : ""}
+      </span>
     </div>
   );
 }
@@ -354,20 +419,46 @@ function ConfigStep({
   error,
   oauthPresets = [],
   presetsLoading = false,
+  presetsError = "",
+  onRetryPresets,
+  onSubmit,
 }: {
   state: WizardState;
   onChange: (partial: Partial<WizardState>) => void;
   error: string;
   oauthPresets?: OAuthPreset[];
   presetsLoading?: boolean;
+  presetsError?: string;
+  onRetryPresets?: () => void;
+  onSubmit: () => void;
 }) {
+  // Per-instance ids: Radix's Label makes no implicit association, so a Label
+  // without htmlFor focuses nothing on click and its field announces unlabelled.
+  const uid = useId();
+  const presetId = `${uid}-oauth-preset`;
+  const clientIdId = `${uid}-oauth-client-id`;
+  const clientSecretId = `${uid}-oauth-client-secret`;
+  const usernameId = `${uid}-username`;
+  const passwordId = `${uid}-password`;
+  const passwordHintId = `${uid}-password-hint`;
+  const confirmId = `${uid}-confirm-password`;
+  const confirmHintId = `${uid}-confirm-hint`;
+  const emailId = `${uid}-email`;
+  const registrationId = `${uid}-registration`;
+  const registrationHintId = `${uid}-registration-hint`;
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   if (state.authMode === "open") {
     return (
       <div className="text-center space-y-4">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-500/10">
           <Check className="h-8 w-8 text-green-500" />
         </div>
-        <h2 className="text-xl font-semibold">Ready to go!</h2>
+        <h1 className="text-xl font-semibold">Ready to go!</h1>
         <p className="text-sm text-muted-foreground">
           No password needed. A default account will be created for you.
           You can add authentication later in settings, including OAuth/SSO.
@@ -380,24 +471,37 @@ function ConfigStep({
     return (
       <div className="space-y-4">
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-semibold">Configure OAuth Provider</h2>
+          <h1 className="text-xl font-semibold">Configure OAuth Provider</h1>
           <p className="text-sm text-muted-foreground">
             The first person to sign in will become the admin
           </p>
         </div>
 
-        <div className="space-y-3">
+        <form onSubmit={handleFormSubmit} className="space-y-3">
           {presetsLoading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-3 w-3 animate-spin" />
               Loading providers...
             </div>
+          ) : presetsError ? (
+            <div className="space-y-2 rounded-lg border border-input p-3">
+              <p role="alert" className="text-sm text-danger">{presetsError}</p>
+              <p className="text-xs text-muted-foreground">
+                Setup can&apos;t continue without the provider list.
+              </p>
+              {onRetryPresets && (
+                <Button type="button" variant="outline" size="sm" onClick={onRetryPresets}>
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Retry
+                </Button>
+              )}
+            </div>
           ) : (
             <>
               <div className="space-y-1.5">
-                <Label htmlFor="oauth-preset">Provider</Label>
+                <Label htmlFor={presetId}>Provider</Label>
                 <Select value={state.oauthPreset} onValueChange={(v) => onChange({ oauthPreset: v })}>
-                  <SelectTrigger>
+                  <SelectTrigger id={presetId}>
                     <SelectValue placeholder="Select provider" />
                   </SelectTrigger>
                   <SelectContent>
@@ -414,56 +518,68 @@ function ConfigStep({
               </div>
               <RedirectUriDisplay provider={state.oauthPreset} />
               <div className="space-y-1.5">
-                <Label htmlFor="oauth-client-id">Client ID</Label>
+                <Label htmlFor={clientIdId}>Client ID</Label>
+                {/* autoCapitalize/autoCorrect off: these are byte-exact
+                    credentials, and iOS turns "abc123…" into "Abc123…" — a
+                    mangling that only surfaces later, at the redirect, after
+                    setup has already been written. */}
                 <Input
-                  id="oauth-client-id"
+                  id={clientIdId}
                   value={state.oauthClientId}
                   onChange={(e) => onChange({ oauthClientId: e.target.value })}
                   placeholder="Your OAuth client ID"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="next"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="oauth-client-secret">Client Secret</Label>
+                <Label htmlFor={clientSecretId}>Client Secret</Label>
                 <Input
-                  id="oauth-client-secret"
+                  id={clientSecretId}
                   type="password"
                   value={state.oauthClientSecret}
                   onChange={(e) => onChange({ oauthClientSecret: e.target.value })}
                   placeholder="Your OAuth client secret"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
                 />
               </div>
             </>
           )}
 
-          <div className="flex items-center justify-between pt-2">
-            <div>
-              <p className="text-sm font-medium">Allow registration</p>
-              <p className="text-xs text-muted-foreground">Let others create accounts via OAuth</p>
+          {/* The shared Switch, not a hand-rolled one: the local copy painted a
+              white knob on a bg-muted track, ~1.1:1 in light mode, so its OFF
+              state read as a blank pill. */}
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="min-w-0">
+              <Label htmlFor={registrationId}>Allow registration</Label>
+              <p id={registrationHintId} className="text-xs text-muted-foreground">Let others create accounts via OAuth</p>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={state.registrationEnabled}
-              aria-label="Enable user registration"
-              onClick={() => onChange({ registrationEnabled: !state.registrationEnabled })}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                state.registrationEnabled ? "bg-primary" : "bg-muted"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  state.registrationEnabled ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
+            <Switch
+              id={registrationId}
+              checked={state.registrationEnabled}
+              onCheckedChange={(checked) => onChange({ registrationEnabled: checked })}
+              aria-describedby={registrationHintId}
+              className="shrink-0"
+            />
           </div>
 
           <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
             After setup, you&apos;ll sign in with {state.oauthPreset ? oauthPresets.find(p => p.name === state.oauthPreset)?.display_name || state.oauthPreset : "your provider"} to create your admin account.
           </p>
-        </div>
 
-        {error && <p className="text-sm text-destructive text-center">{error}</p>}
+          {/* Enter in any field above runs the same submit as the nav button;
+              the wizard has no submit control of its own inside the form. */}
+          <button type="submit" hidden>Complete setup</button>
+        </form>
+
+        {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
       </div>
     );
   }
@@ -473,9 +589,9 @@ function ConfigStep({
   return (
     <div className="space-y-4">
       <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold">
+        <h1 className="text-xl font-semibold">
           {needsUsername ? "Create admin account" : "Set password"}
-        </h2>
+        </h1>
         <p className="text-sm text-muted-foreground">
           {needsUsername
             ? "This will be the administrator account"
@@ -483,83 +599,93 @@ function ConfigStep({
         </p>
       </div>
 
-      <div className="space-y-3">
+      <form onSubmit={handleFormSubmit} className="space-y-3">
         {needsUsername && (
           <div className="space-y-1.5">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor={usernameId}>Username</Label>
+            {/* autoCapitalize off: iOS capitalises the first letter of an empty
+                field, and this one becomes the admin login name for good. */}
             <Input
-              id="username"
+              id={usernameId}
               value={state.adminUsername}
               onChange={(e) => onChange({ adminUsername: e.target.value })}
               placeholder="admin"
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="next"
             />
           </div>
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor={passwordId}>Password</Label>
           <Input
-            id="password"
+            id={passwordId}
             type="password"
             value={state.adminPassword}
             onChange={(e) => onChange({ adminPassword: e.target.value })}
             autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            aria-describedby={passwordHintId}
+            enterKeyHint="next"
           />
-          {state.adminPassword.length > 0 && state.adminPassword.length < 8 && (
-            <p className="text-xs text-muted-foreground">Password must be at least 8 characters</p>
-          )}
+          <p id={passwordHintId} className="text-xs text-muted-foreground">
+            {state.adminPassword.length > 0 && state.adminPassword.length < MIN_PASSWORD_LENGTH
+              ? `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+              : `At least ${MIN_PASSWORD_LENGTH} characters`}
+          </p>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirm-password">Confirm Password</Label>
+          <Label htmlFor={confirmId}>Confirm Password</Label>
           <Input
-            id="confirm-password"
+            id={confirmId}
             type="password"
             value={state.confirmPassword}
             onChange={(e) => onChange({ confirmPassword: e.target.value })}
             autoComplete="new-password"
+            aria-describedby={state.confirmPassword && state.adminPassword !== state.confirmPassword ? confirmHintId : undefined}
+            enterKeyHint={needsUsername ? "next" : "done"}
           />
           {state.confirmPassword && state.adminPassword !== state.confirmPassword && (
-            <p className="text-xs text-destructive">Passwords do not match</p>
+            <p id={confirmHintId} className="text-xs text-danger">Passwords do not match</p>
           )}
         </div>
 
         {needsUsername && (
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email (optional)</Label>
+            <Label htmlFor={emailId}>Email (optional)</Label>
             <Input
-              id="email"
+              id={emailId}
               type="email"
               value={state.adminEmail}
               onChange={(e) => onChange({ adminEmail: e.target.value })}
               placeholder="admin@example.com"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              inputMode="email"
+              enterKeyHint="done"
             />
           </div>
         )}
 
         {needsUsername && (
-          <div className="flex items-center justify-between pt-2">
-            <div>
-              <p className="text-sm font-medium">Allow registration</p>
-              <p className="text-xs text-muted-foreground">Let others create accounts</p>
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="min-w-0">
+              <Label htmlFor={registrationId}>Allow registration</Label>
+              <p id={registrationHintId} className="text-xs text-muted-foreground">Let others create accounts</p>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={state.registrationEnabled}
-              aria-label="Enable user registration"
-              onClick={() => onChange({ registrationEnabled: !state.registrationEnabled })}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                state.registrationEnabled ? "bg-primary" : "bg-muted"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  state.registrationEnabled ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
+            <Switch
+              id={registrationId}
+              checked={state.registrationEnabled}
+              onCheckedChange={(checked) => onChange({ registrationEnabled: checked })}
+              aria-describedby={registrationHintId}
+              className="shrink-0"
+            />
           </div>
         )}
 
@@ -573,9 +699,13 @@ function ConfigStep({
             OAuth/SSO (Google, GitHub, etc.) can be enabled from the admin panel after setup.
           </p>
         )}
-      </div>
 
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
+        {/* Enter in any field above runs the same submit as the nav button;
+            the wizard has no submit control of its own inside the form. */}
+        <button type="submit" hidden>Complete setup</button>
+      </form>
+
+      {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
     </div>
   );
 }
@@ -595,6 +725,10 @@ function OptionCard({
 }) {
   return (
     <button
+      type="button"
+      // aria-pressed, matching the card-details filter chips: the border/tint
+      // was the only signal, and this is the one irreversible choice in setup.
+      aria-pressed={selected}
       onClick={onClick}
       className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
         selected

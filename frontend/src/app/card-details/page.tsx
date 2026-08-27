@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { Card, CardSecretMasked, CardSecretRevealed } from "@/types";
 import { useAppStore } from "@/hooks/use-app-store";
 import {
@@ -8,8 +9,10 @@ import {
   hydrateAutoHidePreference,
   useCardVault,
 } from "@/hooks/use-card-vault";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { getCardSecrets } from "@/lib/api";
 import { copyToClipboard } from "@/lib/clipboard";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +34,8 @@ import {
   ArrowUpAZ,
   FilterX,
   AlertTriangle,
+  Loader2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -42,6 +47,15 @@ interface Row {
   secret: CardSecretMasked;
   profileName: string;
 }
+
+/**
+ * The legacy `execCommand` copy path is the NORMAL path on a self-hosted LAN
+ * address — http://192.168.1.50:3000 is not a secure context, so
+ * `navigator.clipboard` doesn't exist there. Explaining that on every copy turns
+ * a feature that works into a permanent apology, so say it once per session and
+ * then just confirm the copy like anywhere else.
+ */
+let legacyCopyNoticeShown = false;
 
 export default function CardDetailsPage() {
   const { cards, profiles, dataLoading, selectedProfileId, authMode } = useAppStore();
@@ -70,6 +84,7 @@ export default function CardDetailsPage() {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
   const [copied, setCopied] = useState<string | null>(null);
+  const [revealingAll, setRevealingAll] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<{ cardId: number | null; existing: CardSecretMasked | null }>({
     cardId: null,
@@ -80,6 +95,11 @@ export default function CardDetailsPage() {
   // store refreshes — the same pattern the cards page uses.
   const [openCardId, setOpenCardId] = useState<number | null>(null);
   const openCard = openCardId !== null ? (cards.find((c) => c.id === openCardId) ?? null) : null;
+  const searchRef = useRef<HTMLInputElement>(null);
+  // The table needs 1030px before the actions column is reachable, which no
+  // breakpoint below `lg` gives us once the container's padding is taken off.
+  // Below that we render the same rows as a stacked list instead.
+  const isWide = useMediaQuery("(min-width: 1024px)");
 
   const load = useCallback(async () => {
     try {
@@ -114,23 +134,28 @@ export default function CardDetailsPage() {
     [profiles],
   );
 
-  const rows: Row[] = useMemo(() => {
-    if (!secrets) return [];
-    // The global profile selector sits in the nav above this page and every
-    // other page obeys it. Ignoring it here meant the header could read "Alice"
-    // while the table listed Bob's cards.
-    const scoped =
+  // The global profile selector sits in the nav above this page and every other
+  // page obeys it. Ignoring it here meant the header could read "Alice" while
+  // the table listed Bob's cards. Shared with the "Add details" picker below, so
+  // the button can't offer a card the page itself is hiding.
+  const scopedCards = useMemo(
+    () =>
       selectedProfileId === "all"
         ? cards
-        : cards.filter((c) => c.profile_id === parseInt(selectedProfileId, 10));
-    const byId = new Map(scoped.map((c) => [c.id, c]));
+        : cards.filter((c) => c.profile_id === parseInt(selectedProfileId, 10)),
+    [cards, selectedProfileId],
+  );
+
+  const rows: Row[] = useMemo(() => {
+    if (!secrets) return [];
+    const byId = new Map(scopedCards.map((c) => [c.id, c]));
     return secrets
       .map((s) => {
         const card = byId.get(s.card_id);
         return card ? { card, secret: s, profileName: profileName(card.profile_id) } : null;
       })
       .filter((r): r is Row => r !== null);
-  }, [secrets, cards, profileName, selectedProfileId]);
+  }, [secrets, scopedCards, profileName]);
 
   // OR within a facet, AND across facets. An empty facet stops constraining,
   // which is why there is no "All" chip — it would be a second way to say the
@@ -212,8 +237,11 @@ export default function CardDetailsPage() {
 
   const statusChips = useMemo(
     () =>
+      // "Active"/"Closed" to match the status filter on /cards. This page used
+      // to say "Open", which read as a third state next to the other page's
+      // Active for the very same `card_status`.
       ([
-        { value: "active", label: "Open" },
+        { value: "active", label: "Active" },
         { value: "closed", label: "Closed" },
       ] as const).map((st) => ({
         value: st.value,
@@ -267,12 +295,20 @@ export default function CardDetailsPage() {
 
   const doCopy = async (key: string, value: string, label: string) => {
     const result = await copyToClipboard(value);
+    if (result === "failed") {
+      // No green tick on a failure — a red toast next to a check mark told two
+      // different stories about the same click.
+      toast.error(`Couldn't copy ${label}. Select the value and copy it manually.`);
+      return;
+    }
     setCopied(key);
     setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
-    if (result === "async") toast.success(`${label} copied`);
-    else if (result === "fallback")
+    if (result === "fallback" && !legacyCopyNoticeShown) {
+      legacyCopyNoticeShown = true;
       toast.success(`${label} copied — via the legacy path; the Clipboard API is blocked here`);
-    else toast.error(`Couldn't copy ${label}. Select the value and copy it manually.`);
+    } else {
+      toast.success(`${label} copied`);
+    }
   };
 
   const openAdd = () => {
@@ -284,17 +320,78 @@ export default function CardDetailsPage() {
     setDialogOpen(true);
   };
 
+  // One set of handlers for both layouts, so the table row and the stacked card
+  // can never drift apart on what a reveal or a copy actually does.
+  const rowProps = (row: Row) => ({
+    row,
+    revealedData: revealed[row.card.id],
+    loading: loadingIds.includes(row.card.id),
+    copiedKey: copied,
+    onReveal: () =>
+      revealed[row.card.id]
+        ? hide(row.card.id)
+        : reveal(row.card.id).catch((e) =>
+            toast.error(e instanceof Error ? e.message : "Could not reveal details"),
+          ),
+    onCopy: doCopy,
+    onEdit: () => openEdit(row),
+    onOpenCard: () => setOpenCardId(row.card.id),
+  });
+
   const cardsWithoutSecrets = useMemo(() => {
     const stored = new Set((secrets ?? []).map((s) => s.card_id));
-    return cards.filter((c) => !stored.has(c.id));
-  }, [cards, secrets]);
+    return scopedCards.filter((c) => !stored.has(c.id));
+  }, [scopedCards, secrets]);
+
+  // Stored, but belonging to a card the nav's profile selector is filtering out.
+  // Counted against the full card list rather than `secrets.length` so a secret
+  // whose card has since been deleted isn't reported as "hidden".
+  const hiddenByProfile = useMemo(() => {
+    if (!secrets || selectedProfileId === "all") return 0;
+    const inScope = new Set(scopedCards.map((c) => c.id));
+    const allIds = new Set(cards.map((c) => c.id));
+    return secrets.filter((s) => allIds.has(s.card_id) && !inScope.has(s.card_id)).length;
+  }, [secrets, cards, scopedCards, selectedProfileId]);
 
   if (dataLoading || secrets === null) {
+    // Shaped like the real page — same `space-y-5`, same heading with its icon,
+    // the same description line, the four-control cluster, the toolbar and the
+    // three-row filter panel. The old two-bar skeleton was several hundred
+    // pixels shorter than what replaced it, so everything jumped on load.
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Card details</h1>
-        <Skeleton className="h-9 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+              Card details
+            </h1>
+            <Skeleton className="h-4 w-[min(28rem,80vw)]" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-9 w-[130px]" />
+            <Skeleton className="h-9 w-28" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Skeleton className="h-9 w-[220px]" />
+          <Skeleton className="h-9 w-[170px]" />
+          <Skeleton className="h-9 w-[150px]" />
+          <Skeleton className="h-9 w-9" />
+          <Skeleton className="h-6 w-20 ml-auto" />
+        </div>
+        <div className="rounded-xl border bg-card p-3 space-y-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <Skeleton className="h-3 w-14 shrink-0" />
+              <Skeleton className="h-11 w-24 rounded-full sm:h-7" />
+              <Skeleton className="h-11 w-20 rounded-full sm:h-7" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="h-[336px] w-full rounded-xl" />
       </div>
     );
   }
@@ -341,28 +438,59 @@ export default function CardDetailsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={allRevealed || visible.length === 0}
+            disabled={allRevealed || visible.length === 0 || revealingAll}
             onClick={async () => {
-              const { revealed: ok, failed } = await revealMany(visible.map((r) => r.card.id));
-              if (failed > 0) {
-                toast.error(
-                  ok > 0
-                    ? `Revealed ${ok}, but ${failed} could not be decrypted`
-                    : `Couldn't reveal ${failed} card${failed === 1 ? "" : "s"}`,
-                );
+              setRevealingAll(true);
+              try {
+                const { revealed: ok, failed } = await revealMany(visible.map((r) => r.card.id));
+                if (failed > 0) {
+                  toast.error(
+                    ok > 0
+                      ? `Revealed ${ok}, but ${failed} could not be decrypted`
+                      : `Couldn't reveal ${failed} card${failed === 1 ? "" : "s"}`,
+                  );
+                } else if (ok === 0) {
+                  // revealMany returns {0,0} when every id is already revealed
+                  // or still in flight from a row click. Left unhandled, the
+                  // second press of this button did nothing and said nothing.
+                  toast.info("Nothing left to reveal — those rows are already open or decrypting.");
+                }
+              } finally {
+                setRevealingAll(false);
               }
             }}
           >
-            <Eye className="h-4 w-4 mr-1.5" />
-            {allRevealed ? "All revealed" : revealedCount > 0 ? "Reveal rest" : "Reveal all"}
+            {revealingAll ? (
+              <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+            ) : (
+              <Eye className="h-4 w-4 mr-1.5" />
+            )}
+            {revealingAll
+              ? "Revealing…"
+              : allRevealed
+                ? "All revealed"
+                : revealedCount > 0
+                  ? "Reveal rest"
+                  : "Reveal all"}
           </Button>
           {/* Only cards WITHOUT stored details. Falling back to the full list
               when every card already had details turned "Add" into an
               unconfirmed overwrite: the dialog opened blank, and saving wiped
-              the stored code, name and postcode. Editing goes through the row. */}
-          <Button size="sm" onClick={openAdd} disabled={cardsWithoutSecrets.length === 0}>
-            Add details
-          </Button>
+              the stored code, name and postcode. Editing goes through the row.
+              The wrapping span carries the title because a disabled button is
+              not a reliable tooltip host, and "why is this dead?" is the whole
+              question once every card has details. */}
+          <span
+            title={
+              cardsWithoutSecrets.length === 0
+                ? "Every card in view already has details stored. Use the pencil on a card to edit its details."
+                : undefined
+            }
+          >
+            <Button size="sm" onClick={openAdd} disabled={cardsWithoutSecrets.length === 0}>
+              Add details
+            </Button>
+          </span>
         </div>
       </div>
 
@@ -388,28 +516,71 @@ export default function CardDetailsPage() {
             <Lock className="h-8 w-8 text-muted-foreground" />
           </div>
           <div>
-            <p className="font-medium">No card details stored yet</p>
+            <p className="font-medium">
+              {hiddenByProfile > 0 ? "No card details for this person" : "No card details stored yet"}
+            </p>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-              Add a number, expiry and security code to any card to use this page. The rest of the app
-              works fine without it.
+              {hiddenByProfile > 0 ? (
+                <>
+                  {hiddenByProfile} stored {hiddenByProfile === 1 ? "entry belongs" : "entries belong"}{" "}
+                  to another person. Switch the profile selector above to{" "}
+                  <span className="font-medium text-foreground">All profiles</span> to see{" "}
+                  {hiddenByProfile === 1 ? "it" : "them"}.
+                </>
+              ) : (
+                <>
+                  Add a number, expiry and security code to any card to use this page. The rest of the
+                  app works fine without it.
+                </>
+              )}
             </p>
           </div>
-          <Button onClick={openAdd} disabled={cards.length === 0}>
-            Add card details
-          </Button>
+          {/* With no cards in scope there is nothing to attach details to, and a
+              dead button is a dead end — send them where cards are created. */}
+          {scopedCards.length === 0 ? (
+            <Button asChild>
+              <Link href="/cards">Add a card first</Link>
+            </Button>
+          ) : (
+            <Button onClick={openAdd} disabled={cardsWithoutSecrets.length === 0}>
+              Add card details
+            </Button>
+          )}
         </div>
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative flex-1 min-w-[180px] max-w-[280px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
+              />
               <Input
+                ref={searchRef}
+                type="search"
                 placeholder="Search or type last 4…"
+                aria-label="Search stored card details"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="pl-9 h-9"
+                className="pl-9 pr-9 h-9 [&::-webkit-search-cancel-button]:hidden"
                 autoComplete="off"
+                enterKeyHint="search"
               />
+              {/* The only reset used to be the empty-state button, which needs
+                  zero results before it appears — no way back from a typo. */}
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    searchRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 grid place-items-center rounded-md text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring outline-none"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <Select value={groupBy} onValueChange={(v) => setGroupBy(v as GroupBy)}>
               <SelectTrigger className="w-[170px] h-9">
@@ -437,14 +608,19 @@ export default function CardDetailsPage() {
                   <SelectItem value="exp">Expiry</SelectItem>
                 </SelectContent>
               </Select>
+              {/* `title` names the CURRENT state; the accessible name has to
+                  name the ACTION, or the control announces as its own opposite. */}
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9"
+                className="h-9 w-9 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                 onClick={() => setSortDir((d) => (d === 1 ? -1 : 1))}
                 title={sortDir === 1 ? "Ascending" : "Descending"}
               >
                 {sortDir === 1 ? <ArrowDownAZ className="h-4 w-4" /> : <ArrowUpAZ className="h-4 w-4" />}
+                <span className="sr-only">
+                  {sortDir === 1 ? "Sorted ascending. Sort descending" : "Sorted descending. Sort ascending"}
+                </span>
               </Button>
             </div>
             <Badge variant="outline" className="ml-auto">
@@ -469,7 +645,7 @@ export default function CardDetailsPage() {
                     onClick={() =>
                       setPersons((s) => (s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id]))
                     }
-                    className={`h-7 px-3 rounded-full border text-xs font-medium transition-colors ${
+                    className={`h-7 min-h-[44px] sm:min-h-0 px-3 rounded-full border text-xs font-medium transition-colors ${
                       on
                         ? "bg-primary border-primary text-primary-foreground"
                         : `bg-background text-muted-foreground hover:text-foreground ${p.count === 0 ? "opacity-40" : ""}`
@@ -496,7 +672,7 @@ export default function CardDetailsPage() {
                         s.includes(t.value) ? s.filter((x) => x !== t.value) : [...s, t.value],
                       )
                     }
-                    className={`h-7 px-3 rounded-full border text-xs font-medium transition-colors ${
+                    className={`h-7 min-h-[44px] sm:min-h-0 px-3 rounded-full border text-xs font-medium transition-colors ${
                       on
                         ? "bg-primary border-primary text-primary-foreground"
                         : `bg-background text-muted-foreground hover:text-foreground ${t.count === 0 ? "opacity-40" : ""}`
@@ -523,7 +699,7 @@ export default function CardDetailsPage() {
                         s2.includes(st.value) ? s2.filter((x) => x !== st.value) : [...s2, st.value],
                       )
                     }
-                    className={`h-7 px-3 rounded-full border text-xs font-medium transition-colors ${
+                    className={`h-7 min-h-[44px] sm:min-h-0 px-3 rounded-full border text-xs font-medium transition-colors ${
                       on
                         ? "bg-primary border-primary text-primary-foreground"
                         : `bg-background text-muted-foreground hover:text-foreground ${st.count === 0 ? "opacity-40" : ""}`
@@ -537,7 +713,7 @@ export default function CardDetailsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="ml-auto h-7 text-xs"
+                  className="ml-auto h-7 min-h-[44px] sm:min-h-0 text-xs"
                   onClick={() => {
                     setPersons([]);
                     setTypes([]);
@@ -558,15 +734,17 @@ export default function CardDetailsPage() {
               <FilterX className="h-8 w-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">No stored cards match those filters.</p>
             </div>
-          ) : (
+          ) : isWide ? (
             <div className="rounded-xl border bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 {/* Wider than the 980px this used to need: the card art adds
-                    ~48px to the Card column before anything else can shrink. */}
+                    ~48px to the Card column before anything else can shrink.
+                    Below `lg` this table isn't rendered at all — see the stacked
+                    list below, which is what a phone and a tablet get. */}
                 <table className="w-full min-w-[1030px] border-collapse">
                   <thead>
                     <tr className="bg-muted/60 border-b">
-                      {["Card", "Person", "Number", "Expires", "Code", "ZIP", "Cardholder"].map((h) => (
+                      {["Card", "Person", "Number", "Expires", "Code", "Postcode", "Cardholder"].map((h) => (
                         <th
                           key={h}
                           className="text-left text-[11px] uppercase tracking-wider font-semibold text-muted-foreground px-3 h-10 whitespace-nowrap"
@@ -599,31 +777,37 @@ export default function CardDetailsPage() {
                           </tr>
                         )}
                         {group.rows.map((row) => (
-                          <SecretRow
-                            key={row.card.id}
-                            row={row}
-                            revealedData={revealed[row.card.id]}
-                            loading={loadingIds.includes(row.card.id)}
-                            copiedKey={copied}
-                            onReveal={() =>
-                              revealed[row.card.id]
-                                ? hide(row.card.id)
-                                : reveal(row.card.id).catch((e) =>
-                                    toast.error(
-                                      e instanceof Error ? e.message : "Could not reveal details",
-                                    ),
-                                  )
-                            }
-                            onCopy={doCopy}
-                            onEdit={() => openEdit(row)}
-                            onOpenCard={() => setOpenCardId(row.card.id)}
-                          />
+                          <SecretRow key={row.card.id} {...rowProps(row)} />
                         ))}
                       </Fragment>
                     ))}
                   </tbody>
                 </table>
               </div>
+            </div>
+          ) : (
+            /* Stacked list for anything narrower than the table's 1030px. Same
+               data, same handlers — the fields become labelled rows instead of
+               columns, and every control is on screen without a sideways
+               scroll nobody could see the thumb for. */
+            <div className="space-y-4">
+              {grouped.map((group) => (
+                <div key={group.key || "all"} className="space-y-2">
+                  {group.key && (
+                    <h2 className="flex items-baseline gap-2 px-0.5 pt-1 text-xs font-semibold">
+                      <span className="min-w-0 truncate" title={group.key}>
+                        {group.key}
+                      </span>
+                      <span className="shrink-0 font-normal text-muted-foreground tabular-nums">
+                        {group.rows.length} {group.rows.length === 1 ? "card" : "cards"}
+                      </span>
+                    </h2>
+                  )}
+                  {group.rows.map((row) => (
+                    <SecretCard key={row.card.id} {...rowProps(row)} />
+                  ))}
+                </div>
+              ))}
             </div>
           )}
 
@@ -671,6 +855,100 @@ export default function CardDetailsPage() {
   );
 }
 
+/** What each layout renders per field, so the table and the stacked list can
+ *  never disagree about what "hidden" looks like or what a copy actually puts
+ *  on the clipboard. */
+interface SecretField {
+  key: string;
+  label: string;
+  /** Column headings have room the stacked list's label gutter does not, and
+   *  "Cardholder" is 30% wider than the widest of the others. */
+  shortLabel: string;
+  shown: string;
+  copy: string | null;
+  mono: boolean;
+  /** False when this card never had a value here. The table still shows the
+   *  column — a table needs one shape — but the stacked list drops the row
+   *  rather than stacking three em dashes under the number. */
+  stored: boolean;
+}
+
+function fieldsFor(secret: CardSecretMasked, revealedData: CardSecretRevealed | undefined): SecretField[] {
+  const on = !!revealedData;
+  return [
+    {
+      key: "pan",
+      label: "Number",
+      shortLabel: "Number",
+      shown: on ? revealedData!.pan : secret.masked_pan,
+      // Bare digits: checkout fields commonly mask input or cap at maxlength=16,
+      // where pasted spaces get truncated or rejected outright.
+      copy: on ? revealedData!.pan_digits : null,
+      mono: true,
+      stored: true,
+    },
+    {
+      key: "exp",
+      label: "Expiry",
+      shortLabel: "Expiry",
+      shown: on ? revealedData!.exp_display : "••/••",
+      copy: on ? revealedData!.exp_display : null,
+      mono: true,
+      stored: true,
+    },
+    {
+      key: "cvv",
+      label: secret.code_label,
+      shortLabel: secret.code_label,
+      shown: on ? (revealedData!.cvv ?? "—") : secret.has_cvv ? "•••" : "—",
+      copy: on ? revealedData!.cvv : null,
+      mono: true,
+      stored: secret.has_cvv,
+    },
+    {
+      key: "zip",
+      label: "Postcode",
+      shortLabel: "Postcode",
+      shown: on ? (revealedData!.billing_zip ?? "—") : secret.has_billing_zip ? "•••••" : "—",
+      copy: on ? revealedData!.billing_zip : null,
+      mono: true,
+      stored: secret.has_billing_zip,
+    },
+    {
+      key: "holder",
+      label: "Cardholder",
+      shortLabel: "Name",
+      shown: on ? (revealedData!.holder ?? "—") : secret.has_holder ? "••••••••" : "—",
+      copy: on ? revealedData!.holder : null,
+      mono: false,
+      stored: secret.has_holder,
+    },
+  ];
+}
+
+function copyAllBlock(revealedData: CardSecretRevealed): string {
+  return [
+    revealedData.pan_digits,
+    revealedData.exp_display,
+    revealedData.cvv ?? "",
+    revealedData.billing_zip ?? "",
+    revealedData.holder ?? "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+interface SecretViewProps {
+  row: Row;
+  revealedData: CardSecretRevealed | undefined;
+  loading: boolean;
+  copiedKey: string | null;
+  onReveal: () => void;
+  onCopy: (key: string, value: string, label: string) => void;
+  onEdit: () => void;
+  onOpenCard: () => void;
+}
+
 function SecretRow({
   row,
   revealedData,
@@ -680,71 +958,14 @@ function SecretRow({
   onCopy,
   onEdit,
   onOpenCard,
-}: {
-  row: Row;
-  revealedData: CardSecretRevealed | undefined;
-  loading: boolean;
-  copiedKey: string | null;
-  onReveal: () => void;
-  onCopy: (key: string, value: string, label: string) => void;
-  onEdit: () => void;
-  onOpenCard: () => void;
-}) {
+}: SecretViewProps) {
   const { card, secret, profileName } = row;
   const on = !!revealedData;
-
-  const cells: { key: string; label: string; shown: string; copy: string | null; mono: boolean }[] = [
-    {
-      key: "pan",
-      label: "Number",
-      shown: on ? revealedData!.pan : secret.masked_pan,
-      // Bare digits: checkout fields commonly mask input or cap at maxlength=16,
-      // where pasted spaces get truncated or rejected outright.
-      copy: on ? revealedData!.pan_digits : null,
-      mono: true,
-    },
-    {
-      key: "exp",
-      label: "Expiry",
-      shown: on ? revealedData!.exp_display : "••/••",
-      copy: on ? revealedData!.exp_display : null,
-      mono: true,
-    },
-    {
-      key: "cvv",
-      label: secret.code_label,
-      shown: on ? (revealedData!.cvv ?? "—") : secret.has_cvv ? "•••" : "—",
-      copy: on ? revealedData!.cvv : null,
-      mono: true,
-    },
-    {
-      key: "zip",
-      label: "ZIP",
-      shown: on ? (revealedData!.billing_zip ?? "—") : secret.has_billing_zip ? "•••••" : "—",
-      copy: on ? revealedData!.billing_zip : null,
-      mono: true,
-    },
-    {
-      key: "holder",
-      label: "Cardholder",
-      shown: on ? (revealedData!.holder ?? "—") : secret.has_holder ? "••••••••" : "—",
-      copy: on ? revealedData!.holder : null,
-      mono: false,
-    },
-  ];
+  const cells = fieldsFor(secret, revealedData);
 
   const copyAll = () => {
     if (!revealedData) return;
-    const block = [
-      revealedData.pan_digits,
-      revealedData.exp_display,
-      revealedData.cvv ?? "",
-      revealedData.billing_zip ?? "",
-      revealedData.holder ?? "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-    onCopy(`all-${card.id}`, block, "All fields");
+    onCopy(`all-${card.id}`, copyAllBlock(revealedData), "All fields");
   };
 
   return (
@@ -765,10 +986,16 @@ function SecretRow({
             className="w-10 h-[25px] shrink-0"
           />
           <span className="min-w-0">
-            <span className="block text-sm font-medium truncate group-hover:underline">
+            <span
+              className="block text-sm font-medium truncate group-hover:underline"
+              title={card.card_name}
+            >
               {card.card_name}
             </span>
-            <span className="block text-xs text-muted-foreground truncate">
+            <span
+              className="block text-xs text-muted-foreground truncate"
+              title={`${card.issuer}${card.network ? ` · ${card.network}` : ""}`}
+            >
               {card.issuer}
               {card.network ? ` · ${card.network}` : ""}
             </span>
@@ -783,7 +1010,7 @@ function SecretRow({
           </Badge>
           {/* A cancelled card is otherwise indistinguishable from a live one,
               and the obvious failure is pasting a dead number into a checkout. */}
-          {secret.card_status === "closed" && <Badge variant="destructive">closed</Badge>}
+          {secret.card_status === "closed" && <Badge variant="destructive">Closed</Badge>}
         </div>
       </td>
       {cells.map((c) => (
@@ -796,11 +1023,11 @@ function SecretRow({
               {c.shown}
             </span>
             {!on && <span className="sr-only">{c.label} hidden</span>}
-            {c.copy && (
+            {c.copy ? (
               <button
                 type="button"
                 onClick={() => onCopy(`${c.key}-${card.id}`, c.copy!, c.label)}
-                className="h-7 w-7 grid place-items-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none"
+                className="h-7 w-7 shrink-0 grid place-items-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none"
               >
                 {copiedKey === `${c.key}-${card.id}` ? (
                   <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-500" />
@@ -811,6 +1038,12 @@ function SecretRow({
                   Copy {c.label} for {card.card_name}
                 </span>
               </button>
+            ) : (
+              // Holds the copy button's slot open while the row is hidden.
+              // The masked and revealed values are the same width — the API
+              // masks to the real grouping — so the button appearing was the
+              // whole of the jitter when a row was revealed.
+              <span className="h-7 w-7 shrink-0" aria-hidden="true" />
             )}
           </div>
         </td>
@@ -822,13 +1055,21 @@ function SecretRow({
             onClick={onReveal}
             aria-pressed={on}
             disabled={loading}
-            className={`h-8 w-8 grid place-items-center rounded-md border transition-colors focus-visible:ring-2 focus-visible:ring-ring outline-none ${
+            className={`h-8 w-8 grid place-items-center rounded-md border transition-colors disabled:opacity-60 disabled:cursor-progress focus-visible:ring-2 focus-visible:ring-ring outline-none ${
               on ? "text-primary border-primary/40" : "text-muted-foreground border-border hover:bg-muted"
             }`}
           >
-            {on ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : on ? (
+              <EyeOff className="h-3.5 w-3.5" />
+            ) : (
+              <Eye className="h-3.5 w-3.5" />
+            )}
             <span className="sr-only">
-              {on ? "Hide" : "Show"} details for {card.card_name} ending {secret.last_digits}
+              {loading
+                ? `Decrypting ${card.card_name} ending ${secret.last_digits}`
+                : `${on ? "Hide" : "Show"} details for ${card.card_name} ending ${secret.last_digits}`}
             </span>
           </button>
           <button
@@ -855,5 +1096,213 @@ function SecretRow({
         </div>
       </td>
     </tr>
+  );
+}
+
+/**
+ * The same row, stacked, for anything narrower than the table.
+ *
+ * Field shapes are lifted from `benefit-card-vault`'s Shell/Field so the two
+ * places in the app that show a stored card number look like the same feature:
+ * a small uppercase label, the value, and the copy control pinned to the right.
+ * Everything a finger has to hit is at least 44px.
+ */
+function SecretCard({
+  row,
+  revealedData,
+  loading,
+  copiedKey,
+  onReveal,
+  onCopy,
+  onEdit,
+  onOpenCard,
+}: SecretViewProps) {
+  const { card, secret, profileName } = row;
+  const on = !!revealedData;
+  const fields = fieldsFor(secret, revealedData);
+
+  const copyAll = () => {
+    if (!revealedData) return;
+    onCopy(`all-${card.id}`, copyAllBlock(revealedData), "All fields");
+  };
+
+  return (
+    <div
+      className={cn(
+        "rounded-xl border bg-card p-3 space-y-3 transition-colors",
+        on && "border-primary/40 bg-primary/[0.04]",
+      )}
+    >
+      {/* Name on its own row: at 375px a badge sharing the line left the card
+          name about eight characters of room. */}
+      <button
+        type="button"
+        onClick={onOpenCard}
+        className="group flex w-full min-w-0 items-center gap-2.5 text-left rounded-sm focus-visible:ring-2 focus-visible:ring-ring outline-none"
+      >
+        <CardThumbnail
+          templateId={card.template_id}
+          cardName={card.card_name}
+          cardImage={card.card_image}
+          className="w-12 h-[30px] shrink-0"
+        />
+        <span className="min-w-0">
+          <span
+            className="block text-sm font-medium truncate group-hover:underline"
+            title={card.card_name}
+          >
+            {card.card_name}
+          </span>
+          <span
+            className="block text-xs text-muted-foreground truncate"
+            title={`${card.issuer}${card.network ? ` · ${card.network}` : ""}`}
+          >
+            {card.issuer}
+            {card.network ? ` · ${card.network}` : ""}
+          </span>
+        </span>
+      </button>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Badge variant={card.card_type === "business" ? "warning" : "outline"}>
+          <span className="max-w-[12rem] truncate" title={profileName}>
+            {profileName}
+            {card.card_type === "business" ? " · biz" : ""}
+          </span>
+        </Badge>
+        {secret.card_status === "closed" && <Badge variant="destructive">Closed</Badge>}
+      </div>
+
+      {secret.card_status === "closed" && (
+        <p className="flex items-start gap-1.5 text-xs leading-snug text-amber-600 dark:text-amber-500">
+          <AlertTriangle className="mt-px h-3 w-3 shrink-0" />
+          This card is closed — the number will decline.
+        </p>
+      )}
+
+      <div className="space-y-1">
+        {/* Rows for values this card never had are dropped rather than stacked
+            up as em dashes — the same call `benefit-card-vault` makes for its
+            Name field. `has_*` comes from the masked record, so the set of rows
+            doesn't change when the card is revealed. */}
+        {fields
+          .filter((f) => f.stored)
+          .map((f) => (
+            <StackedField
+              key={f.key}
+              field={f}
+              revealed={on}
+              copied={copiedKey === `${f.key}-${card.id}`}
+              cardName={card.card_name}
+              onCopy={() => f.copy && onCopy(`${f.key}-${card.id}`, f.copy, f.label)}
+            />
+          ))}
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <Button
+          variant={on ? "outline" : "default"}
+          size="sm"
+          onClick={onReveal}
+          aria-pressed={on}
+          disabled={loading}
+          // Starts with the word on the face of the button. The table's
+          // icon-only twin says "Show", but overriding a VISIBLE "Reveal" with
+          // an accessible name that doesn't contain it breaks voice control:
+          // "click Reveal" would match nothing.
+          aria-label={
+            loading
+              ? `Decrypting ${card.card_name} ending ${secret.last_digits}`
+              : `${on ? "Hide" : "Reveal"} details for ${card.card_name} ending ${secret.last_digits}`
+          }
+          className="min-h-[44px] flex-1"
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+          ) : on ? (
+            <EyeOff className="h-4 w-4 mr-1.5" />
+          ) : (
+            <Eye className="h-4 w-4 mr-1.5" />
+          )}
+          {loading ? "Decrypting…" : on ? "Hide" : "Reveal"}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={copyAll}
+          disabled={!on}
+          aria-label={`Copy all fields for ${card.card_name}`}
+          className="min-h-[44px] min-w-[44px] px-0 w-11"
+        >
+          {copiedKey === `all-${card.id}` ? (
+            <Check className="h-4 w-4 text-green-600 dark:text-green-500" />
+          ) : (
+            <ClipboardList className="h-4 w-4" />
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onEdit}
+          aria-label={`Edit details for ${card.card_name}`}
+          className="min-h-[44px] min-w-[44px] px-0 w-11"
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function StackedField({
+  field,
+  revealed,
+  copied,
+  cardName,
+  onCopy,
+}: {
+  field: SecretField;
+  revealed: boolean;
+  copied: boolean;
+  cardName: string;
+  onCopy: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-md bg-muted/50 py-1 pl-2.5 pr-1">
+      <span className="w-[4.5rem] shrink-0 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {field.shortLabel}
+      </span>
+      <span
+        className={cn(
+          "min-w-0 flex-1 truncate text-sm",
+          field.mono && "font-mono tabular-nums",
+        )}
+        title={revealed ? field.shown : undefined}
+        aria-hidden={!revealed || undefined}
+      >
+        {field.shown}
+      </span>
+      {!revealed && <span className="sr-only">{field.label} hidden</span>}
+      {field.copy ? (
+        <button
+          type="button"
+          onClick={onCopy}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring outline-none"
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-green-600 dark:text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+          <span className="sr-only">
+            Copy {field.label} for {cardName}
+          </span>
+        </button>
+      ) : (
+        // Never a copy control on a value that isn't there — and the slot stays
+        // reserved so revealing a card doesn't shuffle the rows sideways.
+        <span className="h-11 w-11 shrink-0" aria-hidden="true" />
+      )}
+    </div>
   );
 }

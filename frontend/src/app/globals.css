@@ -20,6 +20,11 @@
     --accent-foreground: 24 10% 10%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
+    /* --destructive is a *background* token: it is tuned to carry white text on
+       Button variant="destructive", which forces it dark in dark mode. --danger
+       is its foreground counterpart — read it as a text colour (text-danger),
+       never as a fill. */
+    --danger: 0 72% 45%;
     --border: 30 15% 90%;
     --input: 30 15% 90%;
     --ring: 220 60% 50%;
@@ -43,6 +48,9 @@
     --accent-foreground: 30 15% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 30 15% 95%;
+    /* Deliberately much lighter than --destructive: this one has to read as
+       text on a 6%-lightness background. */
+    --danger: 0 84% 68%;
     --border: 24 10% 16%;
     --input: 24 10% 16%;
     --ring: 220 60% 60%;
@@ -60,10 +68,10 @@
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-.scrollbar-thin:hover,
-.scrollbar-thin:active {
+  /* Touch devices never fire :hover, and declaring ::-webkit-scrollbar at all
+     suppresses the OS overlay indicator — so the thumb has to be painted by
+     default or a drawer body ends up with no scroll affordance whatsoever.
+     Pointer devices get the fade-until-hover treatment below. */
   scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
 }
 .scrollbar-thin::-webkit-scrollbar {
@@ -74,12 +82,51 @@
   background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: transparent;
+  background-color: hsl(var(--muted-foreground) / 0.3);
   border-radius: 9999px;
 }
-.scrollbar-thin:hover::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--muted-foreground) / 0.3);
+
+@media (hover: hover) {
+  .scrollbar-thin {
+    scrollbar-color: transparent transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  .scrollbar-thin:hover,
+  .scrollbar-thin:active {
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
 }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--muted-foreground) / 0.5);
+
+/* Nothing in the app opted into reduced motion, and the login screen runs two
+   infinite loops. Kill durations globally rather than auditing every animation;
+   components that need a *different* behaviour (not just a faster one) should
+   still branch on useReducedMotion(). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* sonner applies its mobileOffset only below a hardcoded 600px breakpoint, but
+   the fixed bottom tab bar is md:hidden — it is on screen up to 767px. Across
+   that band a bottom-positioned toast would sit on top of the tabs using the
+   24px desktop offset. --offset-bottom is an inline custom property on sonner's
+   own element, so overriding it needs !important. */
+@media (min-width: 600px) and (max-width: 767px) {
+  [data-sonner-toaster][data-y-position="bottom"] {
+    --offset-bottom: 72px !important;
+  }
 }

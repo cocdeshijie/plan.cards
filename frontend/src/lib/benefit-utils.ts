@@ -26,9 +26,22 @@ export function resetTypeLabel(resetType: string): string {
   }
 }
 
+/**
+ * Usage as a percentage, never rounded across a threshold that means something.
+ *
+ * Rounding reported 100 for $14,930 of a $15,000 spend threshold — which flips
+ * `isUnlocked`, paints the bar green and leaves the "Mark fully used" button
+ * enabled next to a "(100%)" label. At the other end $1 of $1,000 rounded to 0
+ * and coloured the bar untouched-grey. So: 100 only when the benefit really is
+ * exhausted, anything above that ceiled so a single dollar of overage still
+ * reads as over-use, and a partial usage floored but never all the way to 0.
+ */
 export function usagePercentage(used: number, total: number): number {
   if (total <= 0) return 0;
-  return Math.round((used / total) * 100);
+  const raw = (used / total) * 100;
+  if (used >= total) return Math.ceil(raw); // >= 100 by construction
+  if (used <= 0) return 0;
+  return Math.min(99, Math.max(1, Math.floor(raw)));
 }
 
 export function usageColor(percentage: number): string {

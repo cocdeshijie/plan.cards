@@ -64,26 +64,116 @@ const ADMIN_TOKEN_KEY = "admin_bootstrap_token";
 
 export function setAdminToken(token: string): void {
   if (typeof window === "undefined") return;
-  if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
-  else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  try {
+    if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token);
+    else sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  } catch {
+    // Blocked site data. Same guard as getToken below — sessionStorage throws
+    // on access there, and this one runs on every single request.
+  }
 }
 
 export function getAdminToken(): string {
   if (typeof window === "undefined") return "";
-  return sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+  try {
+    return sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
 }
 
+/**
+ * A browser configured to block site data throws on the *access*, it does not
+ * return null — the inline boot script in layout.tsx wraps the same call for the
+ * same reason. An unguarded read here failed every request (and hung the boot
+ * sequence, which has no catch) instead of just falling back to the cookie.
+ */
 function getToken(): string | null {
   if (typeof window === "undefined" || USE_COOKIE_AUTH) return null;
-  return localStorage.getItem("token");
+  try {
+    return localStorage.getItem("token");
+  } catch {
+    return null;
+  }
 }
 
 /** Persist the session token only when we can't use the HttpOnly cookie. */
 export function storeToken(token: string): void {
-  if (!USE_COOKIE_AUTH) localStorage.setItem("token", token);
+  if (USE_COOKIE_AUTH || typeof window === "undefined") return;
+  try {
+    localStorage.setItem("token", token);
+  } catch {
+    // Blocked storage: the session lives for this page only. Better than
+    // failing the sign-in that just succeeded.
+  }
+}
+
+function clearStoredToken(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem("token");
+  } catch {
+    // Nothing was stored in the first place.
+  }
 }
 
 type ValidationErrorItem = { loc?: (string | number)[]; msg?: string };
+
+/**
+ * Message shown when the server rejects the session. Exported so the store and
+ * the shell can say the same thing rather than each inventing wording.
+ */
+export const SESSION_EXPIRED_MESSAGE = "Your session has expired. Please sign in again.";
+
+/**
+ * Field names the generic snake_case → Sentence case rule gets wrong. Everything
+ * else ("last_digits" → "Last digits", "annual_fee" → "Annual fee") is fine
+ * unlisted, so this stays short instead of drifting out of date.
+ */
+const FIELD_LABELS: Record<string, string> = {
+  profile_id: "Profile",
+  card_id: "Card",
+  template_id: "Template",
+  new_template_id: "Template",
+  client_id: "Client ID",
+  client_secret: "Client secret",
+  issuer_url: "Issuer URL",
+  redirect_uri: "Redirect URI",
+  provider_name: "Provider",
+  target_mode: "Auth mode",
+};
+
+function humanizeField(name: string): string {
+  const known = FIELD_LABELS[name];
+  if (known) return known;
+  const spaced = name.replace(/_/g, " ").trim();
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+/**
+ * Turn one Pydantic error into something a person can act on.
+ *
+ * Reachable today: `last_digits` accepts 1-5 digits client-side but the backend
+ * requires 4 or 5, and the raw item toasted
+ * "last_digits: Value error, last_digits must be 4 or 5 digits".
+ */
+function formatValidationItem(item: ValidationErrorItem): string {
+  const path = (item.loc ?? []).filter(
+    (p): p is string => typeof p === "string" && p !== "body",
+  );
+  const name = path.length ? path[path.length - 1] : "";
+  // Pydantic v2 prefixes custom validator failures with "Value error, ".
+  const msg = (item.msg ?? "is invalid").replace(/^Value error,\s*/i, "");
+  if (!name) return msg;
+  const label = humanizeField(name);
+  if (/^field required$/i.test(msg)) return `${label} is required`;
+  // Validators usually repeat the raw field name ("last_digits must be 4 or 5
+  // digits") — print it once, and never in snake_case.
+  if (msg.toLowerCase().startsWith(name.toLowerCase())) {
+    return `${label}${msg.slice(name.length)}`;
+  }
+  return `${label}: ${msg}`;
+}
 
 /**
  * FastAPI sends `detail` as a string for HTTPException but as an ARRAY of
@@ -95,16 +185,77 @@ function errorMessage(body: unknown, fallback: string): string {
   const detail = (body as { detail?: unknown })?.detail;
   if (typeof detail === "string" && detail) return detail;
   if (Array.isArray(detail)) {
-    const messages = (detail as ValidationErrorItem[])
-      .map((item) => {
-        const field = item.loc?.filter((p) => p !== "body").join(".");
-        const msg = item.msg ?? "is invalid";
-        return field ? `${field}: ${msg}` : msg;
-      })
-      .filter(Boolean);
+    const messages = (detail as ValidationErrorItem[]).map(formatValidationItem).filter(Boolean);
     if (messages.length) return messages.join("; ");
   }
   return fallback;
+}
+
+/**
+ * Wording for a failure the server didn't explain. These strings are toasted
+ * verbatim by ~47 call sites, so "API error: 502" was reaching users as-is.
+ * The status stays in the text — a self-hoster reporting a bug needs it.
+ */
+function statusFallback(status: number): string {
+  if (status === 404) return "Not found — it may have been deleted already.";
+  if (status === 409) return "That conflicts with something already saved.";
+  if (status === 413) return "That was too large to upload.";
+  if (status === 429) return "Too many requests. Please wait a moment and try again.";
+  if (status >= 500) return `The server couldn't complete that request (${status}). Please try again.`;
+  return `That request couldn't be completed (${status}).`;
+}
+
+/**
+ * A 401 from these means "those credentials are wrong", not "your session
+ * ended" — there is no session yet. The backend answers /login with
+ * `detail: "Invalid password"` / "Invalid credentials" / "Password required",
+ * which is the entire message the user needs; every other 401 carries an
+ * internal string ("Invalid token", "Not authenticated", "User not found or
+ * inactive") that is worse than useless in a toast.
+ */
+const SIGN_IN_PATHS = new Set(["/api/auth/login", "/api/auth/register"]);
+
+/**
+ * A 401 here is the answer to the question, not a failure of it: checkAuth()
+ * awaits /api/auth/verify at boot to choose between the app and the landing
+ * page, so it has to settle even when a listener announced the expiry.
+ */
+const SESSION_CHECK_PATHS = new Set(["/api/auth/verify"]);
+
+/**
+ * Clear the session and let the store/shell react.
+ *
+ * Returns true when a listener took responsibility for telling the user —
+ * use-app-store's auth:unauthorized listener calls preventDefault() right
+ * before it toasts SESSION_EXPIRED_MESSAGE with the id "session-expired".
+ */
+function announceUnauthorized(): boolean {
+  clearStoredToken();
+  if (typeof window === "undefined") return false;
+  const event = new CustomEvent("auth:unauthorized", { cancelable: true });
+  window.dispatchEvent(event);
+  return event.defaultPrevented;
+}
+
+/**
+ * What a 401 hands back to the caller.
+ *
+ * If nobody announced it (SSR, or the store already considers the session
+ * gone) the caller is still the only one who can say anything, so it gets the
+ * sentence and toasts it itself. If the store *did* announce it, the caller's
+ * continuation is dropped rather than rejected: every call site does
+ * `toast.error(e instanceof Error ? e.message : "…")`, and sonner dedupes by
+ * id and not by text, so rejecting with the same sentence would stack a second
+ * identical toast next to the store's. clearSession() has already run and the
+ * shell is redirecting to the landing page, so there is nothing else the
+ * caller would have done with the rejection.
+ */
+function unauthorized<T>(path: string): Promise<T> {
+  const announced = announceUnauthorized();
+  if (announced && !SESSION_CHECK_PATHS.has(path)) {
+    return new Promise<never>(() => {});
+  }
+  return Promise.reject(new Error(SESSION_EXPIRED_MESSAGE));
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -120,22 +271,34 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   if (adminToken) {
     headers["X-Admin-Token"] = adminToken;
   }
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: "include" });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: "include" });
+  } catch {
+    // fetch only rejects for a transport failure — offline, DNS, TLS, CORS.
+    // Its own message ("Failed to fetch" / "Load failed") is toasted verbatim
+    // by call sites and means nothing to the person reading it.
+    throw new Error("Couldn't reach the server. Check your connection and try again.");
+  }
   if (res.status === 401) {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      window.dispatchEvent(new Event("auth:unauthorized"));
+    // Sign-in rejections keep the server's reason and leave the session
+    // machinery alone — clearing a token that was never issued and firing
+    // auth:unauthorized would be noise, and "Your session has expired" is the
+    // wrong sentence for a mistyped password.
+    if (SIGN_IN_PATHS.has(path)) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(errorMessage(body, "Sign-in failed. Check your details and try again."));
     }
-    throw new Error("Unauthorized");
+    return unauthorized<T>(path);
   }
   if (res.status === 403) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(errorMessage(body, "Forbidden"));
+    throw new Error(errorMessage(body, "You don't have permission to do that."));
   }
   if (res.status === 204) return undefined as T;
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(errorMessage(body, `API error: ${res.status}`));
+    throw new Error(errorMessage(body, statusFallback(res.status)));
   }
   return res.json().catch(() => undefined as T);
 }
@@ -184,7 +347,7 @@ export async function logout() {
   } catch {
     // ignore — best-effort
   }
-  if (typeof window !== "undefined") localStorage.removeItem("token");
+  clearStoredToken();
 }
 
 export async function verifyAuth(): Promise<{ ok: boolean; user?: UserBrief }> {
@@ -412,16 +575,23 @@ export const getAdminConfig = () => apiFetch<AdminConfig>("/api/admin/config");
  * plain file copy of cards.db silently omits commits still in cards.db-wal.
  */
 export async function downloadDatabaseBackup(): Promise<void> {
-  const token = typeof window !== "undefined" && !USE_COOKIE_AUTH
-    ? localStorage.getItem("token")
-    : null;
-  const res = await fetch(`${API_BASE}/api/admin/backup`, {
-    credentials: "include",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  const token = getToken();
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/admin/backup`, {
+      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  } catch {
+    throw new Error("Couldn't reach the server. Check your connection and try again.");
+  }
+  // Same 401 handling as apiFetch: without the dispatch an expired admin
+  // session left the operator on a fully-rendered panel where everything
+  // silently failed.
+  if (res.status === 401) return unauthorized<void>("/api/admin/backup");
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(errorMessage(body, `Backup failed: ${res.status}`));
+    throw new Error(errorMessage(body, `Backup failed. ${statusFallback(res.status)}`));
   }
   const disposition = res.headers.get("content-disposition") || "";
   const match = disposition.match(/filename="?([^"';]+)"?/);

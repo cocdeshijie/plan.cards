@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { updateEvent, deleteEvent, createCardEvent } from "@/lib/api";
-import { parseIntStrict, parseDateStr } from "@/lib/utils";
+import { parseIntStrict, parseDateStr, formatCurrency } from "@/lib/utils";
 import { getNextFeeInfo } from "@/lib/fee-utils";
 import { useToday } from "@/hooks/use-timezone";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { DollarSign, Pencil, Check, X, Trash2, Plus, ChevronDown } from "lucide-react";
+import { DollarSign, Pencil, Check, X, Trash2, Plus, ChevronDown, Loader2 } from "lucide-react";
 
 interface AnnualFeeHistorySectionProps {
   card: Card;
@@ -22,6 +22,20 @@ interface AnnualFeeHistorySectionProps {
   onToggleExpand: () => void;
   onExpand: () => void;
 }
+
+// Row actions stay visible wherever hover cannot reveal them: always below sm,
+// and at sm and up only on pointers that actually hover. Gating the reveal on
+// `sm` alone hid them on an iPad in portrait (768px, no hover), where nothing
+// short of blind-tapping brought them back. `sm:group-focus-within` keeps
+// keyboard users from landing on an invisible control on the desktop path.
+const ROW_ACTION_CLASS =
+  "opacity-100 sm:[@media(hover:hover)]:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity inline-flex items-center justify-center rounded p-0.5 hover:bg-muted min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0";
+
+// Collapse/expand headers are a single line of 14px text, which is a ~20px tap
+// target. The negative margin gives the padding back to the layout so the header
+// row keeps the height it had. Same string as benefits-section.tsx.
+const SECTION_HEADER_CLASS =
+  "flex items-center gap-2 text-left min-h-[44px] sm:min-h-0 py-2 -my-2";
 
 function extractFee(event: CardEvent, cardAnnualFee: number | null): number {
   // Tier 1: metadata_json.annual_fee
@@ -60,11 +74,6 @@ function formatFeeDate(event: CardEvent): string {
   return format(d, "MMM d, yyyy");
 }
 
-function formatFeeAmount(amount: number): string {
-  if (amount < 0) return `-$${Math.abs(amount).toLocaleString()}`;
-  return `$${amount.toLocaleString()}`;
-}
-
 export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded, onToggleExpand, onExpand }: AnnualFeeHistorySectionProps) {
   const today = useToday();
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
@@ -73,6 +82,9 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
   const [editDescription, setEditDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
+  // Separate from `saving`, which the add form and the edit row also set —
+  // only this drives the armed row's "Deleting..." label.
+  const [deleteInFlight, setDeleteInFlight] = useState(false);
 
   // Add form state
   const [showAddForm, setShowAddForm] = useState(false);
@@ -114,7 +126,18 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
 
   const nextFeeDate = nextFeeInfo?.nextDate ?? null;
 
+  const resetAddForm = () => {
+    setShowAddForm(false);
+    setAddIsRefund(false);
+    setAddFeeValue("");
+    setAddDateValue(undefined);
+    setAddDescription("");
+  };
+
   const handleSave = async (event: CardEvent, newFee: number) => {
+    // Same re-entrancy guard as handleAdd below: Enter is bound on two inputs
+    // in this row and neither is covered by the Check button's disabled prop.
+    if (saving) return;
     setSaving(true);
 
     try {
@@ -143,17 +166,37 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
     }
   };
 
+  // Enter in either edit field commits the row, so the same validation the
+  // Check button runs has to live here too — otherwise a stray decimal made
+  // Enter do nothing at all with no explanation.
+  const commitEdit = (event: CardEvent) => {
+    if (!editFeeValue.trim()) {
+      toast.error("Enter a fee amount");
+      return;
+    }
+    const val = parseIntStrict(editFeeValue);
+    if (val === null) {
+      toast.error("Fee amount must be a whole dollar amount");
+      return;
+    }
+    handleSave(event, val);
+  };
+
   const handleDelete = async (eventId: number) => {
+    if (saving) return;
     setSaving(true);
+    setDeleteInFlight(true);
 
     try {
       await deleteEvent(eventId);
+      setDeletingEventId(null);
       onUpdated();
       toast.success("Fee event deleted");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to delete event");
     } finally {
       setSaving(false);
+      setDeleteInFlight(false);
     }
   };
 
@@ -168,7 +211,17 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
       toast.error("Fee amount must be a whole dollar amount");
       return;
     }
-    if (fee === null || !addDateValue) return;
+    // Both of these used to `return` silently while the Check button sat
+    // disabled, so Enter (the natural gesture in the autofocused amount field)
+    // looked like a dead key. The button is now enabled and both paths explain.
+    if (fee === null) {
+      toast.error("Enter a fee amount");
+      return;
+    }
+    if (!addDateValue) {
+      toast.error("Pick a date for this fee event");
+      return;
+    }
     setSaving(true);
 
     try {
@@ -178,11 +231,7 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
         description: addDescription || null,
         metadata_json: { annual_fee: fee },
       });
-      setShowAddForm(false);
-      setAddIsRefund(false);
-      setAddFeeValue("");
-      setAddDateValue(undefined);
-      setAddDescription("");
+      resetAddForm();
       onUpdated();
       toast.success("Fee event added");
     } catch (e) {
@@ -216,7 +265,7 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
     <div className="space-y-3">
       <div className="h-px" style={{ backgroundColor: accentTint }} />
       <div className="flex items-center justify-between">
-        <button onClick={onToggleExpand} aria-expanded={expanded} className="flex items-center gap-2">
+        <button onClick={onToggleExpand} aria-expanded={expanded} className={SECTION_HEADER_CLASS}>
           <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${!expanded ? "-rotate-90" : ""}`} />
           <DollarSign className="h-4 w-4 text-muted-foreground" />
           <h4 className="font-medium text-sm">Annual Fee History</h4>
@@ -224,42 +273,52 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
         <div className="flex items-center gap-2">
           {totalFees !== 0 && (
             <Badge variant="secondary" className="text-xs">
-              {hasNegatives ? "Net" : "Total"}: {formatFeeAmount(totalFees)}
+              {hasNegatives ? "Net" : "Total"}: {formatCurrency(totalFees)}
             </Badge>
           )}
-          <button
-            onClick={() => { onExpand(); setShowAddForm(true); setEditingEventId(null); }}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2 text-xs gap-1"
+            onClick={() => { onExpand(); setShowAddForm(true); setEditingEventId(null); setDeletingEventId(null); }}
           >
             <Plus className="h-3 w-3" />
             Add
-          </button>
+          </Button>
         </div>
       </div>
 
       {expanded && <div className="space-y-1">
+        {/* A closed card has no upcoming fee, so a card with an annual fee but no
+            posted events yet expanded to an empty box. Say so, like the three
+            sibling sections do. */}
+        {yearEntries.length === 0 && !nextFeeDate && !showAddForm && (
+          <p className="text-sm text-muted-foreground">No annual fee events recorded.</p>
+        )}
+
         {yearEntries.map(({ event, yearLabel, fee }) => {
           const isEditing = editingEventId === event.id;
           return (
             <div key={event.id} className="group flex items-center justify-between rounded-md px-2 py-1.5 hover:bg-muted/40">
               {isEditing ? (
                 <div className="flex-1 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-xs text-muted-foreground w-12">{yearLabel}</span>
-                      <DatePicker value={editDateValue} onChange={setEditDateValue} placeholder="Date" />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <span className="w-12 shrink-0 text-xs text-muted-foreground">{yearLabel}</span>
+                      {/* DatePicker defaults to w-full h-9; left alone it fought the
+                          h-8 amount field beside it and tried to claim the row. */}
+                      <DatePicker value={editDateValue} onChange={setEditDateValue} placeholder="Date" className="h-8 w-auto px-2 text-xs" />
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Input
-                        className="h-7 w-20 text-sm"
+                        className="h-8 w-24 text-sm"
                         type="number"
+                        inputMode="numeric"
+                        aria-label={`${yearLabel} fee amount`}
                         value={editFeeValue}
                         onChange={(e) => setEditFeeValue(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            const val = parseIntStrict(editFeeValue);
-                            if (val !== null) handleSave(event, val);
-                          }
+                          if (e.key === "Enter") commitEdit(event);
                           if (e.key === "Escape") cancelEdit();
                         }}
                         autoFocus
@@ -267,70 +326,83 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-6 w-6 p-0"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                         disabled={saving}
-                        onClick={() => {
-                          const val = parseIntStrict(editFeeValue);
-                          if (val !== null) handleSave(event, val);
-                        }}
+                        aria-label={`Save the ${yearLabel} fee event`}
+                        onClick={() => commitEdit(event)}
                       >
-                        <Check className="h-3 w-3" />
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={cancelEdit}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
+                        disabled={saving}
+                        aria-label={`Cancel editing the ${yearLabel} fee event`}
+                        onClick={cancelEdit}
+                      >
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
                   <Input
-                    className="h-7 text-xs"
+                    className="h-8 text-xs"
                     placeholder="Description (optional)"
+                    aria-label={`${yearLabel} fee description`}
+                    maxLength={1000}
+                    enterKeyHint="done"
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        const val = parseIntStrict(editFeeValue);
-                        if (val !== null) handleSave(event, val);
-                      }
+                      if (e.key === "Enter") commitEdit(event);
                       if (e.key === "Escape") cancelEdit();
                     }}
                   />
                 </div>
               ) : (
                 <>
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex min-w-0 flex-col gap-0.5">
                     <div className="flex items-center gap-3 text-sm">
-                      <span className="text-xs text-muted-foreground w-12">{yearLabel}</span>
+                      <span className="w-12 shrink-0 text-xs text-muted-foreground">{yearLabel}</span>
                       <span className="text-muted-foreground">
                         {formatFeeDate(event)}
                       </span>
                     </div>
                     {event.description && (
-                      <span className="text-xs text-muted-foreground/70 ml-[60px]">{event.description}</span>
+                      <span className="ml-[60px] text-xs text-muted-foreground/70">{event.description}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex shrink-0 items-center gap-1.5">
                     <span className={`text-sm font-medium ${fee < 0 ? "text-green-600 dark:text-green-400" : ""}`}>
-                      {formatFeeAmount(fee)}
+                      {formatCurrency(fee)}
                     </span>
                     <button
                       onClick={() => startEdit(event, fee)}
-                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
-                      aria-label="Edit fee event"
+                      className={ROW_ACTION_CLASS}
+                      aria-label={`Edit the ${yearLabel} fee event`}
                     >
                       <Pencil className="h-3 w-3 text-muted-foreground" />
                     </button>
                     {deletingEventId === event.id ? (
                       <>
+                        {/* Stays armed until the request settles so the label can
+                            say "Deleting...", the way the sibling sections do; the
+                            row itself disappears on success. The accessible name
+                            leads with "Delete" so it still contains the visible
+                            text (WCAG 2.5.3). */}
                         <button
-                          onClick={() => { handleDelete(event.id); setDeletingEventId(null); }}
-                          className="text-[10px] text-destructive font-medium px-1 hover:underline"
+                          onClick={() => handleDelete(event.id)}
+                          className="inline-flex min-h-[44px] items-center px-1 text-[10px] font-medium text-danger hover:underline sm:min-h-0"
                           disabled={saving}
+                          aria-label={`Confirm delete the ${yearLabel} fee event`}
                         >
-                          Delete?
+                          {deleteInFlight ? "Deleting..." : "Delete?"}
                         </button>
                         <button
                           onClick={() => setDeletingEventId(null)}
-                          className="p-0.5 rounded hover:bg-muted"
+                          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-0.5 hover:bg-muted sm:min-h-0 sm:min-w-0"
+                          disabled={saving}
+                          aria-label={`Keep the ${yearLabel} fee event`}
                         >
                           <X className="h-3 w-3 text-muted-foreground" />
                         </button>
@@ -338,11 +410,11 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
                     ) : (
                       <button
                         onClick={() => setDeletingEventId(event.id)}
-                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                        className={ROW_ACTION_CLASS}
                         disabled={saving}
-                        aria-label="Delete fee event"
+                        aria-label={`Delete the ${yearLabel} fee event`}
                       >
-                        <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                        <Trash2 className="h-3 w-3 text-muted-foreground hover:text-danger" />
                       </button>
                     )}
                   </div>
@@ -355,53 +427,79 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
         {/* Add new AF event form */}
         {showAddForm && (
           <div className="rounded-md border border-dashed border-muted-foreground/30 px-2 py-2 space-y-1.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2 text-sm">
+                {/* Two mutually exclusive toggle buttons: without aria-pressed a
+                    screen reader announces two plain buttons and never says
+                    which of Fee / Refund is currently selected. */}
                 <div className="flex items-center bg-muted rounded-md p-0.5 text-xs">
                   <button
+                    type="button"
+                    aria-pressed={!addIsRefund}
                     className={`px-2 py-0.5 rounded transition-colors ${!addIsRefund ? "bg-background shadow-sm font-medium" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setAddIsRefund(false)}
                   >
                     Fee
                   </button>
                   <button
+                    type="button"
+                    aria-pressed={addIsRefund}
                     className={`px-2 py-0.5 rounded transition-colors ${addIsRefund ? "bg-background shadow-sm font-medium text-green-600 dark:text-green-400" : "text-muted-foreground hover:text-foreground"}`}
                     onClick={() => setAddIsRefund(true)}
                   >
                     Refund
                   </button>
                 </div>
-                <DatePicker value={addDateValue} onChange={setAddDateValue} placeholder="Date" />
+                <DatePicker value={addDateValue} onChange={setAddDateValue} placeholder="Date" className="h-8 w-auto px-2 text-xs" />
               </div>
               <div className="flex items-center gap-1.5">
                 <Input
-                  className="h-7 w-20 text-sm"
+                  className="h-8 w-24 text-sm"
                   type="number"
+                  inputMode="numeric"
                   placeholder="Amount"
+                  aria-label={addIsRefund ? "Refund amount" : "Fee amount"}
                   value={addFeeValue}
                   onChange={(e) => setAddFeeValue(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleAdd();
-                    if (e.key === "Escape") { setShowAddForm(false); setAddIsRefund(false); setAddFeeValue(""); setAddDateValue(undefined); setAddDescription(""); }
+                    if (e.key === "Escape") resetAddForm();
                   }}
                   autoFocus
                 />
-                <Button size="sm" variant="ghost" className="h-6 w-6 p-0" disabled={saving || !addDateValue || !addFeeValue} onClick={handleAdd}>
-                  <Check className="h-3 w-3" />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
+                  disabled={saving}
+                  aria-label={addIsRefund ? "Add refund event" : "Add fee event"}
+                  onClick={handleAdd}
+                >
+                  {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                 </Button>
-                <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => { setShowAddForm(false); setAddIsRefund(false); setAddFeeValue(""); setAddDateValue(undefined); setAddDescription(""); }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
+                  disabled={saving}
+                  aria-label="Cancel adding a fee event"
+                  onClick={resetAddForm}
+                >
                   <X className="h-3 w-3" />
                 </Button>
               </div>
             </div>
             <Input
-              className="h-7 text-xs"
+              className="h-8 text-xs"
               placeholder={addIsRefund ? "Description (e.g., Prorated refund, Retention credit)" : "Description (optional)"}
+              aria-label="Description"
+              maxLength={1000}
+              enterKeyHint="done"
               value={addDescription}
               onChange={(e) => setAddDescription(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAdd();
-                if (e.key === "Escape") { setShowAddForm(false); setAddIsRefund(false); setAddFeeValue(""); setAddDateValue(undefined); setAddDescription(""); }
+                if (e.key === "Escape") resetAddForm();
               }}
             />
           </div>
@@ -411,14 +509,17 @@ export function AnnualFeeHistorySection({ card, accentTint, onUpdated, expanded,
         {nextFeeDate && (
           <>
             <div className="border-t border-dashed border-muted-foreground/20 mx-2" />
-            <div className="flex items-center justify-between rounded-md px-2 py-1.5 opacity-60 italic">
+            {/* Italic alone marks this row as projected. The old opacity-60 sat on
+                top of text-muted-foreground and dropped the line users scan for
+                the next fee date to roughly 2.2:1. */}
+            <div className="flex items-center justify-between rounded-md px-2 py-1.5 italic">
               <div className="flex items-center gap-3 text-sm">
-                <span className="text-xs text-muted-foreground w-12">Year {nextYearNumber}</span>
+                <span className="w-12 shrink-0 text-xs text-muted-foreground">Year {nextYearNumber}</span>
                 <span className="text-muted-foreground">
                   ~{format(nextFeeDate, "MMM yyyy")}
                 </span>
               </div>
-              <span className="text-sm font-medium">{formatFeeAmount(card.annual_fee ?? 0)}</span>
+              <span className="text-sm font-medium text-muted-foreground">{formatCurrency(card.annual_fee ?? 0)}</span>
             </div>
           </>
         )}

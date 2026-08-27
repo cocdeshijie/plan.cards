@@ -24,6 +24,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        // Foreground-only counterpart to --destructive. Use text-danger for
+        // error copy and destructive icons; --destructive stays a fill.
+        danger: "hsl(var(--danger))",
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",

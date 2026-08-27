@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import type { Card } from "@/types";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CardShowcaseTile } from "@/components/cards/card-showcase-tile";
 import { CardFilters, type SortField, type SortDir } from "@/components/cards/card-filters";
@@ -14,7 +15,7 @@ import { CalendarView } from "@/components/calendar-view/calendar-view";
 import { TimelineView } from "@/components/timeline-view/timeline-view";
 import { FiveTwentyFourBadge } from "@/components/five-twenty-four/badge";
 import { CardGridSkeleton } from "@/components/cards/card-grid-skeleton";
-import { Plus, Wallet, FilterX, Search } from "lucide-react";
+import { Plus, Wallet, FilterX, Search, X } from "lucide-react";
 import { getCardSecrets } from "@/lib/api";
 
 function sortCards(cards: Card[], field: SortField, dir: SortDir): Card[] {
@@ -61,6 +62,7 @@ export default function CardsPage() {
   const [showAddCard, setShowAddCard] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -97,10 +99,20 @@ export default function CardsPage() {
     });
   };
 
+  // Scoped by the header's profile selector only. The Calendar tab renders from
+  // this, not from filteredCards: search and CardFilters live inside the List
+  // tab, and both they and the active tab persist, so you could land on a
+  // silently filtered Calendar with no control anywhere in sight.
+  const profileCards = useMemo(
+    () => selectedProfileId === "all"
+      ? cards
+      : cards.filter((c) => c.profile_id === parseInt(selectedProfileId)),
+    [cards, selectedProfileId],
+  );
+
   const filteredCards = useMemo(() => {
     const q = debouncedSearch.toLowerCase().trim();
-    const filtered = cards.filter((card) => {
-      if (selectedProfileId !== "all" && card.profile_id !== parseInt(selectedProfileId)) return false;
+    const filtered = profileCards.filter((card) => {
       if (statusFilter !== "all" && card.status !== statusFilter) return false;
       if (typeFilter !== "all" && card.card_type !== typeFilter) return false;
       if (issuerFilter !== "all" && card.issuer !== issuerFilter) return false;
@@ -124,9 +136,19 @@ export default function CardsPage() {
       return true;
     });
     return sortCards(filtered, sortField, sortDir);
-  }, [cards, selectedProfileId, statusFilter, typeFilter, issuerFilter, sortField, sortDir, debouncedSearch]);
+  }, [profileCards, statusFilter, typeFilter, issuerFilter, sortField, sortDir, debouncedSearch]);
 
-  const issuers = useMemo(() => [...new Set(cards.map((c) => c.issuer))].sort(), [cards]);
+  const issuers = useMemo(() => {
+    // Only the issuers reachable in the current profile — offering P1's issuers
+    // while viewing P2 just guarantees an empty grid.
+    const set = new Set(profileCards.map((c) => c.issuer));
+    // A persisted filter can name an issuer whose last card was closed out of
+    // this profile, deleted or renamed. Radix paints a blank trigger for a value
+    // with no matching item, so keep the stale one listed: visible, and
+    // clearable from the same dropdown.
+    if (issuerFilter !== "all") set.add(issuerFilter);
+    return [...set].sort();
+  }, [profileCards, issuerFilter]);
 
   // Derive selectedCard from cards array so it auto-updates on refresh
   const selectedCard = selectedCardId !== null ? cards.find((c) => c.id === selectedCardId) ?? null : null;
@@ -134,17 +156,37 @@ export default function CardsPage() {
   if (dataLoading) {
     return (
       <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Cards</h1>
         <div className="flex items-start justify-between">
           <div />
           <Button disabled><Plus className="h-4 w-4 mr-1" /> Add Card</Button>
         </div>
-        <CardGridSkeleton />
+        {/* Shaped like the loaded page: tab bar, search box and the filter row.
+            Without them the grid rendered ~148px high and every tile jumped once
+            the data landed — a tap aimed at the first card hit the filters. */}
+        <div>
+          <Skeleton className="h-[52px] w-[232px] rounded-lg sm:h-9" />
+          <div className="mt-2 space-y-4">
+            <Skeleton className="h-9 w-full" />
+            <div className="flex gap-3 flex-wrap items-center">
+              <Skeleton className="h-9 w-[130px]" />
+              <Skeleton className="h-9 w-[130px]" />
+              <Skeleton className="h-9 w-[130px] sm:w-[180px]" />
+              <Skeleton className="h-9 w-[130px]" />
+              <Skeleton className="h-11 w-11 sm:h-9 sm:w-9" />
+              <Skeleton className="h-6 w-20" />
+            </div>
+            <CardGridSkeleton />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Cards</h1>
+
       {/* 5/24 + Add Card */}
       <div className="flex items-start justify-between">
         <div>
@@ -170,13 +212,36 @@ export default function CardsPage() {
 
         <TabsContent value="list" className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search
+              aria-hidden="true"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
+            />
             <Input
+              ref={searchRef}
+              type="search"
               placeholder="Search cards..."
+              aria-label="Search cards"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden"
+              autoComplete="off"
+              enterKeyHint="search"
             />
+            {/* The only reset used to be the empty-state button, which needs zero
+                results before it appears — no way back from a typo. */}
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  searchRef.current?.focus();
+                }}
+                aria-label="Clear search"
+                className="absolute right-0 top-1/2 -translate-y-1/2 h-9 w-9 grid place-items-center rounded-md text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring outline-none"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <CardFilters
             statusFilter={statusFilter}
@@ -197,6 +262,14 @@ export default function CardsPage() {
             (() => {
               const hasFilters = statusFilter !== "all" || typeFilter !== "all" || issuerFilter !== "all";
               const hasSearch = debouncedSearch.trim().length > 0;
+              // The reset button clears the search AND all three filters, so it
+              // has to say so — "Clear Search" was hiding the fact that three
+              // dropdowns were about to move too.
+              const resetLabel = hasSearch && hasFilters
+                ? "Clear Search & Filters"
+                : hasSearch
+                ? "Clear Search"
+                : "Clear Filters";
               return (
                 <div className="flex flex-col items-center justify-center py-16 space-y-4">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted">
@@ -207,12 +280,18 @@ export default function CardsPage() {
                       {hasSearch ? `No results for "${debouncedSearch}"` : hasFilters ? "No matching cards" : "No cards yet"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {hasSearch ? "Try a different search term" : hasFilters ? "Try adjusting your filters" : "Add your first card to start tracking"}
+                      {hasSearch && hasFilters
+                        ? "Filters are active too — try a different term or clear them"
+                        : hasSearch
+                        ? "Try a different search term"
+                        : hasFilters
+                        ? "Try adjusting your filters"
+                        : "Add your first card to start tracking"}
                     </p>
                   </div>
                   {hasFilters || hasSearch ? (
                     <Button variant="outline" onClick={() => { handleStatusChange("all"); handleTypeChange("all"); handleIssuerChange("all"); setSearchQuery(""); }}>
-                      {hasSearch ? "Clear Search" : "Clear Filters"}
+                      {resetLabel}
                     </Button>
                   ) : (
                     <Button onClick={() => setShowAddCard(true)}>
@@ -239,7 +318,7 @@ export default function CardsPage() {
 
         <TabsContent value="calendar">
           <CalendarView
-            cards={filteredCards}
+            cards={profileCards}
             profiles={profiles}
             onCardClick={(card) => setSelectedCardId(card.id)}
           />

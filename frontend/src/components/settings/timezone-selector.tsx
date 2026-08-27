@@ -52,6 +52,14 @@ export function TimezoneSelector() {
     ? `Server Default (${serverTimezone})`
     : "Server Default";
 
+  // The trigger is a fixed 180px in a crowded toolbar, so the selected label is
+  // clipped rather than allowed to overflow into the chevron — which means the
+  // full string has to stay recoverable somewhere. `server_timezone` is always
+  // populated, so the clipped case is the *default* state, not an edge case.
+  const currentLabel = timezone
+    ? TIMEZONE_OPTIONS.find((tz) => tz.value === timezone)?.label ?? timezone
+    : serverLabel;
+
   const handleChange = (value: string) => {
     // setTimezone rolls back optimistically and re-throws so the caller can
     // report it. Fire-and-forget produced an uncaught rejection, the dropdown
@@ -63,8 +71,12 @@ export function TimezoneSelector() {
 
   return (
     <Select value={timezone || "default"} onValueChange={handleChange}>
-      <SelectTrigger className="w-[180px] h-9">
-        <div className="flex items-center gap-1.5">
+      <SelectTrigger className="w-[180px] max-w-full h-9" aria-label="Timezone" title={currentLabel}>
+        {/* SelectTrigger's own `[&>span]:line-clamp-1 [&>span]:min-w-0` only
+            reaches DIRECT span children, and this wrapper div sits between it
+            and SelectValue — so the clamp has to be re-declared here, plus
+            min-w-0 on the wrapper itself so it can shrink below its content. */}
+        <div className="flex min-w-0 items-center gap-1.5 [&>span]:min-w-0 [&>span]:truncate">
           <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <SelectValue placeholder="Timezone" />
         </div>
