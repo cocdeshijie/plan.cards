@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAllEvents } from "@/lib/api";
 import { formatDate, formatCurrency, parseDateStr } from "@/lib/utils";
+import { maskLastDigits } from "@/lib/card-number";
 import { useToday } from "@/hooks/use-timezone";
 import { getAnniversaryForYear } from "@/lib/fee-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getEventMeta } from "@/lib/event-icons";
 import { CardThumbnail } from "@/components/shared/card-thumbnail";
-import { Clock, ChevronUp, ArrowRight, Minus } from "lucide-react";
-import { format, isSameMonth, isSameYear } from "date-fns";
+import { Clock, ChevronUp, ArrowRight, RefreshCw } from "lucide-react";
+import { format } from "date-fns";
 
 interface TimelineViewProps {
   cards: Card[];
@@ -35,6 +36,11 @@ interface TimelineItem {
 }
 
 const PAGE_SIZE = 100;
+
+// One format for every date in the view — the date column, the Today divider
+// and the sentences inside descriptions (formatDate) all read "MMM d, yyyy".
+// The column used to render a 2-digit year next to a 4-digit one in the same row.
+const ROW_DATE_FORMAT = "MMM d, yyyy";
 
 function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string>, today: Date): TimelineItem[] {
   const items: TimelineItem[] = [];
@@ -130,7 +136,6 @@ function synthesizeFutureEvents(cards: Card[], profileMap: Record<number, string
 function realEventToItem(event: CardEvent, card: Card, profileMap: Record<number, string>): TimelineItem {
   const profileName = profileMap[card.profile_id];
   const prefix = profileName ? `${profileName} \u2022 ` : "";
-  const meta = getEventMeta(event.event_type);
   return {
     id: `evt-${event.id}`,
     date: parseDateStr(event.event_date),
@@ -161,7 +166,7 @@ function TodayMarker({ today }: { today: Date }) {
     <div className="flex items-center gap-2 py-3 my-1">
       <div className="h-0.5 flex-1 bg-primary/60" />
       <span className="text-xs font-semibold text-primary px-2 py-0.5 rounded-full bg-primary/10">
-        Today &middot; {format(today, "MMM d, yyyy")}
+        Today &middot; {format(today, ROW_DATE_FORMAT)}
       </span>
       <div className="h-0.5 flex-1 bg-primary/60" />
     </div>
@@ -177,16 +182,18 @@ function CompactEventRow({
 }) {
   const meta = getEventMeta(item.type);
   const Icon = meta.icon;
+  const mask = maskLastDigits(item.card.last_digits);
+  const nameTitle = `${item.card.card_name}${mask ? ` ${mask}` : ""} \u00b7 ${item.card.issuer}`;
 
   const renderMetadata = () => {
     if (item.isSynthetic) {
       return (
-        <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+        <span className="text-xs text-muted-foreground truncate min-w-0" title={item.description}>{item.description}</span>
       );
     }
     const m = item.metadata;
     if (!m) {
-      if (item.description) return <span className="text-xs text-muted-foreground truncate">{item.description}</span>;
+      if (item.description) return <span className="text-xs text-muted-foreground truncate min-w-0" title={item.description}>{item.description}</span>;
       return null;
     }
     switch (item.type) {
@@ -200,33 +207,47 @@ function CompactEventRow({
             -{formatCurrency(m.annual_fee as number)}
           </span>
         ) : null;
-      case "product_change":
+      case "product_change": {
+        const toName = (m as Record<string, string>).to_name;
         return (
-          <span className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+          <span className="text-xs text-muted-foreground flex items-center gap-1 min-w-0" title={toName ? `Changed to ${toName}` : undefined}>
             <ArrowRight className="h-3 w-3 shrink-0" />
-            {(m as Record<string, string>).to_name}
+            <span className="truncate min-w-0">{toName}</span>
           </span>
         );
+      }
       case "retention_offer": {
         const parts: string[] = [];
         if (m.offer_points) parts.push(`${Number(m.offer_points).toLocaleString()} pts`);
         if (m.offer_credit) parts.push(`$${Number(m.offer_credit)}`);
         const status = m.accepted !== false ? "Accepted" : "Declined";
+        const text = `${parts.length > 0 ? `${parts.join(" + ")} \u00b7 ` : ""}${status}`;
         return (
-          <span className="text-xs text-muted-foreground truncate">
-            {parts.length > 0 ? `${parts.join(" + ")} \u00b7 ` : ""}{status}
+          <span className="text-xs text-muted-foreground truncate min-w-0" title={text}>
+            {text}
           </span>
         );
       }
       default:
-        if (item.description) return <span className="text-xs text-muted-foreground truncate">{item.description}</span>;
+        if (item.description) return <span className="text-xs text-muted-foreground truncate min-w-0" title={item.description}>{item.description}</span>;
         return null;
     }
   };
 
+  // Rendered twice: on the left of the row at sm+, and on the second line with
+  // the metadata below sm. At any one viewport exactly one of the two is
+  // `display:none`, so it is never announced twice.
+  const badge = (
+    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+      item.isFuture ? "border border-dashed" : ""
+    } ${meta.badgeColor}`}>
+      {meta.label}
+    </span>
+  );
+
   return (
     <div
-      className={`group relative flex items-center gap-2.5 py-1.5 pl-8 pr-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer ${
+      className={`group relative flex items-center gap-2.5 py-2 sm:py-1.5 pl-8 pr-2 min-h-[44px] sm:min-h-0 rounded-lg hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors cursor-pointer ${
         item.isFuture ? "opacity-55" : ""
       }`}
       onClick={() => onCardClick?.(item.card)}
@@ -252,30 +273,37 @@ function CompactEventRow({
         className="w-8 h-5 shrink-0"
       />
 
-      {/* Badge */}
-      <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0 ${
-        item.isFuture ? "border border-dashed" : ""
-      } ${meta.badgeColor}`}>
-        {meta.label}
-      </span>
+      {/* Badge — left column at sm+ */}
+      <span className="hidden sm:inline-flex shrink-0">{badge}</span>
 
-      {/* Date */}
-      <span className="text-[11px] text-muted-foreground shrink-0 w-[72px]">
-        {item.isSynthetic && item.metadata?.approximate_date
-          ? "~" + format(item.date, "MMM yyyy")
-          : format(item.date, "MMM d, yy")}
-      </span>
+      {/* Below sm the row is two lines: date + name, then badge + metadata.
+          Single-line, the fixed-width badge and date left the card name about
+          60px and it was the only thing allowed to shrink. */}
+      <div className="min-w-0 flex-1 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2.5">
+        <div className="flex items-center gap-2 min-w-0 sm:flex-1 sm:gap-2.5">
+          {/* Date. The backend stamps approximate_date on back-filled fees; the
+              row used to require isSynthetic too, which no real event ever is,
+              so every approximate date rendered as an exact day. */}
+          <span className="text-[11px] text-muted-foreground shrink-0 tabular-nums whitespace-nowrap w-[76px] sm:w-[80px]">
+            {item.metadata?.approximate_date
+              ? "~" + format(item.date, "MMM yyyy")
+              : format(item.date, ROW_DATE_FORMAT)}
+          </span>
 
-      {/* Card name + issuer */}
-      <span className="text-xs font-medium truncate shrink min-w-0">
-        {item.card.card_name}{item.card.last_digits && <span className="font-normal text-muted-foreground"> ••• {item.card.last_digits}</span>}
-        <span className="font-normal text-muted-foreground"> &middot; {item.card.issuer}</span>
-      </span>
+          {/* Card name + issuer */}
+          <span className="text-xs font-medium truncate min-w-0" title={nameTitle}>
+            {item.card.card_name}{mask && <span className="font-normal text-muted-foreground"> {mask}</span>}
+            <span className="font-normal text-muted-foreground"> &middot; {item.card.issuer}</span>
+          </span>
+        </div>
 
-      {/* Metadata (right-aligned) */}
-      <span className="ml-auto shrink-0 max-w-[200px] text-right hidden sm:flex items-center">
-        {renderMetadata()}
-      </span>
+        {/* Badge + metadata. Fee amounts, product-change targets and retention
+            terms used to be `hidden` below sm with no mobile equivalent. */}
+        <div className="flex items-center gap-2 min-w-0 sm:ml-auto sm:shrink-0 sm:max-w-[200px] sm:justify-end">
+          <span className="sm:hidden shrink-0">{badge}</span>
+          {renderMetadata()}
+        </div>
+      </div>
     </div>
   );
 }
@@ -290,7 +318,6 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
   const [offset, setOffset] = useState(0);
   const [filterType, setFilterType] = useState<string>("all");
   const [filterIssuer, setFilterIssuer] = useState<string>("all");
-  const hasLoadedRef = useRef(false);
   const requestIdRef = useRef(0);
   const todayRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -307,7 +334,7 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
   const issuers = useMemo(() => [...new Set(cards.map((c) => c.issuer))].sort(), [cards]);
 
   // Fetch past events
-  const fetchEvents = useCallback(async (newOffset: number, append: boolean) => {
+  const fetchEvents = useCallback(async (newOffset: number, append: boolean, showSkeleton: boolean) => {
     const requestId = ++requestIdRef.current;
     const params: Record<string, string> = { limit: String(PAGE_SIZE), offset: String(newOffset) };
     if (profileId) params.profile_id = profileId.toString();
@@ -315,7 +342,11 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
     if (filterIssuer !== "all") params.issuer = filterIssuer;
 
     if (!append) {
-      if (!hasLoadedRef.current) setLoading(true);
+      // showSkeleton is false for the background refetch that fires when the
+      // card list changes underneath us — flashing the skeleton on every
+      // refresh was worse than leaving the rows in place. A filter change does
+      // pass it, so the stale list no longer just sits there.
+      if (showSkeleton) setLoading(true);
       setFetchError(false);
     } else {
       setLoadingMore(true);
@@ -340,7 +371,6 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
         setPastEvents((prev) => [...prev, ...data]);
       } else {
         setPastEvents(data);
-        hasLoadedRef.current = true;
       }
       setOffset(newOffset + page.length);
     } catch {
@@ -353,25 +383,44 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
     }
   }, [profileId, filterType, filterIssuer]);
 
-  // Initial fetch
+  // The query the list currently represents. `cards` also retriggers the fetch,
+  // but only a real query change should throw away the loaded page and re-aim
+  // the scroll position — otherwise every background refresh cleared the list.
+  const queryKey = `${profileId ?? "all"}|${filterType}|${filterIssuer}`;
+  const lastQueryKeyRef = useRef<string | null>(null);
+
+  // Initial fetch, and a full reset whenever the query changes
   useEffect(() => {
-    if (!hasLoadedRef.current) {
+    const queryChanged = lastQueryKeyRef.current !== queryKey;
+    lastQueryKeyRef.current = queryKey;
+    if (queryChanged) {
+      // Both of these used to sit behind a "have we loaded once yet" ref,
+      // which is false only on the very first pass: changing the issuer while
+      // deep in 2019 left you at an arbitrary offset in a different list.
       hasScrolledToToday.current = false;
       setPastEvents([]);
     }
     setOffset(0);
     setHasMore(true);
-    fetchEvents(0, false);
-  }, [fetchEvents, cards]);
+    fetchEvents(0, false, queryChanged);
+  }, [fetchEvents, cards, queryKey]);
 
-  // Auto-scroll to today after initial load
+  // Auto-scroll to today after initial load. Scroll OUR container, not via
+  // scrollIntoView: that walks every scrollable ancestor and dragged the whole
+  // page — tab bar, filters and all — out of view on mobile.
   useEffect(() => {
-    if (!loading && !hasScrolledToToday.current && todayRef.current) {
-      requestAnimationFrame(() => {
-        todayRef.current?.scrollIntoView({ block: "center", behavior: "instant" });
-        hasScrolledToToday.current = true;
-      });
-    }
+    if (loading || hasScrolledToToday.current) return;
+    const frame = requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      const marker = todayRef.current;
+      if (!container || !marker) return;
+      const containerTop = container.getBoundingClientRect().top;
+      const markerTop = marker.getBoundingClientRect().top;
+      const delta = (markerTop - containerTop) - (container.clientHeight - marker.offsetHeight) / 2;
+      container.scrollTop = Math.max(0, container.scrollTop + delta);
+      hasScrolledToToday.current = true;
+    });
+    return () => cancelAnimationFrame(frame);
   }, [loading]);
 
   // Build the unified timeline
@@ -435,17 +484,32 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
 
   const handleLoadMore = () => {
     if (loadingMore || !hasMore) return;
-    fetchEvents(offset, true);
+    fetchEvents(offset, true, false);
   };
 
   const hasActiveFilters = filterType !== "all" || filterIssuer !== "all";
 
+  // "Annual Fee" filters client-side over a raw page, so an empty result with
+  // more pages behind it is normal and must still say so — the old
+  // `length === 0 && !hasMore` gate rendered nothing at all.
+  const emptyMessage = hasActiveFilters
+    ? hasMore
+      ? "No events match your filters in this stretch of history. Load earlier events to keep looking."
+      : "No events match your filters. Try adjusting them."
+    : "No events found. Events will appear here as you track your cards.";
+
   return (
-    <div className="flex flex-col h-[calc(100dvh-14rem)]">
-      {/* Filters */}
-      <div className="shrink-0 flex items-center gap-3 flex-wrap pb-3">
+    // max-h, not h: a fixed height reserved a ~700px box for three events on
+    // desktop, and on mobile it ran past the bottom of the viewport and behind
+    // the fixed tab bar. The looser clamp has to hold for the whole range where
+    // that tab bar exists — bottom-tabs.tsx is `md:hidden`, not `sm:hidden`, so
+    // the breakpoint here is md. (Below md the chrome above this box is ~240px
+    // and the tab bar eats another 56px.)
+    <div className="flex flex-col max-h-[calc(100dvh-19rem)] md:max-h-[calc(100dvh-14rem)]">
+      {/* Filters — two-up below sm so they occupy one row, not three */}
+      <div className="shrink-0 grid grid-cols-2 gap-2 pb-3 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
         <Select value={filterType} onValueChange={(v) => { setFilterType(v); }}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by event type">
             <SelectValue placeholder="Event type" />
           </SelectTrigger>
           <SelectContent>
@@ -458,7 +522,11 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
           </SelectContent>
         </Select>
         <Select value={filterIssuer} onValueChange={(v) => { setFilterIssuer(v); }}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger
+            className="w-full sm:w-[180px]"
+            aria-label="Filter by issuer"
+            title={filterIssuer === "all" ? "All Issuers" : filterIssuer}
+          >
             <SelectValue placeholder="Issuer" />
           </SelectTrigger>
           <SelectContent>
@@ -468,8 +536,10 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
             ))}
           </SelectContent>
         </Select>
-        <Badge variant="secondary" className="text-xs">
-          {allItems.length} event{allItems.length !== 1 ? "s" : ""}
+        {/* The count is meaningless mid-fetch: it briefly mixed the old page
+            with the new filter's synthetic rows. */}
+        <Badge variant="secondary" className="text-xs col-span-2 justify-self-start" aria-live="polite">
+          {loading ? "Loading..." : `${allItems.length} event${allItems.length !== 1 ? "s" : ""}`}
         </Badge>
       </div>
 
@@ -478,7 +548,9 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex items-center gap-2.5 py-1.5 pl-8 pr-2">
+            // `relative` is load-bearing: the dot skeleton is absolutely
+            // positioned and without it every dot stacked at x=0 of the page.
+            <div key={i} className="relative flex items-center gap-2.5 py-1.5 pl-8 pr-2">
               <Skeleton className="absolute left-0 w-5 h-5 rounded-full" />
               <Skeleton className="w-8 h-5 rounded-sm" />
               <Skeleton className="h-4 w-16 rounded" />
@@ -489,18 +561,30 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
         </div>
       ) : fetchError ? (
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
-          <p className="text-sm text-destructive">Failed to load events. Please try again.</p>
+          <p className="text-sm text-danger">Failed to load events. Please try again.</p>
+          <Button variant="outline" size="sm" onClick={() => fetchEvents(0, false, true)} disabled={loading}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+            Retry
+          </Button>
         </div>
-      ) : allItems.length === 0 && !hasMore ? (
+      ) : allItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-muted">
             <Clock className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="text-sm text-muted-foreground">
-            {hasActiveFilters
-              ? "No events match your filters. Try adjusting them."
-              : "No events found. Events will appear here as you track your cards."}
-          </p>
+          <p className="text-sm text-muted-foreground text-center max-w-xs">{emptyMessage}</p>
+          {hasMore && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 min-h-[44px] sm:min-h-0"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+              {loadingMore ? "Loading..." : "Load earlier events"}
+            </Button>
+          )}
         </div>
       ) : (
         <div className="relative">
@@ -513,7 +597,7 @@ export function TimelineView({ cards, profiles, profileId, onCardClick }: Timeli
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs gap-1 text-muted-foreground"
+                className="text-xs gap-1 text-muted-foreground min-h-[44px] sm:min-h-0"
                 onClick={handleLoadMore}
                 disabled={loadingMore}
               >
