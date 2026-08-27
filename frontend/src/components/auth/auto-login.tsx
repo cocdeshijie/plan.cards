@@ -27,7 +27,7 @@ export function AutoLogin() {
         </div>
         {error ? (
           <div className="space-y-3">
-            <p className="text-sm text-destructive">{error}</p>
+            <p role="alert" className="text-sm text-danger">{error}</p>
             <Button variant="outline" size="sm" onClick={attempt}>
               <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
               Retry

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import Link from "next/link";
+import { MotionConfig, motion, useMotionValue, useSpring } from "framer-motion";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +24,7 @@ import {
 import { Logo } from "@/components/ui/logo";
 import { AppFooter } from "@/components/ui/app-footer";
 import { OAuthProviderIcon } from "@/components/ui/oauth-icons";
-import { API_BASE, getTemplateImageUrl, getTemplates } from "@/lib/api";
+import { API_BASE, PLACEHOLDER_IMAGE_URL, getTemplateImageUrl, getTemplates } from "@/lib/api";
 import type { CardTemplate } from "@/types";
 
 function shuffle<T>(arr: T[]): T[] {
@@ -98,6 +99,13 @@ function FanCard({
   onLeave: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Two flags rather than one, and `src` is never mutated: API_BASE is "" on the
+  // default same-origin deployment, so PLACEHOLDER_IMAGE_URL is a relative path
+  // while `img.src` reads back absolute. A `target.src !== PLACEHOLDER_IMAGE_URL`
+  // guard would therefore always be true, so a placeholder that itself fails
+  // would re-request forever on every fanned card and never give up.
+  const [usePlaceholder, setUsePlaceholder] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const tiltX = useMotionValue(0);
   const tiltY = useMotionValue(0);
   const springX = useSpring(tiltX, { stiffness: 200, damping: 20 });
@@ -170,7 +178,9 @@ function FanCard({
       onMouseLeave={handleLeave}
     >
       <div
-        className="w-full h-full rounded-xl overflow-hidden ring-1 ring-white/20 dark:ring-white/10"
+        // bg-muted, not transparent: the entrance animation runs before the art
+        // has loaded, and five ringed see-through rectangles read as a glitch.
+        className="w-full h-full rounded-xl overflow-hidden bg-muted ring-1 ring-white/20 dark:ring-white/10"
         style={{
           boxShadow: isHovered
             ? "0 20px 50px rgba(0,0,0,0.35), 0 8px 20px rgba(0,0,0,0.2)"
@@ -178,10 +188,16 @@ function FanCard({
         }}
       >
         <img
-          src={getTemplateImageUrl(card.id)}
+          src={imgError || usePlaceholder ? PLACEHOLDER_IMAGE_URL : getTemplateImageUrl(card.id)}
           alt={card.name}
           className="w-full h-full object-cover pointer-events-none"
           draggable={false}
+          // Same fallback every other card image in the app uses; a template
+          // that reports has_image can still 404 behind a stale CDN cache.
+          onError={() => {
+            if (!usePlaceholder) setUsePlaceholder(true);
+            else setImgError(true);
+          }}
         />
       </div>
       <motion.div
@@ -241,6 +257,9 @@ function FloatingStack({ templates }: { templates: CardTemplate[] }) {
 
 /* ---------- Login Forms ---------- */
 
+/** Mirrors the backend's `min_length=8` on UserCreate.password. */
+const MIN_PASSWORD_LENGTH = 8;
+
 function OpenLoginForm() {
   const login = useAppStore((s) => s.login);
   const router = useRouter();
@@ -253,8 +272,10 @@ function OpenLoginForm() {
     try {
       await login({});
       router.push("/summary");
-    } catch {
-      setError("Failed to connect");
+    } catch (e) {
+      // The server explains itself now (rate limits, unreachable host); a flat
+      // "Failed to connect" was wrong for most of the ways this fails.
+      setError(e instanceof Error ? e.message : "Couldn't sign in. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -262,18 +283,18 @@ function OpenLoginForm() {
 
   return (
     <div className="space-y-2">
-      <Button
-        className="w-full h-11 bg-card/80 backdrop-blur-sm"
-        onClick={handleEnter}
-        disabled={submitting}
-      >
+      {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
+      {/* No bg-card override: tailwind-merge drops the variant's `bg-primary`
+          and keeps `text-primary-foreground`, which is white in both themes —
+          this was a white-on-white button, and the only way into an open-mode
+          instance. It is the primary CTA, so it looks like the other modes'. */}
+      <Button className="w-full h-11" onClick={handleEnter} disabled={submitting}>
         {submitting ? (
           <><Loader2 className="h-4 w-4 animate-spin mr-2" />Entering...</>
         ) : (
           <><LogIn className="h-4 w-4 mr-2" />Enter</>
         )}
       </Button>
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
     </div>
   );
 }
@@ -284,16 +305,21 @@ function PasswordLoginForm() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const passwordId = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError("");
     try {
       await login({ password });
       router.push("/summary");
-    } catch {
-      setError("Invalid password");
+    } catch (err) {
+      // Not a flat "Invalid password": /api/auth/login answers a rate-limited
+      // client with "Too many requests…", and telling that user to retype
+      // their password just extends the lock.
+      setError(err instanceof Error ? err.message : "Invalid password");
       setPassword("");
     } finally {
       setSubmitting(false);
@@ -302,18 +328,37 @@ function PasswordLoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="h-11 bg-card/80 backdrop-blur-sm"
-        autoFocus
-      />
+      {/* The placeholder is the visible label here by design; the real <label>
+          is what password managers and screen readers read. Wrapped with its
+          input so the sr-only label doesn't consume the form's first
+          `space-y-3` slot and push the field down. */}
+      <div>
+        <Label htmlFor={passwordId} className="sr-only">
+          Password
+        </Label>
+        <Input
+          id={passwordId}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="h-11 bg-card/80 backdrop-blur-sm"
+          autoFocus
+          autoComplete="current-password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+        />
+      </div>
+      {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
       <Button type="submit" className="w-full h-11" disabled={submitting || !password}>
-        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
+        {submitting ? (
+          <><Loader2 className="h-4 w-4 animate-spin mr-2" />Signing in...</>
+        ) : (
+          "Sign in"
+        )}
       </Button>
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
     </form>
   );
 }
@@ -334,15 +379,32 @@ function UsernamePasswordLoginForm() {
   const [regDisplayName, setRegDisplayName] = useState("");
   const [regEmail, setRegEmail] = useState("");
 
+  // One id root per form instance — Radix's Label makes no implicit
+  // association, so without these every field announces as "edit, blank".
+  const uid = useId();
+  const usernameId = `${uid}-username`;
+  const passwordId = `${uid}-password`;
+  const regUsernameId = `${uid}-reg-username`;
+  const regPasswordId = `${uid}-reg-password`;
+  const regPasswordHintId = `${uid}-reg-password-hint`;
+  const regConfirmId = `${uid}-reg-confirm`;
+  const regConfirmHintId = `${uid}-reg-confirm-hint`;
+  const regDisplayNameId = `${uid}-reg-display-name`;
+  const regEmailId = `${uid}-reg-email`;
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
     setError("");
     try {
       await login({ username, password });
       router.push("/summary");
-    } catch {
-      setError("Invalid credentials");
+    } catch (err) {
+      // Not a flat "Invalid credentials": the backend rate-limits this
+      // endpoint and its reply ("Too many requests…") is the one message the
+      // user can actually act on.
+      setError(err instanceof Error ? err.message : "Invalid credentials");
       setPassword("");
     } finally {
       setSubmitting(false);
@@ -351,6 +413,14 @@ function UsernamePasswordLoginForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    // Checked here as well as hinted below the field: the backend answers a
+    // short password with the raw Pydantic string
+    // "password: String should have at least 8 characters".
+    if (regPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+      return;
+    }
     if (regPassword !== regConfirm) {
       setError("Passwords do not match");
       return;
@@ -376,29 +446,90 @@ function UsernamePasswordLoginForm() {
     return (
       <form onSubmit={handleRegister} className="space-y-3">
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Username</Label>
-          <Input value={regUsername} onChange={(e) => setRegUsername(e.target.value)} className="h-10 bg-card/80 backdrop-blur-sm" autoFocus />
+          <Label htmlFor={regUsernameId} className="text-xs text-muted-foreground">Username</Label>
+          <Input
+            id={regUsernameId}
+            value={regUsername}
+            onChange={(e) => setRegUsername(e.target.value)}
+            className="h-10 bg-card/80 backdrop-blur-sm"
+            autoFocus
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="next"
+          />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Password</Label>
-          <Input type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} className="h-10 bg-card/80 backdrop-blur-sm" />
+          <Label htmlFor={regPasswordId} className="text-xs text-muted-foreground">Password</Label>
+          <Input
+            id={regPasswordId}
+            type="password"
+            value={regPassword}
+            onChange={(e) => setRegPassword(e.target.value)}
+            className="h-10 bg-card/80 backdrop-blur-sm"
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            aria-describedby={regPasswordHintId}
+            enterKeyHint="next"
+          />
+          <p id={regPasswordHintId} className="text-xs text-muted-foreground">
+            At least {MIN_PASSWORD_LENGTH} characters
+          </p>
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Confirm Password</Label>
-          <Input type="password" value={regConfirm} onChange={(e) => setRegConfirm(e.target.value)} className="h-10 bg-card/80 backdrop-blur-sm" />
+          <Label htmlFor={regConfirmId} className="text-xs text-muted-foreground">Confirm Password</Label>
+          <Input
+            id={regConfirmId}
+            type="password"
+            value={regConfirm}
+            onChange={(e) => setRegConfirm(e.target.value)}
+            className="h-10 bg-card/80 backdrop-blur-sm"
+            autoComplete="new-password"
+            aria-describedby={regConfirm && regPassword !== regConfirm ? regConfirmHintId : undefined}
+            enterKeyHint="next"
+          />
+          {regConfirm && regPassword !== regConfirm && (
+            <p id={regConfirmHintId} className="text-xs text-danger">Passwords do not match</p>
+          )}
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Display Name <span className="text-muted-foreground/50">(optional)</span></Label>
-          <Input value={regDisplayName} onChange={(e) => setRegDisplayName(e.target.value)} className="h-10 bg-card/80 backdrop-blur-sm" />
+          <Label htmlFor={regDisplayNameId} className="text-xs text-muted-foreground">Display Name <span className="text-muted-foreground/50">(optional)</span></Label>
+          <Input
+            id={regDisplayNameId}
+            value={regDisplayName}
+            onChange={(e) => setRegDisplayName(e.target.value)}
+            className="h-10 bg-card/80 backdrop-blur-sm"
+            autoComplete="name"
+            enterKeyHint="next"
+          />
         </div>
         <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Email <span className="text-muted-foreground/50">(optional)</span></Label>
-          <Input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} className="h-10 bg-card/80 backdrop-blur-sm" />
+          <Label htmlFor={regEmailId} className="text-xs text-muted-foreground">Email <span className="text-muted-foreground/50">(optional)</span></Label>
+          <Input
+            id={regEmailId}
+            type="email"
+            value={regEmail}
+            onChange={(e) => setRegEmail(e.target.value)}
+            className="h-10 bg-card/80 backdrop-blur-sm"
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            inputMode="email"
+            enterKeyHint="done"
+          />
         </div>
+        {/* Above the CTA: rendered below it, a failure pushed "Back to sign in"
+            down the page at the exact moment the user reaches for it. */}
+        {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
         <Button type="submit" className="w-full h-11" disabled={submitting || !regUsername || !regPassword || !regConfirm}>
-          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create Account"}
+          {submitting ? (
+            <><Loader2 className="h-4 w-4 animate-spin mr-2" />Creating account...</>
+          ) : (
+            "Create Account"
+          )}
         </Button>
-        {error && <p className="text-sm text-destructive text-center">{error}</p>}
         <p className="text-sm text-center">
           <button type="button" className="text-primary hover:underline" onClick={() => { setShowRegister(false); setError(""); }}>
             Back to sign in
@@ -410,24 +541,56 @@ function UsernamePasswordLoginForm() {
 
   return (
     <form onSubmit={handleLogin} className="space-y-3">
-      <Input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className="h-11 bg-card/80 backdrop-blur-sm"
-        autoFocus
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="h-11 bg-card/80 backdrop-blur-sm"
-      />
+      {/* The placeholders are the visible labels here by design; these are what
+          password managers and screen readers read. autoCapitalize="none" is
+          load-bearing on iOS, which otherwise sends "Alice" for "alice" into
+          this autofocused field and gets back a bare "Invalid credentials".
+          Each sr-only label is wrapped with its input so it doesn't consume a
+          `space-y-3` slot of its own. */}
+      <div>
+        <Label htmlFor={usernameId} className="sr-only">
+          Username
+        </Label>
+        <Input
+          id={usernameId}
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="h-11 bg-card/80 backdrop-blur-sm"
+          autoFocus
+          autoComplete="username"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="next"
+        />
+      </div>
+      <div>
+        <Label htmlFor={passwordId} className="sr-only">
+          Password
+        </Label>
+        <Input
+          id={passwordId}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="h-11 bg-card/80 backdrop-blur-sm"
+          autoComplete="current-password"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          enterKeyHint="go"
+        />
+      </div>
+      {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
       <Button type="submit" className="w-full h-11" disabled={submitting || !username || !password}>
-        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
+        {submitting ? (
+          <><Loader2 className="h-4 w-4 animate-spin mr-2" />Signing in...</>
+        ) : (
+          "Sign in"
+        )}
       </Button>
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
       {registrationEnabled && (
         <p className="text-sm text-center text-muted-foreground">
           Don&apos;t have an account?{" "}
@@ -470,6 +633,7 @@ function OAuthLoginForm() {
 
   return (
     <div className="space-y-2">
+      {error && <p role="alert" className="text-sm text-danger text-center">{error}</p>}
       {oauthProviders.map((provider) => (
         <Button
           key={provider.name}
@@ -485,7 +649,6 @@ function OAuthLoginForm() {
           )}
         </Button>
       ))}
-      {error && <p className="text-sm text-destructive text-center">{error}</p>}
       {oauthProviders.length === 0 && (
         <p className="text-sm text-muted-foreground text-center">
           No OAuth providers configured. Contact the administrator.
@@ -500,34 +663,62 @@ function OAuthLoginForm() {
 export function LandingPage() {
   const { authMode, authed, darkMode, toggleDarkMode } = useAppStore();
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
+  const [templatesSettled, setTemplatesSettled] = useState(false);
 
   useEffect(() => {
     getTemplates()
       .then(setTemplates)
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setTemplatesSettled(true));
   }, []);
 
   const hasImages = templates.some((t) => t.has_image);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-background to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
+    // reducedMotion="user" is the half globals.css cannot do: framer-motion
+    // writes transforms to inline style, and the two `repeat: Infinity` loops
+    // on this screen keep running through the CSS override.
+    <MotionConfig reducedMotion="user">
+    {/* overflow-x-hidden: the stack's entrance sweeps in from ±200px and the
+        fan overspills its own box by ~9px a side at rest, which put a
+        horizontal scrollbar on the document on narrow phones. */}
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-blue-50 via-background to-purple-50 dark:from-blue-950/20 dark:via-background dark:to-purple-950/20">
       {/* Dark mode toggle */}
       <div className="fixed top-4 right-4 z-50">
-        <Button size="icon" variant="ghost" className="h-9 w-9 bg-card/60 backdrop-blur-sm" onClick={toggleDarkMode} title="Toggle dark mode">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-9 w-9 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-card/60 backdrop-blur-sm"
+          onClick={toggleDarkMode}
+          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          title="Toggle dark mode"
+        >
           {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
       </div>
       {/* ===== Hero ===== */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-4 py-16 gap-8 md:gap-12">
-        {/* Card Stack */}
-        {hasImages && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            <FloatingStack templates={templates} />
-          </motion.div>
+      {/* relative: the scroll hint below is absolutely positioned, and with no
+          positioned ancestor it resolved against the viewport and floated over
+          the login form as soon as the hero grew past 100vh. */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 py-16 gap-8 md:gap-12">
+        {/* Card Stack. The box is reserved on the first paint, before the
+            template fetch resolves — inserting a 240-300px stack above a
+            justify-center column afterwards shoved the login form ~150px down
+            under the cursor of anyone already reaching for it. Only opacity
+            animates; the box collapses only once we know there is no card art
+            to show at all. */}
+        {(hasImages || !templatesSettled) && (
+          <div className="w-[300px] h-[240px] sm:w-[380px] sm:h-[280px] md:w-[440px] md:h-[300px] shrink-0">
+            {hasImages && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+              >
+                <FloatingStack templates={templates} />
+              </motion.div>
+            )}
+          </div>
         )}
 
         {/* Branding + Login */}
@@ -552,9 +743,12 @@ export function LandingPage() {
           <div className="max-w-xs mx-auto">
             {authed ? (
               <Button asChild className="w-full h-11">
-                <a href="/summary">
+                {/* next/link, not <a>: a document navigation here re-runs
+                    checkSetup -> fetchAuthMode -> checkAuth -> loadData behind
+                    two full-screen spinners. */}
+                <Link href="/summary">
                   Go to Dashboard <ArrowRight className="h-4 w-4 ml-2" />
-                </a>
+                </Link>
               </Button>
             ) : (
               <>
@@ -574,7 +768,8 @@ export function LandingPage() {
 
         {/* Scroll hint */}
         <motion.div
-          className="absolute bottom-6 text-muted-foreground/40"
+          className="absolute bottom-6 pointer-events-none text-muted-foreground/40"
+          aria-hidden="true"
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
@@ -616,7 +811,7 @@ export function LandingPage() {
               transition={{ type: "spring", stiffness: 120, damping: 20 }}
             >
               <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
-                <feature.icon className="h-4.5 w-4.5 text-primary" />
+                <feature.icon className="h-4 w-4 text-primary" />
               </div>
               <h3 className="font-semibold text-sm">{feature.title}</h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -653,5 +848,6 @@ export function LandingPage() {
         </div>
       </section>
     </div>
+    </MotionConfig>
   );
 }
