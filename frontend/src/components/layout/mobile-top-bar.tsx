@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 import { useAppStore } from "@/hooks/use-app-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -37,7 +38,6 @@ import {
   Sun,
   Moon,
   LogOut,
-  Globe,
   Shield,
   User,
 } from "lucide-react";
@@ -71,9 +71,18 @@ export function MobileTopBar() {
   const authMode = useAppStore((s) => s.authMode);
   const isAdmin = currentUser?.role === "admin" && authMode !== "open";
   const showUserActions = authMode !== "open";
+  const profileNameId = useId();
+
+  const selectedProfileName =
+    selectedProfileId === "all"
+      ? "All Profiles"
+      : profiles.find((p) => p.id.toString() === selectedProfileId)?.name ?? "All Profiles";
 
   const handleAddProfile = async () => {
-    if (!newProfileName.trim()) return;
+    // Guarded here and not only on the button: Enter in the name field submits
+    // this directly, so two quick presses used to create two identical
+    // profiles before the first response landed.
+    if (addingProfile || !newProfileName.trim()) return;
     setAddingProfile(true);
     try {
       await createProfile(newProfileName.trim());
@@ -95,16 +104,28 @@ export function MobileTopBar() {
 
   return (
     <>
-      <header className="md:hidden flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 px-3 h-12">
-        {/* Left: Logo */}
-        <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+      {/* h-14 matches the desktop header. The bar used to be 48px tall holding
+          32px controls, so the two things a phone user actually taps were
+          *smaller* than their 36px desktop equivalents. */}
+      <header className="md:hidden flex items-center justify-between gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 px-3 h-14">
+        {/* Left: Logo. Points at /summary, not "/": the landing page renders
+            without nav, tabs or the profile selector, so a signed-in user who
+            tapped the logo had no way back except a hard reload. */}
+        <Link
+          href="/summary"
+          className="flex shrink-0 items-center gap-1.5 hover:opacity-80 transition-opacity"
+        >
           <Logo className="h-4 w-4" />
           <span className="font-semibold text-sm">plan.cards</span>
         </Link>
 
         {/* Center: Profile selector */}
         <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
-          <SelectTrigger className="w-[130px] h-8 text-xs">
+          <SelectTrigger
+            className="w-[130px] h-11 text-xs"
+            aria-label="Filter by profile"
+            title={selectedProfileName}
+          >
             <SelectValue placeholder="All Profiles" />
           </SelectTrigger>
           <SelectContent>
@@ -117,9 +138,18 @@ export function MobileTopBar() {
           </SelectContent>
         </Select>
 
-        {/* Right: Hamburger */}
-        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDrawerOpen(true)}>
-          <Menu className="h-4 w-4" />
+        {/* Right: Hamburger. No sm: reset on the 44px box — this header is
+            md:hidden, so every viewport that sees it is a touch viewport. */}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-11 w-11 shrink-0"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open settings menu"
+          aria-haspopup="dialog"
+          aria-expanded={drawerOpen}
+        >
+          <Menu className="h-5 w-5" aria-hidden="true" />
         </Button>
       </header>
 
@@ -136,14 +166,19 @@ export function MobileTopBar() {
               onClick={() => { toggleDarkMode(); }}
               className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
             >
-              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {darkMode
+                ? <Sun className="h-4 w-4 shrink-0" aria-hidden="true" />
+                : <Moon className="h-4 w-4 shrink-0" aria-hidden="true" />}
               <span className="text-sm">{darkMode ? "Light Mode" : "Dark Mode"}</span>
             </button>
 
-            {/* Timezone */}
+            {/* Timezone. No leading Globe: TimezoneSelector draws one inside its
+                own trigger, and this was the only row in the drawer rendering
+                the same icon twice. pl-7 keeps the label aligned with the
+                icon-led rows, and the 28px it gives back is what stops the
+                180px trigger line-clamping at 320px. */}
             <div className="flex items-center gap-3 px-3 py-3">
-              <Globe className="h-4 w-4" />
-              <span className="text-sm flex-1">Timezone</span>
+              <span className="text-sm flex-1 min-w-0 pl-7">Timezone</span>
               <TimezoneSelector />
             </div>
 
@@ -152,7 +187,7 @@ export function MobileTopBar() {
               onClick={() => { setDrawerOpen(false); setShowAddProfile(true); }}
               className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
             >
-              <UserPlus className="h-4 w-4" />
+              <UserPlus className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="text-sm">Add Profile</span>
             </button>
 
@@ -161,7 +196,7 @@ export function MobileTopBar() {
               onClick={() => { setDrawerOpen(false); setShowImportExport(true); }}
               className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
             >
-              <ArrowUpDown className="h-4 w-4" />
+              <ArrowUpDown className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="text-sm">Import / Export</span>
             </button>
 
@@ -169,9 +204,9 @@ export function MobileTopBar() {
             {selectedProfileId !== "all" && (
               <button
                 onClick={() => { setDrawerOpen(false); setShowDeleteProfile(true); }}
-                className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors text-destructive"
+                className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors text-danger"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="text-sm">Delete Profile</span>
               </button>
             )}
@@ -184,7 +219,7 @@ export function MobileTopBar() {
                 onClick={() => { setDrawerOpen(false); setShowAdmin(true); }}
                 className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
               >
-                <Shield className="h-4 w-4" />
+                <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="text-sm">Admin Panel</span>
               </button>
             )}
@@ -195,7 +230,7 @@ export function MobileTopBar() {
                 onClick={() => { setDrawerOpen(false); setShowAccount(true); }}
                 className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
               >
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="text-sm">Account</span>
               </button>
             )}
@@ -206,7 +241,7 @@ export function MobileTopBar() {
                 onClick={() => { setDrawerOpen(false); logout(); }}
                 className="flex items-center gap-3 w-full px-3 py-3 rounded-lg hover:bg-muted transition-colors"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span className="text-sm">Logout</span>
               </button>
             )}
@@ -221,20 +256,37 @@ export function MobileTopBar() {
             <DialogTitle>Add Profile</DialogTitle>
             <DialogDescription>Create a new profile to track cards for a household member.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="Profile name"
-              value={newProfileName}
-              onChange={(e) => setNewProfileName(e.target.value)}
-              maxLength={100}
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && handleAddProfile()}
-            />
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowAddProfile(false)}>Cancel</Button>
-              <Button onClick={handleAddProfile} disabled={addingProfile}>{addingProfile ? "Adding..." : "Add"}</Button>
+          {/* A real form so Enter submits through the same guarded path as the
+              button instead of calling the handler behind its disabled state. */}
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddProfile();
+            }}
+          >
+            <div>
+              <Label htmlFor={profileNameId} className="sr-only">Profile name</Label>
+              <Input
+                id={profileNameId}
+                placeholder="Profile name"
+                value={newProfileName}
+                onChange={(e) => setNewProfileName(e.target.value)}
+                maxLength={100}
+                autoFocus
+                autoComplete="off"
+                enterKeyHint="done"
+              />
             </div>
-          </div>
+            <div className="flex gap-2 justify-end">
+              <Button type="button" variant="outline" onClick={() => setShowAddProfile(false)} disabled={addingProfile}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addingProfile || !newProfileName.trim()}>
+                {addingProfile ? "Adding..." : "Add"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 
