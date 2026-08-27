@@ -9,7 +9,9 @@ const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      // leading-snug, not leading-none: several labels wrap to two lines in the
+      // mobile drawer and were rendering at line-height 1.
+      "text-sm font-medium leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
       className
     )}
     {...props}

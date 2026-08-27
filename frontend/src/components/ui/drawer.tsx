@@ -43,7 +43,9 @@ const DrawerContent = React.forwardRef<
       {...props}
     >
       <div className="absolute top-0 left-0 right-0 flex justify-center pt-2 z-10 pointer-events-none">
-        <div className="h-1.5 w-[60px] rounded-full bg-white/50 shadow-sm" />
+        {/* Token, not bg-white: light --background is 40 20% 99%, so a white handle
+            composited to nothing and left the drawer with no drag affordance. */}
+        <div className="h-1.5 w-[60px] rounded-full bg-muted-foreground/40" />
       </div>
       {children}
     </DrawerPrimitive.Content>

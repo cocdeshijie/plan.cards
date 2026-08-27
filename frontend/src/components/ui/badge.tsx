@@ -11,8 +11,12 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground",
         destructive: "border-transparent bg-destructive text-destructive-foreground shadow",
         outline: "text-foreground",
-        success: "border-transparent bg-green-500 text-white shadow",
-        warning: "border-transparent bg-yellow-500 text-white shadow",
+        // Tinted ground + dark ink, not white-on-500: the 500 fills were 1.9:1
+        // and 2.3:1 in both themes.
+        success:
+          "border-transparent bg-green-100 text-green-900 dark:bg-green-900/40 dark:text-green-200",
+        warning:
+          "border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200",
       },
     },
     defaultVariants: { variant: "default" },
