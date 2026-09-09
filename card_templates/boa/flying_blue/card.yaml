@@ -1,0 +1,51 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.bankofamerica.com/credit-cards/
+# Source: https://www.bankofamerica.com/credit-cards/products/air-france-credit-card/
+name: Air France KLM Visa Signature
+issuer: Bank of America
+network: Visa
+annual_fee: 89
+currency: USD
+version_id: boa_flying_blue_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Air France, KLM and eligible SkyTeam airline purchases
+      multiplier: 3x
+    - category: Dining
+      multiplier: 3x
+    - category: All other purchases
+      multiplier: 1.5x
+  spend_thresholds:
+    - key: anniversary_miles
+      name: 5,000 anniversary Flying Blue miles
+      spend_required: 50
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 5,000 anniversary miles after at least $50 in purchases during the anniversary
+        year.
+    - key: anniversary_xp_15000
+      name: 80 additional anniversary XP
+      spend_required: 15000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 80 XP in addition to the annual 20 XP after $15,000 in anniversary-year purchases,
+        for 100 XP total.
+    - key: anniversary_xp_25000
+      name: 60 further anniversary XP
+      spend_required: 25000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 60 further XP at $25,000 in anniversary-year purchases, for up to 160 anniversary
+        XP total.
+
+notes: |
+  Earns Flying Blue miles. Current Visa Signature terms: $89 annual fee, 3x on Air
+  France/KLM/eligible SkyTeam and dining, 1.5x elsewhere. Includes 20 anniversary XP;
+  spend $15,000 in the anniversary year for 80 additional XP, and $25,000 for another 60
+  XP (160 total). Earn 5,000 anniversary miles after $50 in anniversary-year purchases. No
+  foreign transaction fees. Earlier World Elite Mastercard artwork is retained as a
+  historical cover; those historical accounts may have different reward terms.
+
+tags:
+  - travel

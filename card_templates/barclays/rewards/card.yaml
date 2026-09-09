@@ -1,0 +1,25 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.nerdwallet.com/credit-cards/learn/barclaycard-rewards-average-credit
+name: Barclaycard Rewards Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_rewards_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Gas, groceries and utilities (legacy program)
+      multiplier: 2x
+    - category: Other purchases (legacy program)
+      multiplier: 1x
+
+notes: |
+  Legacy U.S. Barclaycard Rewards Mastercard, closed to new applicants. Historical program
+  earned 2 points per dollar on gas, groceries and utilities and 1 point elsewhere. Not
+  the UK Barclaycard Rewards Visa. Current account-specific reward terms should be checked
+  with Barclays; the archived U.S. marketing page is no longer available.
+
+tags:
+  - cashback

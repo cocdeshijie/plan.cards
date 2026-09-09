@@ -1,0 +1,104 @@
+# Researched 2026-09-09. See docs/research/forum-new-amex.md.
+# Source: https://www.schwab.com/credit-cards
+# Source: https://www.americanexpress.com/us/credit-cards/card-application/apply/partner/print/personal-card/csb/charles-schwab-platinum-card/ep-IDAE?print=false
+name: American Express Platinum Card for Charles Schwab
+issuer: Amex
+network: Amex
+annual_fee: 895
+currency: USD
+version_id: amex_platinum_schwab_2026_1
+
+benefits:
+  credits:
+    - key: uber_cash
+      name: Uber Cash
+      amount: 15
+      frequency: monthly
+      reset_type: calendar
+    - key: uber_one
+      name: Uber One Membership
+      amount: 120
+      frequency: annual
+      reset_type: calendar
+    - key: digital_entertainment
+      name: Eligible Digital Entertainment
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - key: hotel_credit
+      name: Prepaid FHR / Hotel Collection
+      amount: 300
+      frequency: semi_annual
+      reset_type: calendar
+    - key: airline_fee
+      name: Selected Airline Incidental Fees
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - key: resy
+      name: Eligible Resy Purchases
+      amount: 100
+      frequency: quarterly
+      reset_type: calendar
+    - key: clear_plus
+      name: CLEAR+
+      amount: 219
+      frequency: annual
+      reset_type: calendar
+    - key: lululemon
+      name: Eligible U.S. lululemon Purchases
+      amount: 75
+      frequency: quarterly
+      reset_type: calendar
+    - key: equinox
+      name: Eligible Equinox Membership
+      amount: 300
+      frequency: annual
+      reset_type: calendar
+    - key: oura_ring
+      name: Eligible Oura Ring Purchases
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Flights direct with airlines or via Amex Travel
+      multiplier: 5x
+      cap: 500000
+    - category: Prepaid Hotels via Amex Travel
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Eligible Purchases
+      multiplier: 1x
+  spend_thresholds:
+    - key: delta_unlimited_access
+      name: Unlimited Delta Sky Club Access
+      spend_required: 75000
+      frequency: annual
+      reset_type: calendar
+      description: Eligible spending unlocks unlimited visits subject to flight and admission rules,
+        through the following calendar year and January 31 thereafter.
+    - key: centurion_guest_access
+      name: Centurion Lounge Complimentary Guest Access
+      spend_required: 75000
+      frequency: annual
+      reset_type: calendar
+      description: Eligible spending unlocks up to two complimentary guests under applicable lounge
+        rules, through the following calendar year and January 31 thereafter.
+
+notes: |
+  Requires an eligible Schwab account. Enrollment and merchant restrictions apply to
+  relevant credits; credits are shared across the account. Uber Cash adds $20 in December
+  to the monthly $15. Walmart+ reimburses the eligible $12.95 monthly membership plus tax;
+  kept in notes because amounts in this schema are whole dollars. Global Entry (up to
+  $120) or TSA PreCheck (up to $85) is once per four years, not annually. Hotel Collection
+  bookings require two nights. Schwab Appreciation Bonus depends on qualifying holdings:
+  $100 from $250,000, $200 from $1 million, or $1,000 from $10 million. It is not an
+  unconditional credit. Membership Rewards can be deposited to an eligible Schwab account;
+  check current redemption terms. Lounge access and hotel-status enrollment have separate
+  terms. Saks credit is not included in the current application terms reviewed.
+
+tags:
+  - travel
+  - premium
+  - lounge-access
+  - transferable-points

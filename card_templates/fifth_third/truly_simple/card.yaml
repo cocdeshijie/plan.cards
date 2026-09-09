@@ -1,0 +1,20 @@
+# Reviewed 2026-09-09. Source:
+# https://www.53.com/content/fifth-third/en/media-center/press-releases/2026/press-release-2026-09-01.html
+name: Fifth Third Truly Simple Credit Card
+issuer: Fifth Third
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: fifth_third_truly_simple_2026_1
+
+notes: |
+  Launched September 1, 2026. Introductory 0% APR on purchases and balance
+  transfers for 18 months; variable APR applies afterward. Transfer fee is
+  the greater of $5 or 4%. Verify the current application disclosures.
+  No international transaction fee. Financing-focused card.
+  Temporary Mastercard Instacart promotion ends January 31, 2027; requires
+  eligible Instacart+ membership and qualifying orders, not an annual credit.
+
+tags:
+  - no-annual-fee
+  - balance-transfer

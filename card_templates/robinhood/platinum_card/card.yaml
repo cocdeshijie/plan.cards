@@ -1,26 +1,39 @@
+# Reviewed 2026-09-09. Sources:
+# https://api.robinhood.com/creditcard/legal/platinum-benefits-overview
+# https://api.robinhood.com/creditcard/legal/platinum-reward-terms
+# https://robinhood.com/us/en/support/articles/platinum-travel/
+# https://robinhood.com/us/en/support/articles/platinum-dining/
 name: Robinhood Platinum Card
 issuer: Robinhood
 network: Visa
 annual_fee: 695
 currency: USD
-version_id: robinhood_platinum_2026_1
+version_id: robinhood_platinum_2026_2
 
 benefits:
   credits:
-    - name: DoorDash Credit
+    - key: doordash_credit
+      name: DoorDash Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - key: autonomous_rides_credit
+      name: Autonomous Rides Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - key: dining_credit
+      name: Participating Restaurant Dining Credit
+      amount: 20
+      frequency: monthly
+      reset_type: calendar
+    - key: premium_hotel_credit
+      name: Premium Hotel Credit
       amount: 250
-      frequency: annual
-      reset_type: cardiversary
-    - name: Wearable Device Credit
-      amount: 200
-      frequency: annual
-      reset_type: cardiversary
-    - name: Autonomous Rides Credit
-      amount: 250
-      frequency: annual
-      reset_type: cardiversary
+      frequency: semi_annual
+      reset_type: calendar
   bonus_categories:
-    - category: Hotels & Rental Cars (Robinhood Travel)
+    - category: Prepaid Hotels (Robinhood Travel)
       multiplier: 10%
       portal_only: true
     - category: Flights (in-app)
@@ -28,16 +41,27 @@ benefits:
       portal_only: true
     - category: Dining
       multiplier: 5%
+      cap: 50000
     - category: All Other Purchases
       multiplier: 1%
 
 notes: |
-  Announced 2026 at Robinhood's "Take Flight" event; invite-only / waitlist
-  rollout. Issued by Coastal Community Bank. Premium tier above the $0 Robinhood
-  Gold Card; includes Gold membership.
-  Priority Pass lounge access; DashPass; One Medical, Function Health, and Oura
-  memberships. Benefit amounts and structure based on launch reporting and may
-  change — verify against Robinhood's published terms.
+  Invite-only rollout. Issued by Coastal Community Bank; Gold membership included.
+  Dining credit is $20 monthly except $30 in January; Waymo credit is $20
+  monthly except $30 in December. Tracker amounts use the $20 baseline;
+  record the extra $10 manually in the applicable month. Waymo requires direct booking.
+  DoorDash: activate DashPass; $10 off one delivery order monthly, no rollover.
+  Hotel credit is $250 per calendar half-year for eligible portal stays of
+  two consecutive nights. Separate $100 property credits are per eligible stay,
+  not an additional recurring statement credit.
+  Flight credits are $150 every six months for direct-airline or portal flights;
+  confirm the benefit-period anchor in the app before creating a manual tracker.
+  Function Health and One Medical membership benefits require activation.
+  WHOOP credit up to $239 per year through December 31, 2027 requires activation.
+  Priority Pass enrollment required; guests cost $35 per visit.
+  Dining above $50,000 per calendar year earns 1%. September 8 rewards terms
+  list prepaid hotels at 10%; rental-car earning is omitted pending clarification
+  because the help page still advertises 10% on rentals.
   No foreign transaction fees.
 
 tags:

@@ -1,0 +1,41 @@
+# Researched 2026-09-09. See docs/research/forum-new-amex.md.
+# Source: https://global.americanexpress.com/card-benefits/terms/morgan-stanley-credit
+# Source: https://www.americanexpress.com/content/dam/amex/us/staticassets/pdf/cardmember-agreements/morgan-stanley-credit-card/morgan-stanley-12-31-2019.pdf
+# Source: https://www.morganstanley.com/wealth-disclosures/supplemental-disclosures-for-wealth-management-communications
+name: Morgan Stanley Credit Card from American Express
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_morgan_stanley_credit_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Airfare purchased directly from scheduled passenger airlines
+      multiplier: 2x
+    - category: U.S. Restaurants
+      multiplier: 2x
+    - category: Select U.S. Department Stores
+      multiplier: 2x
+    - category: Car rentals purchased directly from select rental companies
+      multiplier: 2x
+    - category: Eligible Amex Travel online purchases (non-stacking)
+      multiplier: 2x
+      portal_only: true
+    - category: All Other Eligible Purchases
+      multiplier: 1x
+
+notes: |
+  Legacy Membership Rewards co-brand, closed to acquisition while existing holders retain
+  their card. Requires the applicable eligible Morgan Stanley relationship. Distinct from
+  Morgan Stanley Blue Cash Preferred and Morgan Stanley Platinum. The annual fee is zero
+  in the issuer 2019 agreement. Current benefit terms verify the listed earn categories.
+  The historical $100 award after $25,000 anniversary spend is not pre-populated because
+  it was not confirmed in current benefit terms. No exact application-closure date is
+  asserted.
+
+tags:
+  - transferable-points
+  - dining
+  - no-annual-fee

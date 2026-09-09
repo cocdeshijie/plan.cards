@@ -1,0 +1,26 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.chase.com/personal/credit-cards/freedom/freedomfive
+# Source: https://media.chase.com/news/new-chase-freedom-flex-credit-Card-and-more-cash-back-Opportunities-for-freedom-unlimited-cardmembers
+name: Chase Freedom Visa
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_freedom_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Activated quarterly bonus categories (up to $1,500 combined per quarter)
+      multiplier: 5%
+    - category: Other purchases
+      multiplier: 1%
+
+notes: |
+  Original Freedom Visa, closed to new applications; existing cardmembers continue to earn
+  Ultimate Rewards. Quarterly bonus categories require activation and apply to up to
+  $1,500 in combined category purchases each quarter. This product is distinct from
+  Freedom Flex and Freedom Unlimited.
+
+tags:
+  - cashback

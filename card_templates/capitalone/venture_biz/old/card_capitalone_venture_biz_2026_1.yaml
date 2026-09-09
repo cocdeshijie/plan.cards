@@ -1,0 +1,32 @@
+name: Capital One Venture Business Card
+issuer: Capital One
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: capitalone_venture_biz_2026_1
+
+benefits:
+  credits:
+    - name: Capital One Travel Credit
+      amount: 50
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Hotels, Rental Cars & Vacation Rentals (Capital One Travel)
+      multiplier: 5x
+      portal_only: true
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Launched April 2026 — rebrands/replaces the Capital One Spark Miles for
+  Business. Earns Capital One miles (transferable).
+  5x on hotels, rental cars, and vacation rentals booked via Capital One Travel;
+  2x everywhere else. $50 annual Capital One Travel credit plus advertising/
+  software statement credits.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - travel
+  - transferable-points

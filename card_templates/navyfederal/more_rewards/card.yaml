@@ -1,0 +1,22 @@
+# Verified 2026-09-09. Sources:
+# https://www.navyfederal.org/loans-cards/credit-cards/more-rewards.html
+name: Navy Federal More Rewards American Express
+issuer: Navy Federal Credit Union
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: navyfederal_more_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Restaurants / Food Delivery / Supermarkets / Gas / Transit
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Navy Federal membership required. No foreign transaction fee. Bonus categories follow
+  merchant coding. Issued and administered by Navy Federal, rather than American Express.
+
+tags:
+  - rewards

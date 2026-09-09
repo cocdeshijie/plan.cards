@@ -4,7 +4,7 @@ Templates render a card face from `card_templates/<issuer>/<slug>/card.png`.
 The house style is **1536×969 PNG** — the size Apple Wallet and Google Pay both
 use for the card background, which is where most of the existing art came from.
 
-Of 408 templates, 94 currently ship art. The rest fall back to
+Of 441 templates, 210 currently ship a default image. The rest fall back to
 `card_templates/placeholder.png`.
 
 ## Two wallets, one CDN pattern
@@ -181,3 +181,14 @@ descriptive rather than promotional. Issuers do ask for removal sometimes; if
 that happens, drop the image and the registry entry and let the template fall
 back to the placeholder. Don't restyle or recolor a card face — an altered mark
 is a weaker position than an unaltered one.
+
+## Approved forum artwork
+
+The September 2026 USCardForum import is documented in
+[the implementation report](research/forum-card-art-implementation.md).
+`tools/forum_art_sources.json` preserves approved source hashes, image destinations
+and replaced-file history. `tools/import_approved_forum_art.py` replays approved
+imports from a verified local source cache; it does not infer product mappings or
+rewrite YAML terms. Replacement filenames stay stable for existing saved choices.
+New files use PNG; approved source dimensions are retained when smaller than the
+1536×969 house target, rather than upscaling and implying additional detail.

@@ -1,32 +1,43 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.bilt.com/terms/bilt-card-offer-terms
+# https://support.biltrewards.com/hc/en-us/articles/42897766682381-Bilt-Card-2-0-Program-Overview
 name: Bilt Palladium Card
 issuer: Bilt
 network: Mastercard
 annual_fee: 495
 currency: USD
-version_id: bilt_palladium_2026_1
+version_id: bilt_palladium_2026_2
 
 benefits:
   credits:
-    - name: Bilt Travel Hotel Credit
-      amount: 100
+    - key: bilt_travel_hotel_credit
+      name: Bilt Travel Hotel Credit
+      amount: 200
       frequency: semi_annual
       reset_type: calendar
-    - name: Bilt Cash Benefit
+    - key: bilt_cash_benefit
+      name: Bilt Cash Benefit
       amount: 200
       frequency: annual
-      reset_type: cardiversary
+      reset_type: calendar
   bonus_categories:
-    - category: All Purchases
+    - category: Everyday Purchases (Excludes Housing)
       multiplier: 2x
-    - category: Everyday Spending (Bilt Cash)
+    - category: Everyday Spending (Flexible Bilt Cash Option Only)
       multiplier: 4%
 
 notes: |
-  1x on rent/mortgage (costs $30 Bilt Cash per $1,000 or 3% fee).
+  Hotel credit requires a Bilt Travel booking of at least two nights and opt-in
+  at checkout; unused credits expire at each calendar half-year end.
+  Housing payments have no transaction fee. Choose either Housing-only rewards
+  (up to 1.25x based on everyday spend relative to housing payments) or Flexible
+  Bilt Cash (4% Bilt Cash on everyday spend; redeem $30 for 1,000 housing points,
+  up to 1x). These options are mutually exclusive; Bilt Cash is not cash back.
+  Annual $200 Bilt Cash is issued at opening, then January 1; up to $100 of
+  unused Bilt Cash rolls over to the following year.
   Priority Pass lounge access.
   Points transfer to airline/hotel partners.
   Digital-first card (Cardless).
-  0% intro APR for 12 months.
   No foreign transaction fees.
   Issued by Column N.A.
 

@@ -1,0 +1,40 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.cardbenefits.citi.com/ATT
+# Source: https://www.cardbenefits.citi.com/-/media/CPP/Files/LegalDocs/TermsAndConditions/PID439_ATT_Access_More_Card_CRE020_TandC_0124_tagged.PDF
+# Source: https://www.doctorofcredit.com/att-access-more-card-from-citi-in-depth-review/
+name: AT&T Access More Card from Citi
+issuer: Citi
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: citi_att_access_more_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Products and services purchased directly from AT&T
+      multiplier: 3x
+    - category: Eligible retail and travel websites
+      multiplier: 3x
+    - category: All other purchases
+      multiplier: 1x
+  spend_thresholds:
+    - key: anniversary_points_bonus
+      name: 10,000 anniversary ThankYou Points
+      spend_required: 10000
+      frequency: annual
+      reset_type: cardiversary
+      description: Earn 10,000 bonus ThankYou Points after $10,000 in purchases during the card membership
+        year; typically credited after that year ends.
+
+notes: |
+  Legacy card closed to new applications. Earns ThankYou Points, distinct from AT&T Access
+  and AT&T Points Plus. Historical annual fee is $95. Eligible online retail/travel
+  purchases and direct AT&T purchases earn 3x; exclusions apply, including rent, taxes,
+  utilities and other ineligible merchant categories. The annual 10,000-point bonus
+  requires $10,000 in membership-year purchases. Existing account terms govern pricing and
+  eligibility.
+
+tags:
+  - thankyou
+  - points

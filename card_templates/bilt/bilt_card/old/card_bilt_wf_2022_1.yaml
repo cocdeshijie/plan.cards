@@ -1,0 +1,31 @@
+name: Bilt Card
+issuer: Bilt
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: bilt_wf_2022_1
+
+benefits:
+  bonus_categories:
+    - category: Dining
+      multiplier: 3x
+    - category: Travel
+      multiplier: 2x
+    - category: Rent
+      multiplier: 1x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  First card to earn points on rent with no transaction fee.
+  Rent points capped at 100,000 per year.
+  Points transfer to airline/hotel partners (American, United, Hyatt, IHG).
+  Must make 5+ transactions per month to earn points.
+  No foreign transaction fees.
+  Issued by Wells Fargo.
+  Discontinued February 2026, replaced by Bilt 2.0.
+  Product changed to Wells Fargo Active Cash after February 2026
+
+tags:
+  - transferable-points
+  - no-annual-fee

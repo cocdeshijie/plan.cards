@@ -1,0 +1,26 @@
+# Reviewed 2026-09-09. Source:
+# https://www.intuit.com/credit-card/
+name: Intuit Business Credit Card
+issuer: Intuit
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: intuit_business_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Eligible Intuit Products & Services
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 2%
+
+notes: |
+  Issued by WebBank. Integrates with QuickBooks and supports employee cards.
+  Intuit transactional fees, including merchant-services fees, do not qualify
+  for 5% rewards. Cash back is redeemed as a statement credit.
+  Foreign transaction fee is 2.7% after conversion to U.S. dollars.
+
+tags:
+  - business
+  - cashback
+  - no-annual-fee

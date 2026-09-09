@@ -1,0 +1,26 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.prnewswire.com/news-releases/barclaycard-us-wins-the-gold-2017-travel-weekly-magellan-award-300527074.html
+# Source: https://www.nerdwallet.com/credit-cards/learn/no-annual-fee-barclaycard-arrival-review
+name: Barclaycard Arrival World Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_arrival_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Dining and travel (legacy program)
+      multiplier: 2x
+    - category: Other purchases (legacy program)
+      multiplier: 1x
+
+notes: |
+  Legacy no-annual-fee Arrival card, closed to new applicants. Distinct from Arrival Plus
+  and Arrival Premier. Historical program earns 2 miles per dollar on dining and travel
+  and 1 mile elsewhere; existing account terms govern continued rewards. The issuer’s
+  historical press release identifies this product separately from Arrival Plus.
+
+tags:
+  - travel

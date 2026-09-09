@@ -1,26 +1,35 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.usbank.com/business-banking/business-credit-cards/amazon-business-credit-cards.html
+# https://press.aboutamazon.com/2026/5/amazons-new-prime-business-and-amazon-business-credit-cards-powered-by-u-s-bank-and-mastercard-are-now-available-with-enhanced-rewards-and-flexible-financing
 name: Amazon Business Card (U.S. Bank)
 issuer: US Bank
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: usbank_amazon_biz_2026_1
+version_id: usbank_amazon_biz_2026_2
 
 benefits:
   bonus_categories:
     - category: Amazon Business, Amazon.com, AWS & Whole Foods
       multiplier: 3%
       cap: 150000
-    - category: Top Eligible Categories (choose, e.g. dining/gas/utilities)
+    - category: Prepaid Travel (U.S. Bank Travel Center)
+      multiplier: 3%
+      portal_only: true
+    - category: Top Three Eligible Spending Categories Outside Amazon (Automatic)
       multiplier: 2%
+      cap: 150000
     - category: All Other Purchases
       multiplier: 1%
 
 notes: |
-  U.S. Bank / Mastercard became the issuer (replacing Amex). Available to new
-  applicants May 13, 2026; full transition by August 14, 2026.
-  Non-Prime variant: 3% back on Amazon Business, Amazon.com, AWS, and Whole
-  Foods (up to $150,000/yr), 2% on a top-3 category, 1% elsewhere — or choose
-  60-day financing instead of rewards.
+  Amazon rewards and the combined top-three-category bonus each have a separate
+  $150,000 calendar-year spending cap across all cardmembers, then earn 1%.
+  Top categories are selected automatically, not by the cardholder; the 2% cap
+  falls back to 1% starting with the next billing cycle after reaching it.
+  Eligible Amazon purchases may qualify for equal monthly installments at
+  0% APR for up to 12 months instead of rewards; offer eligibility applies.
+  Non-Prime variant.
   No annual fee. No foreign transaction fees.
 
 tags:

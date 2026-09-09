@@ -1,0 +1,34 @@
+# Verified 2026-09-09. Sources:
+# https://www.brex.com/support/brex-points-multipliers
+# https://www.brex.com/spend-trends/corporate-credit-cards/no-foreign-transaction-fee-business-credit-cards
+name: Brex Corporate Mastercard
+issuer: Brex
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: brex_corporate_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Rideshare (Brex Exclusive Monthly)
+      multiplier: 7x
+    - category: Brex Travel Flights and Prepaid Hotels (Brex Exclusive Monthly)
+      multiplier: 4x
+      portal_only: true
+    - category: Restaurants (Brex Exclusive Monthly)
+      multiplier: 3x
+    - category: Recurring Software (Brex Exclusive Monthly)
+      multiplier: 2x
+    - category: Other Eligible US-Dollar Purchases
+      multiplier: 1x
+
+notes: |
+  Corporate charge card. Rates shown are the standard Brex Exclusive monthly-payment
+  program, for eligible USD spending with US-based merchants. Daily-payment, life-science,
+  advertising, software and negotiated programs differ. Travel must be prepaid through
+  Brex using the eligible spend/card limit. Platform subscription fees are separate from
+  the card annual fee. The US Mastercard program uses partner issuers; consult the account
+  agreement.
+
+tags:
+  - business

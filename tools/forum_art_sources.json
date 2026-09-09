@@ -1,0 +1,4349 @@
+{
+  "review_id": "plan-cards-forum-29408-2026-09-09",
+  "imports": [
+    {
+      "id": "img-0001",
+      "name": "American Express Blue Business Plus",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/blue_biz_plus",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/1"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/blue_biz_plus/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/c/d/cdd1f818e70757465b5a9465a924e38da0b1824a.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/1",
+      "sha256": "3e07a7ddb29296afb8820a6c3aba38131de11831e80ee63dee75efbd04bc0509",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/blue_biz_plus",
+          "path": "card_templates/amex/blue_biz_plus/card.png",
+          "sha256": "bea6611b5c2525ca1e977fc24b2e5b03863acd0b5df65054d4292cd966468d97",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/blue_biz_plus/old/before_forum_img_0001.png",
+          "archived_sha256": "1f3b84d3465143804a4e6e4009613df7d46faac6c527152eb8a5e067bba0a11c"
+        }
+      ]
+    },
+    {
+      "id": "img-0004",
+      "name": "American Express Platinum",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/platinum",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/13"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/platinum/card.png",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/b/bec653c1d8fc173bb0c903adf49b7d3b3df90e9e.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/13",
+      "sha256": "f920f146a91b6a39fe884e342bf920b53c78a8eb4d61ae137a6a0e28058439a2",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/platinum",
+          "path": "card_templates/amex/platinum/card.png",
+          "sha256": "8c1b8e2f878da0045f20183236d0c979c020510c8d44d9a7e2463f8d13decc13",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/platinum/old/before_forum_img_0004.png",
+          "archived_sha256": "ec545f6b88286dcdc3610df204b73d1b24c50f4b5ad6fdf6fd1d37bec50fa3bd"
+        }
+      ]
+    },
+    {
+      "id": "img-0006",
+      "name": "Chase Freedom Visa (original)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Original Freedom Visa is a distinct legacy product from Freedom Flex Mastercard, Unlimited, Rise, and Student. No original Freedom template exists; do not map to those siblings.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/19",
+        "https://www.chase.com/personal/credit-cards/freedom"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/tasdf/1.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/19",
+      "sha256": "2e1c828fcda78f6a761cc3e3485b68bdaab8d8b698db6753712ca88e7496b820",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "chase/freedom",
+      "outputs": [
+        {
+          "template": "chase/freedom",
+          "path": "card_templates/chase/freedom/card.png",
+          "sha256": "ecc63f303582960773dde74662c25b59e6b6daa24fb34c7d2b56e4f73ea8a0e8",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0008",
+      "name": "Bank of America UC Irvine Alumni Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "UCI Alumni Association executive director identifies the Bank of America credit-card program in a signed statement. Clean UCI co-branded art; exact rewards family remains unmapped. UCI names its Bank of America Anteater Cash Rewards program. This is affinity Cash Rewards artwork in the existing Customized Cash Rewards family, not a new unrelated rewards product. Preserve UCI design identity.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/19",
+        "https://newuniversity.org/2009/01/12/letters_to_the_editor174/",
+        "https://engage.alumni.uci.edu/membership-benefits/",
+        "https://engage.alumni.uci.edu/wp-content/uploads/2024/08/Chapter-Handbook-24-25-FINAL.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/tasdf/3.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/19",
+      "sha256": "fc485906abe6e1eeecb703ddd3e4eb42802ae6fd7077739d0473d0836278af90",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0008.png",
+          "sha256": "044761629bf9c5eabf750b951566448444b2a7790be4ca56377f07f203cc7bc5",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0016",
+      "name": "Citi ThankYou Preferred Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Citi ThankYou Preferred Mastercard: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/30",
+        "https://cardupgrade.citi.com/switchtopreferred/login.aspx"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/b/b189cebd27591cf4e0cd8f24e3e9e284e4d502f5.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/30",
+      "sha256": "c4b670102fe452c8f0ed11d5d367a0fb3bef94f0650d62cdc96721cad4937d8d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "citi/thankyou_preferred",
+      "outputs": [
+        {
+          "template": "citi/thankyou_preferred",
+          "path": "card_templates/citi/thankyou_preferred/card.png",
+          "sha256": "d796a9d7a2b68188abba05ac652f6b4fbbea7fb294e219db0cd2c534f0254cc4",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0019",
+      "name": "Bank of America Susan G. Komen Cash Rewards Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/34",
+        "https://www.bankofamerica.com/credit-cards/"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/0/0722ad898159e8d2fb679647ad9b57a2f2f33c2f.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/34",
+      "sha256": "caa4d1030d0a6f6f75f1b286ec1c6896b210a905b22bc5d0e4309f1b23cd0fd1",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0019.png",
+          "sha256": "2b14932d6813f5afc8e6f3d3b7f44865a2245ad52dae128e630238cca4239a0b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0021",
+      "name": "Bank of America WWF Cash Rewards Visa (tiger)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. WWF corporate partnership report explicitly identifies WWF BankAmericard Cash Rewards Visa. Historical affinity art belongs with the Cash Rewards/Customized Cash Rewards family; preserve WWF name and do not imply present eligibility.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/34",
+        "https://wwfeu.awsassets.panda.org/downloads/fy2014_corporate_engagement_final_1.pdf",
+        "https://files.worldwildlife.org/wwfcmsprod/files/Publication/file/632m1glx78_FY22_WWFUS_Corporate_Transparency_Report_Final.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/3/358f3f24b77f95766dc9c5d94bfd48ef35dea38b.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/34",
+      "sha256": "b588aa98396ea92885140ecd848c10bc2e48b93b0f2e9d52fe3929be4aea009e",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0021.png",
+          "sha256": "c75a3664cb76d4b6eccda1c88f8ead6728a0061d67fc88cc7ac13de27b5810cd",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0028",
+      "name": "Bank of America WWF Cash Rewards Visa (tiger alternate)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. WWF corporate partnership report explicitly identifies WWF BankAmericard Cash Rewards Visa. Historical affinity art belongs with the Cash Rewards/Customized Cash Rewards family; preserve WWF name and do not imply present eligibility.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/41",
+        "https://wwfeu.awsassets.panda.org/downloads/fy2014_corporate_engagement_final_1.pdf",
+        "https://files.worldwildlife.org/wwfcmsprod/files/Publication/file/632m1glx78_FY22_WWFUS_Corporate_Transparency_Report_Final.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://pics.paypal.com//00/s/OTcwWDE1MzZYUE5H/p/ZTVjNzk0ZWMtNTY5Mi00YTBmLTg2YjEtYWY3NGFkNGVkMDAy/image__140.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/41",
+      "sha256": "222af175916ea166d1be9454c665aa26478c951bc6739a374186ea2732401ca1",
+      "width": 1134,
+      "height": 716,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0028.png",
+          "sha256": "3285d7b3987b770c4673557c3afdfd8982bf9d7afd8dc97835ae13bd8cbf4eee",
+          "source_dimensions": [
+            1134,
+            716
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0035",
+      "name": "Chase Ink Business Unlimited (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/ink_unlimited",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/48"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/7/74e69ad2cfef3fc4e1e4b7b5a49128dbc2a208c3.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/48",
+      "sha256": "9da358990fc8aa4c556b28bc94174ce25362e5ff66ddb16374cfbac691bb0518",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/ink_unlimited",
+          "path": "card_templates/chase/ink_unlimited/forum_img_0035.png",
+          "sha256": "920f352d1bc2b5d6707bee383fc3bac12976d868437a227ed2405da499e5b504",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0039",
+      "name": "American Express EveryDay Preferred",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. EveryDay Preferred is the Membership Rewards product, not Blue Cash Preferred. No exact existing template.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/51",
+        "https://global.americanexpress.com/card-benefits/view-all/amex-everyday-preferred"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/eleboson/aeedp.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/51",
+      "sha256": "afa71097a1d1380ff0d481a310c0ffab182313bb8a34adbd6091bef82193effa",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": "amex/everyday_preferred",
+      "outputs": [
+        {
+          "template": "amex/everyday_preferred",
+          "path": "card_templates/amex/everyday_preferred/forum_img_0039.png",
+          "sha256": "d8c9b10a8d0a6425b57a728a252081851fce176570fd7c2ef06b13b80c3d7ee6",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0040",
+      "name": "Bank of America Cash Rewards Visa (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/51"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/eleboson/boacashvisa.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/51",
+      "sha256": "140f643272d17d9703009fd381c859d2bbb3633921ceb04cc39a3c68253931f2",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0040.png",
+          "sha256": "f832b9c90d390235ee784278c251bf9c05195e02ac10e910de7c16d58538af3f",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0042",
+      "name": "Chase United Gateway (legacy silver)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/united_gateway",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/51"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/eleboson/chaseuagateway.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/51",
+      "sha256": "891fedbddae911773b1fd2317f27bd0276d07d71e1d7ef1a8bcaf2137b687496",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/united_gateway",
+          "path": "card_templates/chase/united_gateway/forum_img_0042.png",
+          "sha256": "c30514810ebd26a6b9eb628ef7de9aea7fc349f5230e0888514825a58fbbf4b1",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0049",
+      "name": "Bank of America Better Balance Rewards",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Bank of America Better Balance Rewards: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/58"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/eleboson/boabbr.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/58",
+      "sha256": "0ef52aba83db5f34f627e73adf9679497fafa82185836ba3823df97935577a57",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "boa/better_balance_rewards",
+      "outputs": [
+        {
+          "template": "boa/better_balance_rewards",
+          "path": "card_templates/boa/better_balance_rewards/card.png",
+          "sha256": "a4cf632c78f04a574e2d481cd742b60bdb4bb3b95d23c1077bec0d7565b4e1f8",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0051",
+      "name": "Chase IHG Rewards Club Select (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. IHG Select is separately named by Chase and is not IHG Traveler/Premier; exact legacy Select template absent.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/58",
+        "https://www.chase.com/personal/credit-cards/ihg/other-cards/other-ihg-cc"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/eleboson/chaseihgold.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/58",
+      "sha256": "e71fd499321ca89a68d3817c91ef935c7d1c3be3aa2e8e7c1020e7f82b72584d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "chase/ihg_select",
+      "outputs": [
+        {
+          "template": "chase/ihg_select",
+          "path": "card_templates/chase/ihg_select/forum_img_0051.png",
+          "sha256": "70767b261487b51292a4e68e172c3f7e358f56a35da165423a5ee42c18554309",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0059",
+      "name": "Barclaycard Rewards Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Barclaycard Rewards Mastercard: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/59"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/physixfan/6.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/59",
+      "sha256": "8c993fff0e6ec5f7481b155f4d7260a4781b7f354eb77322c0e128be021fc48f",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "barclays/rewards",
+      "outputs": [
+        {
+          "template": "barclays/rewards",
+          "path": "card_templates/barclays/rewards/card.png",
+          "sha256": "7f88d40ab755a8da7f7e2087912c3d7a148b6ac1a86cfe7fe0446efd56805881",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0068",
+      "name": "Barclaycard Arrival Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Barclaycard Arrival Mastercard: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/64"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/physixfan/5336.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/64",
+      "sha256": "875119ae192d7e0a6340d6d5dcc149446b3e3d553179f0b770275ff185a2d4d8",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "barclays/arrival",
+      "outputs": [
+        {
+          "template": "barclays/arrival",
+          "path": "card_templates/barclays/arrival/card.png",
+          "sha256": "4042befc0cbe7f61a0ed0637ba1673188eb6da307cda865a90b0b711eda66fe1",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0069",
+      "name": "American Express Business Green (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/biz_green",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/64"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/biz_green/old.png",
+      "source_url": "https://u.cubeupload.com/physixfan/1c14.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/64",
+      "sha256": "db6d6bda8bcbae52e06b59b21ae5f40334f2781144bdecf510398e2e3432f045",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_green",
+          "path": "card_templates/amex/biz_green/old.png",
+          "sha256": "b5d8c530ba2cab2c480a199b1983995826b7899589dbe9884086c59f2a69f90e",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/biz_green/old/before_forum_img_0069.png",
+          "archived_sha256": "f79f7a10e36e0e6f3071c018044efc01ca51f1a68a7e0f3dbfb008767c84e09b"
+        },
+        {
+          "template": "amex/biz_green",
+          "path": "card_templates/amex/biz_green/card.png",
+          "sha256": "b5d8c530ba2cab2c480a199b1983995826b7899589dbe9884086c59f2a69f90e",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0071",
+      "name": "Citi Dividend Mastercard (duplicate design)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Citi Dividend Mastercard (duplicate design): no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/64",
+        "https://www.citigroup.com/global/news/perspectives/2013/you-spoke-we-listened-1"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/physixfan/d3e1.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/64",
+      "sha256": "d8622f8650cbb7c968ccfca201e8f1891faa32e4aeba0cfc11b6799e3664f7bb",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "citi/dividend",
+      "outputs": [
+        {
+          "template": "citi/dividend",
+          "path": "card_templates/citi/dividend/card.png",
+          "sha256": "d918ff89b3fbc4c0f39d5900573d5f48d327497bb82431c27926194977dc59f5",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0075",
+      "name": "American Express Platinum (old portrait layout)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/platinum",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/66"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/d/d0527d9fe0be0dd1525b4f3fdb6deee4fbb69262.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/66",
+      "sha256": "c12cfd02a7666d296531555b8f50055547b0cb1db42a3b74c517262cc0886cc0",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/platinum",
+          "path": "card_templates/amex/platinum/forum_img_0075.png",
+          "sha256": "a3afb294f9f5fc5a141bd2412621046f50386c4137764b45ddeaaa2d13eee6e7",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0077",
+      "name": "AOD Federal Credit Union Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. AOD Federal Credit Union Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/67",
+        "https://www.aodfcu.com/visa-signature-credit-card/"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/4/4db7385f832aab11a5be406c66f31e70d098247c.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/67",
+      "sha256": "70604300f075d41513bb468ef6ce505eeabca267e66e46134860e2bdb5f8d61d",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": "aod/visa_signature",
+      "outputs": [
+        {
+          "template": "aod/visa_signature",
+          "path": "card_templates/aod/visa_signature/card.png",
+          "sha256": "3bfa2b830d7232cdf6b70420e159a6141582fd591a2bea7aff3c51fa38a9d05b",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0090",
+      "name": "Chase Marriott Bonvoy Boundless (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/marriott_boundless",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/100"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/2X/c/cc5237adb280937b9378e2f529d4a5281dd38ed5.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/100",
+      "sha256": "e3828f6e4d7cf266c717615b1bd56d851c07e8d4a148e7936fd558490bf4714c",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/marriott_boundless",
+          "path": "card_templates/chase/marriott_boundless/forum_img_0090.png",
+          "sha256": "fd2ab5fab5d7095438dce2ccacf498233ebb0d198663ca5c4ad0fa9cd5b85c05",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0094",
+      "name": "Morgan Stanley Credit Card from American Express",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Morgan Stanley Credit Card from American Express: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/107",
+        "https://global.americanexpress.com/card-benefits/terms/morgan-stanley-credit"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/johnzhanwu/1.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/107",
+      "sha256": "527f57504cbef29385aefa0f0f2c64913416c5c1d3bca04eee40482dbffaf15d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/morgan_stanley_credit",
+      "outputs": [
+        {
+          "template": "amex/morgan_stanley_credit",
+          "path": "card_templates/amex/morgan_stanley_credit/card.png",
+          "sha256": "66a1476a78e54725f6b775a19eb4dedc1c5da48ce52ae897af8fd3f650ac09d4",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0113",
+      "name": "Merrill+ Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Merrill+ Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/131",
+        "https://www.card.ml.com/cms/published/root/rps/pdf/ME_202105_D_ADA.pdf"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/d/7/d7ef381b668d18cc15edf5f7e5a13ea3f036abab.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/131",
+      "sha256": "338add902796a05b7c91c262b315df133c97a6a58e944c37c26aa78124bd11c8",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "boa/merrill_plus",
+      "outputs": [
+        {
+          "template": "boa/merrill_plus",
+          "path": "card_templates/boa/merrill_plus/card.png",
+          "sha256": "a41ac88faa62cc178fea2aae282b0f40408a7adc9c611e9a139cf409079b9789",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0126",
+      "name": "Bilt World Elite Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "bilt/bilt_card",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/150"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/bilt/bilt_card/card.jpeg",
+      "source_url": "https://u.cubeupload.com/tomamasu/1.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/150",
+      "sha256": "120e2578fbbd301ebafe899f1ddf5aaa623827ff130307742eb0574e60885700",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "bilt/bilt_card",
+          "path": "card_templates/bilt/bilt_card/card.jpeg",
+          "sha256": "8b84e2a92370cf372050558cf6806260c485cdec7679aee8c170102cc4da317c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/bilt/bilt_card/old/before_forum_img_0126.jpeg",
+          "archived_sha256": "9974f0bf0b8095d4bca750597d2e615a3b0e01e083180df0a3daa7245a610999"
+        }
+      ]
+    },
+    {
+      "id": "img-0127",
+      "name": "Discover Ragdoll cat design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/150"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/tomamasu/2.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/150",
+      "sha256": "d357cf7efe75bed36bb3b99ca3a58e7c6703b207273b6b9dcdb9ed18012b2b4f",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0127.png",
+          "sha256": "618df42512bb60532667ab4d57f7585008e074d5b85da4c032d4175051baa955",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0130",
+      "name": "American Express Gold rose gold",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/gold",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/155"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/gold/rose_gold.png",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/2/f/2f75f1047f5403b6a6fc50e235091a6faae20205.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/155",
+      "sha256": "d6f7bab3979328b3111a7a345c8eeae308d0c90810efe7b16359701f766869ed",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/gold",
+          "path": "card_templates/amex/gold/rose_gold.png",
+          "sha256": "51a76e4c3e358bbe5274107a9b098c72f3292959f44bbc5ccee0c1f050802fac",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/gold/old/before_forum_img_0130.png",
+          "archived_sha256": "f0a8938b74275dc9a7c4cce3b8717c79329b0fa6572b45a62ac27d532350a457"
+        }
+      ]
+    },
+    {
+      "id": "img-0133",
+      "name": "Chase Aeroplan",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/aeroplan",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/166"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/aeroplan/card.jpeg",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/7/c/7c801f7823991c47af0d3393e93ab32b33f374c2.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/166",
+      "sha256": "b07b248dbd3aecd3bb95e6d693238f3e3990495516404635194a50266a655162",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/aeroplan",
+          "path": "card_templates/chase/aeroplan/card.jpeg",
+          "sha256": "b07b248dbd3aecd3bb95e6d693238f3e3990495516404635194a50266a655162",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/aeroplan/old/before_forum_img_0133.jpeg",
+          "archived_sha256": "d69b405fe7a3f729d1ba08ceb695a84f105e396500aa378946a8b2c215653768"
+        }
+      ]
+    },
+    {
+      "id": "img-0138",
+      "name": "Chase Whole Foods Market Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/amazon_prime",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/167"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/chase/amazon_prime/wholefoods.jpeg",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/e/5/e58982d7970fde1a589bdab2c0effce3989d3813.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/167",
+      "sha256": "3b57fa6a6af08a60cfd28f252e6cb5b6b475ab1e5a04c960aa22aabd78967463",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/amazon_prime",
+          "path": "card_templates/chase/amazon_prime/wholefoods.jpeg",
+          "sha256": "3b57fa6a6af08a60cfd28f252e6cb5b6b475ab1e5a04c960aa22aabd78967463",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/amazon_prime/old/before_forum_img_0138.jpeg",
+          "archived_sha256": "ae5674dcc429456ef3ec6157320d254587e8caa5799f47ea89bd1fd4fd20618a"
+        }
+      ]
+    },
+    {
+      "id": "img-0139",
+      "name": "Citi Custom Cash",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/custom_cash",
+      "decision": "candidate",
+      "reason": "Clean Citi Custom Cash alternate wallet layout with visibly different logo placement; higher-resolution candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/167"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/citi/custom_cash/card.png",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/4/d/4d8877baf30bc2e7ca998f3a717dd9f11a8f3ee0.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/167",
+      "sha256": "3a5adde14289acbba3ddfa1403bea80d112f9f50218131eebd0a5c20a09095fd",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/custom_cash",
+          "path": "card_templates/citi/custom_cash/card.png",
+          "sha256": "fdd6883d09313213bfe995be39f03e867119927ae31dcd546ef267959fa78dab",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/citi/custom_cash/old/before_forum_img_0139.png",
+          "archived_sha256": "3aad91200a59651c1880f3128b260a6da69d78dcd09656da8faee657ef4e424e"
+        }
+      ]
+    },
+    {
+      "id": "img-0140",
+      "name": "Discover German Shepherd design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/167"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/6/2/62ad45a2c578a299eae732e4a841e28049e378bf.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/167",
+      "sha256": "b4529bc1a3d6a6295f64a4fef9cf46ae8b17f7192ae3df885f4698562dfb560d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0140.png",
+          "sha256": "3fb5a22b9eba8549fd4a3bb355d7e235f783d62f889fcad93b43bbb9462cd9af",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0141",
+      "name": "American Express Platinum Julie Mehretu",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/platinum",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/167"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/platinum/Julie_Mehretu.png",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/e/1/e190965deb580263ff33277c8a824a8604d4af00.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/167",
+      "sha256": "c6faa8aafc08b005bc9cf5fb12e07d69dfc2c35349328b6263aac50a06d0e7f4",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/platinum",
+          "path": "card_templates/amex/platinum/Julie_Mehretu.png",
+          "sha256": "a67d24cc51ea3f95c6627256e6d0d69551be58aa2f544cbf76bee898393aa1a7",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/platinum/old/before_forum_img_0141.png",
+          "archived_sha256": "667440521b63e718bad7492ba4df07ad966cace2fb2e539882bf9cd49a39e1f7"
+        }
+      ]
+    },
+    {
+      "id": "img-0144",
+      "name": "Bank of America USC Alumni Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "USC Alumni Association primary source identifies Bank of America USC Visa credit card; clean distinct co-branded art. Exact rewards family unconfirmed, so no sibling template mapping. USC official Special Offers page explicitly names University of Southern California Customized Cash Rewards. This is an affinity design of the existing family.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/174",
+        "https://alumni.usc.edu/bank-of-america-credit-card/",
+        "https://alumni.usc.edu/special-offers/"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/coleridgeguo/8.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/174",
+      "sha256": "7d4958c4b3a81992f9ae638d673fdc03674f3836a0ad6734012a11ad87362290",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0144.png",
+          "sha256": "e6f42f313ec5527a04f34aa880432fcb63e6cd7c13a20ab0140685b2c0ee270d",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0149",
+      "name": "Charles Schwab Investor Card from American Express",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Charles Schwab Investor Card from American Express: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/182",
+        "https://www.schwab.com/credit-cards/eligible-account"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/f/7/f702bb6c99a38ac7328085fe5f548b4572078569.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/182",
+      "sha256": "de1c5411fd88c90437b3cab5050f8952b10d357c41fb209d85e10355a12abfff",
+      "width": 1026,
+      "height": 642,
+      "proposed_product_key": "amex/schwab_investor",
+      "outputs": [
+        {
+          "template": "amex/schwab_investor",
+          "path": "card_templates/amex/schwab_investor/card.png",
+          "sha256": "2e042fe6d9653fc0a674b0521c712fd61b78f4c0af2d4fe2750f96a25c9c381a",
+          "source_dimensions": [
+            1026,
+            642
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0150",
+      "name": "SoFi World Elite Mastercard (legacy)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "sofi/unlimited_2",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/182"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/e/d/edc16af41debade04e514a16430a3608dc118607.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/182",
+      "sha256": "1177f27a8d40c43ea008762dc6fba7f4e563c3b98a3df2d350c604cd8cf29cae",
+      "width": 1019,
+      "height": 644,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "sofi/unlimited_2",
+          "path": "card_templates/sofi/unlimited_2/forum_img_0150.png",
+          "sha256": "81102e9bf49c8e3f742716e5c2be0605a5f60809e524b6de2dbd98bdbe63dee4",
+          "source_dimensions": [
+            1019,
+            644
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0152",
+      "name": "American Express Centurion (alternate)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. American Express Centurion (alternate): no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/184"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/c/b/cbb7f92ad85d7b5f1d1cc3c2871c84227c392969.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/184",
+      "sha256": "b604a6f75952b85660a0eadfb87458686fb62ad688a80f02810b3d7c033e7b29",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/centurion",
+      "outputs": [
+        {
+          "template": "amex/centurion",
+          "path": "card_templates/amex/centurion/card.png",
+          "sha256": "ef175e79a71a4315bb3f5948c9c2044a2941b8c9504ebb6ef9c56c46afd8c77b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0154",
+      "name": "American Express Delta SkyMiles Reserve Boeing 747",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_reserve",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/190"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/delta_reserve/747black.jpeg",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/7/d/7d9afc23a719a8552cefb90fd5e4a1053ec8b458.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/190",
+      "sha256": "73bea42dfc26305ceeb42b6e69b57a82c9c532727b076532c89b992cc2b072fc",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_reserve",
+          "path": "card_templates/amex/delta_reserve/747black.jpeg",
+          "sha256": "73bea42dfc26305ceeb42b6e69b57a82c9c532727b076532c89b992cc2b072fc",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_reserve/old/before_forum_img_0154.jpeg",
+          "archived_sha256": "e47d7a13fd839e9efea91051ea7aec3c6e377e1ced21c898f9e78842d6417880"
+        }
+      ]
+    },
+    {
+      "id": "img-0156",
+      "name": "Discover Milky Way design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/192"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/0/0/00dd2ee11324d3ca1b100e7d85a179d3cc9a335d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/192",
+      "sha256": "6b15e90ce05479f4c513cc41c176aed6b901269b9680ac6aa007d6b476f1a5d9",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0156.png",
+          "sha256": "c2838383422cb1d218fbbc71785c19d2f77770ad432f1b8d727c01e39c8e4c1e",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0171",
+      "name": "Discover it Gold design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/243"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/9/0/90b40e6f9d42957fbece5eaa4943b1c10b37fabd.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/243",
+      "sha256": "f457222dcae9513f51e297d7f194973aabf5dfb25ee1142a4666c65bae7f1e62",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0171.png",
+          "sha256": "e737568bba408aaab179e3459f1a3741254357c48829ec5bd6919228ea595506",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0173",
+      "name": "Wells Fargo Active Cash muted wallet design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "wellsfargo/active_cash",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/243"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/d/4/d4c688cd01c9150a4c966fc02897e07c9677572d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/243",
+      "sha256": "71fcf3d73146bdec5341218d0af82440320efb36d2dd71eee91c4caa309b01d7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "wellsfargo/active_cash",
+          "path": "card_templates/wellsfargo/active_cash/forum_img_0173.png",
+          "sha256": "05616449eaeed7d51f492ccafa20a99b57cd8253d5de7fa2f47a1c2c6c266366",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0179",
+      "name": "Discover it blue brushed design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean blue brushed Discover design; visible texture differs from catalog, candidate alternate. Product tier not encoded by interchangeable Discover design.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/251"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/3/6/36f45cb11ff09a799677bd962fb8825d955ef1f9.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/251",
+      "sha256": "b2a5a3330edc95ac5bc5b7b4403db25a3d6ee0cb63bda7a30f568a867ccb7cf5",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0179.png",
+          "sha256": "4b52557a4286884a19858183a58a06268ed66cb2d91346bc292b315fe8483098",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0181",
+      "name": "Discover Vinyl Record design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/252"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/2/a/2a227821c78d011468e1a40a20a5573434fcb858.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/252",
+      "sha256": "d51e735413394b3c621a1ac9d12b0faaeca70aedcfef61f21d27dd00d47801b3",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0181.png",
+          "sha256": "6360db1ce9fe6960fd5ce1cd8f44b57c8b0e799cf9888f780d21c57eadde45d9",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0182",
+      "name": "Discover Braille design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean distinct Discover design. Template is the catalog design-family landing point, not a claim that the artwork uniquely identifies Cash Back versus other eligible Discover tiers.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/252"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/b/8/b87c863c7f3663a3128f1721345f307b367b9065.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/252",
+      "sha256": "48222248ac2b9c423e04cfc71c1d7ba9e10f032fbffef4a0c5d83c6ef464eaf7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0182.png",
+          "sha256": "98c8e94858b4529a605e2f15650d77a3cf9e57ebd6930450f733421a7f820fe0",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0188",
+      "name": "Synchrony Cathay Pacific Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "synchrony/cathay_pacific",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/272",
+        "https://www.synchronybankterms.com/gecrbterms/pdf/Cathay_Pacific_Visa_Signature_Card_Account_Agreement_and_Pricing_Addendum.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/c/6/c62858a92359e326493220132dd84c1cfe53dc05.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/272",
+      "sha256": "3194952f727260b1c287a177a15d72e689e77bf73a7ce5dd1f745a1b355a67ac",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "synchrony/cathay_pacific",
+          "path": "card_templates/synchrony/cathay_pacific/forum_img_0188.png",
+          "sha256": "56c1ba994f68f0dc1929a9a45bf67ecfaff2d348de854047b4f4effc2e124960",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "synchrony/cathay_pacific",
+          "path": "card_templates/synchrony/cathay_pacific/card.png",
+          "sha256": "56c1ba994f68f0dc1929a9a45bf67ecfaff2d348de854047b4f4effc2e124960",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0192",
+      "name": "American Express EveryDay",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. EveryDay is a Membership Rewards product, not Blue Cash Everyday. No exact existing template; preserve product distinction.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/277",
+        "https://www.americanexpress.com/us/credit-cards/card/amex-everyday/"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/f/7/f7e8e968fa915a25374998e24beda7b98ade2e4c.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/277",
+      "sha256": "4c3a81be1cc981129758370b5cb5780ea587b1613948d31111343ca83062a83f",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/everyday",
+      "outputs": [
+        {
+          "template": "amex/everyday",
+          "path": "card_templates/amex/everyday/forum_img_0192.png",
+          "sha256": "963cbe85acf88d17d5be56ea53b3d02735b203ef31175edff4a6cac81f1fe6db",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0193",
+      "name": "Chase Freedom Flex",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/freedom_flex",
+      "decision": "candidate",
+      "reason": "Visually matches the named catalog product/design; source has higher resolution than existing art and is a clean quality-upgrade candidate.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/277"
+      ],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/freedom_flex/card.jpeg",
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/6/f/6f0b698b1c7b5b1c553e17befaef0655cd7748f6.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/277",
+      "sha256": "31e579e9783414185b1214c06349566cc514cca8c054a3d73278a3965fffad71",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/freedom_flex",
+          "path": "card_templates/chase/freedom_flex/card.jpeg",
+          "sha256": "31e579e9783414185b1214c06349566cc514cca8c054a3d73278a3965fffad71",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/freedom_flex/old/before_forum_img_0193.jpeg",
+          "archived_sha256": "3cde63626ad625f3ed24f27ce0497c3a14b940ce90bcaf525c1112806ebb7c97"
+        }
+      ]
+    },
+    {
+      "id": "img-0194",
+      "name": "Citi Rewards+ (circular alternate)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/rewards_plus",
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/277"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/3/7/37d9dd7affa7574c9808217ff86b10f214b3e134.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/277",
+      "sha256": "a2713cb6ad88bc0cf1d23c7194b6b104be38decbb91e3cc1d3ecb5ed5c88de53",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/rewards_plus",
+          "path": "card_templates/citi/rewards_plus/forum_img_0194.png",
+          "sha256": "f970bbb28eca49ef414f6f8657acea304dca692097c4cc7203ad6107451790f5",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0196",
+      "name": "X1 Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. X1 Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/278",
+        "https://robinhood.com/us/en/newsroom/robinhood-signs-agreement-to-acquire-x1/"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://d1do1axor6p0u1.cloudfront.net/original/3X/9/5/957c619555272bed3a7b7216372065a60638b353.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/278",
+      "sha256": "b35163828719859d3070054c0af9e6571a234b33356bc896172824d51415411d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "x1/visa_signature",
+      "outputs": [
+        {
+          "template": "x1/visa_signature",
+          "path": "card_templates/x1/visa_signature/card.png",
+          "sha256": "97386ed08f5e3e9add685164067ff1fe0f4adccb8f1702c7588722de77a4adb4",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0205",
+      "name": "Citi AT&T Access More Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Bare branded card art; product identified from visible branding and forum context. Existing catalog design not confirmed as equal or better. Citi AT&T Access More Mastercard: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.uscardforum.com/t/topic/29408/280",
+        "https://www.cardbenefits.citi.com/ATT"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/zxt219/2ahELv.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/280",
+      "sha256": "dbb40c918ae00a1947f69e5c5394fc74f6f1215d870382de1089b444f1798178",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "citi/att_access_more",
+      "outputs": [
+        {
+          "template": "citi/att_access_more",
+          "path": "card_templates/citi/att_access_more/card.png",
+          "sha256": "3b06c257f686e5eb2b5babb726dbb71fb39232544726a0cc2f7913fdc3ddb57a",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0206",
+      "name": "Navy Federal More Rewards American Express",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Navy Federal More Rewards American Express: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.navyfederal.org/loans-cards/credit-cards/more-rewards.html"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/zxt219/UhH1uo.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/280",
+      "sha256": "24d15e794e2dbaf9aaa8d2bfb598cd90a3de84e6fbd0c5740f8f277ba89d53cd",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "navyfederal/more_rewards",
+      "outputs": [
+        {
+          "template": "navyfederal/more_rewards",
+          "path": "card_templates/navyfederal/more_rewards/card.png",
+          "sha256": "fa4a2a82292bb4933a789f4b804776f8235373ba305a88dc2c3de950301f5099",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0231",
+      "name": "Mercury IO business Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Mercury IO business Mastercard: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://mercury.com/credit"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/ccbackground/mercury.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/309",
+      "sha256": "ec2fc0a2536539f3fb93d67d872eedc1e15528fa74e3850e39dde130bda72753",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "mercury/io",
+      "outputs": [
+        {
+          "template": "mercury/io",
+          "path": "card_templates/mercury/io/card.png",
+          "sha256": "0861a80bf70655f9de86741bdb2e826a1e96af506575d3f97b046761f7395e7c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0248",
+      "name": "Bank of America Premium Rewards Elite",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/premium_rewards_elite",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/boa/premium_rewards_elite/card.png, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/boa/premium_rewards_elite/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/7/2/727cb6b3cbfca0847f5b155619d8bb82f66c2405.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/356",
+      "sha256": "208696a8962a1ddd2dd54743779df44c6c3f72295c91adec361ef4ec47f6aa93",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/premium_rewards_elite",
+          "path": "card_templates/boa/premium_rewards_elite/card.png",
+          "sha256": "78a9f6d7f63052830090636d1a8d2ea8484faa4979a41c9d63f786fbb5e8a385",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/boa/premium_rewards_elite/old/before_forum_img_0248.png",
+          "archived_sha256": "4ce30f652a53ab9806670f13ba28d0bf31d7cca8f9f72aeb4f075f20cf0457bd"
+        }
+      ]
+    },
+    {
+      "id": "img-0249",
+      "name": "American Express Employee Business Expense Card (white)",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Employee Business Expense is supplementary card art for business accounts, not a standalone full-benefit Business Platinum or Business Gold card. No exact supplementary-card template exists.",
+      "research_urls": [
+        "https://global.americanexpress.com/card-benefits/terms/business-platinum",
+        "https://global.americanexpress.com/card-benefits/detail/employee-cards/business-platinum"
+      ],
+      "action": "supplementary_art",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/e/4/e489506ef4ec037095fb4c583f44c64a8ef5cd0d.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/359",
+      "sha256": "3fdeeb2d7ff4f9ccd26e023a8ff4d1607d7fb266238160329e5a26d20d8c78c1",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_platinum",
+          "path": "card_templates/amex/biz_platinum/employee_business_expense_img_0249.png",
+          "sha256": "a2eb436b49eb104ba52da7eb83c236960800bcc1367ab9c83e759102431ca105",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "amex/biz_gold",
+          "path": "card_templates/amex/biz_gold/employee_business_expense_img_0249.png",
+          "sha256": "a2eb436b49eb104ba52da7eb83c236960800bcc1367ab9c83e759102431ca105",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0256",
+      "name": "Chase World of Hyatt",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/hyatt",
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/0/4/047bfbf01190002ac6dfb358275dbcc52cfa4fc0.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/374",
+      "sha256": "5275d85dbb45b49798527a387b2ce5f336807d7edd41451877c1c6a0fd5127f5",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/hyatt",
+          "path": "card_templates/chase/hyatt/forum_img_0256.png",
+          "sha256": "2bdd49ae165772f1d248774f008d24605e710ff334072eb4260717cacd6c329d",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "chase/hyatt",
+          "path": "card_templates/chase/hyatt/card.png",
+          "sha256": "2bdd49ae165772f1d248774f008d24605e710ff334072eb4260717cacd6c329d",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0260",
+      "name": "Bank of America Michigan Alumni Customized Cash Rewards",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product.",
+      "research_urls": [
+        "https://alumni.umich.edu/membership/benefits/bank-of-america/"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/0/4/04e7797df74e8139ca67691fd3e32c657e84efcf.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/377",
+      "sha256": "d10f9fc48c301a902b3b0419174c7cb68596e5684408b9e40997f5997886bcc0",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0260.png",
+          "sha256": "60f28eafe05377992cfb62e2be5cdee05c54eda4f14f6b84294b12f57f508030",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0261",
+      "name": "Chase IHG One Rewards Premier",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/ihg_premier",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/ihg_premier/card.png, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/ihg_premier/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/b/9/b99dd7454ce1ce619a261e64f4bd3078e7302736.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/377",
+      "sha256": "1ca3f32574ff9f0ff3d4e59fcabb8b009b300155e4c960f995ed627cf68aa61d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/ihg_premier",
+          "path": "card_templates/chase/ihg_premier/card.png",
+          "sha256": "0c7e7695fe23dc015bd38c2460074930cc4d0fbb0c2ee8cfa99dfb38364eae48",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/ihg_premier/old/before_forum_img_0261.png",
+          "archived_sha256": "940225653459c7d1b58b0e89aad27c3b1a44a0a1ef3ba221b1ffe9bc4b562b11"
+        }
+      ]
+    },
+    {
+      "id": "img-0266",
+      "name": "U.S. Bank Altitude Reserve gray design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/altitude_reserve",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/usbank/altitude_reserve/card.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/usbank/altitude_reserve/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/6/7/6708e3bd2da3897cb79d3a0981c7af457ecfc571.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/379",
+      "sha256": "32e2c56348d6569d1a27e9f659812b8421743964d017bd02139c68d4f87129c2",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/altitude_reserve",
+          "path": "card_templates/usbank/altitude_reserve/card.jpeg",
+          "sha256": "32e2c56348d6569d1a27e9f659812b8421743964d017bd02139c68d4f87129c2",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/usbank/altitude_reserve/old/before_forum_img_0266.jpeg",
+          "archived_sha256": "9b00d68a1cf5f569dea63c0855ab52dc0fb653344c1026adf1f053c06535b1a2"
+        }
+      ]
+    },
+    {
+      "id": "img-0271",
+      "name": "Discover it cat design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/discover/it_cash_back/discovercat.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/discover/it_cash_back/discovercat.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/7/8/78b98b396ef105f47b5b330a6dc8aa00ac8bf242.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/389",
+      "sha256": "e99d94214fe4e84f260f600c9a60665e635c4989b10e10aa93465c1d64a4aa49",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/discovercat.jpeg",
+          "sha256": "e99d94214fe4e84f260f600c9a60665e635c4989b10e10aa93465c1d64a4aa49",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/discover/it_cash_back/old/before_forum_img_0271.jpeg",
+          "archived_sha256": "ec1d88280f9feecc4124b156b84cbfc723dc23526fc441d4f211737cb5dfba71"
+        }
+      ]
+    },
+    {
+      "id": "img-0273",
+      "name": "Chase IHG One Rewards Select",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. IHG Select is separately named by Chase and is not IHG Traveler/Premier; exact legacy Select template absent.",
+      "research_urls": [
+        "https://www.chase.com/personal/credit-cards/ihg/other-cards/other-ihg-cc"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/2/0/20bb0ccbc2f3baf66bb04d8e4d99f387cece0b8c.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/390",
+      "sha256": "d2028fde52ffddd9969600d429f634936e2afee1374b9e263bae0a0d55f13473",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "chase/ihg_select",
+      "outputs": [
+        {
+          "template": "chase/ihg_select",
+          "path": "card_templates/chase/ihg_select/card.png",
+          "sha256": "f5471f2904e19fdb33ace439ef239b26d6d1d7604f4f501a880fc503855fa5ac",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0278",
+      "name": "Chase United Club Infinite",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/united_club_infinite",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/united_club_infinite/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/united_club_infinite/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/f/0/f02801ad6d23f39b948e2fb6a2485113be44568e.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/402",
+      "sha256": "05beda14c8bf90a928894fb2922b10042a5db9c04da93895f2260817d97a61e7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/united_club_infinite",
+          "path": "card_templates/chase/united_club_infinite/card.jpeg",
+          "sha256": "05beda14c8bf90a928894fb2922b10042a5db9c04da93895f2260817d97a61e7",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/united_club_infinite/old/before_forum_img_0278.jpeg",
+          "archived_sha256": "656ce8deccf6dfbfca7f79da2590ebaed35a0d87c6575775a1547ffad8ee8c2d"
+        }
+      ]
+    },
+    {
+      "id": "img-0281",
+      "name": "American Express Delta Reserve Business white 747 design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_reserve_biz",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/delta_reserve_biz/747white.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/delta_reserve_biz/747white.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/5/1/51f0b27e1e731cd33240cbec7d2dbd4785d2bf3f.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/411",
+      "sha256": "9c8dbdf822e710534b5db30e8a82feb5ff1e39b11cc9a43fb6547f1079c0b9df",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_reserve_biz",
+          "path": "card_templates/amex/delta_reserve_biz/747white.jpeg",
+          "sha256": "9c8dbdf822e710534b5db30e8a82feb5ff1e39b11cc9a43fb6547f1079c0b9df",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_reserve_biz/old/before_forum_img_0281.jpeg",
+          "archived_sha256": "52e92f95827326479c1cfd62264663e4694ea2c0c9e242764e7862c131178b75"
+        },
+        {
+          "template": "amex/delta_reserve_biz",
+          "path": "card_templates/amex/delta_reserve_biz/card.png",
+          "sha256": "358f387a02cf0f7b25f310a8c00c3738c580b83a4abb1ea34f0292b21711465f",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0282",
+      "name": "HSBC Elite",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "hsbc/elite",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/hsbc/elite/card.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/hsbc/elite/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/7/b/7b5b886575ddc3d085ec8c18622621dae279260b.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/413",
+      "sha256": "4d8d6ad295dd2d34adf80af8c283834c8ffc49c4d349abf3693e18de9970f0aa",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "hsbc/elite",
+          "path": "card_templates/hsbc/elite/card.jpeg",
+          "sha256": "4d8d6ad295dd2d34adf80af8c283834c8ffc49c4d349abf3693e18de9970f0aa",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/hsbc/elite/old/before_forum_img_0282.jpeg",
+          "archived_sha256": "e3705fd165fde8f58f26dbb029d07ca3b222bcad5017ce68911043f926fa4b6c"
+        }
+      ]
+    },
+    {
+      "id": "img-0284",
+      "name": "Venmo Visa Credit Card blue design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "venmo/credit_card",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/venmo/credit_card/card.png, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/venmo/credit_card/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/a/d/ad56f8ebb54aff618944c72698937223479f403c.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/414",
+      "sha256": "4bd2e76bf172211228eae1417b9ec08cc67136759f12bd98b3207a76ef0a4a64",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "venmo/credit_card",
+          "path": "card_templates/venmo/credit_card/card.png",
+          "sha256": "2b24a83d00d4018c1e4ab18847020df826c190beb50ab3ea2a8297115d9917f4",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/venmo/credit_card/old/before_forum_img_0284.png",
+          "archived_sha256": "1933eb1072871b842d49c8d7076c95bd4ce03db4a7a80a2ea2f1f433eaa71979"
+        }
+      ]
+    },
+    {
+      "id": "img-0292",
+      "name": "Chase Freedom Visa legacy",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Original Freedom Visa is a distinct legacy product from Freedom Flex Mastercard, Unlimited, Rise, and Student. No original Freedom template exists; do not map to those siblings.",
+      "research_urls": [
+        "https://static.chasecdn.com/content/services/structured-document/document.en.pdf/card/benefits-center/benefits-guide-pdf/freedom_visa_signature_bgc10373.pdf",
+        "https://www.chase.com/personal/credit-cards/freedom"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/4/4/4422220cb1270460f952c4680f73219fed054df1.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/422",
+      "sha256": "b342634b61ba1d0ec07a5e58b93a6aa4797df6d1469bd10dcbe1c314627eaf14",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "chase/freedom",
+      "outputs": [
+        {
+          "template": "chase/freedom",
+          "path": "card_templates/chase/freedom/forum_img_0292.png",
+          "sha256": "4989f31a9035d20a04c0beb180046b6d0eefcfdb851f732674aabc1c9c1f38c0",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0293",
+      "name": "Bank of America Cal Alumni Customized Cash Rewards",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product.",
+      "research_urls": [
+        "https://alumni.berkeley.edu/discounts/cal-alumni-customized-cash-rewards-credit-card-and-debit-services/"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/b/0/b002f2008eb6e7a6846872241ae91a73778273f3.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/423",
+      "sha256": "4b1999397dd9e33de48c17393619a0e18d04ac8298f614ffa9992c8b19cfe2b0",
+      "width": 1134,
+      "height": 715,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0293.png",
+          "sha256": "dc4e3757d38127d4fab1d622601bf804b1cb08b5e4780fafe6b998c2fbd85d1b",
+          "source_dimensions": [
+            1134,
+            715
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0300",
+      "name": "Chase Ink Business Premier",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/ink_premier",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/ink_premier/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/ink_premier/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/2/9/29d7117dfe8d3640c67cc79191cde0fafd0b0c3d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/424",
+      "sha256": "76e3be0582c5ca72a0ab18f2de7e2fce4ae8f48ed254b5728ea95684507edb0b",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/ink_premier",
+          "path": "card_templates/chase/ink_premier/card.jpeg",
+          "sha256": "76e3be0582c5ca72a0ab18f2de7e2fce4ae8f48ed254b5728ea95684507edb0b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/ink_premier/old/before_forum_img_0300.jpeg",
+          "archived_sha256": "de62c6bff6ae8b3389626e0fa62783870773354f1b71727819f0ded9da7d0801"
+        }
+      ]
+    },
+    {
+      "id": "img-0301",
+      "name": "Brex corporate Mastercard black design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Brex corporate Mastercard black design: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.brex.com/support/about-brex"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/d/8/d8cf96cd1a5ae50c6641c2ee676fb821ffa131ce.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/426",
+      "sha256": "00c03f6fc1fa1262959851ec9459043c3482ef98387d2b6b4fd565ed26237eb1",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "brex/corporate",
+      "outputs": [
+        {
+          "template": "brex/corporate",
+          "path": "card_templates/brex/corporate/card.png",
+          "sha256": "85d6a809de0e669b2b75a600bdc613c0d94c33a38f1279a26c06bfb02842bb56",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0305",
+      "name": "Chase Ink Business Unlimited",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/ink_unlimited",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/ink_unlimited/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/ink_unlimited/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/d/d/dd9cfa5cd36a9934208282365f8bab0950f2774d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/438",
+      "sha256": "c98d9ccd4010a85860d41c9bd3fa762aed782ceee18ad1ec71d695da69eb0768",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/ink_unlimited",
+          "path": "card_templates/chase/ink_unlimited/card.jpeg",
+          "sha256": "c98d9ccd4010a85860d41c9bd3fa762aed782ceee18ad1ec71d695da69eb0768",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/ink_unlimited/old/before_forum_img_0305.jpeg",
+          "archived_sha256": "772ee9c596c7b9825fff66168108a1f387d62f45884bc595447c42008b3627cd"
+        }
+      ]
+    },
+    {
+      "id": "img-0306",
+      "name": "American Express Business Gold US",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/biz_gold",
+      "decision": "candidate",
+      "reason": "US BUSINESS-only design at 1536x969; existing amex/biz_gold/card.png is Canadian bilingual BUSINESS/ENTREPRISE at 690x435. Strong correct-market replacement.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/biz_gold/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/b/0/b06cba8f9364a99ecd3be0f81fef5b25df5b36c0.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/438",
+      "sha256": "31281ef624d15908e5e43de802f09fb4e06e73877c8a49678065426f995eb2f8",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_gold",
+          "path": "card_templates/amex/biz_gold/card.png",
+          "sha256": "b3e737626b1869a530643ff08278e121b59c2a9564d4a9e958789e21fbf33e6e",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/biz_gold/.art-history/before_forum_img_0306.png",
+          "archived_sha256": "394c9c97dbd64f8878483e3163164cc11f3195bd653e0b62693dac9710aad30a"
+        }
+      ]
+    },
+    {
+      "id": "img-0307",
+      "name": "Discover it husky design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/discover/it_cash_back/discoverwolf2.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/discover/it_cash_back/discoverwolf2.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/e/8/e8f05f489ca6eedd4c2206f433dca9d371b9c235.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/439",
+      "sha256": "f1bf1e6143ead9f43d169e50f803c0070e87a71de246d284f9faa611d2d739a1",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/discoverwolf2.jpeg",
+          "sha256": "f1bf1e6143ead9f43d169e50f803c0070e87a71de246d284f9faa611d2d739a1",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/discover/it_cash_back/old/before_forum_img_0307.jpeg",
+          "archived_sha256": "e91c6737e8dc98b5adb9cac5e278297b19e499d3b7c4ee26ef1ac17d3ba49b58"
+        }
+      ]
+    },
+    {
+      "id": "img-0313",
+      "name": "American Express Delta SkyMiles Gold",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_gold",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/delta_gold/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/delta_gold/card.jpeg",
+      "source_url": "https://u.cubeupload.com/waleyz/4.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/445",
+      "sha256": "df2cfdbc2795c043d649b783867f0dce99b4b0dfe671f9793e5c84085136d4d3",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_gold",
+          "path": "card_templates/amex/delta_gold/card.jpeg",
+          "sha256": "edeaf3ee3cb1fee4060ceba40e91fd4332f7979f51cb5c980ccf50d900b8b54c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_gold/old/before_forum_img_0313.jpeg",
+          "archived_sha256": "28bb6f9d7d7d98dc07ba5cfeffe72f6f8ba7e47f63f86f531a5efd3b568db327"
+        }
+      ]
+    },
+    {
+      "id": "img-0317",
+      "name": "Brex corporate Mastercard bronze design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Brex corporate Mastercard bronze design: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.brex.com/support/about-brex"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/5/b/5bf3eb3bbdbb83893826e560b065e52d69722913.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/448",
+      "sha256": "8f4dc233bf95b7e9d0426fcb2fbd83354cf590c9140ed66acb38a2aee8a8c0ad",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "brex/corporate",
+      "outputs": [
+        {
+          "template": "brex/corporate",
+          "path": "card_templates/brex/corporate/forum_img_0317.png",
+          "sha256": "30d55376a2076ae277730704ca4b0a71958834c4cf21617c5318d80f435ca5e2",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0318",
+      "name": "Brex corporate Mastercard white design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Brex corporate Mastercard white design: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.brex.com/support/about-brex"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/3X/3/2/32853e0fb8f6eb91307a778e8d34a3e18b23f180.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/448",
+      "sha256": "bb22826d324b60db05fba8ce90954e1d7c918975f166d31635892c35485b94a2",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "brex/corporate",
+      "outputs": [
+        {
+          "template": "brex/corporate",
+          "path": "card_templates/brex/corporate/forum_img_0318.png",
+          "sha256": "28b5db71458e47eb348f8b29d876f2b09cb81933a0396f87723123abf7ae1fdf",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0374",
+      "name": "American Express Gold shaded small-centurion design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/gold",
+      "decision": "candidate",
+      "reason": "Distinct shaded/small-centurion Gold design compared with existing flat illustrated Gold art.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/0/2/1/021f8f790fd7a1c2d7c628c8a97628d07450f44b.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/476",
+      "sha256": "00f5a1558ee616fb30ecf46bd815f7275998a27b13beb77c1ef708ae2c00640a",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/gold",
+          "path": "card_templates/amex/gold/forum_img_0374.png",
+          "sha256": "049ead70a1fa3e4749ad8c3a1fdf12a6d3b63af3b77fb685f93a63573c76be2a",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0376",
+      "name": "American Express Green",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/green",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/green/card.png, but source 1536x969 is larger than existing 760x480; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/green/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/7/3/d/73dca7b90874a1540331ab17f5222d8f6e5b4047.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/476",
+      "sha256": "e011507db9a7616ed513f888f08497ad92e9696230890fbc2e08d96361309a94",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/green",
+          "path": "card_templates/amex/green/card.png",
+          "sha256": "6ec1ecef709905ef7b8a0b7460dc4fbce1ac0ed6b8bd48fc7628daa34fbe7518",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/green/old/before_forum_img_0376.png",
+          "archived_sha256": "21598cd89b620986b229d389a665f76382aa55a15e3b525ab0fef4832190942d"
+        }
+      ]
+    },
+    {
+      "id": "img-0379",
+      "name": "American Express Blue Business Cash",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/blue_biz_cash",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/blue_biz_cash/card.png, but source 1536x969 is larger than existing 380x240; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/blue_biz_cash/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/3/1/d31147c285839141f5d119ce2cc69f454375701d.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/476",
+      "sha256": "16545ac89aab7b782866db5dc1dca506896b91ab77cfad7fdd3229cbb83cb9c5",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/blue_biz_cash",
+          "path": "card_templates/amex/blue_biz_cash/card.png",
+          "sha256": "fe1772715aee8d220cc78477864ee9e5caa2177c52206db28abeba52eaac7c0f",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/blue_biz_cash/old/before_forum_img_0379.png",
+          "archived_sha256": "686e22736c53cf8972b0020bd3801e3838d2da493be0ce425f83672e78f3062a"
+        }
+      ]
+    },
+    {
+      "id": "img-0384",
+      "name": "American Express Hilton Honors Aspire",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/hilton_aspire",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/hilton_aspire/card.png, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/hilton_aspire/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/3/a/d3ae0aa6b019df4d82ddf3d10c5f8d917b4fe06a.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/483",
+      "sha256": "d7ee292d7b6b0c6aebc2bce8f1f0801b90fb8257159ba2732d88edc0f0f5e26b",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/hilton_aspire",
+          "path": "card_templates/amex/hilton_aspire/card.png",
+          "sha256": "31fcc6e799ca415ddac7a5b91d999924e9c7c5408cd1dd1b5f41932652577cd6",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/hilton_aspire/old/before_forum_img_0384.png",
+          "archived_sha256": "a82b386199a6b3ce0e688be11dfd2ef27130d64f98eefbfe9b395ba68b2c0a2e"
+        }
+      ]
+    },
+    {
+      "id": "img-0386",
+      "name": "U.S. Bank Altitude Connect",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/altitude_connect",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/usbank/altitude_connect/card.png, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/usbank/altitude_connect/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/7/2/9/729f5bbe430bbf6d22ac53b1d7325909dc9a6b8a.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/486",
+      "sha256": "a5c01f47901d2c092dc0cd0c75deab3a83221efacdba5346a441fe6931070d3a",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/altitude_connect",
+          "path": "card_templates/usbank/altitude_connect/card.png",
+          "sha256": "83887741212ae6ea603c3f96284d8a13a46183f18d9a66a5cab4f58e1398bb6c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/usbank/altitude_connect/old/before_forum_img_0386.png",
+          "archived_sha256": "1b1e841a2608871a2ce2c5be3cbd97c9b666e15587f79fce2b0bb1a3d5309aba"
+        }
+      ]
+    },
+    {
+      "id": "img-0387",
+      "name": "Chase Ink Business Preferred",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/ink_preferred",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/ink_premier/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/f/1/f/f1f6595761f3c06ac1ba1c2f5b07af464f196c48.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/487",
+      "sha256": "040632d97f794fdc09c4ba9220291d523711f737801aed10705bad4c0ecee93f",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/ink_preferred",
+          "path": "card_templates/chase/ink_preferred/forum_img_0387.png",
+          "sha256": "25782a9d1ec156b17ea97319c07a6d9578f1541ea3634ff1cf9bd856a49cb178",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0388",
+      "name": "U.S. Bank Ralphs Rewards World Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. U.S. Bank lists Ralphs and Kroger separately; Ralphs is a distinct retail co-brand with potentially different offer and rewards terms. Do not map to usbank/kroger_123 solely because both are Kroger-family cards.",
+      "research_urls": [
+        "https://www.ralphsmastercard.com/credit/contactUs.do",
+        "https://www.usbank.com/customer-service/personal-banking/credit-cards.html"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/d/e/dde1cfb57a0cddf8e609395aee9016003011bc80.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/488",
+      "sha256": "7232ffb304d8de8780e9cca26f1a7497ca355e070713b2ec6600207a67743949",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "usbank/ralphs_rewards",
+      "outputs": [
+        {
+          "template": "usbank/ralphs_rewards",
+          "path": "card_templates/usbank/ralphs_rewards/card.png",
+          "sha256": "436b84c19b356f291340c74523e1929fe522607e1345d10f9478123c06a88468",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0391",
+      "name": "Citi Double Cash new circular design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/double_cash",
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/c/d/b/cdbc1e7670feb575c9f5f138f509e83c5260a7d8.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/492",
+      "sha256": "9a9a1b1cda6f14235c96ae8a86dd51b9262101bed3b92ead27f44f539e0617b7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/double_cash",
+          "path": "card_templates/citi/double_cash/forum_img_0391.png",
+          "sha256": "9107f07c421bfcd262c30a3ea7b1a0e662655372895b1ca33b0db67be08d3f8b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0398",
+      "name": "American Express EveryDay",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. EveryDay is a Membership Rewards product, not Blue Cash Everyday. No exact existing template; preserve product distinction.",
+      "research_urls": [
+        "https://global.americanexpress.com/card-benefits/detail/amex-everyday-spend-bonus/amex-everyday",
+        "https://www.americanexpress.com/us/credit-cards/card/amex-everyday/"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/9/e/69ea319ff49ca0c7e47cee78d2d14c5d79f9114f.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/512",
+      "sha256": "4d9d1382940f725a8acc8540da3e5b1eb87687abb7ad258e9ab3dbcdd5e95be7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/everyday",
+      "outputs": [
+        {
+          "template": "amex/everyday",
+          "path": "card_templates/amex/everyday/card.png",
+          "sha256": "24ca963761bfb587a2a845e75a1ff91cf1f2c36dbbc491cf697d9da6645e7bdf",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0401",
+      "name": "U.S. Bank Cash+",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/cash_plus",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/usbank/cash_plus/card.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/usbank/cash_plus/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/3/2/f/32f333393fe68faefccd61e13b52f5d3c3853f53.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/515",
+      "sha256": "b87b1255883af791468d9fd4dab86e3f3567c4314fdcd4280aef49c741cc3374",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/cash_plus",
+          "path": "card_templates/usbank/cash_plus/card.jpeg",
+          "sha256": "b87b1255883af791468d9fd4dab86e3f3567c4314fdcd4280aef49c741cc3374",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/usbank/cash_plus/old/before_forum_img_0401.jpeg",
+          "archived_sha256": "bdb6ee06052fc369355292df1c14c88d8d06f57f65b0a221cf73f8d31088ba91"
+        }
+      ]
+    },
+    {
+      "id": "img-0402",
+      "name": "Chase United Gateway",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/united_gateway",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/chase/united_gateway/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/united_gateway/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/9/a/8/9a8eb8f5d1ca12599fb596e575bf243e3370b3d9.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/515",
+      "sha256": "4c3b75cdb52e4d10db7417b89b2fd107d38b337cda93d4d4cf9cf0af36979cb9",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/united_gateway",
+          "path": "card_templates/chase/united_gateway/card.jpeg",
+          "sha256": "4c3b75cdb52e4d10db7417b89b2fd107d38b337cda93d4d4cf9cf0af36979cb9",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/united_gateway/old/before_forum_img_0402.jpeg",
+          "archived_sha256": "b0609c71f8bf6d8dc6ec5c3836470cb5b46b5b928c07de71864698a98a844662"
+        }
+      ]
+    },
+    {
+      "id": "img-0404",
+      "name": "American Express EveryDay Preferred",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. EveryDay Preferred is the Membership Rewards product, not Blue Cash Preferred. No exact existing template.",
+      "research_urls": [
+        "https://global.americanexpress.com/card-benefits/view-all/amex-everyday-preferred"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/5/9/a/59a311217e15df81cbf6383c5a687fa1276a6bbf.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/515",
+      "sha256": "53971d2d15b619868660743eff19d48832155fe1f1b74cd41fd95eaf5eb89aba",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/everyday_preferred",
+      "outputs": [
+        {
+          "template": "amex/everyday_preferred",
+          "path": "card_templates/amex/everyday_preferred/card.png",
+          "sha256": "e0d47777d39a41732829216a7d9f27d96de005772171028d6eb28dd5df1e340c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0405",
+      "name": "American Express Companion Platinum white",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Companion Platinum is supplementary consumer Platinum art with a restricted benefit set. Do not map as a full standalone Platinum card and accidentally grant main-card benefits.",
+      "research_urls": [
+        "https://global.americanexpress.com/card-benefits/terms/business-platinum",
+        "https://www.americanexpress.com/en-us/account/get-started/additional-card-member/companionplatinum",
+        "https://global.americanexpress.com/card-benefits/terms/platinum"
+      ],
+      "action": "supplementary_art",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/b/2/c/b2c52c2b0452fed70577dd8d913d3682bcb94139.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/516",
+      "sha256": "3f47350749d3a997c95434cf9320781b17aca6ec6e707c5d2c8908f8d1bdf36b",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/platinum",
+          "path": "card_templates/amex/platinum/companion_platinum_img_0405.png",
+          "sha256": "181fca82dbacbe40ffd70cd09b68f871a72773306a366e54ac38a0e7730b71c2",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0409",
+      "name": "American Express Platinum for Charles Schwab",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Visually inspected bare card art; branding and source context identify this product. Schwab Platinum is a distinct co-brand with Schwab-specific eligibility and features; generic amex/platinum template lacks those distinctions. Preserve as separate variant until explicitly supported.",
+      "research_urls": [
+        "https://www.schwab.com/credit-cards/platinum-card"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/1/d/0/1d0713d1778a0db469e7d7b8dd898a5c1a48e7c3.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/525",
+      "sha256": "3a2b9c25a53eb28f8f7b0ebd91b7f52b2390aca6cfcb29956260749667fd9a77",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "amex/platinum_schwab",
+      "outputs": [
+        {
+          "template": "amex/platinum_schwab",
+          "path": "card_templates/amex/platinum_schwab/card.png",
+          "sha256": "fd1014a917a647447ff051530e8beeec85c87c16fdf9c66c91e203b1ae38b5d5",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0413",
+      "name": "American Express Business Platinum",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/biz_platinum",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/amex/biz_platinum/card.jpeg, but source 1536x969 is larger than existing 690x435; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/biz_platinum/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/amexbizplat.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/526",
+      "sha256": "68dd446fc980ab37e5a26ea50c2653c2175e168fcf78ff28c1fbee1a210f1a2d",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_platinum",
+          "path": "card_templates/amex/biz_platinum/card.jpeg",
+          "sha256": "5f7be8d34edc69a0ded2a6da7623a26c8f3e971cd41d76d7bcd05d98f0531bc2",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/biz_platinum/old/before_forum_img_0413.jpeg",
+          "archived_sha256": "4e2a17c3966b02e30589b455a4b255cd7adc765ae3032dbf1a5c901af559acc5"
+        }
+      ]
+    },
+    {
+      "id": "img-0414",
+      "name": "Citi AAdvantage Business rebranded design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/aadvantage_biz",
+      "decision": "candidate",
+      "reason": "Clean AAdvantage Business rebrand, visually different from existing CitiBusiness Platinum Select wording.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/olaf/citiaabiz.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/526",
+      "sha256": "2eaee9e9317e09a9da3a45409dc189d065e00ea7c2e6050a6bf9dc5674b5e23c",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/aadvantage_biz",
+          "path": "card_templates/citi/aadvantage_biz/forum_img_0414.png",
+          "sha256": "95d7871eb48d1a7ee1918bc7460f3d63410f5dee34bbd5c0d10adc28736c22a1",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0415",
+      "name": "Citi Strata Premier",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/strata_premier",
+      "decision": "candidate",
+      "reason": "Visually same design as card_templates/citi/strata_premier/card.jpeg, but source 1536x969 is larger than existing 1380x870; quality upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/citi/strata_premier/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/citistratapremier.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/526",
+      "sha256": "40b60e4de43438f6ac4c22d1a2c9a5506b250aaebab35d13170a386b50bede6c",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/strata_premier",
+          "path": "card_templates/citi/strata_premier/card.jpeg",
+          "sha256": "9641aa7bc2f7224d8538a8949e1a56920ce59653ee200a9c043cb756c71e60f3",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/citi/strata_premier/old/before_forum_img_0415.jpeg",
+          "archived_sha256": "8889222ef68e39a11f17a7cfdcb07f8690d273aaa6607879d0b1f0a664220032"
+        }
+      ]
+    },
+    {
+      "id": "img-0426",
+      "name": "Chase Amazon Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/amazon",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/amazon/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/5/2/f/52f8edc3f2c465c3b07babbdb0a0be97d8667232.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/533",
+      "sha256": "4a4c2c625fba01baab94aef59dd51ad5b179ec3ec7183df96ed3629a71e62aba",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/amazon",
+          "path": "card_templates/chase/amazon/card.jpeg",
+          "sha256": "4a4c2c625fba01baab94aef59dd51ad5b179ec3ec7183df96ed3629a71e62aba",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/amazon/old/before_forum_img_0426.jpeg",
+          "archived_sha256": "d397dccc3f38a4074b046bc4bb53b665655942da5a836727e9f36612aaf13c97"
+        }
+      ]
+    },
+    {
+      "id": "img-0430",
+      "name": "Chase United Quest",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/united_quest",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/united_quest/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/5/7/d57ca8c91263ba95368c7c7babaf1899f6e62a4d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/538",
+      "sha256": "59e6cf9d424e56e1e27e8312c31f5daf9817da8f98b83ace566d0e04213b48e9",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/united_quest",
+          "path": "card_templates/chase/united_quest/card.jpeg",
+          "sha256": "59e6cf9d424e56e1e27e8312c31f5daf9817da8f98b83ace566d0e04213b48e9",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/united_quest/old/before_forum_img_0430.jpeg",
+          "archived_sha256": "c48e96ef30a90b677cc1ab8f2c85f2972d1eff4b27b27e015696f40f78d04d09"
+        }
+      ]
+    },
+    {
+      "id": "img-0432",
+      "name": "Bank of America Nature Conservancy Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. The Nature Conservancy official magazine carries issuer advertisement explicitly identifying BankAmericard Cash Rewards Visa benefiting TNC. Historical affinity variant of existing Cash Rewards family.",
+      "research_urls": [
+        "https://www.nature.org/media/magazine/media/NCMagazine_2013_Issue_2_May-June.pdf",
+        "https://www.nature.org/media/magazine/media/NCMagazine_2013_Issue_1_March-April.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/1/0/5/105526051f277258f90ba2c41131271bb5ca1be1.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/539",
+      "sha256": "ee3b2705afa31ab7c21bf0a132a5dbfc804d6b676764de3858b7c5a2545f5c29",
+      "width": 250,
+      "height": 158,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0432.png",
+          "sha256": "31a3e194331dbad2eca4d73f0e4a19ddf063a9ef64bf18b762f14dc91db1be6b",
+          "source_dimensions": [
+            250,
+            158
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0433",
+      "name": "Bank of America AQHA Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Issuer-authored AQHA banking advertisement explicitly identifies BankAmericard Cash Rewards Visa Signature; the horse artwork is an affinity variant, not a separate rewards family. Current AQHA page blocked (403); evidence is historical BofA advertisement in AQHA publication mirrored externally.",
+      "research_urls": [
+        "https://www.aqha.com/bank-of-america",
+        "https://jmoneyhorses.com/uploads/3/5/7/8/35786956/americashorsemay2015.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/e/5/d/e5de8d157fe566a405dd4f5b613b37646610ca03.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/539",
+      "sha256": "a61ddb46657c1e4a70984fb73033402e72872c2a19554db154b7e34b90b5fed4",
+      "width": 250,
+      "height": 158,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0433.png",
+          "sha256": "3f62644aa9c0a561b4141a3e91c32092edf38bf5b0fe74352530aef6adf01914",
+          "source_dimensions": [
+            250,
+            158
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0434",
+      "name": "Bank of America CTA Customized Cash Rewards Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. CTA official member-benefits site explicitly names CTA Customized Cash Rewards Credit Card. Map as affinity artwork of existing CCR family.",
+      "research_urls": [
+        "https://www.ctamemberbenefits.org/Financial-Services/Credit-Card",
+        "https://www.ctamemberbenefits.org/en"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/3/1/0/31033898de6d9ec7a9bad967fae71f2dbfb73c81.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/539",
+      "sha256": "637168cdbeccf799cc637af2dc94e5ea0a551a92ab65e520bb70406ac47b0a92",
+      "width": 250,
+      "height": 158,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0434.png",
+          "sha256": "0e94108c7a80019cb16970ca574622a265275e9137fb3d7fe9b41db26928695e",
+          "source_dimensions": [
+            250,
+            158
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0435",
+      "name": "Chase World of Hyatt Business",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/hyatt_biz",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [
+        "https://world.hyatt.com/content/gp/en/rewards/hyatt-credit-card.html"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/0/b/d0bce031fe61f6742737619ee522053324b4dfef.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/540",
+      "sha256": "0b059b2efe2dd9fdad919829ceb05e1475d5c2fb618923a30ce7f3202e1330c2",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/hyatt_biz",
+          "path": "card_templates/chase/hyatt_biz/forum_img_0435.png",
+          "sha256": "6b4818a75a9ec51cd7b44585dfcba61a434105dd1161cdf772ac1a149acfc125",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "chase/hyatt_biz",
+          "path": "card_templates/chase/hyatt_biz/card.png",
+          "sha256": "6b4818a75a9ec51cd7b44585dfcba61a434105dd1161cdf772ac1a149acfc125",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0448",
+      "name": "Hawaiian Airlines Bank of Hawaii World Elite Mastercard coastal design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "barclays/hawaiian_airlines",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [
+        "https://newsroom.hawaiianairlines.com/releases/barclays-renews-long-standing-partnership-with-hawaiian-airlines",
+        "https://www.hawaiianairlines.com/hawaiianmiles2/credit-card"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/3/6/6/366aee1c73949d2c76deeaf7a825102526ffc680.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/557",
+      "sha256": "e6f5baa7a61a8ad9f235fce6bb7c43f3baa4a2844980f733628a513693aaaa20",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "barclays/hawaiian_airlines",
+          "path": "card_templates/barclays/hawaiian_airlines/forum_img_0448.png",
+          "sha256": "d96c86b77dc4d7c9b943bdcb7f2b12a2f16e3beecd1592944abb0c88b0432743",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "barclays/hawaiian_airlines",
+          "path": "card_templates/barclays/hawaiian_airlines/card.png",
+          "sha256": "d96c86b77dc4d7c9b943bdcb7f2b12a2f16e3beecd1592944abb0c88b0432743",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0455",
+      "name": "Discover retro black design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean retro Discover design visually matches existing shared Discover art at higher resolution (1536x969 versus 1380x870). Source does not identify underlying Discover product, so avoid guessing Cash Back versus another sibling. Offered only as a generic optional Discover cover; no product terms inferred.",
+      "research_urls": [
+        "https://www.discover.com/credit-cards/"
+      ],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/discover/it_cash_back/old.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/e/8/2/e8271a7f9708167f16d8d60c5286bc9acb90f4b9.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/561",
+      "sha256": "fbec361b5d746affc6174d8c4a1d4261dd7db6004e1c6224c37f3f95254be053",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/old.jpeg",
+          "sha256": "fbec361b5d746affc6174d8c4a1d4261dd7db6004e1c6224c37f3f95254be053",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/discover/it_cash_back/old/before_forum_img_0455.jpeg",
+          "archived_sha256": "55a2c72c2ecfffb61f0767ccacc29fbf7c00e8eb8a769bacd2b221cd4b270f77"
+        }
+      ]
+    },
+    {
+      "id": "img-0456",
+      "name": "Chase Ritz-Carlton Visa Infinite",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Ritz-Carlton has its own Chase card and rewards agreement. It is not Marriott Boundless/Bold artwork despite product-change eligibility; exact Ritz template absent.",
+      "research_urls": [
+        "https://www.chase.com/personal/credit-cards/ritz-carlton-routable",
+        "https://marriott.chase.com/ritz-carlton",
+        "https://asset.chase.com/content/dam/card/rulesregulations/en/RPA0476_Web.pdf"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/0/4/1/041ca3b3f1efe178a4772543f7deaaecc696ee69.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/562",
+      "sha256": "5f0c97355b2a79379ed902bf7135bae08219d75088d677edcd02d52b6dd3a0ce",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "chase/ritz_carlton",
+      "outputs": [
+        {
+          "template": "chase/ritz_carlton",
+          "path": "card_templates/chase/ritz_carlton/card.png",
+          "sha256": "5048b1f2be7d7edab238dff7f28d699edc46c0840b82525ea590eeb45bd5935b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0499",
+      "name": "US Bank Kroger Rewards World Elite Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/kroger_123",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/usbank/kroger_123/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/9/8/2/982104bc62701869e8ffe951a5cf1da4fb2f39d8.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/587",
+      "sha256": "648957d486e38d5e69c89a27a0ebeb0b6a70eda674f5fbaff94564800cc92487",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/kroger_123",
+          "path": "card_templates/usbank/kroger_123/card.jpeg",
+          "sha256": "648957d486e38d5e69c89a27a0ebeb0b6a70eda674f5fbaff94564800cc92487",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/usbank/kroger_123/old/before_forum_img_0499.jpeg",
+          "archived_sha256": "6a895928d9463abec5bafc83dcdf1adbd7098d90efaefda0af9057ced909605b"
+        }
+      ]
+    },
+    {
+      "id": "img-0505",
+      "name": "Navy Federal Visa Signature Flagship Rewards",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Navy Federal Visa Signature Flagship Rewards: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.navyfederal.org/content/dam/nfculibs/pdfs/credit-debit-cards/flagship_brochure.pdf"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/b/2/6b239c82775fc06635a076f16cb2c56203d57111.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/591",
+      "sha256": "b4b2ca32d12f1a306305e4ec7b15db70aa1e7b986c5f96eb7b7d9714e72f8b46",
+      "width": 1199,
+      "height": 761,
+      "proposed_product_key": "navyfederal/flagship_rewards",
+      "outputs": [
+        {
+          "template": "navyfederal/flagship_rewards",
+          "path": "card_templates/navyfederal/flagship_rewards/card.png",
+          "sha256": "03bccc36866e387618258905b3c81bc427ecfb176040f5c8247e3d1837e56a93",
+          "source_dimensions": [
+            1199,
+            761
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0507",
+      "name": "American Express Delta SkyMiles Platinum Business",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_plat_biz",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/delta_plat_biz/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/amexdeltaplatinumbus.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/592",
+      "sha256": "783932f19dd877c7d2b5469277cd3133813762333deff09ee96b6487305e0270",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_plat_biz",
+          "path": "card_templates/amex/delta_plat_biz/card.jpeg",
+          "sha256": "a9521233bb181185593f3fa8882b38dab6ea993e60bceefe9b14726b35033ea9",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_plat_biz/old/before_forum_img_0507.jpeg",
+          "archived_sha256": "a56fc78a0f961e51f052ce2fe47af218f59172505df8b044d923e6c02c8f8659"
+        }
+      ]
+    },
+    {
+      "id": "img-0509",
+      "name": "US Bank Business Altitude Connect",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/biz_altitude_connect",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/b/a/4/ba46452643287ce95c3d53aef4b27abe86fbca06.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/599",
+      "sha256": "de92de81b50b995cbeaac14e50ff0da7f3aed67040fa2e9461d9f149cc0c5c9b",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/biz_altitude_connect",
+          "path": "card_templates/usbank/biz_altitude_connect/forum_img_0509.png",
+          "sha256": "8dee384e1029fc9c6ed84e655b33c4c1243600759bdfdb247bc72615105e4e27",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0510",
+      "name": "US Bank Triple Cash Rewards Business",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "usbank/biz_triple_cash",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/usbank/biz_triple_cash/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/usbtriplecash.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/599",
+      "sha256": "32885d0356011483ce4f382a9ae0f75a856a89bdf1e214c54b732a98876e3353",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "usbank/biz_triple_cash",
+          "path": "card_templates/usbank/biz_triple_cash/card.jpeg",
+          "sha256": "275608fa3ff5e10115bb0c5f32fbcd3659a683d65a44ebc55baaf75fcbe3d67c",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/usbank/biz_triple_cash/old/before_forum_img_0510.jpeg",
+          "archived_sha256": "79568af4a362409daf840cc3584c2959ef6100456a98850a9cb797f968b42ff1"
+        }
+      ]
+    },
+    {
+      "id": "img-0531",
+      "name": "Chase Sapphire Reserve Business",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/sapphire_reserve_biz",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/chase/sapphire_reserve_biz/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/f/d/b/fdb97530846c847633a332a8d428edb6a368ffa8.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/627",
+      "sha256": "f0be65d71ee625845e1372c642b42c7dd44623cde20114c75416328633396349",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/sapphire_reserve_biz",
+          "path": "card_templates/chase/sapphire_reserve_biz/card.jpeg",
+          "sha256": "f0be65d71ee625845e1372c642b42c7dd44623cde20114c75416328633396349",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/chase/sapphire_reserve_biz/old/before_forum_img_0531.jpeg",
+          "archived_sha256": "fe613ff0f3db5c259514acaedf76c925b0f8396018c3ed3f0028b8c1f36e1df9"
+        }
+      ]
+    },
+    {
+      "id": "img-0535",
+      "name": "Citi Strata",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/strata",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/citi/strata/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/9/0/690eb1424765b5e42e2e8951c587b5188733dd9d.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/630",
+      "sha256": "e494063c9022f9359bd31e70b3d3c7edd7323fbe400785855a48b03d08c9e26e",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/strata",
+          "path": "card_templates/citi/strata/card.jpeg",
+          "sha256": "e494063c9022f9359bd31e70b3d3c7edd7323fbe400785855a48b03d08c9e26e",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/citi/strata/old/before_forum_img_0535.jpeg",
+          "archived_sha256": "e4ce034553f377530a97af44d7ed53d2e1d293012b5cdc1261c8627e322b5f1a"
+        }
+      ]
+    },
+    {
+      "id": "img-0537",
+      "name": "Citi Double Cash",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "citi/double_cash",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/citi/double_cash/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/citidoublecash.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/633",
+      "sha256": "ca3937530d7fab5fd75c66d704c17cc844ac0836e95e8f4424a8ce76756e253e",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "citi/double_cash",
+          "path": "card_templates/citi/double_cash/card.jpeg",
+          "sha256": "ba785c1d949d4b09bfca7ca5c3472d5e61af6cb0e8a155dfddcb1afb447c0de3",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/citi/double_cash/old/before_forum_img_0537.jpeg",
+          "archived_sha256": "eb691091c6e41d60e16f361de049fc54e737d6f7c9f54d072ee934c2b625f45d"
+        }
+      ]
+    },
+    {
+      "id": "img-0538",
+      "name": "Bank of America Atmos Rewards Summit",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/atmos_summit",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/boa/atmos_summit/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/d/a/b/dabc3c8e22f88d250282383d6769dac095d0801a.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/634",
+      "sha256": "e2795effc68683daffc6e414c493cea5b908e4204e762c1410fc984707878a71",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/atmos_summit",
+          "path": "card_templates/boa/atmos_summit/card.jpeg",
+          "sha256": "e2795effc68683daffc6e414c493cea5b908e4204e762c1410fc984707878a71",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/boa/atmos_summit/old/before_forum_img_0538.jpeg",
+          "archived_sha256": "d76baf1dcaa8b2023effec55320b385c4012f00fbe476a4a1739aaa87d685865"
+        }
+      ]
+    },
+    {
+      "id": "img-0548",
+      "name": "Bank of America Atmos Rewards Ascent",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/atmos_ascent",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/boa/atmos_ascent/card.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/8/3/1/831f5bf2cc999c235d286dc620f8c34eb5b27727.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/654",
+      "sha256": "6318ded7ab95d0e783dbbc122bcd960c4d3ded496d6f8ba8ae0515f736fd5288",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/atmos_ascent",
+          "path": "card_templates/boa/atmos_ascent/card.jpeg",
+          "sha256": "6318ded7ab95d0e783dbbc122bcd960c4d3ded496d6f8ba8ae0515f736fd5288",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/boa/atmos_ascent/old/before_forum_img_0548.jpeg",
+          "archived_sha256": "afa59046fa09e3c9fc3c8c1c6c3483994c950c03d21ba96a478d7e1ca52f1fb6"
+        }
+      ]
+    },
+    {
+      "id": "img-0553",
+      "name": "American Express Business Platinum mirror",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/biz_platinum",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "variant_upgrade",
+      "replace_path": "card_templates/amex/biz_platinum/mirror.jpeg",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/3/b/4/3b40b6db6124d30e4db689c2dd7f584afd4d1a95.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/668",
+      "sha256": "e435a02d6562e57d9cac86934fe0652118c53f6d965a3d0da2aff39703f101b5",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_platinum",
+          "path": "card_templates/amex/biz_platinum/mirror.jpeg",
+          "sha256": "e435a02d6562e57d9cac86934fe0652118c53f6d965a3d0da2aff39703f101b5",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/biz_platinum/old/before_forum_img_0553.jpeg",
+          "archived_sha256": "ab38edaccba5ba74590c0fdcc283bf16285201eba7ddaddffc4b2b4dd4270e57"
+        }
+      ]
+    },
+    {
+      "id": "img-0554",
+      "name": "Bank of America Air France KLM World Elite Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Air France KLM/Flying Blue is a distinct Bank of America airline card absent from catalog; Mastercard and Visa art are historical/current network variants of this co-brand, not Travel Rewards or Customized Cash Rewards. Group together for a new Air France KLM product if later authorized.",
+      "research_urls": [
+        "https://newsroom.mastercard.com/news/press/2018/air-france-klm-and-bank-of-america-announce-air-france-klm-world-elite-mastercard/",
+        "https://www.bankofamerica.com/credit-cards/products/air-france-credit-card/",
+        "https://wwws.airfrance.us/information/flyingblue/carte-bancaire-partenaire"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/0/6/c/06cf68ce6022ec34a7ab234c0602f985a869e9c6.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/671",
+      "sha256": "25789367b4af19ab1600713c8d948c8f7ae2cdf4fe30276cc5eab7e368fa49d8",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "boa/flying_blue",
+      "outputs": [
+        {
+          "template": "boa/flying_blue",
+          "path": "card_templates/boa/flying_blue/forum_img_0554.png",
+          "sha256": "3443bebc6b522159e25dd26d8bc8f11c8530c24d352db13b645a3007e02e81e8",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0559",
+      "name": "American Express Business Gold white gold",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/biz_gold",
+      "decision": "candidate",
+      "reason": "Clean Business Gold white-gold variant. BUSINESS branding distinguishes it from existing personal Gold white-gold art.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/olaf/amexbizwhitegold.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/676",
+      "sha256": "1fa20b81f2839575221cf6c551e53b7a9f9ec0b46283359c1d99bb0f73561ac7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/biz_gold",
+          "path": "card_templates/amex/biz_gold/forum_img_0559.png",
+          "sha256": "b8080b08fe509578ade44d48d7a6f893a26368be5f74c9430c0f37dfcacb1d04",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0571",
+      "name": "American Express Delta SkyMiles Reserve",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_reserve",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/delta_reserve/card.jpeg",
+      "source_url": "https://u.cubeupload.com/waleyz/7.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/691",
+      "sha256": "41a34596b875799266ad5a594a991a188f8dd255677d0561e308f7a50fb70af7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_reserve",
+          "path": "card_templates/amex/delta_reserve/card.jpeg",
+          "sha256": "9e3b64a279354079e6b2863048ea156a4683f8b2091b2bd9ee0c14ee4dd58498",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_reserve/old/before_forum_img_0571.jpeg",
+          "archived_sha256": "19810686a7a0ffb635b5dff303dd8b946259c295ff8d012c2211921a10b35b69"
+        }
+      ]
+    },
+    {
+      "id": "img-0577",
+      "name": "American Express Delta SkyMiles Gold Business",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_gold_biz",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/amex/delta_gold_biz/card.jpeg",
+      "source_url": "https://u.cubeupload.com/olaf/amexdeltagoldbiz.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/692",
+      "sha256": "2abc15d60430dc2ac0cb57d5a727eb5ae21249ffbb0059d219d7c47064ccd5b3",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_gold_biz",
+          "path": "card_templates/amex/delta_gold_biz/card.jpeg",
+          "sha256": "34642e6aa6267fe9213aed81a831b4e0437ea8b9d60f777f463af41b1c11648b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/amex/delta_gold_biz/old/before_forum_img_0577.jpeg",
+          "archived_sha256": "2487a0c3ab3037021ba1985d339e594d39f6ea4f3ce1bb94853f6e81cb27f8a9"
+        }
+      ]
+    },
+    {
+      "id": "img-0578",
+      "name": "Barclays JetBlue Business Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "barclays/jetblue_biz",
+      "decision": "candidate",
+      "reason": "Clean Business-specific JetBlue design; BUSINESS label visible. Existing JetBlue personal art is not interchangeable.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://u.cubeupload.com/olaf/barclaysjetbluebiz.png",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/692",
+      "sha256": "9f2daaaefca0e875bd1c6d9aa36ea691f250368423703cdba0a60f686d1fa0a8",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "barclays/jetblue_biz",
+          "path": "card_templates/barclays/jetblue_biz/forum_img_0578.png",
+          "sha256": "893cd3079bb09b0851ec2be246d9e0f7d4ad8d83d50f73b20f42780c94b3d797",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "barclays/jetblue_biz",
+          "path": "card_templates/barclays/jetblue_biz/card.png",
+          "sha256": "893cd3079bb09b0851ec2be246d9e0f7d4ad8d83d50f73b20f42780c94b3d797",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0579",
+      "name": "Discover it Miles blue",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_miles",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/8/d/68d511b7612213b1f85442d32fec77eacf32e394.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/693",
+      "sha256": "237865ed98a0efaa6dd5227fa825f5a6d8ddf3521ade82200b29dee7135345d9",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_miles",
+          "path": "card_templates/discover/it_miles/forum_img_0579.png",
+          "sha256": "3f5815dd5f799c4bb346fd381f108661c93b293c7e4ed5d70209c59a541e26c0",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0580",
+      "name": "Bank of America George Washington University affinity Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. GW official alumni magazine contains issuer advertisement naming BankAmericard Cash Rewards for George Washington Alumni Association. Historical affinity artwork maps to Cash Rewards family.",
+      "research_urls": [
+        "https://alumni.gwu.edu/perks",
+        "https://magazine.gwu.edu/sites/g/files/zaxdzs4251/files/2023-05/summer2013gwmag_web.pdf"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/7/8/1/78190b643d4f64bef22cbfe4d23c9dfeba1652ca.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/697",
+      "sha256": "1f6b0b1ef66105565ec44f3373936e480dfc5a16a9baabee128e854f30f3127b",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0580.png",
+          "sha256": "d6fd651c744617c7ca9794dc2d58375dcf46dfe4c1fa2ec4ef077dd85e26ca13",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0598",
+      "name": "Bank of America Columbia Alumni Customized Cash Rewards Visa",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "boa/customized_cash",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Columbia official benefits page identifies the BofA-issued alumni card and links issuer application. Historical university source identifies cash rewards; artwork is Columbia affinity Cash Rewards. Map family while retaining affinity identity.",
+      "research_urls": [
+        "https://www.alumni.columbia.edu/benefits",
+        "https://bpr.alumni.columbia.edu/alumni_benefits"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/a/b/6ab0fbe3198cd4e182dddbebee81d7f5d6fdfb51.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/724",
+      "sha256": "9bcdef36f6c8c4f4a285f324b6c42d1ed6f06886667c002a60048e8cc9153088",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "boa/customized_cash",
+          "path": "card_templates/boa/customized_cash/forum_img_0598.png",
+          "sha256": "3a6ee9761d4b514ee93bc885ffe182d6dcb5303654dde249ca69ce5621ba3d06",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0600",
+      "name": "Wells Fargo Autograph",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "wellsfargo/autograph",
+      "decision": "candidate",
+      "reason": "Visually verified same product/design as existing art, but 1536x969 source improves on smaller existing raster; quality-upgrade candidate.",
+      "research_urls": [],
+      "action": "upgrade",
+      "replace_path": "card_templates/wellsfargo/autograph/card.png",
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/f/b/2/fb2efd5e26c0e209e22d073d3e244fa689247038.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/726",
+      "sha256": "2c04fc65cb29aa1c340ba4a1ea09798229abe9a74812da39bf816e655f3df554",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "wellsfargo/autograph",
+          "path": "card_templates/wellsfargo/autograph/card.png",
+          "sha256": "329ea07e4e7ae92a612ef21d5a199bd0c9c65a53ed2ba4ed12c03a6d987d9156",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": "card_templates/wellsfargo/autograph/old/before_forum_img_0600.png",
+          "archived_sha256": "f5493f00b990fe7921922ead2a4538e6737ee7b9c6fef1c1be45ef54ad0bf063"
+        }
+      ]
+    },
+    {
+      "id": "img-0603",
+      "name": "Stanford FCU Athletics Fan Rewards Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Stanford FCU Athletics Fan Rewards Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.sfcu.org/cards/stanford-athletics-credit-card"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/e/5/9/e59c16b1df2792c9d0cd8ea9945d089967339858.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/736",
+      "sha256": "0ec61bed2e5e1b36f60257b52b5af0ed90542be524ea00f2789c98917c578449",
+      "width": 800,
+      "height": 500,
+      "proposed_product_key": "stanfordfcu/athletics_rewards",
+      "outputs": [
+        {
+          "template": "stanfordfcu/athletics_rewards",
+          "path": "card_templates/stanfordfcu/athletics_rewards/card.png",
+          "sha256": "8eafac89e2129689720867a2ca02c348b8a80a3e7c2c217a3d9494a9514da03a",
+          "source_dimensions": [
+            800,
+            500
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0604",
+      "name": "Stanford FCU Alumni Rewards Visa Signature campus design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Stanford FCU Alumni Rewards Visa Signature campus design: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.sfcu.org/cards/alumni-credit-card"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/4/b/d/4bdb8704d6bf8acdb684f0861b6b2649277d16b6.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/736",
+      "sha256": "a84ebb7a6919860ddca97893de6c3492344a7b79f5e492c8496bad3cb30478e3",
+      "width": 800,
+      "height": 500,
+      "proposed_product_key": "stanfordfcu/alumni_rewards",
+      "outputs": [
+        {
+          "template": "stanfordfcu/alumni_rewards",
+          "path": "card_templates/stanfordfcu/alumni_rewards/forum_img_0604.png",
+          "sha256": "bead297b58fc90def78692e24794102650fb7161d2d6b3b1130832ce92fa08e5",
+          "source_dimensions": [
+            800,
+            500
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0605",
+      "name": "Stanford FCU Alumni Rewards Visa Signature block S design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Stanford FCU Alumni Rewards Visa Signature block S design: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.sfcu.org/cards/alumni-credit-card"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/6/f/c/6fc26460e82a0fad36e55e6574bf812205da7b8d.webp",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/736",
+      "sha256": "560c8ed0c17ab8a7dbf3ec2af46aad0be041b589dd5ab21060f5cba77c11ac85",
+      "width": 800,
+      "height": 500,
+      "proposed_product_key": "stanfordfcu/alumni_rewards",
+      "outputs": [
+        {
+          "template": "stanfordfcu/alumni_rewards",
+          "path": "card_templates/stanfordfcu/alumni_rewards/card.png",
+          "sha256": "65b9f9bf41361ea78fe61104367a7882de43ac0f6c202e89274856b725fde322",
+          "source_dimensions": [
+            800,
+            500
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0608",
+      "name": "Bank of America Air France KLM Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Air France KLM/Flying Blue is a distinct Bank of America airline card absent from catalog; Mastercard and Visa art are historical/current network variants of this co-brand, not Travel Rewards or Customized Cash Rewards. Group together for a new Air France KLM product if later authorized.",
+      "research_urls": [
+        "https://www.bankofamerica.com/credit-cards/credit-card-agreements/",
+        "https://www.flyingblue.us/en/earn/partners/financial-services-bank-of-america",
+        "https://www.bankofamerica.com/credit-cards/products/air-france-credit-card/",
+        "https://wwws.airfrance.us/information/flyingblue/carte-bancaire-partenaire",
+        "https://newsroom.mastercard.com/news/press/2018/air-france-klm-and-bank-of-america-announce-air-france-klm-world-elite-mastercard/"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/a/1/0/a104af2aa39cab2fc6abe3afecb0eb07a40d3265.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/745",
+      "sha256": "a3db22c26eaed934095c10fa409d90376aaefa619c2b0ec8b03fb08992b1c2d4",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "boa/flying_blue",
+      "outputs": [
+        {
+          "template": "boa/flying_blue",
+          "path": "card_templates/boa/flying_blue/card.png",
+          "sha256": "08640118628b5558161f70703be44cf897f6b5519993a1903342a8ef7a73e629",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0611",
+      "name": "Discover NHL Nashville Predators",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Clean Nashville Predators Discover NHL affinity art. Exact underlying Discover credit product is not specified; avoid assigning it Cash Back merely from family similarity. Offered only as a generic optional Discover cover; no product terms inferred.",
+      "research_urls": [
+        "https://www.discover.com/credit-cards/"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/7/7/4/774512a8d27c93c99012a461d221fff98ff23450.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/759",
+      "sha256": "4af038a2be355cdde7be649589be44c77dd5c75b8ea922f781c18cee89fafe4c",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0611.png",
+          "sha256": "bfd45bef447b9c4fa98f21bd7a5c0718a3ebfc0fa387be4542cd49c382e565e1",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0620",
+      "name": "Navy Federal cashRewards Plus Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context. Navy Federal cashRewards Plus Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.navyfederal.org/loans-cards/credit-cards/cash-rewards.html"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/e/7/f/e7fd0cfa207e5a1c6bcbca65775a7869c48c21e1.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/763",
+      "sha256": "7df16cfe4b01243f236a5adeb238464d49d61df2bcbf6d38103952fd6da99a11",
+      "width": 1573,
+      "height": 1000,
+      "proposed_product_key": "navyfederal/cash_rewards_plus",
+      "outputs": [
+        {
+          "template": "navyfederal/cash_rewards_plus",
+          "path": "card_templates/navyfederal/cash_rewards_plus/card.png",
+          "sha256": "0b04b5c9fe27e72cecbe70b251afd04e647ca811fb114d8d77c92ab518b67b20",
+          "source_dimensions": [
+            1573,
+            1000
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0621",
+      "name": "Chase Prime Visa blue",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "chase/amazon_prime",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/9/f/a/9fa219962e81e2ac183330153fa67710ee237d38.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/763",
+      "sha256": "e0fe58cb509a74bad63cb936834f95d612a29b1146a646248d83f8485ad3e8c6",
+      "width": 1573,
+      "height": 1000,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "chase/amazon_prime",
+          "path": "card_templates/chase/amazon_prime/forum_img_0621.png",
+          "sha256": "1db3a5ae6f225d052c5b55592fc07ca98707f0da11e2fe37ae1bf34959a6f2b1",
+          "source_dimensions": [
+            1573,
+            1000
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0622",
+      "name": "Capital One Savor Mastercard",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "capitalone/savor",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/9/d/e/9defbc4b5f4aadee10e0ec8d7fdc4b22b2e8ebe6.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/763",
+      "sha256": "cf6a0d79c8b5e67bc4b89eb0f86b435230644af3fd922fbdd644a77dd7518b53",
+      "width": 1573,
+      "height": 1000,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "capitalone/savor",
+          "path": "card_templates/capitalone/savor/forum_img_0622.png",
+          "sha256": "7b8253221e83b19519374ad9d39e8b77a0b7b2380d8ef4f636737057e763f7f6",
+          "source_dimensions": [
+            1573,
+            1000
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0623",
+      "name": "American Express Marriott Bonvoy Bevy",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/marriott_bevy",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/f/d/e/fdeb7f62acc244d222befd22e9c8a25947cd5449.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/764",
+      "sha256": "4c940cd57cd3db501ed6961c8b2f9decbd47d29a534b24ab52ba5ed9ec43b8f0",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/marriott_bevy",
+          "path": "card_templates/amex/marriott_bevy/forum_img_0623.png",
+          "sha256": "cc3b2e2c6347e2ea86eb7e803aeb3f19482d42e26d038fee06287a0f61b5a91b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        },
+        {
+          "template": "amex/marriott_bevy",
+          "path": "card_templates/amex/marriott_bevy/card.png",
+          "sha256": "cc3b2e2c6347e2ea86eb7e803aeb3f19482d42e26d038fee06287a0f61b5a91b",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null,
+          "role": "default_if_missing"
+        }
+      ]
+    },
+    {
+      "id": "img-0625",
+      "name": "American Express Delta SkyMiles Gold new design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "amex/delta_gold",
+      "decision": "candidate",
+      "reason": "Clean bare card face; product identified by printed branding and source post context.",
+      "research_urls": [],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/5/a/4/5a49d0f61c89432385c0d951c1df291b34a8559a.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/766",
+      "sha256": "b7e99e5f4407c50a4f9bcf8a233deac931bed655cee87c735e5613b7c478b6dc",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "amex/delta_gold",
+          "path": "card_templates/amex/delta_gold/forum_img_0625.png",
+          "sha256": "9b83273cdbcc2fac1096b41cb7642288f4e4e0ddf7381c484540d82cd0888aa9",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0630",
+      "name": "Affinity Cash Rewards Visa Signature",
+      "scope": "us_credit",
+      "clean": true,
+      "template": null,
+      "decision": "candidate",
+      "reason": "Affinity Federal Credit Union credit card; clean eagle design. New catalog product requires a researched template after approval. Affinity Cash Rewards Visa Signature: no exact existing catalog product template found. Retain as distinct product; do not map based on shared issuer, network, or similar artwork.",
+      "research_urls": [
+        "https://www.affinityfcu.com/personal-banking/banking/credit-card/cash-rewards-visa"
+      ],
+      "action": "new_product",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/7/a/4/7a4fcba858886bddb09f43239b0ad8efa0183955.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/776",
+      "sha256": "87dcb15e9a09ab1da8a5f1a8d03963279d22fb677d7ec4f71e09fc20fe8ce3e7",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": "affinity/cash_rewards",
+      "outputs": [
+        {
+          "template": "affinity/cash_rewards",
+          "path": "card_templates/affinity/cash_rewards/card.png",
+          "sha256": "c8fead41a21866e3dad699c0b2a2153d54c9a8b81ed55740303ac7bd9bb6ff01",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    },
+    {
+      "id": "img-0632",
+      "name": "Discover — American flag design",
+      "scope": "us_credit",
+      "clean": true,
+      "template": "discover/it_cash_back",
+      "decision": "candidate",
+      "reason": "Generic Discover design, not a separate rewards product. Approve as optional artwork; check sibling applicability during implementation.",
+      "research_urls": [
+        "https://www.flickr.com/photos/discovercard/4728574940"
+      ],
+      "action": "add_variant",
+      "replace_path": null,
+      "source_url": "https://asset-cdn.uscardforum.com/original/4X/9/1/0/9100ed785a50c3bc34dd7078bf959fb7a17d0a65.jpeg",
+      "post_url": "https://www.uscardforum.com/t/topic/29408/779",
+      "sha256": "3e191e3aab1673b50128431e5cbe068b5eaceaa57ab6c07441fcd49c7bc72a00",
+      "width": 1536,
+      "height": 969,
+      "proposed_product_key": null,
+      "outputs": [
+        {
+          "template": "discover/it_cash_back",
+          "path": "card_templates/discover/it_cash_back/forum_img_0632.png",
+          "sha256": "113ee0ee100f3d94ac6556c58c1c828526d8a8bedda799bf9a8a8a13d7b55dfa",
+          "source_dimensions": [
+            1536,
+            969
+          ],
+          "archived_path": null,
+          "archived_sha256": null
+        }
+      ]
+    }
+  ]
+}

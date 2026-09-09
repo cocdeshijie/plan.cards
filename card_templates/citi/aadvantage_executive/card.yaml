@@ -1,9 +1,11 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.citi.com/credit-cards/citi-aadvantage-executive-world-legend-mastercard
 name: Citi / AAdvantage Executive World Legend Mastercard
 issuer: Citi
 network: Mastercard
 annual_fee: 695
 currency: USD
-version_id: citi_aadvantage_executive_2026_1
+version_id: citi_aadvantage_executive_2026_2
 
 benefits:
   credits:
@@ -15,11 +17,6 @@ benefits:
     - key: lyft_credit
       name: Lyft Credit
       amount: 15
-      frequency: monthly
-      reset_type: calendar
-    - key: grubhub_credit
-      name: Grubhub Credit
-      amount: 10
       frequency: monthly
       reset_type: calendar
     - key: avis_budget_credit
@@ -41,23 +38,24 @@ benefits:
   bonus_categories:
     - category: American Airlines Purchases
       multiplier: 4x
-    - category: Restaurants / Gas
-      multiplier: 2x
+    - category: Eligible AAdvantage Hotels & AAdvantage Cars Bookings
+      multiplier: 12x
+      portal_only: true
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  August 23, 2026 refresh. Annual fee increased $595 -> $695 and the card moved
-  from the World Elite to the World Legend Mastercard tier. Existing cardholders
-  get the new benefits immediately and the higher fee at their next anniversary;
-  they can stay on old/card_citi_aadvantage_executive_2020_1.yaml until then.
-  The Avis/Budget, Lyft and Grubhub credits are not new — they predate the
-  refresh and were simply missing from this template.
-  Admirals Club membership included.
-  Checked bag free for cardholder + up to 8 companions on same reservation.
-  Preferred boarding.
-  Concierge service.
-  No foreign transaction fee.
+  Current World Legend offer. Existing accounts follow their renewal notices.
+  Admirals Club membership; first checked bag free for the primary cardholder
+  and up to eight companions on the same domestic American Airlines itinerary.
+  Lyft credit requires three eligible rides in a calendar month.
+  Avis/Budget credit requires eligible prepaid rentals booked directly.
+  AA Vacations credit is limited to $250 each calendar half-year.
+  Grubhub is not a benefit of the current new-card offer; legacy eligibility
+  must be checked against the individual account notice.
+  Omni Hotels Champion status requires enrollment.
+  Global Entry/TSA PreCheck credit up to $120 every four years.
+  No foreign transaction fees.
 
 tags:
   - airline

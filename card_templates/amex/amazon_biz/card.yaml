@@ -1,9 +1,13 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.americanexpress.com/us/customer-service/faq.amazon-program-update.html
 name: Amazon Business Prime American Express Card
 issuer: Amex
 network: Amex
 annual_fee: 0
 currency: USD
-version_id: amex_amazon_biz_2020_1
+status: discontinued
+status_date: 2026-08-14
+version_id: amex_amazon_biz_2026_1
 
 benefits:
   bonus_categories:
@@ -20,6 +24,9 @@ benefits:
       multiplier: 1%
 
 notes: |
+  Legacy Amex program replaced by U.S. Bank on August 14, 2026.
+  Historical benefits retained for tracking; see usbank/amazon_prime_biz for
+  the successor card. Individual non-transferred accounts follow Amex notices.
   Requires eligible Amazon Business Prime membership.
   90-day payment option on Amazon purchases (forgo 5% back).
   No foreign transaction fees.

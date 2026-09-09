@@ -1,0 +1,35 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://card.ml.com/cms/published/root/rps/pdf/ADA_MERRILL_PLUS_2022_Guide.pdf
+# Source: https://www.doctorofcredit.com/merrill-card-discontinued-september-18-19-existing-cards-remain/
+name: MERRILL+ Visa Signature
+issuer: Bank of America
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: boa_merrill_plus_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Purchases (published legacy program)
+      multiplier: 1x
+  spend_thresholds:
+    - key: plus_level
+      name: MERRILL+ Plus Level
+      spend_required: 50000
+      frequency: annual
+      reset_type: calendar
+      description: 'Published 2022 program: qualify for Plus Level after $50,000 in net purchases
+        in a calendar year; enrollment is required for up to $200 in airline incidental credits. Check
+        the account guide for eligibility and benefit timing.'
+
+notes: |
+  Legacy card closed to new applications with a historically documented $0 annual fee. The
+  issuer’s 2022 guide describes 1 Merrill Point per dollar and eligible air rewards
+  starting at 25,000 points for a ticket up to $500 booked through the program. Plus Level
+  requires $50,000 in calendar-year purchases; its up-to-$200 airline incidental credit
+  requires enrollment and is conditional. Existing account terms control continued pricing
+  and benefits.
+
+tags:
+  - travel

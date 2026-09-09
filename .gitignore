@@ -37,3 +37,7 @@ Thumbs.db
 
 # Generated card-art review UIs (published as Artifacts; rebuild via tools/build_review.py)
 tools/card-art-review*.html
+
+# Local forum image crawl and independently hosted review site
+/work/forum-art-review/
+/work/forum-art-site/

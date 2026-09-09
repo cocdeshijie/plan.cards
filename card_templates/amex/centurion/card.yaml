@@ -1,0 +1,22 @@
+# Researched 2026-09-09. See docs/research/forum-new-amex.md.
+# Source: https://www.americanexpress.com/content/dam/amex/en-us/company/legal/cardmember-agreements/public-site-2025-q2-pdf-cmas/cps-charge/centurion-card-06-30-2025.pdf
+name: American Express Centurion Card
+issuer: Amex
+network: Amex
+annual_fee: 5000
+currency: USD
+version_id: amex_centurion_2026_1
+
+benefits: {}
+
+notes: |
+  U.S. personal Centurion, offered by invitation; not Business or Corporate Centurion. The
+  issuer agreement dated June 30, 2025 lists a separate $10,000 initiation fee. The $5,000
+  annual fee excludes that one-time charge. No precise invitation-spend threshold is
+  published here. Personalized and membership benefits require review of the cardholder
+  terms; no unverified recurring credits have been pre-populated.
+
+tags:
+  - premium
+  - travel
+  - invitation-only

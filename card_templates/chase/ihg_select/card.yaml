@@ -1,0 +1,31 @@
+# Historical rebate cap: https://frequentmiler.com/ihg-sweet-spot-dynamic-pricing-4th-night-free/
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.chase.com/personal/credit-cards/ihg/other-cards/other-ihg-cc
+# Source: https://thepointsguy.com/news/70k-points-ihg-rewards-club-select-card/
+# Source: https://static.chasecdn.com/content/dam/card/rulesregulations/en/RPA0449_Web.pdf
+name: Chase IHG One Rewards Select
+issuer: Chase
+network: Mastercard
+annual_fee: 49
+currency: USD
+version_id: chase_ihg_select_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: IHG Hotels & Resorts
+      multiplier: 5x
+    - category: Gas stations, grocery stores and restaurants
+      multiplier: 2x
+    - category: Other purchases
+      multiplier: 1x
+
+notes: |
+  Closed to new cardmembers. Historically documented annual fee is $49. Includes IHG
+  Platinum Elite status and an anniversary Free Night with a 40,000-point redemption cap.
+  Historical program also provides a 10% points-redemption rebate, up to 100,000 rebated
+  points per calendar year; consult the account benefit terms. No foreign transaction
+  fees. Historical IHG Rewards Club Select covers identify the same product.
+
+tags:
+  - travel
