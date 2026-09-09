@@ -1,0 +1,33 @@
+# Reviewed 2026-09-09. Source:
+# https://www.upgrade.com/credit-card/onecard-essentials/
+name: Upgrade OneCard Essentials
+issuer: Upgrade
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: upgrade_onecard_essentials_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Gas Stations & EV Charging
+      multiplier: 3%
+    - category: Groceries
+      multiplier: 3%
+    - category: Streaming & Monthly Subscriptions
+      multiplier: 3%
+    - category: Utilities
+      multiplier: 3%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Available by invitation only as of September 9, 2026.
+  The 3% categories exclude Target and Walmart. Rewards are unlimited.
+  Visa Signature card provided through Upgrade's bank partners.
+  Pay Now, Pay in 4, and Pay Over Time are planned enhancements; availability
+  is account-specific and these features are not promised at opening.
+
+tags:
+  - cashback
+  - groceries
+  - no-annual-fee

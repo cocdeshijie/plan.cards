@@ -1,0 +1,47 @@
+name: Robinhood Platinum Card
+issuer: Robinhood
+network: Visa
+annual_fee: 695
+currency: USD
+version_id: robinhood_platinum_2026_1
+
+benefits:
+  credits:
+    - name: DoorDash Credit
+      amount: 250
+      frequency: annual
+      reset_type: cardiversary
+    - name: Wearable Device Credit
+      amount: 200
+      frequency: annual
+      reset_type: cardiversary
+    - name: Autonomous Rides Credit
+      amount: 250
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Hotels & Rental Cars (Robinhood Travel)
+      multiplier: 10%
+      portal_only: true
+    - category: Flights (in-app)
+      multiplier: 5%
+      portal_only: true
+    - category: Dining
+      multiplier: 5%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Announced 2026 at Robinhood's "Take Flight" event; invite-only / waitlist
+  rollout. Issued by Coastal Community Bank. Premium tier above the $0 Robinhood
+  Gold Card; includes Gold membership.
+  Priority Pass lounge access; DashPass; One Medical, Function Health, and Oura
+  memberships. Benefit amounts and structure based on launch reporting and may
+  change — verify against Robinhood's published terms.
+  No foreign transaction fees.
+
+tags:
+  - travel
+  - dining
+  - premium
+  - lounge-access

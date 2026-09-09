@@ -1,24 +1,30 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.bilt.com/terms/bilt-card-offer-terms
+# https://support.biltrewards.com/hc/en-us/articles/42897766682381-Bilt-Card-2-0-Program-Overview
 name: Bilt Blue Card
 issuer: Bilt
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: bilt_blue_2026_1
+version_id: bilt_blue_2026_2
 
 benefits:
   bonus_categories:
-    - category: All Purchases
+    - category: Everyday Purchases (Excludes Housing)
       multiplier: 1x
-    - category: Everyday Spending (Bilt Cash)
+    - category: Everyday Spending (Flexible Bilt Cash Option Only)
       multiplier: 4%
 
 notes: |
-  1x on rent/mortgage (costs $30 Bilt Cash per $1,000 or 3% fee).
+  Housing payments have no transaction fee. Choose either Housing-only rewards
+  (up to 1.25x based on everyday spend relative to housing payments) or Flexible
+  Bilt Cash (4% Bilt Cash on everyday spend; redeem $30 for 1,000 housing points,
+  up to 1x). These options are mutually exclusive; Bilt Cash is not cash back.
   Points transfer to airline/hotel partners.
   Digital-first card (Cardless).
-  0% intro APR for 12 months.
   No foreign transaction fees.
   Issued by Column N.A.
 
 tags:
+  - transferable-points
   - no-annual-fee

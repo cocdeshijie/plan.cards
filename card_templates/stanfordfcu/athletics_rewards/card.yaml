@@ -1,0 +1,30 @@
+# Verified 2026-09-09. Sources:
+# https://www.sfcu.org/cards/stanford-athletics-credit-card
+name: Stanford FCU Athletics Fan Rewards Visa Signature
+issuer: Stanford Federal Credit Union
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: stanfordfcu_athletics_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon / Google / Apple / Stanford Athletics Fan Shop / Selected Stanford Dining /
+        Stanford Bookstore
+      multiplier: 3x
+      cap: 6000
+    - category: Other Dining / Groceries
+      multiplier: 2x
+      cap: 6000
+    - category: All Other Purchases / Purchases Above Category Limits
+      multiplier: 1x
+
+notes: |
+  Available to eligible Stanford fans; alumni status is not required. Credit union
+  membership and a US address are required. Each 3x and 2x category has a $6,000 annual
+  purchase limit, then earns 1x. No foreign transaction fee. Eligible Ambassador members
+  receive an additional 2% cash bonus, capped at $100 per month and $1,200 per year; that
+  relationship bonus is not assumed in the base earn rates.
+
+tags:
+  - rewards

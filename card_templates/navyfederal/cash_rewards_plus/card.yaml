@@ -1,0 +1,23 @@
+# Verified 2026-09-09. Sources:
+# https://www.navyfederal.org/loans-cards/credit-cards/cash-rewards.html
+# https://www.navyfederal.org/content/dam/nfculibs/pdfs/credit-debit-cards/nfcu_827.pdf
+name: Navy Federal cashRewards Plus Visa Signature
+issuer: Navy Federal Credit Union
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: navyfederal_cash_rewards_plus_2026_1
+
+benefits:
+  bonus_categories:
+    - category: All Eligible Purchases
+      multiplier: 2%
+
+notes: |
+  Navy Federal membership required. This is the cashRewards Plus Visa version, which earns
+  2%; the lower-tier cashRewards card is a separate product with a different earn rate.
+  Credit limits of $5,000 or more qualify for the Plus product. No foreign transaction
+  fee.
+
+tags:
+  - rewards

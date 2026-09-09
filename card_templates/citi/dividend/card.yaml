@@ -1,0 +1,29 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.citigroup.com/global/news/perspectives/2013/you-spoke-we-listened-1
+# Source: https://www.citi.com/credit-cards/view-all-credit-cards
+# Source: https://www.nerdwallet.com/credit-cards/learn/citi-dividend
+name: Citi Dividend Mastercard
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_dividend_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Activated quarterly categories (subject to account program limits)
+      multiplier: 5%
+    - category: All other purchases (shared annual cash-back limit)
+      multiplier: 1%
+
+notes: |
+  Legacy cash-back card closed to new applicants; historical annual fee is $0. Quarterly
+  5% categories require activation. Standard purchase cash back is limited to $300 per
+  calendar year, including both 5% category earnings and 1% other purchases. This is a
+  cash-back earnings limit, not a spending cap. Qualifying Bonus Cash Center bonus
+  earnings are excluded from that limit. Current categories and account-specific
+  redemption terms should be checked with Citi.
+
+tags:
+  - cashback

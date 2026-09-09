@@ -1,22 +1,28 @@
-name: Carnival World Mastercard
+# Reviewed 2026-09-09. Sources:
+# https://www.carnival.com/help?topicid=1152
+name: Carnival Rewards Mastercard
 issuer: Barclays
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: barclays_carnival_2020_1
+version_id: barclays_carnival_2026_1
 
 benefits:
   bonus_categories:
-    - category: Carnival Purchases
-      multiplier: 2x
-    - category: Dining, Groceries & Entertainment
+    - category: Eligible Carnival Purchases (Card Earnings)
+      multiplier: 3x
+    - category: Restaurants & Grocery Stores
       multiplier: 2x
     - category: All Other Purchases
       multiplier: 1x
 
 notes: |
-  0% promotional APR for 6 months on Carnival cruise bookings.
-  Earn FunPoints redeemable for Carnival cruises and onboard spending.
+  Carnival Rewards launched September 1, 2026; former FunPoints converted.
+  Card earns 3x on eligible Carnival purchases. Up to 3x additional points from
+  Carnival's loyalty program can bring the combined total to 6x; not a 6x card rate.
+  Earn one Status Qualifying Star per dollar of eligible card purchases, plus
+  applicable Carnival loyalty-program Stars. Rewards are tied to Carnival.
+  Existing account numbers remain unchanged when new designs are issued.
 
 tags:
   - no-annual-fee

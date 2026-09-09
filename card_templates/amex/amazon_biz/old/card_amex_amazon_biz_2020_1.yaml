@@ -1,0 +1,31 @@
+name: Amazon Business Prime American Express Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_amazon_biz_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon/Amazon Business/AWS/Whole Foods
+      multiplier: 5%
+      cap: 120000
+    - category: U.S. Restaurants
+      multiplier: 2%
+    - category: U.S. Gas Stations
+      multiplier: 2%
+    - category: U.S. Wireless
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Requires eligible Amazon Business Prime membership.
+  90-day payment option on Amazon purchases (forgo 5% back).
+  No foreign transaction fees.
+
+tags:
+  - business
+  - cashback
+  - amazon
+  - no-annual-fee

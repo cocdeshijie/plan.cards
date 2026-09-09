@@ -1,0 +1,68 @@
+name: Chase Sapphire Reserve Business
+issuer: Chase
+network: Visa
+annual_fee: 795
+currency: USD
+version_id: chase_csr_biz_2025_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+    - name: The Edit Hotel Credit
+      amount: 500
+      frequency: annual
+      reset_type: cardiversary
+    - name: DoorDash Credit
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - name: Lyft Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Google Workspace Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: ZipRecruiter Credit
+      amount: 200
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Gift Card Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+  spend_thresholds:
+    - name: Shops at Chase Credit
+      spend_required: 120000
+      frequency: annual
+      reset_type: cardiversary
+      description: "$500 Shops at Chase credit after spending $120,000 in a cardmember year."
+  bonus_categories:
+    - category: Chase Travel
+      multiplier: 8x
+    - category: Flights (Direct)
+      multiplier: 4x
+    - category: Hotels (Direct)
+      multiplier: 4x
+    - category: Social Media & Search Advertising
+      multiplier: 3x
+
+notes: |
+  Chase Sapphire Lounge access.
+  Priority Pass Select.
+  Points transfer to Chase Ultimate Rewards partners.
+  1.5cpp redemption in Chase Travel.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ur
+  - transferable-points
+  - travel
+  - premium
+  - lounge-access

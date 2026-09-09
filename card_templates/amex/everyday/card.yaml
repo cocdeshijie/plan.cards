@@ -1,0 +1,34 @@
+# Researched 2026-09-09. See docs/research/forum-new-amex.md.
+# Source: https://www.americanexpress.com/us/credit-cards/card/amex-everyday/
+# Source: https://global.americanexpress.com/card-benefits/view-all/amex-everyday
+name: Amex EveryDay Credit Card
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_everyday_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: U.S. Supermarkets (then 1x after calendar-year cap)
+      multiplier: 2x
+      cap: 6000
+    - category: Eligible travel booked through Amex Travel online
+      multiplier: 2x
+      portal_only: true
+    - category: All Other Eligible Purchases
+      multiplier: 1x
+
+notes: |
+  Legacy Membership Rewards card, closed to new applications; existing accounts remain
+  trackable. Not Blue Cash Everyday or Blue Cash Preferred. Make at least 20 qualifying
+  purchases per billing period to earn 20% extra points on eligible purchases less returns
+  and credits. Promotional points are excluded; Amex Travel extra points do not stack with
+  other category bonuses. The transaction-count bonus is described here because the
+  tracker supports dollar-spend thresholds rather than purchase counts or billing-period
+  resets. No exact closure date recorded.
+
+tags:
+  - groceries
+  - transferable-points

@@ -1,0 +1,22 @@
+name: Carnival World Mastercard
+issuer: Barclays
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: barclays_carnival_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Carnival Purchases
+      multiplier: 2x
+    - category: Dining, Groceries & Entertainment
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  0% promotional APR for 6 months on Carnival cruise bookings.
+  Earn FunPoints redeemable for Carnival cruises and onboard spending.
+
+tags:
+  - no-annual-fee

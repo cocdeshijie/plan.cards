@@ -1,0 +1,27 @@
+# Verified 2026-09-09. Sources:
+# https://www.affinityfcu.com/personal-banking/banking/credit-card/cash-rewards-visa
+# https://www.affinityfcu.com/_widgets/disclosures/cash-rewards-visa-signature
+name: Affinity Cash Rewards Visa Signature
+issuer: Affinity Federal Credit Union
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: affinity_cash_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Amazon (Qualifying Bookstore Merchant Code; Up to $1,000 per Month)
+      multiplier: 5%
+    - category: Supermarkets / Restaurants / Gas Stations / Watch, Listen and Ride Services
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Credit union membership required. Qualifying Amazon purchases earn 5% on up to $1,000
+  each month. The qualifying bookstore merchant code applies to Amazon; other bookstores
+  are not a separate 5% category. Gift cards are excluded from the Amazon/bookstore and
+  supermarket bonus categories. Rewards depend on merchant coding.
+
+tags:
+  - rewards

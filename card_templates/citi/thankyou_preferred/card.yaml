@@ -1,0 +1,27 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.citigroup.com/global/news/perspectives/2013/you-spoke-we-listened-6
+# Source: https://cardupgrade.citi.com/switchtopreferred/login.aspx
+name: Citi ThankYou Preferred
+issuer: Citi
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: citi_thankyou_preferred_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Dining at restaurants and entertainment
+      multiplier: 2x
+    - category: Other purchases
+      multiplier: 1x
+
+notes: |
+  Legacy ThankYou card closed to new applications. Citi may offer invited conversions to
+  existing customers. Distinct from Diamond Preferred, ThankYou Premier and Strata
+  Premier. Earns ThankYou Points on dining, entertainment and other purchases.
+
+tags:
+  - thankyou
+  - points
+  - no-annual-fee

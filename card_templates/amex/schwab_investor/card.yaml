@@ -1,0 +1,24 @@
+# Researched 2026-09-09. See docs/research/forum-new-amex.md.
+# Source: https://www.schwab.com/credit-cards
+# Source: https://global.americanexpress.com/card-benefits/view-all/schwab-investor-credit-card
+name: Charles Schwab Investor Credit Card from American Express
+issuer: Amex
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: amex_schwab_investor_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Eligible Purchases (deposited to Schwab)
+      multiplier: 1.5%
+
+notes: |
+  Requires an eligible Schwab account. Cash back is deposited automatically into that
+  account; this card does not earn Membership Rewards points. Welcome offers are excluded
+  from recurring benefits.
+
+tags:
+  - cashback
+  - flat-rate
+  - no-annual-fee

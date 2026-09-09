@@ -1,0 +1,21 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://www.bankofamerica.com/betterbalancerewards
+# Source: https://www.reddit.com/r/CreditCards/comments/11v57rt/
+# Source: https://www.uscreditcardguide.com/boa-better-balance-rewards-credit-card/
+name: BankAmericard Better Balance Rewards
+issuer: Bank of America
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: boa_better_balance_rewards_2026_1
+status: discontinued
+
+notes: |
+  Discontinued historical product with a $0 annual fee. Accounts were converted to
+  Unlimited Cash Rewards in May 2023. The former payment-based program offered $25
+  quarterly, plus $5 with a qualifying Bank of America checking or savings account;
+  payment eligibility conditions applied. These ended rewards are described for account
+  history and are not ongoing credits.
+
+tags:
+  - cashback

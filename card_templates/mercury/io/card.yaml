@@ -1,0 +1,22 @@
+# Verified 2026-09-09. Sources:
+# https://mercury.com/credit
+name: Mercury IO World Elite Business Mastercard
+issuer: Mercury
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: mercury_io_2026_1
+
+benefits:
+  bonus_categories:
+    - category: All Eligible Purchases
+      multiplier: 1.5%
+
+notes: |
+  Business charge card with unlimited 1.5% cash back deposited automatically into the
+  Mercury account. No personal guarantee. Credit limits depend on eligible business
+  balances; repayment schedule depends on the account. Mercury is a financial technology
+  company; the card is issued through its banking partner.
+
+tags:
+  - business

@@ -1,0 +1,24 @@
+# Verified 2026-09-09. Sources:
+# https://www.aodfcu.com/signature-visa/
+name: AOD Visa Signature
+issuer: AOD Federal Credit Union
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: aod_visa_signature_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Purchases (first $1,500 per billing cycle)
+      multiplier: 3%
+    - category: Purchases Above the Billing-Cycle Limit
+      multiplier: 1%
+
+notes: |
+  Credit union membership required. Earns 3% on the first $1,500 in purchases per billing
+  cycle and 1% thereafter. Cash back posts automatically to the monthly card statement. No
+  foreign transaction fee. The issuer currently displays an application link; the
+  published pricing disclosure is dated August 1, 2024.
+
+tags:
+  - rewards

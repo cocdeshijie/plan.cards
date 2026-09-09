@@ -1,0 +1,27 @@
+# Verified 2026-09-09. Sources:
+# https://x1creditcard.com/legal/program-terms
+# https://x1creditcard.com/legal/reward-terms
+# https://x1creditcard.com/
+# Availability is inferred from the retired application endpoint; no exact status_date asserted.
+name: X1 Visa Signature
+issuer: Coastal Community Bank
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: x1_visa_signature_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Eligible Purchases
+      multiplier: 1.5x
+
+notes: |
+  Legacy X1 product, separate from Robinhood Gold Card and the $75 X1+ package. Closed to
+  new applicants; the public application site redirects to Robinhood Gold Card, while X1
+  account terms remain available. Exact application-closure date is not established.
+  Rewards terms updated October 6, 2025 provide 1.5 points per dollar; redemption values
+  vary and may be below one cent per point. No foreign transaction fee.
+
+tags:
+  - rewards

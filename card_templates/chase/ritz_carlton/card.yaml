@@ -1,0 +1,37 @@
+# Researched 2026-09-09. Version year records catalog review, not product launch.
+# Source: https://marriott.chase.com/ritz-carlton/benefits
+# Source: https://marriott.chase.com/ritz-carlton/earn-redeem
+# Source: https://help.marriott.com/s/article/marriott-bonvoy-chase-credit-cards
+name: The Ritz-Carlton Credit Card
+issuer: Chase
+network: Visa
+annual_fee: 450
+currency: USD
+version_id: chase_ritz_carlton_2026_1
+status: closed_to_new_applicants
+
+benefits:
+  bonus_categories:
+    - category: Hotels participating in Marriott Bonvoy
+      multiplier: 6x
+    - category: Dining, car rentals and airline purchases
+      multiplier: 3x
+    - category: Other purchases
+      multiplier: 2x
+  credits:
+    - key: airline_incidental_credit
+      name: Airline Incidental Credit
+      amount: 300
+      frequency: annual
+      reset_type: calendar
+
+notes: |
+  Closed to new applications. Includes an anniversary Free Night Award up to 85,000
+  points, Marriott Bonvoy Gold Elite status and 15 annual elite night credits. Airline
+  incidental credit requires contacting Chase within four billing cycles; airfare is
+  excluded. Includes three Club Level upgrade certificates for qualifying paid stays per
+  account anniversary year. Qualifying two-night hotel-stay credits are per stay, not
+  annual statement credits.
+
+tags:
+  - travel

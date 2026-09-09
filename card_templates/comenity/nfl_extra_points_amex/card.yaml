@@ -1,0 +1,31 @@
+# Reviewed 2026-09-09. Source:
+# https://investor.breadfinancial.com/node/30676/pdf
+name: NFL Extra Points American Express Credit Card
+issuer: Comenity
+network: Amex
+annual_fee: 0
+currency: USD
+version_id: comenity_nfl_extra_points_amex_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Qualifying NFL & NFL Team Purchases
+      multiplier: 3%
+    - category: Grocery Stores, Restaurants & Food Delivery
+      multiplier: 2%
+    - category: Gyms & Sporting Goods Stores
+      multiplier: 2%
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Bread Financial launched the Amex-network program August 26, 2026.
+  Only participating team designs use Amex; the announcement covers 18 teams.
+  Earns rewards points redeemable for cash back, NFL tickets, merchandise,
+  gift cards, and experiences. Qualifying NFLShop.com purchases receive 25% off.
+  Network benefits are provided by Amex; this is a Bread Financial card.
+
+tags:
+  - cashback
+  - co-brand
+  - no-annual-fee

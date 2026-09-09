@@ -1,0 +1,24 @@
+name: Bilt Blue Card
+issuer: Bilt
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: bilt_blue_2026_1
+
+benefits:
+  bonus_categories:
+    - category: All Purchases
+      multiplier: 1x
+    - category: Everyday Spending (Bilt Cash)
+      multiplier: 4%
+
+notes: |
+  1x on rent/mortgage (costs $30 Bilt Cash per $1,000 or 3% fee).
+  Points transfer to airline/hotel partners.
+  Digital-first card (Cardless).
+  0% intro APR for 12 months.
+  No foreign transaction fees.
+  Issued by Column N.A.
+
+tags:
+  - no-annual-fee
