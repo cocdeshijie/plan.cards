@@ -1,9 +1,12 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://media.chase.com/news/chase-freedom-flex-more-travel-value
+# https://creditcards.chase.com/compare-credit-cards?CELL=6WW5&list=36%2C56%2C71
 name: Chase Freedom Unlimited
 issuer: Chase
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: chase_cfu_2020_2
+version_id: chase_cfu_2026_1
 
 benefits:
   bonus_categories:
@@ -17,7 +20,8 @@ benefits:
       multiplier: 1.5%
 
 notes: |
-  No foreign transaction fees.
+  Points Boost now available on select Chase Travel hotel redemptions.
+  Foreign transaction fee: 3% of each transaction in U.S. dollars.
 
 tags:
   - ur

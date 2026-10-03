@@ -1,0 +1,38 @@
+name: IHG One Rewards Premier Business Card
+issuer: Chase
+network: Mastercard
+annual_fee: 99
+currency: USD
+version_id: chase_ihg_premier_biz_2022_1
+
+benefits:
+  spend_thresholds:
+    - name: Statement Credit + Bonus Points
+      spend_required: 20000
+      frequency: annual
+      reset_type: cardiversary
+      description: "$100 statement credit + 10,000 bonus points after $20,000 spend."
+    - name: IHG Diamond Elite Status
+      spend_required: 40000
+      frequency: annual
+      reset_type: cardiversary
+      description: "IHG Diamond Elite status after $40,000 spend."
+  bonus_categories:
+    - category: IHG Hotels
+      multiplier: 10x
+    - category: Travel / Gas / Restaurants / Office Supplies / Social Media & Search Advertising
+      multiplier: 5x
+    - category: All Other Purchases
+      multiplier: 3x
+
+notes: |
+  IHG Platinum Elite status.
+  Fourth reward night free on award stays.
+  Anniversary free night (up to 40k points).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ihg
+  - hotel

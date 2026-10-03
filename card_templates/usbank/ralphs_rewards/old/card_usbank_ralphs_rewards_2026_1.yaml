@@ -1,0 +1,40 @@
+# Verified 2026-09-09. Primary sources (identity, $0 fee, Kroger Pay terms):
+# https://www.ralphsmastercard.com/credit/contactUs.do
+# https://www.ralphs.com/pr/about-boost-credit-promo?icid=kpfcrdt_b%3Aral_banner_espot_home_lower_p9w3-to-p9w4-credit-boost
+# https://www.ralphs.com/i/terms/kroger-pay
+# Secondary corroboration for mobile wallet, dining/fuel, in-store/base rates and no FTF:
+# https://maxrewards.com/credit-cards/ralphs-rewards-world-mastercard
+# https://cardpointers.com/cards/ralphs-rewards-world-elite-mastercard/
+# Full issuer agreement could not be read (JS-only); no variable APR or signup offer imported.
+name: Ralphs Rewards World Elite Mastercard
+issuer: US Bank
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: usbank_ralphs_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Mobile Wallet Purchases (Combined Annual Limit)
+      multiplier: 5%
+      cap: 3000
+    - category: Kroger Pay Non-Fuel Purchases
+      multiplier: 5%
+      cap: 3000
+    - category: Dining / Fuel (Combined Annual Limit)
+      multiplier: 3%
+      cap: 6000
+    - category: Ralphs / Kroger Pay Non-Fuel Purchases Above Annual Limit
+      multiplier: 2%
+    - category: All Other Purchases / Purchases Above Mobile Wallet and Dining/Fuel Limits
+      multiplier: 1%
+
+notes: |
+  Ralphs-branded Kroger family credit card. Mobile wallet purchases share a $3,000 annual
+  5% spending limit, then earn 1%. Eligible non-fuel Kroger Pay purchases have a separate
+  $3,000 calendar-year 5% limit, then earn 2%; Kroger Pay fuel-center transactions do not
+  earn rewards. Dining and fuel share a $6,000 annual 3% spending limit, then earn 1%. No
+  foreign transaction fee. Rewards depend on eligible transaction and merchant coding.
+
+tags:
+  - rewards

@@ -1,3 +1,5 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.navyfederal.org/loans-cards/credit-cards/flagship-upgrade.html
 # Verified 2026-09-09. Sources:
 # https://www.navyfederal.org/loans-cards/credit-cards/flagship-visa-signature.html
 name: Navy Federal Visa Signature Flagship Rewards
@@ -5,7 +7,9 @@ issuer: Navy Federal Credit Union
 network: Visa
 annual_fee: 49
 currency: USD
-version_id: navyfederal_flagship_rewards_2026_1
+status: closed_to_new_applicants
+status_date: 2026-09-10
+version_id: navyfederal_flagship_rewards_2026_2
 
 benefits:
   bonus_categories:
@@ -15,6 +19,10 @@ benefits:
       multiplier: 2x
 
 notes: |
+  Legacy product; Flagship Premier is a separate optional product change.
+  The $49 fee remains the pre-November snapshot. Navy Federal announces $95
+  effective November 2, 2026; check the account renewal notice. Retaining this
+  card retains its existing rewards and Amazon Prime benefit.
   Navy Federal membership required. No foreign transaction fee. Includes one statement
   credit per year for an eligible Amazon Prime Annual membership paid with this card
   (currently $139); monthly Prime plans are excluded. Global Entry or TSA PreCheck

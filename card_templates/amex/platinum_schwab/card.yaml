@@ -1,3 +1,6 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.americanexpress.com/en-us/travel/get-inspired/maximizing-amex-travel-benefits/
+# https://www.americanexpress.com/en-us/travel/lounges/the-platinum-card/LHR/lufthansa-senator-lounge-temporarily-closed-terminal-2a-kphMYsrkcx
 # Researched 2026-09-09. See docs/research/forum-new-amex.md.
 # Source: https://www.schwab.com/credit-cards
 # Source: https://www.americanexpress.com/us/credit-cards/card-application/apply/partner/print/personal-card/csb/charles-schwab-platinum-card/ep-IDAE?print=false
@@ -6,7 +9,7 @@ issuer: Amex
 network: Amex
 annual_fee: 895
 currency: USD
-version_id: amex_platinum_schwab_2026_1
+version_id: amex_platinum_schwab_2026_2
 
 benefits:
   credits:
@@ -86,6 +89,8 @@ benefits:
         rules, through the following calendar year and January 31 thereafter.
 
 notes: |
+  Lufthansa lounge access through the Platinum Global Lounge Collection ended
+  October 1, 2026. Other lounge partners remain subject to their access terms.
   Requires an eligible Schwab account. Enrollment and merchant restrictions apply to
   relevant credits; credits are shared across the account. Uber Cash adds $20 in December
   to the monthly $15. Walmart+ reimburses the eligible $12.95 monthly membership plus tax;

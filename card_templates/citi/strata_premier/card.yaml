@@ -1,9 +1,11 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.citi.com/credit-cards/citi-strata-premier-credit-card
 name: Citi Strata Premier Card
 issuer: Citi
 network: Mastercard
 annual_fee: 95
 currency: USD
-version_id: citi_strata_premier_2024_1
+version_id: citi_strata_premier_2026_1
 
 benefits:
   bonus_categories:
@@ -16,6 +18,9 @@ benefits:
       multiplier: 1x
 
 notes: |
+  Current public welcome-offer terms exclude applicants who currently have or
+  previously held a Citi Strata Premier or Citi Premier account. Eligibility also depends
+  on account history; review the exact application offer.
   ThankYou points transferable to airline and hotel partners.
   Rebranded from Citi Premier in May 2024.
   No foreign transaction fee.

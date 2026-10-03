@@ -59,7 +59,7 @@ The JSON import/export in the profile menu is a separate, portable per-profile f
 - **Product change history** — full chain of product changes with event tracking
 - **Import / export** — back up and restore your data as JSON
 - **Flexible auth** — open access, single password, multi-user, or OAuth (Google, GitHub, etc.)
-- **385+ community card templates** — pre-built YAML templates across 27+ issuers
+- **446 community card templates** — pre-built YAML templates across 37 issuer directories
 
 ## Card Templates
 

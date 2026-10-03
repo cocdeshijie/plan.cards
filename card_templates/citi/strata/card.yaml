@@ -1,13 +1,15 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.citi.com/credit-cards/citi-strata-credit-card
 name: Citi Strata Card
 issuer: Citi
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: citi_strata_2024_1
+version_id: citi_strata_2026_1
 
 benefits:
   bonus_categories:
-    - category: CitiTravel
+    - category: CitiTravel (Hotels / Cars / Attractions)
       multiplier: 5x
       portal_only: true
     - category: Supermarkets / Transit / Gas / EV
@@ -20,11 +22,14 @@ benefits:
       multiplier: 1x
 
 notes: |
+  Current public welcome-offer terms exclude applicants who currently have or
+  previously held a Citi Strata or Strata Student account. Eligibility also depends
+  on account history; review the exact application offer.
   Self-select category options: fitness clubs, select streaming,
   live entertainment, cosmetics/barber/salon, pet supplies.
   Launched 2025 as the replacement for the Citi Rewards+ card.
   (The 2024 event was Citi Premier -> Strata Premier, a different card.)
-  No foreign transaction fee.
+  Check current pricing for foreign-purchase fees; this is not a no-FTF benefit.
 
 tags:
   - no-annual-fee

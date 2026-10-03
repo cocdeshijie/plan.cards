@@ -1,0 +1,36 @@
+name: IHG One Rewards Traveler Card
+issuer: Chase
+network: Visa
+annual_fee: 0
+currency: USD
+version_id: chase_ihg_traveler_2022_1
+
+benefits:
+  spend_thresholds:
+    - name: Bonus Points
+      spend_required: 10000
+      frequency: annual
+      reset_type: cardiversary
+      description: "10,000 bonus points after $10,000 spend."
+    - name: IHG Gold Elite Status
+      spend_required: 20000
+      frequency: annual
+      reset_type: cardiversary
+      description: "IHG Gold Elite status after $20,000 spend."
+  bonus_categories:
+    - category: IHG Hotels
+      multiplier: 5x
+    - category: Gas / Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  IHG Silver Elite status.
+  Fourth reward night free on award stays.
+  No foreign transaction fees.
+
+tags:
+  - ihg
+  - hotel
+  - no-annual-fee

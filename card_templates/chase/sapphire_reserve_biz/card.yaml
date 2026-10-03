@@ -1,3 +1,7 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://help.doordash.com/en-us/consumers/article/chase-partnership
+# https://creditcards.chase.com/business-credit-cards/sapphire/reserve?CELL=62XP
+# https://www.chase.com/personal/credit-cards/education/chase-cards/sapphire-reserve-vs-sapphire-reserve-for-business
 # Reviewed 2026-09-09. Sources:
 # https://www.chase.com/travel/guide/hotels/the-edit-chase-travel-credits-benefits
 # https://creditcards.chase.com/business-credit-cards/sapphire/reserve
@@ -6,7 +10,7 @@ issuer: Chase
 network: Visa
 annual_fee: 795
 currency: USD
-version_id: chase_csr_biz_2026_1
+version_id: chase_csr_biz_2026_2
 
 benefits:
   credits:
@@ -19,7 +23,8 @@ benefits:
       amount: 500
       frequency: annual
       reset_type: calendar
-    - name: DoorDash Credit
+    - key: doordash_credit
+      name: DoorDash Credit
       amount: 25
       frequency: monthly
       reset_type: calendar
@@ -57,6 +62,12 @@ benefits:
       multiplier: 3x
 
 notes: |
+  DoorDash remains $25 monthly: $5 restaurant plus two $10 non-restaurant
+  promos with DashPass; the personal Reserve $35 increase does not apply.
+  Announced changes, not yet reflected in current trackers: advertising 3x
+  will be capped at $1 million per account anniversary year from November 15,
+  2026 (then 1x); The Edit rises to $1,000 per calendar year January 1, 2027,
+  still limited to $250 per qualifying transaction.
   The Edit credit: up to $250 per qualifying prepaid stay of at least two
   nights, up to $500 per calendar year; not a card-anniversary benefit.
   Chase Sapphire Lounge access.

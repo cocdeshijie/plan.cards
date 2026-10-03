@@ -1,0 +1,42 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.bilt.com/terms/bilt-card-offer-terms
+# https://support.biltrewards.com/hc/en-us/articles/42897766682381-Bilt-Card-2-0-Program-Overview
+name: Bilt Obsidian Card
+issuer: Bilt
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: bilt_obsidian_2026_2
+
+benefits:
+  credits:
+    - key: bilt_travel_hotel_credit
+      name: Bilt Travel Hotel Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+  bonus_categories:
+    - category: Dining OR Grocery (Choose Annually)
+      multiplier: 3x
+    - category: Travel
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
+    - category: Everyday Spending (Flexible Bilt Cash Option Only)
+      multiplier: 4%
+
+notes: |
+  Hotel credit requires a Bilt Travel booking of at least two nights and opt-in
+  at checkout; unused credits expire at each calendar half-year end.
+  Choose 3x dining or grocery annually (grocery $25,000/year cap).
+  Housing payments have no transaction fee. Choose either Housing-only rewards
+  (up to 1.25x based on everyday spend relative to housing payments) or Flexible
+  Bilt Cash (4% Bilt Cash on everyday spend; redeem $30 for 1,000 housing points,
+  up to 1x). These options are mutually exclusive; Bilt Cash is not cash back.
+  Points transfer to airline/hotel partners.
+  Digital-first card (Cardless).
+  No foreign transaction fees.
+  Issued by Column N.A.
+
+tags:
+  - transferable-points

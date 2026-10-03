@@ -1,0 +1,34 @@
+# Reviewed 2026-10-02. Sources:
+# https://www.navyfederal.org/loans-cards/credit-cards/flagship-premier-visa-signature.html
+name: Navy Federal Flagship Premier Visa Signature
+issuer: Navy Federal Credit Union
+network: Visa
+annual_fee: 95
+currency: USD
+version_id: navyfederal_flagship_premier_2026_1
+
+benefits:
+  credits:
+    - key: airline_credit
+      name: Airline Credit
+      amount: 100
+      frequency: annual
+      reset_type: cardiversary
+  bonus_categories:
+    - category: Travel
+      multiplier: 4x
+    - category: Dining
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1x
+
+notes: |
+  Membership required. Airline credit triggers after $100 total eligible airline
+  purchases in an account year; unused allowance does not carry over.
+  Global Entry/TSA PreCheck reimbursement up to $120 every four years.
+  No foreign transaction fee. Separate from legacy Flagship Rewards;
+  upgrades are optional and do not retain the legacy Amazon Prime benefit.
+
+tags:
+  - travel
+  - dining

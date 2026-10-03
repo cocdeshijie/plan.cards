@@ -1,3 +1,6 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.usbank.com/about-us-bank/news-and-stories/article-library/us-bank-announces-transition-of-kroger-co-brand-card-program.html
+# https://www.thekrogerco.com/ir-feed-item/kroger-introduces-kroger-rewards-world-elite-mastercard-to-help-customers-earn-more-points-and-save-more-every-day/
 # Verified 2026-09-09. Primary sources (identity, $0 fee, Kroger Pay terms):
 # https://www.ralphsmastercard.com/credit/contactUs.do
 # https://www.ralphs.com/pr/about-boost-credit-promo?icid=kpfcrdt_b%3Aral_banner_espot_home_lower_p9w3-to-p9w4-credit-boost
@@ -11,7 +14,8 @@ issuer: US Bank
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: usbank_ralphs_rewards_2026_1
+status: closed_to_new_applicants
+version_id: usbank_ralphs_rewards_2026_2
 
 benefits:
   bonus_categories:
@@ -30,6 +34,10 @@ benefits:
       multiplier: 1%
 
 notes: |
+  Legacy U.S. Bank Kroger-family program; retained for historical tracking.
+  U.S. Bank announces conversion to Smartly expected to finish in fall 2026;
+  follow the individual account notice. The new First Bank & Trust/Imprint
+  Kroger card requires a separate application and is a separate catalog product.
   Ralphs-branded Kroger family credit card. Mobile wallet purchases share a $3,000 annual
   5% spending limit, then earn 1%. Eligible non-fuel Kroger Pay purchases have a separate
   $3,000 calendar-year 5% limit, then earn 2%; Kroger Pay fuel-center transactions do not

@@ -1,3 +1,5 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://newsroom.biltrewards.com/bilt-amtrak-partnership
 # Reviewed 2026-09-09. Sources:
 # https://www.bilt.com/terms/bilt-card-offer-terms
 # https://support.biltrewards.com/hc/en-us/articles/42897766682381-Bilt-Card-2-0-Program-Overview
@@ -6,7 +8,7 @@ issuer: Bilt
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: bilt_blue_2026_2
+version_id: bilt_blue_2026_3
 
 benefits:
   bonus_categories:
@@ -16,6 +18,7 @@ benefits:
       multiplier: 4%
 
 notes: |
+  Bilt Points now transfer to Amtrak Guest Rewards at 2:1 (September 23, 2026).
   Housing payments have no transaction fee. Choose either Housing-only rewards
   (up to 1.25x based on everyday spend relative to housing payments) or Flexible
   Bilt Cash (4% Bilt Cash on everyday spend; redeem $30 for 1,000 housing points,

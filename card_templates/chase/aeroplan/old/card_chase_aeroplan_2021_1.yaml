@@ -1,0 +1,26 @@
+name: Aeroplan Card
+issuer: Chase
+network: Mastercard
+annual_fee: 95
+currency: USD
+version_id: chase_aeroplan_2021_1
+
+benefits:
+  bonus_categories:
+    - category: Air Canada (Direct)
+      multiplier: 3x
+    - category: Dining
+      multiplier: 3x
+    - category: Grocery
+      multiplier: 3x
+
+notes: |
+  Aeroplan 25K Elite Status.
+  Free first checked bag on Air Canada.
+  500 bonus points per $2k spent per month (up to 1,500).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - aeroplan
+  - airline

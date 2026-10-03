@@ -1,0 +1,34 @@
+# Reviewed 2026-10-02. Sources:
+# https://www.usbank.com/business-banking/business-credit-cards/business-essentials-plus-credit-card.html
+# https://www.usbank.com/business-banking/business-credit-cards/offers/business-essentials-compare.html
+name: U.S. Bank Business Essentials Plus Visa Signature
+issuer: US Bank
+network: Visa
+annual_fee: 295
+currency: USD
+version_id: usbank_business_essentials_plus_2026_1
+
+benefits:
+  bonus_categories:
+    - category: All Eligible Purchases (Base Rate)
+      multiplier: 2%
+    - category: Prepaid Hotels & Car Rentals (U.S. Bank Travel Center)
+      multiplier: 10%
+      portal_only: true
+    - category: Automatic Top Eligible Monthly Spend Category
+      multiplier: 5%
+      cap: 200000
+
+notes: |
+  Top category cap uses the account anniversary year; then 2% base.
+  Categories: accounting/tax services, airlines, cell service, dining,
+  entertainment, office supplies, postal/shipping and utilities.
+  Qualifying business checking balances can raise eligible base earning to
+  2.5% ($15,000), 3% ($75,000), or 3.5% ($150,000), subject to a separate
+  $200,000 account-year limit. Balance uses a 30-day average.
+  Education, gift-card and tax purchases are excluded from the balance bonus.
+  Enhanced rates are conditional; category/portal rates are not added to base.
+
+tags:
+  - business
+  - cashback

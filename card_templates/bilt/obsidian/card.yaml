@@ -1,3 +1,5 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://newsroom.biltrewards.com/bilt-amtrak-partnership
 # Reviewed 2026-09-09. Sources:
 # https://www.bilt.com/terms/bilt-card-offer-terms
 # https://support.biltrewards.com/hc/en-us/articles/42897766682381-Bilt-Card-2-0-Program-Overview
@@ -6,7 +8,7 @@ issuer: Bilt
 network: Mastercard
 annual_fee: 95
 currency: USD
-version_id: bilt_obsidian_2026_2
+version_id: bilt_obsidian_2026_3
 
 benefits:
   credits:
@@ -26,6 +28,7 @@ benefits:
       multiplier: 4%
 
 notes: |
+  Bilt Points now transfer to Amtrak Guest Rewards at 2:1 (September 23, 2026).
   Hotel credit requires a Bilt Travel booking of at least two nights and opt-in
   at checkout; unused credits expire at each calendar half-year end.
   Choose 3x dining or grocery annually (grocery $25,000/year cap).

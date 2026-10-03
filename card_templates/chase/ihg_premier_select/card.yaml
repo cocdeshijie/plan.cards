@@ -1,0 +1,68 @@
+# Reviewed 2026-10-02. Sources:
+# https://creditcards.chase.com/travel-credit-cards/ihg-rewards-club/premier-select
+# https://media.chase.com/news/ihg-premier-select-card-portfolio-updates
+# https://www.chase.com/personal/credit-cards/ihg/premierselect
+name: IHG One Rewards Premier Select Card
+issuer: Chase
+network: Mastercard
+annual_fee: 350
+currency: USD
+version_id: chase_ihg_premier_select_2026_1
+
+benefits:
+  credits:
+    - key: ihg_food_beverage
+      name: IHG Food & Beverage Voucher
+      amount: 75
+      frequency: quarterly
+      reset_type: calendar
+    - key: united_travelbank
+      name: United TravelBank Cash
+      amount: 25
+      frequency: semi_annual
+      reset_type: calendar
+  spend_thresholds:
+    - key: annual_spend_rewards
+      name: Bonus Points and Elite Nights
+      spend_required: 15000
+      frequency: annual
+      reset_type: calendar
+      description: "20,000 bonus points and 5 extra elite nights after $15,000 calendar-year spend."
+    - key: diamond_status
+      name: IHG Diamond Elite Status
+      spend_required: 25000
+      frequency: annual
+      reset_type: calendar
+      description: "Diamond status after $25,000 calendar-year spend."
+    - key: extra_free_night
+      name: Additional Free Night
+      spend_required: 40000
+      frequency: annual
+      reset_type: calendar
+      description: "60,000-point night with top-up after $40,000 calendar-year spend."
+  bonus_categories:
+    - category: IHG Hotels (Card Earnings Only)
+      multiplier: 12x
+    - category: Dining / Other Travel (Including Rideshare)
+      multiplier: 6x
+    - category: All Other Purchases
+      multiplier: 3x
+
+notes: |
+  No foreign transaction fees. Automatic Platinum status.
+  Anniversary night: 60,000 points with top-up. Fourth reward night free.
+  20 elite nights annually; 2 more per $5,000 spend.
+  Food/beverage voucher is single-use on eligible hotel room charges; expires
+  at quarter end, unused balance forfeited. Not a statement credit.
+  TravelBank requires registration; half-year deposits expire July 15/January 15.
+  Through December 31, 2027: $200 annual airline credit on a qualifying
+  direct flight-ticket purchase of at least $250; $10 monthly Instacart credit
+  requires active Instacart+ after activation. These expiring offers are notes.
+  DoorDash: one-year DashPass with activation by December 31, 2027; eligible
+  enrollments from September 1, 2026 receive a $10 monthly non-restaurant promo
+  through 2027; earlier qualifying enrollments receive it quarterly.
+  Global Entry/TSA PreCheck/NEXUS credit: up to $120 every four years.
+
+tags:
+  - ihg
+  - hotel

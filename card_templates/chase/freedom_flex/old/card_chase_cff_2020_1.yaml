@@ -1,0 +1,31 @@
+name: Chase Freedom Flex
+issuer: Chase
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: chase_cff_2020_1
+
+benefits:
+  bonus_categories:
+    - category: Rotating Quarterly Categories
+      multiplier: 5%
+      cap: 1500
+    - category: Chase Travel
+      multiplier: 5x
+    - category: Dining
+      multiplier: 3x
+    - category: Drugstores
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 1%
+
+notes: |
+  Quarterly categories must be activated.
+  Cell phone protection (up to $800/claim).
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - cashback
+  - no-annual-fee
+  - rotating-categories

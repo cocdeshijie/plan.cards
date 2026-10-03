@@ -1,9 +1,11 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.citi.com/credit-cards/citi-strata-elite-credit-card
 name: Citi Strata Elite Card
 issuer: Citi
 network: Mastercard
 annual_fee: 595
 currency: USD
-version_id: citi_strata_elite_2024_1
+version_id: citi_strata_elite_2026_1
 
 benefits:
   credits:
@@ -26,21 +28,23 @@ benefits:
     - category: CitiTravel (Air)
       multiplier: 6x
       portal_only: true
-    - category: Citi Nights (Restaurants Fri-Sat 6PM-6AM)
+    - category: Citi Nights (Restaurants Fri-Sat 6PM-6AM ET)
       multiplier: 6x
     - category: Restaurants
       multiplier: 3x
     - category: All Other Purchases
-      multiplier: 1x
+      multiplier: 1.5x
 
 notes: |
+  Current public welcome-offer terms exclude applicants who currently have or
+  previously held a Citi Strata Elite account. Eligibility also depends
+  on account history; review the exact application offer.
   Priority Pass Select lounge access.
   4 Admirals Club passes per year.
   Global Entry/TSA Pre credit ($120 every 4 years).
   Hotel credit requires 2+ night stay booked via CitiTravel.
-  Splurge Credit: 1stDibs, American Airlines, Best Buy, Future, Live Nation.
+  Choose up to two eligible brands for Splurge Credit: 1stDibs, American Airlines, Best Buy, Future, Live Nation.
   Blacklane credit: $100 Jan-Jun + $100 Jul-Dec.
-  Launched 2024.
   No foreign transaction fee.
 
 tags:

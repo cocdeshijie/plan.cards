@@ -1,0 +1,34 @@
+# Reviewed 2026-10-02. Sources:
+# https://assets.imprint.co/partners/krogerco/legal/rewards-terms/en
+# https://www.kroger.com/i/terms/rewards-program
+# https://www.thekrogerco.com/ir-feed-item/kroger-introduces-kroger-rewards-world-elite-mastercard-to-help-customers-earn-more-points-and-save-more-every-day/
+name: Kroger Rewards World Elite Mastercard (Imprint)
+issuer: First Bank & Trust
+network: Mastercard
+annual_fee: 0
+currency: USD
+version_id: imprint_kroger_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Kroger Digital Channels (Card Points Only)
+      multiplier: 3x
+    - category: Kroger Fuel Pumps
+      multiplier: 4x
+    - category: Dining / Travel / Utilities
+      multiplier: 2x
+    - category: Kroger In-Store and All Other Purchases (Card Points Only)
+      multiplier: 1x
+
+notes: |
+  Operated by Imprint; separate from the legacy U.S. Bank program.
+  Card-only earnings are shown above. With eligible Kroger Rewards and Boost
+  earnings, total rates reach 5x digital and 3x in-store; use Rewards Number/Alt ID.
+  Includes Boost Essential membership and a $10 birthday grocery reward.
+  Birthday timing is not supported by recurring trackers. Points redeem toward
+  eligible groceries/fuel, not general cash back; do not expire while active
+  and in good standing. No card-points earning cap.
+
+tags:
+  - groceries
+  - no-annual-fee
