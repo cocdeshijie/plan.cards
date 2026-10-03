@@ -1,0 +1,64 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.chase.com/travel/guide/hotels/the-edit-chase-travel-credits-benefits
+# https://creditcards.chase.com/rewards-credit-cards/sapphire/reserve
+name: Chase Sapphire Reserve
+issuer: Chase
+network: Visa
+annual_fee: 795
+currency: USD
+version_id: chase_csr_2026_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+    - key: the_edit_hotel_credit
+      name: The Edit Hotel Credit
+      amount: 500
+      frequency: annual
+      reset_type: calendar
+    - name: Exclusive Tables Dining Credit
+      amount: 150
+      frequency: semi_annual
+      reset_type: calendar
+    - name: StubHub Credit
+      amount: 150
+      frequency: semi_annual
+      reset_type: calendar
+    - name: DoorDash Credit
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - name: Lyft Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+  bonus_categories:
+    - category: Chase Travel
+      multiplier: 8x
+      portal_only: true
+    - category: Flights (Direct)
+      multiplier: 4x
+    - category: Hotels (Direct)
+      multiplier: 4x
+    - category: Dining
+      multiplier: 3x
+
+notes: |
+  The Edit credit: up to $250 per qualifying prepaid stay of at least two
+  nights, up to $500 per calendar year; not a card-anniversary benefit.
+  Chase Sapphire Lounge access.
+  Priority Pass Select.
+  Points Boost (up to 2cpp on select bookings).
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - ur
+  - transferable-points
+  - travel
+  - dining
+  - premium
+  - lounge-access

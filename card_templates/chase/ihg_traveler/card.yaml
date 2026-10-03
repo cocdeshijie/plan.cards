@@ -1,34 +1,42 @@
-name: IHG One Rewards Traveler Card
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://creditcards.chase.com/a1/ihg/OneRewardsNAEPQ410
+# https://media.chase.com/news/ihg-premier-select-card-portfolio-updates
+name: IHG One Rewards Credit Card
 issuer: Chase
-network: Visa
+network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: chase_ihg_traveler_2022_1
+version_id: chase_ihg_traveler_2026_1
 
 benefits:
   spend_thresholds:
-    - name: Bonus Points
-      spend_required: 10000
+    - key: bonus_points
+      name: Bonus Points
+      spend_required: 15000
       frequency: annual
-      reset_type: cardiversary
-      description: "10,000 bonus points after $10,000 spend."
-    - name: IHG Gold Elite Status
-      spend_required: 20000
+      reset_type: calendar
+      description: "10,000 bonus points after $15,000 calendar-year spend."
+    - key: gold_status
+      name: IHG Gold Elite Status
+      spend_required: 15000
       frequency: annual
-      reset_type: cardiversary
-      description: "IHG Gold Elite status after $20,000 spend."
+      reset_type: calendar
+      description: "Gold status after $15,000 calendar-year spend."
   bonus_categories:
-    - category: IHG Hotels
+    - category: IHG Hotels (Card Earnings Only)
       multiplier: 5x
-    - category: Gas / Dining
+    - category: Dining / Gas / Grocery Stores
       multiplier: 3x
     - category: All Other Purchases
       multiplier: 2x
 
 notes: |
-  IHG Silver Elite status.
-  Fourth reward night free on award stays.
-  No foreign transaction fees.
+  October 1, 2026 acquisition offer. Existing cardmembers receive separate
+  transition notices; annual fee adjustments occur in 2027. Use the prior
+  template version until the account-specific changes take effect.
+  No foreign transaction fees. Formerly Traveler; automatic Silver status.
+  Five elite nights annually. Starting January 1, 2027, fourth reward night
+  free requires $5,000 calendar-year spend; future threshold is not active here.
 
 tags:
   - ihg

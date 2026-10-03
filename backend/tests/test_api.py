@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from app.schemas.export_import import ExportData, ExportProfile, ExportCard, ExportEvent, ExportBenefit, ExportBonus
 from tests.conftest import TEST_PASSWORD
+from app.services.template_loader import get_template
 
 
 def _next_anniversary_after_today(origin: date) -> str:
@@ -447,7 +448,7 @@ def test_card_creation_sets_version_id(client, auth_headers):
         "open_date": "2024-01-01",
     }, headers=auth_headers).json()
 
-    assert card["template_version_id"] == "amex_plat_2025_1"
+    assert card["template_version_id"] == get_template("amex/platinum").version_id
 
 
 def test_card_creation_with_card_image(client, auth_headers):
@@ -473,15 +474,16 @@ def test_template_versions_endpoint(client):
     assert len(versions) >= 1
     current = [v for v in versions if v["is_current"]]
     assert len(current) == 1
-    assert current[0]["version_id"] == "amex_plat_2025_1"
+    assert current[0]["version_id"] == get_template("amex/platinum").version_id
 
 
 def test_template_version_detail_current(client):
     """Getting current version detail should work."""
-    resp = client.get("/api/templates/amex/platinum/versions/amex_plat_2025_1")
+    version_id = get_template("amex/platinum").version_id
+    resp = client.get(f"/api/templates/amex/platinum/versions/{version_id}")
     assert resp.status_code == 200
     detail = resp.json()
-    assert detail["version_id"] == "amex_plat_2025_1"
+    assert detail["version_id"] == get_template("amex/platinum").version_id
     assert detail["is_current"] is True
     assert detail["name"] == "American Express Platinum Card"
 
@@ -713,7 +715,7 @@ def test_import_triggers_template_sync(client, auth_headers):
     cards = client.get("/api/cards?issuer=Amex", headers=auth_headers).json()
     card = [c for c in cards if c["card_name"] == "American Express Platinum Card"][0]
 
-    assert card["template_version_id"] == "amex_plat_2025_1"
+    assert card["template_version_id"] == get_template("amex/platinum").version_id
     assert card["annual_fee"] == 895
 
     # Benefits should reflect current template (12 credits)

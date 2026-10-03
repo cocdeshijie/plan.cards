@@ -1,3 +1,6 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://media.chase.com/news/chase-freedom-flex-more-travel-value
+# https://media.chase.com/news/chase-freedom-2026-q4-categories
 # Researched 2026-09-09. Version year records catalog review, not product launch.
 # Source: https://www.chase.com/personal/credit-cards/freedom/freedomfive
 # Source: https://media.chase.com/news/new-chase-freedom-flex-credit-Card-and-more-cash-back-Opportunities-for-freedom-unlimited-cardmembers
@@ -6,7 +9,7 @@ issuer: Chase
 network: Visa
 annual_fee: 0
 currency: USD
-version_id: chase_freedom_2026_1
+version_id: chase_freedom_2026_2
 status: closed_to_new_applicants
 
 benefits:
@@ -17,6 +20,9 @@ benefits:
       multiplier: 1%
 
 notes: |
+  Points Boost now available on select Chase Travel hotel redemptions.
+  Q4 2026 categories: groceries excluding Walmart/Target, dining, and American
+  Red Cross donations (October-December; shared $1,500 cap with activation).
   Original Freedom Visa, closed to new applications; existing cardmembers continue to earn
   Ultimate Rewards. Quarterly bonus categories require activation and apply to up to
   $1,500 in combined category purchases each quarter. This product is distinct from

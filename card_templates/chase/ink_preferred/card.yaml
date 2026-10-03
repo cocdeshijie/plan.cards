@@ -1,9 +1,11 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://media.chase.com/news/Meet-the-New-Chase-Sapphire-Preferred
 name: Ink Business Preferred
 issuer: Chase
 network: Visa
 annual_fee: 95
 currency: USD
-version_id: chase_ink_preferred_2020_1
+version_id: chase_ink_preferred_2026_1
 
 benefits:
   bonus_categories:
@@ -14,8 +16,9 @@ benefits:
       multiplier: 1x
 
 notes: |
+  World of Hyatt transfers are 4:3 effective October 1, 2026.
   Points transfer to Chase Ultimate Rewards partners.
-  1.25cpp redemption in Chase Travel.
+  Travel redemption value depends on applicable account and Points Boost terms.
   Cell phone protection (up to $1,000/claim, $100 deductible).
   Purchase protection and extended warranty.
   No foreign transaction fees.

@@ -83,7 +83,7 @@ def test_initialize_version_on_first_sync(db_session):
     assert summary["cards_synced"] == 1
 
     db_session.refresh(card)
-    assert card.template_version_id == "amex_plat_2025_1"
+    assert card.template_version_id == get_template("amex/platinum").version_id
 
     # The matching benefit should now be tagged from_template
     benefit = db_session.query(CardBenefit).filter(
@@ -123,7 +123,7 @@ def test_skip_closed_cards(db_session):
 def test_skip_matching_version(db_session):
     """Cards already on current version should be skipped."""
     profile = _make_profile(db_session)
-    _make_card(db_session, profile.id, template_version_id="amex_plat_2025_1")
+    _make_card(db_session, profile.id, template_version_id=get_template("amex/platinum").version_id)
     db_session.commit()
 
     summary = sync_cards_to_templates(db_session)
@@ -143,7 +143,7 @@ def test_update_annual_fee(db_session):
 
     db_session.refresh(card)
     assert card.annual_fee == 895  # Updated to current template AF
-    assert card.template_version_id == "amex_plat_2025_1"
+    assert card.template_version_id == get_template("amex/platinum").version_id
 
 
 def test_add_new_benefits(db_session):
@@ -250,7 +250,7 @@ def test_multi_version_jump(db_session):
     assert summary["cards_synced"] == 1
 
     db_session.refresh(card)
-    assert card.template_version_id == "amex_plat_2025_1"
+    assert card.template_version_id == get_template("amex/platinum").version_id
 
     uber = db_session.query(CardBenefit).filter(
         CardBenefit.card_id == card.id,

@@ -1,17 +1,21 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://media.chase.com/news/chase-freedom-flex-more-travel-value
+# https://media.chase.com/news/chase-freedom-2026-q4-categories
+# https://static.chasecdn.com/content/services/structured-document/document.en.pdf/card/benefits-center/product-benefits-guide-pdf/BGC11363_v2.pdf
 name: Chase Freedom Flex
 issuer: Chase
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: chase_cff_2020_1
+version_id: chase_cff_2026_1
 
 benefits:
   bonus_categories:
-    - category: Rotating Quarterly Categories
+    - category: Activated Quarterly Categories (up to $1,500 combined per quarter)
       multiplier: 5%
-      cap: 1500
     - category: Chase Travel
       multiplier: 5x
+      portal_only: true
     - category: Dining
       multiplier: 3x
     - category: Drugstores
@@ -20,8 +24,13 @@ benefits:
       multiplier: 1%
 
 notes: |
+  Points Boost now available on select Chase Travel hotel redemptions.
+  Q4 2026 (October-December): groceries excluding Walmart/Target, dining, and
+  American Red Cross donations; activate and observe the shared $1,500 quarterly cap.
+  Dining earns 7% total during the activated quarter, not 5% plus 3%.
   Quarterly categories must be activated.
-  Cell phone protection (up to $800/claim).
+  Phone-protection reports conflict with Chase's linked benefits guide, which
+  still lists coverage. Check your account-specific notice before relying on it.
   No foreign transaction fees.
 
 tags:

@@ -1,9 +1,13 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.usbank.com/about-us-bank/news-and-stories/article-library/us-bank-announces-transition-of-kroger-co-brand-card-program.html
+# https://www.thekrogerco.com/ir-feed-item/kroger-introduces-kroger-rewards-world-elite-mastercard-to-help-customers-earn-more-points-and-save-more-every-day/
 name: Kroger Rewards World Elite Mastercard
 issuer: US Bank
 network: Mastercard
 annual_fee: 0
 currency: USD
-version_id: usbank_kroger_123_2026_1
+status: closed_to_new_applicants
+version_id: usbank_kroger_123_2026_2
 
 benefits:
   bonus_categories:
@@ -19,6 +23,10 @@ benefits:
       multiplier: 1x
 
 notes: |
+  Legacy U.S. Bank Kroger-family program; retained for historical tracking.
+  U.S. Bank announces conversion to Smartly expected to finish in fall 2026;
+  follow the individual account notice. The new First Bank & Trust/Imprint
+  Kroger card requires a separate application and is a separate catalog product.
   Renamed from "Kroger 1-2-3 Rewards Visa". The card is a MASTERCARD (World Elite);
   the template previously recorded Visa, which appears never to have been correct.
   The 5x rates drop to 2x (Kroger Pay) and 1x (other mobile wallets) after $3,000

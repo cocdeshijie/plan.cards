@@ -1,0 +1,76 @@
+# Reviewed 2026-09-09. Sources:
+# https://www.chase.com/travel/guide/hotels/the-edit-chase-travel-credits-benefits
+# https://creditcards.chase.com/business-credit-cards/sapphire/reserve
+name: Chase Sapphire Reserve Business
+issuer: Chase
+network: Visa
+annual_fee: 795
+currency: USD
+version_id: chase_csr_biz_2026_1
+
+benefits:
+  credits:
+    - name: Travel Credit
+      amount: 300
+      frequency: annual
+      reset_type: cardiversary
+    - key: the_edit_hotel_credit
+      name: The Edit Hotel Credit
+      amount: 500
+      frequency: annual
+      reset_type: calendar
+    - name: DoorDash Credit
+      amount: 25
+      frequency: monthly
+      reset_type: calendar
+    - name: Lyft Credit
+      amount: 10
+      frequency: monthly
+      reset_type: calendar
+    - name: Google Workspace Credit
+      amount: 200
+      frequency: annual
+      reset_type: calendar
+    - name: ZipRecruiter Credit
+      amount: 200
+      frequency: semi_annual
+      reset_type: calendar
+    - name: Gift Card Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
+  spend_thresholds:
+    - name: Shops at Chase Credit
+      spend_required: 120000
+      frequency: annual
+      reset_type: calendar
+      description: "$500 Shops at Chase credit after spending $120,000 in a calendar year."
+  bonus_categories:
+    - category: Chase Travel
+      multiplier: 8x
+      portal_only: true
+    - category: Flights (Direct)
+      multiplier: 4x
+    - category: Hotels (Direct)
+      multiplier: 4x
+    - category: Social Media & Search Advertising
+      multiplier: 3x
+
+notes: |
+  The Edit credit: up to $250 per qualifying prepaid stay of at least two
+  nights, up to $500 per calendar year; not a card-anniversary benefit.
+  Chase Sapphire Lounge access.
+  Priority Pass Select.
+  Points transfer to Chase Ultimate Rewards partners.
+  Chase Travel redemptions are normally 1cpp; Points Boost offers up to 2cpp
+  on selected flights and hotels.
+  Global Entry/TSA Pre credit.
+  No foreign transaction fees.
+
+tags:
+  - business
+  - ur
+  - transferable-points
+  - travel
+  - premium
+  - lounge-access

@@ -1,9 +1,12 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.usbank.com/credit-cards/benefits.html
 name: US Bank Business Leverage
 issuer: US Bank
 network: Visa
 annual_fee: 95
 currency: USD
-version_id: usbank_biz_leverage_2026_1
+status: closed_to_new_applicants
+version_id: usbank_biz_leverage_2026_2
 
 benefits:
   bonus_categories:
@@ -13,6 +16,8 @@ benefits:
       multiplier: 1%
 
 notes: |
+  U.S. Bank lists Business Leverage among cards no longer accepting applications.
+  Existing accounts continue under their applicable terms.
   Automatically earns 2% in your top 2 spending categories each month.
   Eligible categories: advertising, airlines, car rental, gas, hotels, office supply,
   restaurants, telecom, shipping, computer/electronics.
@@ -21,4 +26,3 @@ notes: |
 tags:
   - business
   - cashback
-  - no-annual-fee

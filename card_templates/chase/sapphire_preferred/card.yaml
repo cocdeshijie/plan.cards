@@ -1,9 +1,12 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://media.chase.com/news/Meet-the-New-Chase-Sapphire-Preferred
+# https://asset.chase.com/content/dam/card/rulesregulations/en/RPA0444_0477.pdf
 name: Chase Sapphire Preferred
 issuer: Chase
 network: Visa
 annual_fee: 95
 currency: USD
-version_id: chase_csp_2026_1
+version_id: chase_csp_2026_2
 
 benefits:
   credits:
@@ -31,14 +34,14 @@ notes: |
   June 15, 2026 refresh.
   Chase Travel hotel credit doubled from $50 to $100/yr.
   Added 3x on gas & EV charging and 3x on vacation home rentals.
-  1.25cpp redemption in Chase Travel.
+  Standard Chase Travel redemption is 1cpp; selected Points Boost offers vary.
+  Legacy points may have different redemption terms; check the booking quote.
   Global Entry/TSA PreCheck/NEXUS credit ($120, once every 4 years).
   1-year complimentary Apple TV (activate by Dec 31, 2026).
   Emergency Evacuation & Transportation coverage up to $100,000.
-  10% anniversary points bonus eliminated for the refreshed card (existing
-  cardmembers keep it through Oct 1, 2026).
-  Hyatt transfer ratio devalued to 4:3 for new applicants (other 1:1 partners
-  unchanged).
+  Anniversary bonus ended; pre-June 15, 2026 applicants earn the final 10%
+  bonus on eligible purchases through October 1, 2026, paid by January 31, 2027.
+  Hyatt transfers are now 4:3 for both new and existing cardmembers.
   No foreign transaction fees.
 
 tags:

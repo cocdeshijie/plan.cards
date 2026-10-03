@@ -1,24 +1,43 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://creditcards.chase.com/travel-credit-cards/aircanada/aeroplan
 name: Aeroplan Card
 issuer: Chase
 network: Mastercard
-annual_fee: 95
+annual_fee: 195
 currency: USD
-version_id: chase_aeroplan_2021_1
+version_id: chase_aeroplan_2026_1
 
 benefits:
+  credits:
+    - key: air_canada_credit
+      name: Air Canada Credit
+      amount: 50
+      frequency: semi_annual
+      reset_type: calendar
   bonus_categories:
     - category: Air Canada (Direct)
       multiplier: 3x
+    - category: Other Travel
+      multiplier: 3x
+    - category: Gas Stations
+      multiplier: 2x
+    - category: All Other Purchases
+      multiplier: 1x
     - category: Dining
       multiplier: 3x
     - category: Grocery
       multiplier: 3x
 
 notes: |
-  Aeroplan 25K Elite Status.
-  Free first checked bag on Air Canada.
-  500 bonus points per $2k spent per month (up to 1,500).
-  Global Entry/TSA Pre credit.
+  Current acquisition terms; existing accounts follow their transition notice.
+  Automatic Aeroplan 25K status while eligible account remains open.
+  Card earns 3x Air Canada; advertised 5x includes separate airline status earnings.
+  Dining/grocery purchases posting through December 31, 2026 earn 3x, then 2x.
+  Air Canada credit: $50 January-June and $50 July-December on eligible direct
+  purchases; excludes gift cards, third-party bookings and onboard Wi-Fi.
+  FLY15OFF reduces eligible Air Canada award base-fare points by at least 15%.
+  Free first checked bag for cardmember and up to eight companions on same booking.
+  Global Entry/TSA PreCheck/NEXUS reimbursement up to $120 every four years.
   No foreign transaction fees.
 
 tags:

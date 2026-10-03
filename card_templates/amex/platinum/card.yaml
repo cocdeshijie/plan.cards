@@ -1,9 +1,12 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://www.americanexpress.com/en-us/travel/get-inspired/maximizing-amex-travel-benefits/
+# https://www.americanexpress.com/en-us/travel/lounges/the-platinum-card/LHR/lufthansa-senator-lounge-temporarily-closed-terminal-2a-kphMYsrkcx
 name: American Express Platinum Card
 issuer: Amex
 network: Amex
 annual_fee: 895
 currency: USD
-version_id: amex_plat_2025_1
+version_id: amex_plat_2026_1
 
 benefits:
   credits:
@@ -62,6 +65,8 @@ benefits:
       multiplier: 5x
 
 notes: |
+  Lufthansa lounge access through the Platinum Global Lounge Collection ended
+  October 1, 2026. Other lounge partners remain subject to their access terms.
   Centurion Lounge access.
   Global Entry/TSA Pre credit ($100 every 4.5 years).
   Hilton Honors Gold and Marriott Bonvoy Gold status. 

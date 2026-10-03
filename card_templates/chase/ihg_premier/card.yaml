@@ -1,40 +1,69 @@
+# Reviewed 2026-10-02. Update sources (scope documented in October audit):
+# https://creditcards.chase.com/a1/ihg/PremierNAEPQ410
+# https://media.chase.com/news/ihg-premier-select-card-portfolio-updates
 name: IHG One Rewards Premier Card
 issuer: Chase
-network: Visa
-annual_fee: 99
+network: Mastercard
+annual_fee: 150
 currency: USD
-version_id: chase_ihg_premier_2022_1
+version_id: chase_ihg_premier_2026_1
 
 benefits:
   credits:
-    - name: United TravelBank Cash
-      amount: 50
-      frequency: annual
+    - key: ihg_food_beverage
+      name: IHG Food & Beverage Voucher
+      amount: 25
+      frequency: quarterly
+      reset_type: calendar
+    - key: united_travelbank
+      name: United TravelBank Cash
+      amount: 25
+      frequency: semi_annual
+      reset_type: calendar
   spend_thresholds:
-    - name: Statement Credit + Bonus Points
-      spend_required: 20000
+    - key: annual_spend_rewards
+      name: Bonus Points and Elite Nights
+      spend_required: 15000
       frequency: annual
-      reset_type: cardiversary
-      description: "$100 statement credit + 10,000 bonus points after $20,000 spend."
-    - name: IHG Diamond Elite Status
+      reset_type: calendar
+      description: "15,000 bonus points and 5 extra elite nights after $15,000 calendar-year spend."
+    - key: platinum_status
+      name: IHG Platinum Elite Status
+      spend_required: 15000
+      frequency: annual
+      reset_type: calendar
+      description: "Platinum status after $15,000 calendar-year spend."
+    - key: diamond_status
+      name: IHG Diamond Elite Status
       spend_required: 40000
       frequency: annual
-      reset_type: cardiversary
-      description: "IHG Diamond Elite status after $40,000 spend."
+      reset_type: calendar
+      description: "Diamond status after $40,000 calendar-year spend."
   bonus_categories:
-    - category: IHG Hotels
+    - category: IHG Hotels (Card Earnings Only)
       multiplier: 10x
-    - category: Travel / Dining / Gas
+    - category: Flights (Direct) / Car Rental Agencies / Dining / Gas / Grocery Stores
       multiplier: 5x
     - category: All Other Purchases
       multiplier: 3x
 
 notes: |
-  IHG Platinum Elite status.
-  Fourth reward night free on award stays.
-  Anniversary free night (up to 40k points).
-  Global Entry/TSA Pre credit.
-  No foreign transaction fees.
+  October 1, 2026 acquisition offer. Existing cardmembers receive separate
+  transition notices; annual fee adjustments occur in 2027. Use the prior
+  template version until the account-specific changes take effect.
+  No foreign transaction fees. Automatic Gold status.
+  Anniversary night: 50,000 points with top-up. Fourth reward night free.
+  15 elite nights annually; 2 more per $5,000 spend.
+  Food/beverage voucher is single-use on eligible hotel room charges; expires
+  at quarter end, unused balance forfeited. Not a statement credit.
+  TravelBank requires registration; half-year deposits expire July 15/January 15.
+  Through December 31, 2027: $100 annual airline credit on a qualifying
+  direct flight-ticket purchase of at least $250; $10 monthly Instacart credit
+  requires active Instacart+ after activation. These expiring offers are notes.
+  DoorDash: one-year DashPass with activation by December 31, 2027; eligible
+  enrollments from September 1, 2026 receive a $10 monthly non-restaurant promo
+  through 2027; earlier qualifying enrollments receive it quarterly.
+  Global Entry/TSA PreCheck/NEXUS credit: up to $120 every four years.
 
 tags:
   - ihg

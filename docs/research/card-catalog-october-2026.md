@@ -1,0 +1,66 @@
+# Card catalog update — October 2, 2026
+
+Research window: September 10–October 2, following the [September audit](card-catalog-september-2026.md). This update adds **five products** and revises **24 existing templates**, producing **446 current templates across 37 issuer directories**. It combines a broad U.S. card-news scan with issuer/product/rewards-agreement verification of selected changes. It is not a full reverification of every catalog term.
+
+## New products
+
+| Template | Current terms represented | Primary evidence |
+| --- | --- | --- |
+| `chase/ihg_premier_select` | $350 fee; card-only 12x IHG, 6x dining/other travel, 3x other; quarterly $75 hotel food/beverage voucher; semiannual $25 TravelBank deposits; spending milestones. | [October 1 launch](https://media.chase.com/news/ihg-premier-select-card-portfolio-updates), [offer and disclosures](https://creditcards.chase.com/travel-credit-cards/ihg-rewards-club/premier-select), [benefits guide](https://www.chase.com/personal/credit-cards/ihg/premierselect). |
+| `navyfederal/flagship_premier` | $95 fee; 4x travel, 3x dining, 1x other; $100 airline credit after $100 eligible purchases per account year. | [Current product and footnote 2](https://www.navyfederal.org/loans-cards/credit-cards/flagship-premier-visa-signature.html), [September 10 launch](https://www.navyfederal.org/about/press-releases/2026-press-releases/Flagship-Premier-Launch.html). |
+| `imprint/kroger_rewards` | First Bank & Trust-issued Mastercard operated by Imprint; no fee; card points distinguished from combined Kroger/Boost earnings; membership and birthday reward in notes. | [September 30 announcement](https://www.thekrogerco.com/ir-feed-item/kroger-introduces-kroger-rewards-world-elite-mastercard-to-help-customers-earn-more-points-and-save-more-every-day/), [Imprint agreement](https://assets.imprint.co/partners/krogerco/legal/rewards-terms/en), [Kroger terms](https://www.kroger.com/i/terms/rewards-program). |
+| `usbank/business_essentials` | No fee; 2% base, 6% eligible prepaid portal hotels/cars; conditional checking-balance bonus explained in notes. | [Current product](https://www.usbank.com/business-banking/business-credit-cards/business-essentials-credit-card.html), [comparison and disclosures](https://www.usbank.com/business-banking/business-credit-cards/offers/business-essentials-compare.html). |
+| `usbank/business_essentials_plus` | $295 fee; 2% base, 10% eligible prepaid portal hotels/cars, 5% automatic top monthly category with $200,000 account-year cap; separate balance-bonus conditions. | [Current product and footnotes](https://www.usbank.com/business-banking/business-credit-cards/business-essentials-plus-credit-card.html), [September 28 announcement](https://ir.usbank.com/news-events/news/news-details/2026/U-S--Bank-Launches-New-Credit-Cards-for-Small-Business-Owners-with-Jessica-Alba-as-Spokesperson/default.aspx). |
+
+Marketing totals are not automatically card earning rates. In particular, Kroger's combined earnings and IHG's hotel/status earnings must not be counted twice. Bank-balance reward bonuses are conditional, with their own limits, rather than universally higher base rates.
+
+## Existing products
+
+- **IHG Premier, Business and former Traveler:** acquisition terms, names, Mastercard network, fees, categories, status and spending thresholds refreshed; hotel vouchers and Business Expensify added. Premier TravelBank corrected to semiannual. The legacy $49 IHG Select remains a separate product. [Premier terms](https://creditcards.chase.com/a1/ihg/PremierNAEPQ410), [Business terms](https://creditcards.chase.com/a1/ihg/BizNAEPQ410), [One Rewards terms](https://creditcards.chase.com/a1/ihg/OneRewardsNAEPQ410).
+- **Sapphire Reserve:** DoorDash tracker rises from $25 to $35 monthly effective October 1, with the three separate promos explained. **Reserve Business stays at $25**; announced future Edit/advertising changes are notes. Existing DoorDash names are retained and stable keys added. [Personal anniversary announcement](https://www.chase.com/sapphire-cards/reserve-tenth-anniversary), [DoorDash's card-specific table](https://help.doordash.com/en-us/consumers/article/chase-partnership), [Business offer](https://creditcards.chase.com/business-credit-cards/sapphire/reserve?CELL=62XP), [advertising effective date](https://www.chase.com/personal/credit-cards/education/chase-cards/sapphire-reserve-vs-sapphire-reserve-for-business).
+- **Aeroplan:** $195 current acquisition fee, other-travel/gas categories, semiannual Air Canada credit and updated status/redemption benefits. Removed unsupported old monthly-spend bonus. Dining/grocery stay at 3x through year-end; notes describe their later reduction. [Chase offer and detailed rewards terms](https://creditcards.chase.com/travel-credit-cards/aircanada/aeroplan).
+- **Sapphire Preferred and Ink Preferred:** October 1 Hyatt-transfer transition recorded. Preferred's final anniversary-bonus timing and general travel-redemption statement corrected. [Chase refresh announcement and FAQ](https://media.chase.com/news/Meet-the-New-Chase-Sapphire-Preferred), [Preferred rewards agreement](https://asset.chase.com/content/dam/card/rulesregulations/en/RPA0444_0477.pdf).
+- **Freedom, Flex and Unlimited:** select-hotel Points Boost noted. Freedom/Flex Q4 categories are date-qualified notes. Flex's quarterly cap moved out of the schema's annual-cap field. Unlimited's erroneous no-foreign-fee claim corrected. [September 21 announcement](https://media.chase.com/news/chase-freedom-flex-more-travel-value), [Q4 announcement](https://media.chase.com/news/chase-freedom-2026-q4-categories), [Unlimited comparison fee disclosure](https://creditcards.chase.com/compare-credit-cards?CELL=6WW5&list=36%2C56%2C71).
+- **Citi Strata family:** current public welcome-bonus eligibility restrictions documented without adding a temporary bonus amount. Elite's base rate corrected to 1.5x and Citi Nights qualified with Eastern Time; removed incorrect launch-year claim. Strata's unsupported no-foreign-fee claim removed; dynamic pricing fields did not expose a reliable numeric fee. [Strata](https://www.citi.com/credit-cards/citi-strata-credit-card), [Premier](https://www.citi.com/credit-cards/citi-strata-premier-credit-card), [Elite](https://www.citi.com/credit-cards/citi-strata-elite-credit-card).
+- **Bilt Blue, Obsidian and Palladium:** Amtrak transfer option recorded. [Bilt's September 23 announcement](https://newsroom.biltrewards.com/bilt-amtrak-partnership).
+- **Amex Platinum, Business Platinum and Schwab Platinum:** Lufthansa access end recorded; not applied to Centurion. [Amex travel guide](https://www.americanexpress.com/en-us/travel/get-inspired/maximizing-amex-travel-benefits/), [U.S. Platinum lounge notice](https://www.americanexpress.com/en-us/travel/lounges/the-platinum-card/LHR/lufthansa-senator-lounge-temporarily-closed-terminal-2a-kphMYsrkcx).
+- **Legacy Flagship Rewards, U.S. Bank Kroger/Ralphs and Business Leverage:** closed to new applicants, retained for history. Flagship's optional upgrade and forthcoming fee increase are distinguished. U.S. Bank says Kroger-family conversions should finish in fall; no universal July closure date is asserted. [Flagship comparison/transition](https://www.navyfederal.org/loans-cards/credit-cards/flagship-upgrade.html), [U.S. Bank transition](https://www.usbank.com/about-us-bank/news-and-stories/article-library/us-bank-announces-transition-of-kroger-co-brand-card-program.html), [closed application list](https://www.usbank.com/credit-cards/benefits.html).
+
+## Dates and unresolved leads
+
+| Item | Treatment |
+| --- | --- |
+| Existing IHG accounts | Chase says individual October notices identify benefit effective dates; annual fees adjust in 2027. Current templates describe acquisition offers. Prior versions preserve the pre-refresh catalog. |
+| November 2, 2026 — legacy Flagship fee | Keep $49 current snapshot; document announced $95. Recheck renewal implementation before updating. |
+| November 15, 2026 — Reserve Business advertising | Future $1 million account-year cap stays in notes. |
+| January 1, 2027 — Reserve Business Edit | Future $1,000 annual allowance stays in notes; current tracker remains $500. |
+| January 1, 2027 — Aeroplan dining/grocery | Future 2x stays in notes; current categories remain 3x. |
+| January 1, 2027 — IHG thresholds | Basic card's fourth-night spending requirement and Business Diamond requirement stay in notes; no premature trackers. |
+| IHG airline, Instacart and DoorDash offers | Expiration/activation restrictions documented in notes; no indefinitely recurring new trackers. Airline credit requires a qualifying single flight-ticket purchase of at least $250. |
+| Freedom Flex phone protection | Discovery reports termination, but the [currently linked issuer PDF](https://static.chasecdn.com/content/services/structured-document/document.en.pdf/card/benefits-center/product-benefits-guide-pdf/BGC11363_v2.pdf) still includes it. Template flags account-specific verification; neither a universal termination date nor unconditional coverage is asserted. |
+| Citi bonus-rule effective date | Current canonical offers support the restriction; older indexed channel URLs still show 48-month language. No universal September 20 effective date or cross-channel guarantee is asserted. |
+| PenFed Defender / Fanatics | [PenFed still presents a waitlist](https://www.penfed.org/credit-cards); [Amex's Fanatics announcement](https://www.americanexpress.com/en-us/newsroom/articles/entertainment-and-experiences/american-express-and-fanatics-announce-exclusive-fan-experiences.html) lacks reviewed final application terms. No active entries added. |
+| PenFed Pathfinder / Sunoco closure | Discovery reports exist, but reviewed public evidence was insufficient to resolve current account terms. No speculative new entries or status changes. |
+| Citi–JAL transfers / future BofA–Atmos changes | Leads retained for later direct program-term verification; no transfer ratios or eligible-card assumptions added. |
+
+Discovery included [Doctor of Credit's new-card index](https://www.doctorofcredit.com/tag/new-credit-cards/), [CreditOdds](https://creditodds.com/news), [CardPolo](https://cardpolo.com/news), [Points & Status](https://www.pointsandstatus.com/updates/), and dated community news threads. Discovery sources establish research leads, not authoritative product terms. The final scan extended beyond those indexes to the issuer announcements for September 28 and October 1.
+
+## Integration and limitations
+
+All 24 changed existing files have exact prior snapshots under their previous version IDs in `old/`. Historical snapshots preserve what the catalog shipped, including inaccuracies; they are not independently verified historical agreements. Existing paths remain stable through renames. New products use the existing artwork fallback.
+
+No runtime schema, production database, user accounts or deployment were changed. **On deployment, the existing sync service updates unpinned cards to current template fees/benefits.** It does not know an individual's transition date. Existing IHG/Aeroplan cardholders whose changes have not taken effect should select and pin their prior version. Notes alone do not defer synchronization. Same-period credit changes retain usage; frequency/reset changes re-anchor the period and clear its usage under the existing sync behavior. In particular, corrected Premier TravelBank and IHG calendar-year thresholds have that limitation.
+
+The schema cannot schedule future effective dates, expire temporary credits, represent birthday rewards, or aggregate repeating elite-night increments. Those mechanics remain explicit notes rather than invented recurring benefits. Optional promotions and unconfirmed launches are not silently treated as permanent products. No future monitoring automation was created.
+
+## Validation
+
+- Full backend suite: **950 passed** (Python 3.12). Includes every current/historical template, loader, sync, API and import/export checks.
+- Frontend production build: **passed**, including type checking and lint validation. Existing non-failing lint/browser-data warnings remain.
+- Separate in-memory integration exercise: all **29 changed templates and 70 current/historical versions** created successfully; benefits retrieval, export and re-import passed.
+- Actual Reserve sync retained its benefit row ID and $12 recorded usage while updating DoorDash to $35 and assigning its stable key. A pinned prior IHG Premier retained its $99 fee. A second sync added no duplicates.
+- **24 exact prior snapshots** compared byte-for-byte against Git HEAD; whitespace and recurring-key uniqueness checks passed.
+
+The tests now obtain the current Platinum version from the loader instead of hard-coding the September version. Historical fee/version assertions remain unchanged. No application behavior or dependency changes were required.
+
+Commands: from `backend`, run `CARD_TEMPLATES_DIR=../card_templates DATABASE_URL=sqlite:////tmp/plan-cards-oct-audit-tests.db RATE_LIMIT_ENABLED=false python -m pytest tests/ -q`; from `frontend`, run `npm run build`. Testing used an isolated Python environment and temporary/in-memory databases, not the workspace database.

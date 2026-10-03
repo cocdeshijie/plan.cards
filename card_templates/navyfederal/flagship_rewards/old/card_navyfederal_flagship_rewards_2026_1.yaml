@@ -1,0 +1,24 @@
+# Verified 2026-09-09. Sources:
+# https://www.navyfederal.org/loans-cards/credit-cards/flagship-visa-signature.html
+name: Navy Federal Visa Signature Flagship Rewards
+issuer: Navy Federal Credit Union
+network: Visa
+annual_fee: 49
+currency: USD
+version_id: navyfederal_flagship_rewards_2026_1
+
+benefits:
+  bonus_categories:
+    - category: Travel
+      multiplier: 3x
+    - category: All Other Purchases
+      multiplier: 2x
+
+notes: |
+  Navy Federal membership required. No foreign transaction fee. Includes one statement
+  credit per year for an eligible Amazon Prime Annual membership paid with this card
+  (currently $139); monthly Prime plans are excluded. Global Entry or TSA PreCheck
+  application-fee reimbursement is up to $120 every four years.
+
+tags:
+  - rewards
